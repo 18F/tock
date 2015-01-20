@@ -13,6 +13,12 @@ class Agency(models.Model):
         verbose_name = "Agency"
         verbose_name_plural = "Agencies"
 
+    def __str__(self):
+        if self.department:
+            return '%s | %s' % (self.name, self.department)
+        else:
+            return '%s' % (self.name)
+
 class Project(models.Model):
     name = models.CharField(max_length=200)
     iaa = models.CharField(max_length=200, blank=True)
@@ -21,3 +27,6 @@ class Project(models.Model):
     class Meta:
         verbose_name = "Project"
         verbose_name_plural = "Projects"
+
+    def __str__(self):
+        return '%s' % (self.name)
