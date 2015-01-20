@@ -20,7 +20,8 @@ DATABASES = {}
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
     'django.contrib.staticfiles',
-    'tock'
+    'tock',
+    'projects'
 )
 
 ROOT_URLCONF = 'tock.urls'
