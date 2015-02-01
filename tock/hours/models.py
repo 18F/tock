@@ -21,14 +21,6 @@ class Timecard(models.Model):
     week = models.ForeignKey(Week)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
 
-    def clean(self):
-        total_time = 0
-        for object in self.time_spent.all():
-            total_time = total_time + object.time_percentage
-
-        if total_time != 1:
-            raise ValidationError('Timecard must equal 1')
-
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
     project = models.ForeignKey(Project)
