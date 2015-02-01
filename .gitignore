@@ -60,3 +60,5 @@ local_settings.py
 
 # Database
 *.sqlite3
+
+.DS_Store
