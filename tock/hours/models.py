@@ -1,4 +1,5 @@
 from django.core.validators import MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from projects.models import Project
@@ -10,12 +11,23 @@ class Week(models.Model):
     working_hours = models.PositiveSmallIntegerField(default=40,
                             validators=[MaxValueValidator(40)])
 
+    def __str__(self):
+        return str(self.start_date)
+
 class Timecard(models.Model):
     email = models.EmailField(max_length=254)
     first_name = models.CharField(max_length=200)
     last_name = models.CharField(max_length=200)
     week = models.ForeignKey(Week)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
+
+    def clean(self):
+        total_time = 0
+        for object in self.time_spent.all():
+            total_time = total_time + object.time_percentage
+
+        if total_time != 1:
+            raise ValidationError('Timecard must equal 1')
 
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
