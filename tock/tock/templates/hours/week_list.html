@@ -5,7 +5,7 @@ These are the following weeks that are currently available for filling out:
 
 <ul>
 {% for week in week_list %}
-    <li><a href="/record/{{ week }}">{{ week }}</a></li>
+    <li>{{ week }} <a href="/timesheet/create/{{ week }}">Create</a> | <a href="/timesheet/update/{{ week }}">Update</a></li>
 {% endfor %}
 </ul>
 {% endblock %}

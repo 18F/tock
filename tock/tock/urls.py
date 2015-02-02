@@ -7,11 +7,12 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 admin.autodiscover()
 
-from hours.views import WeekListView, TimecardCreateView
+from hours.views import WeekListView, TimecardCreateView, TimecardUpdateView
 
 urlpatterns = patterns('',
     url(r'^$', WeekListView.as_view(), name='ListWeeks'),
-    url(r'^record/(?P<week>[\w-]+)/$', TimecardCreateView.as_view(), name='CreateTimesheet'),
+    url(r'^timesheet/create/(?P<week>[\w-]+)/$', TimecardCreateView.as_view(success_url='/'), name='CreateTimesheet'),
+    url(r'^timesheet/update/(?P<week>[\w-]+)/$', TimecardUpdateView.as_view(success_url='/'), name='UpdateTimesheet'),
     url('', include('social.apps.django_app.urls', namespace='social')),
     url('', include('django.contrib.auth.urls', namespace='auth')),
     # Examples:
