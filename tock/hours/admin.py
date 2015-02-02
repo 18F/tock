@@ -38,7 +38,7 @@ class TimecardObjectInline(admin.TabularInline):
     formset = TimecardObjectFormset
 
 class TimecardAdmin(admin.ModelAdmin):
-    list_display = ('week', 'first_name', 'last_name')
+    list_display = ('week',)
     inlines = (TimecardObjectInline,)
 
 admin.site.register(Week, WeekAdmin)

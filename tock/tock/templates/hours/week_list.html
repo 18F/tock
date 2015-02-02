@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+These are the following weeks that are currently available for filling out:
+
+<ul>
+{% for week in week_list %}
+    <li><a href="/record/{{ week }}">{{ week }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

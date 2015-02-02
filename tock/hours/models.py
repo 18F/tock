@@ -1,6 +1,7 @@
 from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.auth.models import User
 
 from projects.models import Project
 
@@ -15,11 +16,12 @@ class Week(models.Model):
         return str(self.start_date)
 
 class Timecard(models.Model):
-    email = models.EmailField(max_length=254)
-    first_name = models.CharField(max_length=200)
-    last_name = models.CharField(max_length=200)
+    user = models.ForeignKey(User)
     week = models.ForeignKey(Week)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
+
+    class Meta:
+        unique_together = ('user', 'week')
 
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
