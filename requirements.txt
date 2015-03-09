@@ -4,3 +4,4 @@ Werkzeug==0.9.6
 itsdangerous==0.24
 python-dateutil==2.4.0
 six==1.9.0
+python-social-auth==0.2.2
