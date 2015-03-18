@@ -13,8 +13,6 @@ urlpatterns = patterns('',
     url(r'^$', WeekListView.as_view(), name='ListWeeks'),
     url(r'^timesheet/create/(?P<week>[\w-]+)/$', TimecardCreateView.as_view(success_url='/'), name='CreateTimesheet'),
     url(r'^timesheet/update/(?P<week>[\w-]+)/$', TimecardUpdateView.as_view(success_url='/'), name='UpdateTimesheet'),
-    url('', include('social.apps.django_app.urls', namespace='social')),
-    url('', include('django.contrib.auth.urls', namespace='auth')),
     # Examples:
     # url(r'^$', '{{ project_name }}.views.home', name='home'),
     # url(r'^{{ project_name }}/', include('{{ project_name }}.foo.urls')),

@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bootstrap 101 Template</title>
 
-    <!-- Bootstrap -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static "css/style.css" %}" type="text/css" charset="utf-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js" ></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -18,14 +20,16 @@
   </head>
   <body>
   <div class="container">
-    <h1>Hello {{ user.get_full_name|default:user.username }}!</h1>
+    <header class="banner">
+      <a href="/">
+        <img src="{% static "img/logo-18f.png" %}" alt="18F logo" />
+      </a>
+      <h1>Tock</h1>
+    </header>
+    <div class="content">
     {% block content %}
     {% endblock %}
+    </div>
   </div>
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
   </body>
 </html>

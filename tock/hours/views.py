@@ -15,17 +15,17 @@ from .forms import TimecardForm, TimecardFormSet
 def home(request):
    context = RequestContext(request,
                            {'request': request,
-                            'user': request.user})
+                            'user': 'hello'})
    return render_to_response('base.html',
                              context_instance=context)
 
-class WeekListView(LoginRequiredMixin, ListView):
+class WeekListView(ListView):
     context_object_name = "week_list"
     queryset = Week.objects.all()
     template_name = "hours/week_list.html"
 
 
-class TimecardCreateView(LoginRequiredMixin, CreateView):
+class TimecardCreateView(CreateView):
     form_class = TimecardForm
     template_name = 'hours/timecard_form.html'
 
@@ -51,7 +51,7 @@ class TimecardCreateView(LoginRequiredMixin, CreateView):
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
-class TimecardUpdateView(LoginRequiredMixin, UpdateView):
+class TimecardUpdateView(UpdateView):
     form_class = TimecardForm
     template_name = 'hours/timecard_form.html'
 
