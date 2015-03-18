@@ -1,30 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js" ></script>
 <h2>Tell us about your week:</h2>
 
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
   {{ formset.management_form }}
   <div class="entries">
-    {% for book_form in formset %}
-      <div id="book-{{ forloop.counter0 }}">
-        {{ book_form }}
+    {% for project_entry in formset %}
+      <div class="entry" id="entry-{{ forloop.counter0 }}">
+        {{ project_entry.as_p }}
       </div>
     {% endfor %}
   </div>
   <div class="form-actions">
-     <button type="button" class="btn btn-info add-timecard-entry">Add Book</a>
-     <button type="submit" class="btn btn-primary">Create Event</button>
+     <button type="button" class="btn btn-info add-timecard-entry">Add More Items</a>
+     <button type="submit" class="btn btn-primary">Submit Timecard</button>
    </div>
  </form>
 
  <script>
 $( document ).ready(function() {
     $(".add-timecard-entry").on( "click", function() {
-        $('div.entries:last').clone().each(function(i) {
+        $('div.entry:last').clone().each(function(i) {
             $(this).find('input,select').each(function(i) {             
                 // Remove any existing values 
                 $(this).val('');
@@ -46,7 +44,11 @@ $( document ).ready(function() {
                 parts = $(this).attr('for').split('-', 3); 
                 num = parseInt(parts[1]) + 1;
                 $(this).attr('for', parts[0] + '-' +num + '-' +parts[2]);
-            }); 
+            });
+
+            parts = $(this).attr('id').split('-', 3);
+            num = parseInt(parts[1]) + 1;
+            $(this).attr("id", parts[0] + '-' +num);
  
         }).appendTo('.entries');
             
@@ -55,13 +57,4 @@ $( document ).ready(function() {
     });
 });
  </script>
-
-<script type="text/html" id="book-template">
-  <div id="book-<%= id %>">
-    <label for="id_books-<%= id %>-title">Book Title:</label>
-    <input id="id_books-<%= id %>-title" type="text" name="books-<%= id %>-title" maxlength="100">
-    <input type="hidden" name="books-<%= id %>-author" id="id_books-<%= id %>-author">
-    <input type="hidden" name="books-<%= id %>-id" id="id_books-<%= id %>-id">
-  </div>
-</script>
 {% endblock %}

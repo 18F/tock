@@ -1,0 +1,17 @@
+.entries {
+	select {
+		width:100%;
+		height:100%;
+		margin-bottom:0;
+	}
+}
+
+.entry {
+	@include outer-container;
+	p {
+		@include span-columns(3);
+	}
+	p:first-child {
+		@include span-columns(6);
+	}
+}
