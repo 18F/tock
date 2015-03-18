@@ -1,7 +1,5 @@
 from .base import *
 
-from tock.remote_user_auth import EmailHeaderMiddleware
-
 DEBUG = True
 TEMPLATE_DEBUG = True
 
@@ -26,7 +24,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'EmailHeaderMiddleware',
+    'tock.remote_user_auth.EmailHeaderMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
