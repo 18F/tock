@@ -10,6 +10,8 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from django.utils.crypto import get_random_string
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -27,6 +29,8 @@ INSTALLED_APPS = (
 
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
+
+SECRET_KEY = get_random_string(50)
 
 # Default + request
 TEMPLATE_CONTEXT_PROCESSORS = (

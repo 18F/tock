@@ -24,6 +24,13 @@ class WeekListView(ListView):
     queryset = Week.objects.all()
     template_name = "hours/week_list.html"
 
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(WeekListView, self).get_context_data(**kwargs)
+        # Add in the current user
+        context['email'] = "sean.herron@gsa.gov"
+        return context
+
 
 class TimecardCreateView(CreateView):
     form_class = TimecardForm

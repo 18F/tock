@@ -1,12 +1,11 @@
 from .base import *
 
-from django.utils.crypto import get_random_string
+from tock.remote_user_auth import EmailHeaderMiddleware
 
 DEBUG = True
 TEMPLATE_DEBUG = True
 
 INTERNAL_IPS = ('127.0.0.1',)
-SECRET_KEY = get_random_string(50)
 
 DATABASES = {
     'default': {
@@ -27,9 +26,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'EmailHeaderMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.RemoteUserBackend',
 )
 
 MEDIA_ROOT = './media/'

@@ -3,6 +3,8 @@
 {% block content %}
 These are the following weeks that are currently available for filling out:
 
+{{ email }}
+
 <ul>
 {% for week in week_list %}
     <li>{{ week }} <a href="/timesheet/create/{{ week }}">Create</a> | <a href="/timesheet/update/{{ week }}">Update</a></li>

@@ -11,5 +11,6 @@ class TimecardForm(forms.ModelForm):
 class TimecardObjectForm(forms.ModelForm):
     class Meta:
         model = TimecardObject
+        fields = ['project', 'time_percentage']
 
 TimecardFormSet = inlineformset_factory(Timecard, TimecardObject)
