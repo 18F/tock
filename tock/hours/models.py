@@ -1,6 +1,7 @@
 from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.auth.models import User
 
 from projects.models import Project
 
@@ -15,7 +16,7 @@ class Week(models.Model):
         return str(self.start_date)
 
 class Timecard(models.Model):
-    user = models.CharField(max_length=255)
+    user = models.ForeignKey(User)
     week = models.ForeignKey(Week)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
 

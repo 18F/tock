@@ -50,7 +50,7 @@ class TimecardCreateView(CreateView):
         formset = context['formset']
         if formset.is_valid():
             self.object = form.save(commit=False)
-            self.object.user = "sean.herron@gsa.gov"
+            self.object.user = self.request.user
             self.object.week = Week.objects.get(start_date=self.kwargs['week'])
             self.object.save()
             formset.instance = self.object
@@ -64,7 +64,7 @@ class TimecardUpdateView(UpdateView):
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        obj = Timecard.objects.get(week__start_date=self.kwargs['week'], user="sean.herron@gsa.gov")
+        obj = Timecard.objects.get(week__start_date=self.kwargs['week'], user__id=self.request.user.id)
         return obj
 
     def get_context_data(self, **kwargs):
@@ -80,7 +80,7 @@ class TimecardUpdateView(UpdateView):
         formset = context['formset']
         if formset.is_valid():
             self.object = form.save(commit=False)
-            self.object.user = "sean.herron@gsa.gov"
+            self.object.user = self.request.user
             self.object.week = Week.objects.get(start_date=self.kwargs['week'])
             self.object.save()
             formset.instance = self.object
