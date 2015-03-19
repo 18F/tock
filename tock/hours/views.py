@@ -20,7 +20,7 @@ def home(request):
                              context_instance=context)
 
 class ReportingPeriodListView(ListView):
-    context_object_name = "reporting_period_list"
+    context_object_name = "incomplete_reporting_periods"
     queryset = ReportingPeriod.objects.all()
     template_name = "hours/reporting_period_list.html"
 
@@ -28,6 +28,8 @@ class ReportingPeriodListView(ListView):
         # Call the base implementation first to get a context
         context = super(ReportingPeriodListView, self).get_context_data(**kwargs)
         # Add in the current user
+        context['completed_reporting_periods'] = ReportingPeriod.objects.filter(timecard__user=self.request.user)
+        context['uncompleted_reporting_periods'] = ReportingPeriod.objects.all().exclude(timecard__user=self.request.user)
         context['user'] = self.request.user
         context['email'] = self.request.user.username
         return context

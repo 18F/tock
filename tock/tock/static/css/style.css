@@ -207,6 +207,11 @@ picture {
   .content:last-child {
     margin-right: 0; }
 
+.reporting-periods {
+  margin-top: 2em; }
+  .reporting-periods h3 {
+    margin-bottom: 0; }
+
 .entries select {
   width: 100%;
   height: 34px;
