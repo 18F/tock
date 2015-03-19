@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 from tock.utils import LoginRequiredMixin
 
-from .models import Week, Timecard, TimecardObject
+from .models import ReportingPeriod, Timecard, TimecardObject
 from .forms import TimecardForm, TimecardFormSet
 
 def home(request):
@@ -19,14 +19,14 @@ def home(request):
    return render_to_response('base.html',
                              context_instance=context)
 
-class WeekListView(ListView):
-    context_object_name = "week_list"
-    queryset = Week.objects.all()
-    template_name = "hours/week_list.html"
+class ReportingPeriodListView(ListView):
+    context_object_name = "reporting_period_list"
+    queryset = ReportingPeriod.objects.all()
+    template_name = "hours/reporting_period_list.html"
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(WeekListView, self).get_context_data(**kwargs)
+        context = super(ReportingPeriodListView, self).get_context_data(**kwargs)
         # Add in the current user
         context['user'] = self.request.user
         context['email'] = self.request.user.username
@@ -51,7 +51,7 @@ class TimecardCreateView(CreateView):
         if formset.is_valid():
             self.object = form.save(commit=False)
             self.object.user = self.request.user
-            self.object.week = Week.objects.get(start_date=self.kwargs['week'])
+            self.object.reporting_period = ReportingPeriod.objects.get(start_date=self.kwargs['reporting_period'])
             self.object.save()
             formset.instance = self.object
             formset.save()
@@ -64,7 +64,7 @@ class TimecardUpdateView(UpdateView):
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        obj = Timecard.objects.get(week__start_date=self.kwargs['week'], user__id=self.request.user.id)
+        obj = Timecard.objects.get(reporting_period__start_date=self.kwargs['reporting_period'], user__id=self.request.user.id)
         return obj
 
     def get_context_data(self, **kwargs):
@@ -81,7 +81,7 @@ class TimecardUpdateView(UpdateView):
         if formset.is_valid():
             self.object = form.save(commit=False)
             self.object.user = self.request.user
-            self.object.week = Week.objects.get(start_date=self.kwargs['week'])
+            self.object.reporting_period = ReportingPeriod.objects.get(start_date=self.kwargs['reporting_period'])
             self.object.save()
             formset.instance = self.object
             formset.save()

@@ -6,7 +6,7 @@ from .models import Timecard, TimecardObject
 class TimecardForm(forms.ModelForm):
     class Meta:
         model = Timecard
-        exclude = ['time_spent', 'week', 'user']
+        exclude = ['time_spent', 'reporting_period', 'user']
 
 class TimecardObjectForm(forms.ModelForm):
     class Meta:
