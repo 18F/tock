@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+These are the following reporting periods that are currently available for filling out:
+
+
+<ul>
+{% for week in week_list %}
+    <li>{{ week }} <a href="/timesheet/create/{{ reporting_period }}">Create</a> | <a href="/timesheet/update/{{ reporting_period }}">Update</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

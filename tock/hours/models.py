@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from projects.models import Project
 
 # Create your models here.
-class Week(models.Model):
+class ReportingPeriod(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     working_hours = models.PositiveSmallIntegerField(default=40,
@@ -15,13 +15,17 @@ class Week(models.Model):
     def __str__(self):
         return str(self.start_date)
 
+    class Meta:
+        verbose_name = "Reporting Period"
+        verbose_name_plural = "Reporting Periods"
+
 class Timecard(models.Model):
     user = models.ForeignKey(User)
-    week = models.ForeignKey(Week)
+    reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
 
     class Meta:
-        unique_together = ('user', 'week')
+        unique_together = ('user', 'reporting_period')
 
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
