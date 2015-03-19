@@ -5,8 +5,8 @@ These are the following reporting periods that are currently available for filli
 
 
 <ul>
-{% for week in week_list %}
-    <li>{{ week }} <a href="/timesheet/create/{{ reporting_period }}">Create</a> | <a href="/timesheet/update/{{ reporting_period }}">Update</a></li>
+{% for reporting_period in reporting_period_list %}
+    <li>{{ reporting_period }} <a href="/timesheet/create/{{ reporting_period }}">Create</a> | <a href="/timesheet/update/{{ reporting_period }}">Update</a></li>
 {% endfor %}
 </ul>
 {% endblock %}

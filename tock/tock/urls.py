@@ -11,8 +11,8 @@ from hours.views import ReportingPeriodListView, TimecardCreateView, TimecardUpd
 
 urlpatterns = patterns('',
     url(r'^$', ReportingPeriodListView.as_view(), name='ListReportingPeriods'),
-    url(r'^timesheet/create/(?P<week>[\w-]+)/$', TimecardCreateView.as_view(success_url='/'), name='CreateTimesheet'),
-    url(r'^timesheet/update/(?P<week>[\w-]+)/$', TimecardUpdateView.as_view(success_url='/'), name='UpdateTimesheet'),
+    url(r'^timesheet/create/(?P<reporting_period>[\w-]+)/$', TimecardCreateView.as_view(success_url='/'), name='CreateTimesheet'),
+    url(r'^timesheet/update/(?P<reporting_period>[\w-]+)/$', TimecardUpdateView.as_view(success_url='/'), name='UpdateTimesheet'),
     # Examples:
     # url(r'^$', '{{ project_name }}.views.home', name='home'),
     # url(r'^{{ project_name }}/', include('{{ project_name }}.foo.urls')),
