@@ -3,67 +3,33 @@ tock
 
 A simple time tracking experiment
 
-## Setup
+## Getting Started
 
-This is a Django application that depends on Python 3.
+Make sure you have `vagrant` installed. For instance, on OS X with Homebrew:
 
-### Installing Python 3
-There are multiple approaches to installing Python 3, depending on your personal setup and preferences.
-
-One option is to [pyenv](https://github.com/yyuu/pyenv) to manage downloading Python 3 or you can install them directly.
-
-For OS X, install Homebrew](http://brew.sh) (OS X), then run `brew install Python3`. For Ubuntu, install using `apt-get install Python3`.
-
-
-### Project setup
-
-Create an environment to install Python dependencies, with virtualenvwrapper.
-
-```bash
-mkvirtualenv --python=/path/to/python3 peacecorps-site
+```
+$ brew cask install vagrant
 ```
 
-Example:
-```bash
-mkvirtualenv --python=/usr/local/bin/python3 peacecorps-site
+Then, ensure you have the appropriate Vagrant Box installed:
+
+```
+$ vagrant box add ubuntu/trusty32
 ```
 
-Note: You don't need to explicitly specify the Python version, especially if
-you use pyenv + virtualenvwrapper. Running mkvirtualenv in that scenario will
-'freeze' the currently active version of Python.
+You can get started with development by running the `Vagrantfile`:
 
-Pull down the repo:
-
-```bash
-git clone https://github.com/18F/peacecorps-site
-cd peacecorps-site
+```
+$ vagrant up
 ```
 
-Install project requirements:
+This will provision an entire setup for you pretty quickly (see `provision/dev/bootstrap.sh`). You can access Django and start `runserver` by doing the following:
 
-```bash
-pip install -r requirements.txt
+```
+$ vagrant ssh
+$ cd /vagrant
+$ pyenv activate tock
+$ python manage.py runserver
 ```
 
-### Settings
-
-You will also need to create a `local_settings.py` file inside
-tock/settings.  It should contain `SECRET_KEY` and `DATABASES`
-configurations. Up-and-running defaults (using sqlite) can be found in the
-test.py configuration.  See the Django settings
-[documentation](https://docs.djangoproject.com/dev/ref/django-admin/) for
-details.
-
-### Loading Data
-
-To synchronize to the latest schema, change into the `tock` directory
-and then run:
-```bash
-python manage.py migrate
-```
-
-You will want to synchronize with the latest list of government entities for billing:
-
-```bash
-python manage.py import_agencies https://raw.githubusercontent.com/seanherron/OMB-Agency-Bureau-and-Treasury-Codes/master/omb-agency-bureau-treasury-codes.csv
-```
+From your host computer, going to http://192.168.33.10 will enable you to view Tock. You're automatically logged in as `testuser@gsa.gov`, the nginx proxy in production will pull the logged in user from Google Auth proxy. You can access the admin panel at http://192.168.33.10/admin
