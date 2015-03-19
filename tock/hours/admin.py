@@ -34,7 +34,7 @@ class WeekAdmin(admin.ModelAdmin):
 
 class TimecardObjectInline(admin.TabularInline):
     model = TimecardObject
-    extra = 5
+    extra = 2
     formset = TimecardObjectFormset
 
 class TimecardAdmin(admin.ModelAdmin):

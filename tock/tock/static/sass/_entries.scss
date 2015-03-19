@@ -23,7 +23,7 @@
 	p:first-child {
 		@include span-columns(6);
 	}
-	p:last-child {
-		display:none;
-	}
+//	p:last-child {
+//		checked:false;
+//	}
 }

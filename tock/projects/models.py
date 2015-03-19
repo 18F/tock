@@ -23,6 +23,8 @@ class Project(models.Model):
     name = models.CharField(max_length=200)
     iaa = models.CharField(max_length=200, blank=True)
     agency = models.ForeignKey(Agency)
+    description = models.TextField(blank=True, null=True)
+    billable = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Project"

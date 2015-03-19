@@ -10,7 +10,7 @@ Auth
 
 <ul>
 {% for week in week_list %}
-    <li>{{ week }} <a href="/timesheet/create/{{ week }}">Create</a> | <a href="/timesheet/update/{{ week }}">Update</a></li>
+    <li><a href="/timesheet/{{ week }}">{{ week }}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}
