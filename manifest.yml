@@ -4,5 +4,5 @@ memory: 512M
 instances: 1
 applications:
 - name: tock
-  path: tock
+  path: .
   timeout: 180
