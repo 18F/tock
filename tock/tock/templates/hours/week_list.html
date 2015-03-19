@@ -4,6 +4,9 @@
 These are the following weeks that are currently available for filling out:
 
 {{ email }}
+{% if user.is_superuser %}
+Auth
+{% endif %}
 
 <ul>
 {% for week in week_list %}

@@ -22,10 +22,10 @@ class TimecardObjectFormset(BaseInlineFormSet):
             except KeyError:
                 pass
 
-        if percentage > 1:
+        if percentage > 100:
             raise ValidationError('You have entered more than 100%')
 
-        if percentage < 1:
+        if percentage < 100:
             raise ValidationError('You have entered less than 100%')
 
 

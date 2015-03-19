@@ -25,6 +25,6 @@ class Timecard(models.Model):
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
     project = models.ForeignKey(Project)
-    time_percentage = models.DecimalField(decimal_places=2, max_digits=3, validators=[MaxValueValidator(1)])
+    time_percentage = models.DecimalField(decimal_places=0, max_digits=3, validators=[MaxValueValidator(100)])
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

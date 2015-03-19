@@ -28,7 +28,8 @@ class WeekListView(ListView):
         # Call the base implementation first to get a context
         context = super(WeekListView, self).get_context_data(**kwargs)
         # Add in the current user
-        context['email'] = self.request.META['HTTP_X_FORWARDED_EMAIL']
+        context['user'] = self.request.user
+        context['email'] = self.request.user.username
         return context
 
 
