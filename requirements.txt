@@ -1,10 +1,4 @@
-Django==1.7.3
-MarkupSafe==0.23
-Werkzeug==0.9.6
-django-appconf==1.0.1
-django-compressor==1.4
-django-pipeline==1.4.7
-futures==2.2.0
-itsdangerous==0.24
-psycopg2==2.6
-python-dateutil==2.4.0
+Django==1.7.6
+dj-database-url==0.3.0
+waitress==0.8.9
+whitenoise==1.0.6
