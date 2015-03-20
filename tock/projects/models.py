@@ -23,6 +23,7 @@ class Project(models.Model):
     name = models.CharField(max_length=200)
     iaa = models.CharField(max_length=200, blank=True)
     agency = models.ForeignKey(Agency)
+    description = models.TextField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Project"
@@ -30,3 +31,8 @@ class Project(models.Model):
 
     def __str__(self):
         return '%s' % (self.name)
+
+    def is_billable(self):
+        if self.iaa == "":
+            return False
+        return True

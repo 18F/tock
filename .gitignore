@@ -63,4 +63,6 @@ local_settings.py
 
 .DS_Store
 
+.sass-cache
+.env
 .vagrant

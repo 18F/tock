@@ -7,18 +7,11 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 admin.autodiscover()
 
-from hours.views import ReportingPeriodListView, TimecardCreateView, TimecardUpdateView
+from hours.views import ReportingPeriodListView, TimecardView
 
 urlpatterns = patterns('',
     url(r'^$', ReportingPeriodListView.as_view(), name='ListReportingPeriods'),
-    url(r'^timesheet/create/(?P<reporting_period>[\w-]+)/$', TimecardCreateView.as_view(success_url='/'), name='CreateTimesheet'),
-    url(r'^timesheet/update/(?P<reporting_period>[\w-]+)/$', TimecardUpdateView.as_view(success_url='/'), name='UpdateTimesheet'),
-    # Examples:
-    # url(r'^$', '{{ project_name }}.views.home', name='home'),
-    # url(r'^{{ project_name }}/', include('{{ project_name }}.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^timesheet/(?P<reporting_period>[\w-]+)/$', TimecardView.as_view(success_url='/'), name='UpdateTimesheet'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),

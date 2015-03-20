@@ -12,6 +12,8 @@ from tock.utils import LoginRequiredMixin
 from .models import ReportingPeriod, Timecard, TimecardObject
 from .forms import TimecardForm, TimecardFormSet
 
+import datetime
+
 def home(request):
    context = RequestContext(request,
                            {'request': request,
@@ -34,43 +36,17 @@ class ReportingPeriodListView(ListView):
         context['email'] = self.request.user.username
         return context
 
-
-class TimecardCreateView(CreateView):
-    form_class = TimecardForm
-    template_name = 'hours/timecard_form.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(TimecardCreateView, self).get_context_data(**kwargs)
-        if self.request.POST:
-            context['formset'] = TimecardFormSet(self.request.POST)
-        else:
-            context['formset'] = TimecardFormSet()
-        return context
-
-    def form_valid(self, form):
-        context = self.get_context_data()
-        formset = context['formset']
-        if formset.is_valid():
-            self.object = form.save(commit=False)
-            self.object.user = self.request.user
-            self.object.reporting_period = ReportingPeriod.objects.get(start_date=self.kwargs['reporting_period'])
-            self.object.save()
-            formset.instance = self.object
-            formset.save()
-            return super(CreateView, self).form_valid(form)
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
-
-class TimecardUpdateView(UpdateView):
+class TimecardView(UpdateView):
     form_class = TimecardForm
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        obj = Timecard.objects.get(reporting_period__start_date=self.kwargs['reporting_period'], user__id=self.request.user.id)
+        r = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(self.kwargs['reporting_period'], "%Y-%m-%d").date())
+        obj, created = Timecard.objects.get_or_create(reporting_period_id=r.id, user_id=self.request.user.id)
         return obj
 
     def get_context_data(self, **kwargs):
-        context = super(TimecardUpdateView, self).get_context_data(**kwargs)
+        context = super(TimecardView, self).get_context_data(**kwargs)
         if self.request.POST:
             context['formset'] = TimecardFormSet(self.request.POST, instance=self.object)
         else:
