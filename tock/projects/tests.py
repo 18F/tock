@@ -24,3 +24,23 @@ class ProjectTest(SimpleTestCase):
 
         retrieved = Project.objects.get(pk=project.pk)
         self.assertEqual(retrieved.name, "Test Project")
+
+    def test_project_is_billable(self):
+        agency = Agency(name='General Services Administration')
+        agency.save()
+
+        billable_project = Project(
+            agency=agency,
+            name="Test Project",
+            iaa="IAA 2015-01-02"
+        )
+        billable_project.save()
+
+        non_billable_project = Project(
+            agency=agency,
+            name="Nonbillable Project"
+        )
+        non_billable_project.save()
+
+        self.assertTrue(billable_project.is_billable())
+        self.assertFalse(non_billable_project.is_billable())
