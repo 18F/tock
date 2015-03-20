@@ -10,7 +10,7 @@ These are the following reporting periods that are currently available for filli
 	<h3>Reporting Periods You Need to Fill Out</h3>
 	<ul>
 	{% for reporting_period in uncompleted_reporting_periods %}
-	    <li><a href="/timesheet/create/{{ reporting_period }}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
+	    <li><a href="/timesheet/{{ reporting_period }}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
 	{% endfor %}
 	</ul>
 </div>
@@ -19,7 +19,7 @@ These are the following reporting periods that are currently available for filli
 	<h3>Reporting Periods You've Filed a Timecard For</h3>
 	<ul>
 	{% for reporting_period in completed_reporting_periods %}
-	    <li><a href="/timesheet/update/{{ reporting_period }}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
+	    <li><a href="/timesheet/{{ reporting_period }}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
 	{% endfor %}
 	</ul>
 </div>
