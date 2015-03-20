@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
-from .models import Week, Timecard, TimecardObject
+from .models import ReportingPeriod, Timecard, TimecardObject
 
 class TimecardObjectFormset(BaseInlineFormSet):
     def clean(self):
@@ -29,7 +29,7 @@ class TimecardObjectFormset(BaseInlineFormSet):
             raise ValidationError('You have entered less than 100%')
 
 
-class WeekAdmin(admin.ModelAdmin):
+class ReportingPeriodAdmin(admin.ModelAdmin):
     list_display = ('start_date', 'end_date')
 
 class TimecardObjectInline(admin.TabularInline):
@@ -38,8 +38,8 @@ class TimecardObjectInline(admin.TabularInline):
     formset = TimecardObjectFormset
 
 class TimecardAdmin(admin.ModelAdmin):
-    list_display = ('week',)
+    list_display = ('reporting_period',)
     inlines = (TimecardObjectInline,)
 
-admin.site.register(Week, WeekAdmin)
+admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
 admin.site.register(Timecard, TimecardAdmin)

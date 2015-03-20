@@ -7,11 +7,11 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 admin.autodiscover()
 
-from hours.views import WeekListView, TimecardView #, TimecardUpdateView
+from hours.views import ReportingPeriodListView, TimecardView
 
 urlpatterns = patterns('',
-    url(r'^$', WeekListView.as_view(), name='ListWeeks'),
-    url(r'^timesheet/(?P<week>[\w-]+)/$', TimecardView.as_view(success_url='/'), name='UpdateTimesheet'),
+    url(r'^$', ReportingPeriodListView.as_view(), name='ListReportingPeriods'),
+    url(r'^timesheet/(?P<reporting_period>[\w-]+)/$', TimecardView.as_view(success_url='/'), name='UpdateTimesheet'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
