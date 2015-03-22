@@ -25,8 +25,8 @@
 $( document ).ready(function() {
     $(".add-timecard-entry").on( "click", function() {
         $('div.entry:last').clone().each(function(i) {
-            $(this).find('input,select').each(function(i) {             
-                // Remove any existing values 
+            $(this).find('input,select').each(function(i) {
+                // Remove any existing values
                 $(this).val('');
  
                 // update the id attributes, incrementing the form number, e.g.: "id_form-1-field_name"
@@ -55,7 +55,7 @@ $( document ).ready(function() {
         }).appendTo('.entries');
             
         // Increment the TOTAL_FORMS
-        $('#id_form-TOTAL_FORMS').val(parseInt($('#id_form-TOTAL_FORMS').val()) + 1); 
+        $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1); 
     });
 });
  </script>
