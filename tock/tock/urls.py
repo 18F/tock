@@ -10,11 +10,11 @@ admin.autodiscover()
 from hours.views import ReportingPeriodListView, TimecardView
 
 urlpatterns = patterns('',
-    url(r'^$', ReportingPeriodListView.as_view(), name='ListReportingPeriods'),
-    url(r'^timesheet/(?P<reporting_period>[\w-]+)/$', TimecardView.as_view(success_url='/'), name='UpdateTimesheet'),
+    url(r'^tock/$', ReportingPeriodListView.as_view(), name='ListReportingPeriods'),
+    url(r'^tock/timesheet/(?P<reporting_period>[\w-]+)/$', TimecardView.as_view(success_url='/'), name='UpdateTimesheet'),
 
     # Uncomment the next line to enable the admin:
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^tock/admin/', include(admin.site.urls)),
 )
 
 # Uncomment the next line to serve media files in dev.

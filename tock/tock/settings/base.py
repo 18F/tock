@@ -22,6 +22,10 @@ DATABASES = {}
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
     'django.contrib.staticfiles',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.sessions',
+    'django.contrib.messages',
     'tock',
     'projects',
     'hours'
@@ -30,7 +34,7 @@ INSTALLED_APPS = (
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
 
-SECRET_KEY = get_random_string(50)
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_string(50))
 
 # Default + request
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -42,6 +46,21 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
     "django.core.context_processors.request"
+)
+
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'tock.remote_user_auth.EmailHeaderMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.RemoteUserBackend',
 )
 
 # Internationalization
@@ -60,7 +79,7 @@ TEMPLATE_DIRS = (
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = '/static/'
+STATIC_URL = '/tock/static/'
 
 USE_TZ = True
 TIME_ZONE = 'UTC'

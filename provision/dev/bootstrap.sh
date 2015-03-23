@@ -24,14 +24,13 @@ echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
 echo 'eval "$(pyenv init -)"' >> ~/.bash_profile
 echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bash_profile
 . ~/.bash_profile
-pyenv install 3.4.2
+pyenv install 3.4.1
 pyenv rehash
-pyenv virtualenv 3.4.2 tock
+pyenv virtualenv 3.4.1 tock
 pyenv rehash
 pyenv activate tock
 pip install -r /vagrant/requirements.txt
 cd /vagrant/tock
 python manage.py migrate
-python manage.py loaddata users
-python manage.py import_agencies https://raw.githubusercontent.com/seanherron/OMB-Agency-Bureau-and-Treasury-Codes/master/omb-agency-bureau-treasury-codes.csv
+python manage.py loaddata dev_user projects
 EOF

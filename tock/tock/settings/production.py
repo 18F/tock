@@ -1,26 +1,22 @@
 import os
 
+import dj_database_url
+
 from .base import *
 
+DEBUG = True
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
+USE_X_FORWARDED_HOST = True
+
 ALLOWED_HOSTS = ['*']  # proxied
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.environ.get('PG_NAME', ''),
-        "USER": os.environ.get('PG_USER', ''),
-        "PASSWORD": os.environ.get('PG_PASS', ''),
-        "HOST": os.environ.get('PG_HOST', ''),
-    },
-}
+#FORCE_SCRIPT_NAME = '/tock'
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+STATIC_ROOT = '/app/tock/tock/static/'
+STATIC_URL = '/tock/static/'
+
+DATABASES = {}
+DATABASES['default'] =  dj_database_url.config()
 
 try:
     from .local_settings import *
