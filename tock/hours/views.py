@@ -6,6 +6,8 @@ from django.template.context import RequestContext
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 
 from tock.utils import LoginRequiredMixin
 
@@ -66,3 +68,6 @@ class TimecardView(UpdateView):
             return super(UpdateView, self).form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))
+
+    def get_success_url(self):
+        return reverse("ListReportingPeriods")
