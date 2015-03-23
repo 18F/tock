@@ -21,14 +21,14 @@ class ReportingPeriod(models.Model):
 
 class Timecard(models.Model):
     user = models.ForeignKey(User)
-    reporting_period = models.ForeignKey(ReportingPeriod, related_name="timecard")
+    reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
 
     class Meta:
         unique_together = ('user', 'reporting_period')
 
 class TimecardObject(models.Model):
-    timecard = models.ForeignKey(Timecard,related_name="entries")
+    timecard = models.ForeignKey(Timecard)
     project = models.ForeignKey(Project)
     time_percentage = models.DecimalField(decimal_places=0, max_digits=3, validators=[MaxValueValidator(100)])
     created = models.DateTimeField(auto_now_add=True)
