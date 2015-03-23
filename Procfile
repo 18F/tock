@@ -1,1 +1,1 @@
-web: cd tock && waitress-serve --port=$VCAP_APP_PORT tock.wsgi:application
+web: cd tock && python manage.py migrate --settings=tock.settings.production && waitress-serve --port=$VCAP_APP_PORT tock.wsgi:application
