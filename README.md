@@ -3,6 +3,8 @@ tock
 
 A simple time tracking experiment
 
+[![Build Status](https://travis-ci.org/18F/tock.svg)](https://travis-ci.org/18F/tock)
+
 ## Getting Started
 
 Make sure you have `vagrant` installed. For instance, on OS X with Homebrew:
