@@ -248,7 +248,7 @@ picture {
     .entry p:first-child:last-child {
       margin-right: 0; }
   .entry p:last-child {
-    checked: false; }
+    display: none; }
 
 .container {
   max-width: 68em;

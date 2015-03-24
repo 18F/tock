@@ -24,6 +24,6 @@
 		@include span-columns(6);
 	}
 	p:last-child {
-		checked:false;
+		display:none;
 	}
 }
