@@ -35,13 +35,17 @@ class ReportingPeriodTests(TestCase):
 				working_hours=45).save()
 
 class TimecardTests(TestCase):
-	fixtures = ['projects.json', 'dev_user.json']
+	fixtures = [
+		'projects/fixtures/projects.json',
+		'tock/fixtures/dev_user.json'
+	]
 
 	def setUp(self):
 		self.reporting_period = hours.models.ReportingPeriod.objects.create(
 				start_date=datetime.date(2015, 1, 1),
 				end_date=datetime.date(2015, 1, 7),
 				working_hours=40)
+		self.user = get_user_model().objects.get(id=1)
 		self.timecard = hours.models.Timecard.objects.create(
 			user=self.user,
 			reporting_period=self.reporting_period)
@@ -55,9 +59,13 @@ class TimecardTests(TestCase):
 			timecard = self.timecard,
 			project = self.project_2,
 			time_percentage=70)
-		self.timecard_object_2 
+
+	def tearDown(self):
+        hours.models.ReportingPeriod.objects.all().delete()
+        hours.models.Timecard.objects.all().delete()
+        projects.models.Project.objects.all().delete()
+        hours.models.TimecardObject.objects.all().delete()
+
 	def test_timecard_string_return(self):
-		
-		timecard
-
-
+		"""Ensure the returned string for the timecard is as expected"""
+		self.assertEqual('testuser@gsa.gov - 2015-01-01', str(self.timecard))
