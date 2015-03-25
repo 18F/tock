@@ -3,10 +3,11 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 
+from .utils import ValidateOnSaveMixin
 from projects.models import Project
 
 # Create your models here.
-class ReportingPeriod(models.Model):
+class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     working_hours = models.PositiveSmallIntegerField(default=40,
@@ -26,6 +27,9 @@ class Timecard(models.Model):
 
     class Meta:
         unique_together = ('user', 'reporting_period')
+
+    def __str__(self):
+        return "%s - %s" % (self.user, self.reporting_period.start_date)
 
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
