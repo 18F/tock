@@ -61,10 +61,10 @@ class TimecardTests(TestCase):
 			time_percentage=70)
 
 	def tearDown(self):
-        hours.models.ReportingPeriod.objects.all().delete()
-        hours.models.Timecard.objects.all().delete()
-        projects.models.Project.objects.all().delete()
-        hours.models.TimecardObject.objects.all().delete()
+		hours.models.ReportingPeriod.objects.all().delete()
+		hours.models.Timecard.objects.all().delete()
+		projects.models.Project.objects.all().delete()
+		hours.models.TimecardObject.objects.all().delete()
 
 	def test_timecard_string_return(self):
 		"""Ensure the returned string for the timecard is as expected"""

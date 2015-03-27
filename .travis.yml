@@ -2,10 +2,10 @@ language: python
 python:
   - "3.4"
 cache:
-	directories:
-		- $HOME/.pip-cache/
+  directories:
+    - $HOME/.pip-cache/
 install:
   - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
 script:
-	- cd tock
-  - python manage.py test
+  - "cd tock && python manage.py test"
