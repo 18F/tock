@@ -1,11 +1,8 @@
 language: python
 python:
   - "3.4"
-cache:
-	directories:
-		- $HOME/.pip-cache/
+cache: pip
 install:
   - pip install -r requirements.txt
 script:
-	- cd tock
-  - python manage.py test
+  - python tock/manage.py test
