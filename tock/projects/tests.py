@@ -16,8 +16,11 @@ class ProjectTest(SimpleTestCase):
         agency = Agency(name='General Services Administration')
         agency.save()
 
+        accounting_code = AccountingCode(agency=agency)
+        accounting_code.save()
+
         project = Project(
-            agency=agency,
+            accounting_code=accounting_code,
             name="Test Project"
         )
         project.save()
