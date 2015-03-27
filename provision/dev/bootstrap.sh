@@ -30,6 +30,7 @@ pyenv virtualenv 3.4.1 tock
 pyenv rehash
 pyenv activate tock
 pip install -r /vagrant/requirements.txt
+pip install -r /vagrant/requirements-dev.txt
 cd /vagrant/tock
 python manage.py migrate
 python manage.py loaddata dev_user projects

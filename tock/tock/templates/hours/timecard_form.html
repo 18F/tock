@@ -5,6 +5,9 @@
 
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
+  {% if formset.errors %}
+    <div class="form-error">{{ formset.non_form_errors }}</div>
+  {% endif %}
   {{ formset.management_form }}
   <div class="entries">
     {% for project_entry in formset %}
@@ -28,22 +31,22 @@ $( document ).ready(function() {
             $(this).find('input,select').each(function(i) {
                 // Remove any existing values
                 $(this).val('');
- 
+
                 // update the id attributes, incrementing the form number, e.g.: "id_form-1-field_name"
-                parts = $(this).attr('id').split('-', 3); 
+                parts = $(this).attr('id').split('-', 3);
                 num = parseInt(parts[1]) + 1;
                 $(this).attr('id', parts[0] + '-' +num + '-' +parts[2]);
- 
+
                 // Update the name attribute, e.g.: form-1-field_name
-                parts = $(this).attr('name').split('-', 3); 
-                num = parseInt(parts[1] + 1); 
+                parts = $(this).attr('name').split('-', 3);
+                num = parseInt(parts[1] + 1);
                 $(this).attr('name', parts[0] + '-' +num + '-' +parts[2]);
- 
-            }); 
-                
-            // Update the "for" attribute for all labels 
+
+            });
+
+            // Update the "for" attribute for all labels
             $(this).find('label').each(function(i) {
-                parts = $(this).attr('for').split('-', 3); 
+                parts = $(this).attr('for').split('-', 3);
                 num = parseInt(parts[1]) + 1;
                 $(this).attr('for', parts[0] + '-' +num + '-' +parts[2]);
             });
@@ -51,11 +54,11 @@ $( document ).ready(function() {
             parts = $(this).attr('id').split('-', 3);
             num = parseInt(parts[1]) + 1;
             $(this).attr("id", parts[0] + '-' +num);
- 
+
         }).appendTo('.entries');
-            
+
         // Increment the TOTAL_FORMS
-        $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1); 
+        $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1);
     });
 });
  </script>

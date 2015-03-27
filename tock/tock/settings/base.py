@@ -81,5 +81,4 @@ TEMPLATE_DIRS = (
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = '/tock/static/'
 
-USE_TZ = True
-TIME_ZONE = 'UTC'
+AUTH_USER_MODEL = 'auth.User'

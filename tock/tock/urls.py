@@ -17,5 +17,11 @@ urlpatterns = patterns('',
     url(r'^tock/admin/', include(admin.site.urls)),
 )
 
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += patterns('',
+        url(r'^tock/__debug__/', include(debug_toolbar.urls)),
+    )
+
 # Uncomment the next line to serve media files in dev.
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
