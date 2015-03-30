@@ -90,18 +90,14 @@ class TimecardInlineFormSetTests(TestCase):
 
     def form_data(self, clear=[], **kwargs):
         form_data = {
-            'timecardobject_set-TOTAL_FORMS': '3',
-            'timecardobject_set-INITIAL_FORMS': '2',
-            'timecardobject_set-MIN_NUM_FORMS': '0',
-            'timecardobject_set-MAX_NUM_FORMS': '1000',
+            'timecardobject_set-TOTAL_FORMS': '2',
+            'timecardobject_set-INITIAL_FORMS': '0',
+            'timecardobject_set-MIN_NUM_FORMS': '',
+            'timecardobject_set-MAX_NUM_FORMS': '',
             'timecardobject_set-0-project': '4',
             'timecardobject_set-0-time_percentage': '50',
-            'timecardobject_set-0-timecard': '1',
-            'timecardobject_set-0-id': '1',
             'timecardobject_set-1-project': '5',
             'timecardobject_set-1-time_percentage': '50',
-            'timecardobject_set-1-timecard': '1',
-            'timecardobject_set-1-id': '2'
         }
         for key in clear:
             del form_data[key]
@@ -111,6 +107,13 @@ class TimecardInlineFormSetTests(TestCase):
 
     def test_timecard_inline_formset_valid(self):
         form_data = self.form_data()
-        # formset = TimecardFormSet(form_data)
-        # print(formset.errors)
-        # self.assertTrue(formset.is_valid())
+        formset = TimecardFormSet(form_data)
+        self.assertTrue(formset.is_valid())
+
+    def test_timecard_is_not_100(self):
+        form_data = self.form_data()
+        form_data['timecardobject_set-2-project'] = '6'
+        form_data['timecardobject_set-2-time_percentage']='50'
+        form_data['timecardobject_set-TOTAL_FORMS']='3'
+        formset = TimecardFormSet(form_data)
+        self.assertFalse(formset.is_valid())
