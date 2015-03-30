@@ -260,4 +260,8 @@ picture {
     content: "";
     display: table; }
 
+.errorlist {
+  color: #f00;
+}
+
 /*# sourceMappingURL=style.css.map */

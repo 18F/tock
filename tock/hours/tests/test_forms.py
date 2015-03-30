@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 import hours.models
 import projects.models
 
-from hours.forms import TimecardFormSet
+from hours.forms import TimecardForm, TimecardObjectForm, TimecardFormSet, TimecardInlineFormSet
 
 class TimecardFormTests(TestCase):
     fixtures = [
@@ -35,6 +35,59 @@ class TimecardFormTests(TestCase):
         projects.models.Project.objects.all().delete()
         hours.models.TimecardObject.objects.all().delete()
 
+    def test_valid_form(self):
+        form_data = {'user': self.user, 'reporting_period': self.reporting_period}
+        form = TimecardForm(form_data)
+        self.assertTrue(form.is_valid())
+
+class TimecardObjectFormTests(TestCase):
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'tock/fixtures/dev_user.json'
+    ]
+
+    def setUp(self):
+        self.reporting_period = hours.models.ReportingPeriod.objects.create(
+                start_date=datetime.date(2015, 1, 1),
+                end_date=datetime.date(2015, 1, 7),
+                working_hours=40)
+        self.user = get_user_model().objects.get(id=1)
+        self.project_1 = projects.models.Project.objects.get(name="openFEC")
+        self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
+
+    def tearDown(self):
+        hours.models.ReportingPeriod.objects.all().delete()
+        hours.models.Timecard.objects.all().delete()
+        projects.models.Project.objects.all().delete()
+        hours.models.TimecardObject.objects.all().delete()
+
+    def test_add_project(self):
+        form_data = {'project': '1', 'time_percentage': "50"}
+        form = TimecardObjectForm(form_data)
+        self.assertTrue(form.is_valid())
+
+class TimecardInlineFormSetTests(TestCase):
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'tock/fixtures/dev_user.json'
+    ]
+
+    def setUp(self):
+        self.reporting_period = hours.models.ReportingPeriod.objects.create(
+                start_date=datetime.date(2015, 1, 1),
+                end_date=datetime.date(2015, 1, 7),
+                working_hours=40)
+        self.user = get_user_model().objects.get(id=1)
+        self.project_1 = projects.models.Project.objects.get(name="openFEC")
+        self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
+        self.timecard = hours.models.Timecard.objects.create(reporting_period=self.reporting_period, user=self.user)
+
+    def tearDown(self):
+        hours.models.ReportingPeriod.objects.all().delete()
+        hours.models.Timecard.objects.all().delete()
+        projects.models.Project.objects.all().delete()
+        hours.models.TimecardObject.objects.all().delete()
+
     def form_data(self, clear=[], **kwargs):
         form_data = {
             'timecardobject_set-TOTAL_FORMS': '3',
@@ -48,10 +101,16 @@ class TimecardFormTests(TestCase):
             'timecardobject_set-1-project': '5',
             'timecardobject_set-1-time_percentage': '50',
             'timecardobject_set-1-timecard': '1',
-            'timecardobject_set-1-id': '2',
+            'timecardobject_set-1-id': '2'
         }
         for key in clear:
             del form_data[key]
         for key, value in kwargs.items():
             form_data[key] = value
         return form_data
+
+    def test_timecard_inline_formset_valid(self):
+        form_data = self.form_data()
+        # formset = TimecardFormSet(form_data)
+        # print(formset.errors)
+        # self.assertTrue(formset.is_valid())
