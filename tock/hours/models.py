@@ -19,6 +19,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     class Meta:
         verbose_name = "Reporting Period"
         verbose_name_plural = "Reporting Periods"
+        get_latest_by = "start_date"
 
 class Timecard(models.Model):
     user = models.ForeignKey(User)
@@ -27,6 +28,7 @@ class Timecard(models.Model):
 
     class Meta:
         unique_together = ('user', 'reporting_period')
+        get_latest_by = "reporting_period__start_date"
 
     def __str__(self):
         return "%s - %s" % (self.user, self.reporting_period.start_date)
