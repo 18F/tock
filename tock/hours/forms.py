@@ -46,4 +46,4 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         return self.cleaned_data
 
 TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, 
-    extra=1, formset=TimecardInlineFormSet)
+    extra=0, formset=TimecardInlineFormSet)
