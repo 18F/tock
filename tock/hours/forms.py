@@ -34,9 +34,6 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         the Time Percentage cannot be blank')
                 # Add the time percentage to the total number of hours
                 total_number_of_hours += form.cleaned_data.get('time_percentage')
-            else:
-                # TODO: Better validation errors
-                raise forms.ValidationError("Something went wrong")
 
         if total_number_of_hours != 100:
             # If you have more or less than 100, then you are not counting time
@@ -46,4 +43,4 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         return self.cleaned_data
 
 TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, 
-    extra=0, formset=TimecardInlineFormSet)
+    extra=1, formset=TimecardInlineFormSet)
