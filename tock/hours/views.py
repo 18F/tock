@@ -32,9 +32,11 @@ class ReportingPeriodListView(ListView):
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        context = super(ReportingPeriodListView, self).get_context_data(**kwargs)
+        context = super(
+            ReportingPeriodListView, self).get_context_data(**kwargs)
         # Add in the current user
-        context['completed_reporting_periods'] = ReportingPeriod.objects.filter(timecard__user=self.request.user)
+        context['completed_reporting_periods'] = ReportingPeriod.objects.filter(
+            timecard__user=self.request.user)
         context['uncompleted_reporting_periods'] = ReportingPeriod.objects.all().exclude(timecard__user=self.request.user)
         context['user'] = self.request.user
         context['email'] = self.request.user.username
@@ -45,14 +47,17 @@ class TimecardView(UpdateView):
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        r = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(self.kwargs['reporting_period'], "%Y-%m-%d").date())
-        obj, created = Timecard.objects.get_or_create(reporting_period_id=r.id, user_id=self.request.user.id)
+        r = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d").date())
+        obj, created = Timecard.objects.get_or_create(reporting_period_id=r.id,
+            user_id=self.request.user.id)
         return obj
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
         if self.request.POST:
-            context['formset'] = TimecardFormSet(self.request.POST, instance=self.object)
+            context['formset'] = TimecardFormSet(self.request.POST,
+                instance=self.object)
         else:
             context['formset'] = TimecardFormSet(instance=self.object)
         return context
@@ -63,7 +68,8 @@ class TimecardView(UpdateView):
         if formset.is_valid():
             self.object = form.save(commit=False)
             self.object.user = self.request.user
-            self.object.reporting_period = ReportingPeriod.objects.get(start_date=self.kwargs['reporting_period'])
+            self.object.reporting_period = ReportingPeriod.objects.get(
+                start_date=self.kwargs['reporting_period'])
             self.object.save()
             formset.instance = self.object
             formset.save()
@@ -75,17 +81,25 @@ class TimecardView(UpdateView):
         return reverse("ListReportingPeriods")
 
 class ReportsList(ListView):
+    """Show a list of all Reporting Periods to navigate to various reports"""
     queryset = ReportingPeriod.objects.all()
     template_name = "hours/reports_list.html"
 
 def TimecardCSVView(request, reporting_period):
+    """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s.csv"' % reporting_period
 
     writer = csv.writer(response)
-    timecard_objects = TimecardObject.objects.filter(timecard__reporting_period__start_date=reporting_period)
+    timecard_objects = TimecardObject.objects.filter(
+        timecard__reporting_period__start_date=reporting_period)
 
-    writer.writerow(["Reporting Period", "User", "Project", "Time Percentage", "Number of Hours"])
+    writer.writerow([
+        "Reporting Period",
+        "User",
+        "Project",
+        "Time Percentage",
+        "Number of Hours"])
     for timecard_object in timecard_objects:
         writer.writerow([
             "{0} - {1}".format(timecard_object.timecard.reporting_period.start_date, timecard_object.timecard.reporting_period.end_date),
