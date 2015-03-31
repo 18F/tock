@@ -3,6 +3,7 @@ from django.forms.models import BaseInlineFormSet
 from django.forms.models import inlineformset_factory
 
 from .models import Timecard, TimecardObject
+from projects.models import Project
 
 class TimecardForm(forms.ModelForm):
     class Meta:
@@ -14,6 +15,7 @@ class TimecardObjectForm(forms.ModelForm):
         model = TimecardObject
         fields = ['project', 'time_percentage']
 
+        
 class TimecardInlineFormSet(BaseInlineFormSet):
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
@@ -29,4 +31,4 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
         return self.cleaned_data
 
-TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, extra=1, formset=TimecardInlineFormSet)
+TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, extra=3, formset=TimecardInlineFormSet)
