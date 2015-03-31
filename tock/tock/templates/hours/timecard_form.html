@@ -55,6 +55,71 @@
  </form>
 
  <script>
+ function getPercentageTotals() {
+    // Get the total of all timecard object entries
+    var billableTotal = 0;
+    var nonBillableTotal = 0;
+    var percentageTotal = 0;
+    $('.entry-amount input').each(function(i) {
+      var billableStatus = $(this).parent().parent().children('.entry-project').children('select').children('option:selected').data('billable');
+      if (billableStatus === 'billable') {
+        billableTotal += $(this).val() / 1;
+      }
+      if (billableStatus === 'non-billable') {
+        nonBillableTotal += $(this).val() / 1;
+      }
+    });
+    percentageTotal = billableTotal + nonBillableTotal;
+    return {'billableTotal': billableTotal, 'nonBillableTotal': nonBillableTotal, 'percentageTotal': percentageTotal};
+  }
+
+  function populatePercentageTotals(){
+    // Populate The Bottom Addon Items with Totals
+    var totals = getPercentageTotals();
+    $('.entries-total-billable-amount').html(totals['billableTotal']);
+    $('.entries-total-non-billable-amount').html(totals['nonBillableTotal']);
+    $('.entries-total-reported-amount').html();
+
+    $('.entries-total-reported-amount').html(totals['percentageTotal']);
+    if (totals['percentageTotal'] != 100) {
+      $('.entries-total-reported-amount').addClass('invalid');
+    }
+    else {
+      $('.entries-total-reported-amount').removeClass('invalid');
+    }
+  }
+
+  function isBillable() {
+    // Determine if a project is billable or not and append the proper class
+    $('.entry-project option:selected').each(function(i) {
+      var billableStatus = $(this).data('billable');
+      var element = $(this).parent().parent().next('.entry-billable').children('.entry-billable-icon').first();
+
+      if (billableStatus === 'billable') {
+        element.addClass('billable');
+        element.removeClass('non-billable');
+        element.removeClass('unknown');
+      }
+      if (billableStatus === 'non-billable') {
+        element.addClass('non-billable');
+        element.removeClass('billable');
+        element.removeClass('unknown');
+      }
+    });
+  }
+
+  // When you change the percentage, redo the totals
+  $( "body" ).on( "keyup", ".entry-amount input", function() {
+    populatePercentageTotals();
+  });
+
+  // When you change a project, redo the totals
+  $( "body" ).on( "change", ".entry-project select", function() {
+    isBillable();
+    populatePercentageTotals();
+  });
+
+
 $( document ).ready(function() {
     $(".add-timecard-entry").on( "click", function() {
         $('div.entry:last').clone().each(function(i) {
@@ -91,75 +156,10 @@ $( document ).ready(function() {
         $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1);
     });
 
-    function getPercentageTotals() {
-      // Get the total of all entries
-      var billableTotal = 0;
-      var nonBillableTotal = 0;
-      var percentageTotal = 0;
-      $('.entry-amount input').each(function(i) {
-        var billableStatus = $(this).parent().parent().children('.entry-project').children('select').children('option:selected').data('billable');
-        if (billableStatus === 'billable') {
-          billableTotal += $(this).val() / 1;
-        }
-        if (billableStatus === 'non-billable') {
-          nonBillableTotal += $(this).val() / 1;
-        }
-      });
-      percentageTotal = billableTotal + nonBillableTotal;
-      return {'billableTotal': billableTotal, 'nonBillableTotal': nonBillableTotal, 'percentageTotal': percentageTotal};
-    }
 
     // Run on initial load
-    function populatePercentageTotals(){
-      var totals = getPercentageTotals();
-      $('.entries-total-billable-amount').html(totals['billableTotal']);
-      $('.entries-total-non-billable-amount').html(totals['nonBillableTotal']);
-      $('.entries-total-reported-amount').html(getPercentageTotals()['percentageTotal']);
-    }
-    
     populatePercentageTotals();
-
-    // And on Form Change Events
-    $( ".entry-amount input" ).keyup(function() {
-      var percentageTotal = getPercentageTotals()['percentageTotal'];
-      $('.entries-total-reported-amount').html(percentageTotal);
-      if (percentageTotal != 100) {
-        $('.entries-total-reported-amount').addClass('invalid');
-      }
-      else {
-        $('.entries-total-reported-amount').removeClass('invalid');
-      }
-    });
-
-    // Illustrate Billable
-    function isBillable() {
-      $('.entry-project option:selected').each(function(i) {
-        var billableStatus = $(this).data('billable');
-        var element = $(this).parent().parent().next('.entry-billable').children('.entry-billable-icon').first();
-
-        if (billableStatus === 'billable') {
-          element.addClass('billable');
-          element.removeClass('non-billable');
-          element.removeClass('unknown');
-        }
-        if (billableStatus === 'non-billable') {
-          element.addClass('non-billable');
-          element.removeClass('billable');
-          element.removeClass('unknown');
-        }
-      });
-    }
-
     isBillable();
-
-    $( ".entry-project select" ).change(function() {
-      isBillable();
-      populatePercentageTotals();
-    });
-
-
-
-
 });
  </script>
 {% endblock %}
