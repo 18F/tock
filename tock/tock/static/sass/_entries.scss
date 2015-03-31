@@ -11,19 +11,64 @@
 		margin-bottom:0;
 	}
 	input[type="number"] {
-		width: 50%;
+		width: 65%;
+		display:inline;
 	}
 }
 
 .entry {
 	@include outer-container;
-	p {
+}
+
+.entry-project {
+	@include span-columns(6);
+}
+.entry-billable {
+	@include span-columns(1);
+}
+.entry-billable-icon {
+	text-align:center;
+	font-size: 1.5rem;
+	margin-top: -0.1em;
+	&.unknown {
+		color: #ccc;
+	}
+	&.billable {
+		color: green;
+	}
+	&.non-billable {
+		color: #1188ff;
+	}
+}
+.entry-amount {
+	@include span-columns(3);
+}
+
+.entry-hidden {
+	display: none;
+}
+
+.entries-total {
+	.entries-add-more {
 		@include span-columns(3);
 	}
-	p:first-child {
-		@include span-columns(6);
+	.entries-total-reported {
+		@include span-columns(3);
+		@include shift(3);
+		text-align:right;
 	}
-	p:last-child {
-		display:none;
+	.entries-total-billable-amount {
+		color: green;
 	}
+	.entries-total-non-billable-amount {
+		color: #1188ff;
+	}
+	.entries-total-reported-wrapper {
+		font-weight:bold;
+	}
+}
+
+.invalid {
+	color: red;
+	font-weight: bold;
 }

@@ -14,6 +14,7 @@ class TimecardObjectForm(forms.ModelForm):
         model = TimecardObject
         fields = ['project', 'time_percentage']
 
+        
 class TimecardInlineFormSet(BaseInlineFormSet):
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
@@ -32,4 +33,4 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
         return self.cleaned_data
 
-TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, extra=0, formset=TimecardInlineFormSet)
+TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, extra=3, formset=TimecardInlineFormSet)

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load is_billable %}
 
 {% block content %}
 <h2>Tell us about your time:</h2>
@@ -12,16 +13,45 @@
   <div class="entries">
     {% for project_entry in formset %}
       <div class="entry" id="entry-{{ forloop.counter0 }}">
-        {{ project_entry.as_p }}
+        <div class="entry-project">
+          {{ project_entry.project.label_tag }}
+          <select id="{{ project_entry.project.id_for_label }}" name="{{ project_entry.project.html_name }}">
+            {% for id, name in project_entry.project.field.choices %}
+              <option value="{% if id %}{{ id }}{% endif %}" {% if project_entry.project.value == id %} selected{% endif %} data-billable="{% if id %}{% is_billable id %}{% endif %}">{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="entry-billable">
+          <label for="billable">Billable:</label>
+          <div class="entry-billable-icon unknown">
+            <i class="fa fa-money"></i>
+          </div>
+        </div>
+        <div class="entry-amount">
+          {{ project_entry.time_percentage.label_tag }}
+          {{ project_entry.time_percentage }}<span class="percentage">%</span>
+        </div>
+        <div class="entry-hidden">
+          {{ project_entry.timecard }}
+          {{ project_entry.id }}
+        </div>
       </div>
-
     {% endfor %}
-
   </div>
-  <div class="form-actions">
-     <button type="button" class="btn btn-info add-timecard-entry">Add More Items</a>
-     <button type="submit" class="btn btn-primary">Submit Timecard</button>
-   </div>
+  <div class="entries-total">
+    <div class="entries-add-more">
+      <button type="button" class="btn btn-info add-timecard-entry">Add More Items</a>
+      </button>
+    </div>
+    <div class="entries-total-reported">
+      Billable Reported: <span class="entries-total-billable-amount">0</span>%<br>
+      Non-Billable Reported: <span class="entries-total-non-billable-amount">0</span>%
+      <div class="entries-total-reported-wrapper">
+        Total Reported: <span class="entries-total-reported-amount">0</span>%
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Timecard</button>
+    </div>
+  </div>
  </form>
 
  <script>
@@ -60,6 +90,76 @@ $( document ).ready(function() {
         // Increment the TOTAL_FORMS
         $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1);
     });
+
+    function getPercentageTotals() {
+      // Get the total of all entries
+      var billableTotal = 0;
+      var nonBillableTotal = 0;
+      var percentageTotal = 0;
+      $('.entry-amount input').each(function(i) {
+        var billableStatus = $(this).parent().parent().children('.entry-project').children('select').children('option:selected').data('billable');
+        if (billableStatus === 'billable') {
+          billableTotal += $(this).val() / 1;
+        }
+        if (billableStatus === 'non-billable') {
+          nonBillableTotal += $(this).val() / 1;
+        }
+      });
+      percentageTotal = billableTotal + nonBillableTotal;
+      return {'billableTotal': billableTotal, 'nonBillableTotal': nonBillableTotal, 'percentageTotal': percentageTotal};
+    }
+
+    // Run on initial load
+    function populatePercentageTotals(){
+      var totals = getPercentageTotals();
+      $('.entries-total-billable-amount').html(totals['billableTotal']);
+      $('.entries-total-non-billable-amount').html(totals['nonBillableTotal']);
+      $('.entries-total-reported-amount').html(getPercentageTotals()['percentageTotal']);
+    }
+    
+    populatePercentageTotals();
+
+    // And on Form Change Events
+    $( ".entry-amount input" ).keyup(function() {
+      var percentageTotal = getPercentageTotals()['percentageTotal'];
+      $('.entries-total-reported-amount').html(percentageTotal);
+      if (percentageTotal != 100) {
+        $('.entries-total-reported-amount').addClass('invalid');
+      }
+      else {
+        $('.entries-total-reported-amount').removeClass('invalid');
+      }
+    });
+
+    // Illustrate Billable
+    function isBillable() {
+      $('.entry-project option:selected').each(function(i) {
+        var billableStatus = $(this).data('billable');
+        var element = $(this).parent().parent().next('.entry-billable').children('.entry-billable-icon').first();
+
+        if (billableStatus === 'billable') {
+          element.addClass('billable');
+          element.removeClass('non-billable');
+          element.removeClass('unknown');
+        }
+        if (billableStatus === 'non-billable') {
+          element.addClass('non-billable');
+          element.removeClass('billable');
+          element.removeClass('unknown');
+        }
+      });
+    }
+
+    isBillable();
+
+    $( ".entry-project select" ).change(function() {
+      isBillable();
+      populatePercentageTotals();
+    });
+
+
+
+
 });
  </script>
 {% endblock %}

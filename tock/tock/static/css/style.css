@@ -223,7 +223,8 @@ picture {
   transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
   margin-bottom: 0; }
 .entries input[type="number"] {
-  width: 50%; }
+  width: 65%;
+  display: inline; }
 
 .entry {
   max-width: 68em;
@@ -233,22 +234,71 @@ picture {
     clear: both;
     content: "";
     display: table; }
-  .entry p {
-    float: left;
-    display: block;
-    margin-right: 2.35765%;
-    width: 23.23176%; }
-    .entry p:last-child {
-      margin-right: 0; }
-  .entry p:first-child {
-    float: left;
-    display: block;
-    margin-right: 2.35765%;
-    width: 48.82117%; }
-    .entry p:first-child:last-child {
-      margin-right: 0; }
-  .entry p:last-child {
-    display: none; }
+
+.entry-project {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 48.82117%; }
+  .entry-project:last-child {
+    margin-right: 0; }
+
+.entry-billable {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 6.17215%; }
+  .entry-billable:last-child {
+    margin-right: 0; }
+
+.entry-billable-icon {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-top: -0.1em; }
+  .entry-billable-icon.unknown {
+    color: #ccc; }
+  .entry-billable-icon.billable {
+    color: green; }
+  .entry-billable-icon.non-billable {
+    color: #1188ff; }
+
+.entry-amount {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 23.23176%; }
+  .entry-amount:last-child {
+    margin-right: 0; }
+
+.entry-hidden {
+  display: none; }
+
+.entries-total .entries-add-more {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 23.23176%; }
+  .entries-total .entries-add-more:last-child {
+    margin-right: 0; }
+.entries-total .entries-total-reported {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 23.23176%;
+  margin-left: 25.58941%;
+  text-align: right; }
+  .entries-total .entries-total-reported:last-child {
+    margin-right: 0; }
+.entries-total .entries-total-billable-amount {
+  color: green; }
+.entries-total .entries-total-non-billable-amount {
+  color: #1188ff; }
+.entries-total .entries-total-reported-wrapper {
+  font-weight: bold; }
+
+.invalid {
+  color: red;
+  font-weight: bold; }
 
 .container {
   max-width: 68em;
@@ -259,9 +309,5 @@ picture {
     clear: both;
     content: "";
     display: table; }
-
-.errorlist {
-  color: #f00;
-}
 
 /*# sourceMappingURL=style.css.map */
