@@ -5,3 +5,6 @@ class ValidateOnSaveMixin(object):
 		if not (force_insert or force_update):
 			self.full_clean()
 		super(ValidateOnSaveMixin, self).save(force_insert, force_update, **kwargs)
+
+def number_of_hours(percentage, total_hours):
+	return (percentage / 100) * total_hours
