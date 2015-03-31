@@ -22,6 +22,8 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         total_number_of_hours = 0
         for form in self.forms:
             if form.cleaned_data:
+               # print(form.cleaned_data)
+                print(form.cleaned_data)
                 if form.cleaned_data.get('time_percentage') == None:
                     raise forms.ValidationError('If you have a project listed, the Time Percentage cannot be blank')
                 total_number_of_hours += form.cleaned_data.get('time_percentage')
@@ -33,4 +35,4 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
         return self.cleaned_data
 
-TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, extra=3, formset=TimecardInlineFormSet)
+TimecardFormSet = inlineformset_factory(Timecard, TimecardObject, extra=1, formset=TimecardInlineFormSet)

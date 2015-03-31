@@ -17,7 +17,7 @@
           {{ project_entry.project.label_tag }}
           <select id="{{ project_entry.project.id_for_label }}" name="{{ project_entry.project.html_name }}">
             {% for id, name in project_entry.project.field.choices %}
-              <option value="{% if id %}{{ id }}{% endif %}" {% if project_entry.project.value == id %} selected{% endif %} data-billable="{% if id %}{% is_billable id %}{% endif %}">{{ name }}</option>
+              <option value{% if id %}="{{ id }}"{% endif %} {% if project_entry.project.value == id %} selected{% endif %} data-billable="{% if id %}{% is_billable id %}{% endif %}">{{ name }}</option>
             {% endfor %}
           </select>
         </div>
