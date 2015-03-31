@@ -1,6 +1,8 @@
-from django.shortcuts import render
+import csv
+import datetime
 
 # Create your views here.
+from django.shortcuts import render
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.views.generic import ListView
@@ -8,13 +10,13 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 
 from tock.utils import LoginRequiredMixin
 
+from .utils import number_of_hours
 from .models import ReportingPeriod, Timecard, TimecardObject
 from .forms import TimecardForm, TimecardFormSet
-
-import datetime
 
 def home(request):
    context = RequestContext(request,
@@ -71,3 +73,25 @@ class TimecardView(UpdateView):
 
     def get_success_url(self):
         return reverse("ListReportingPeriods")
+
+class ReportsList(ListView):
+    queryset = ReportingPeriod.objects.all()
+    template_name = "hours/reports_list.html"
+
+def TimecardCSVView(request, reporting_period):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s.csv"' % reporting_period
+
+    writer = csv.writer(response)
+    timecard_objects = TimecardObject.objects.filter(timecard__reporting_period__start_date=reporting_period)
+
+    writer.writerow(["Reporting Period", "User", "Project", "Time Percentage", "Number of Hours"])
+    for timecard_object in timecard_objects:
+        writer.writerow([
+            "{0} - {1}".format(timecard_object.timecard.reporting_period.start_date, timecard_object.timecard.reporting_period.end_date),
+            timecard_object.timecard.user,
+            timecard_object.project,
+            "{0}%".format(timecard_object.time_percentage),
+            number_of_hours(timecard_object.time_percentage, timecard_object.timecard.reporting_period.working_hours)])
+
+    return response
