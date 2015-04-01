@@ -24,6 +24,9 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         get_latest_by = "start_date"
 
     def get_fiscal_year(self):
+        """Determines the Fiscal Year (Oct 1 - Sept 31) of a given
+        ReportingPeriod"""
+        # Oct, Nov, Dec are part of the *next* FY
         next_calendar_year_months = [10, 11, 12]
         if self.start_date.month in next_calendar_year_months:
             fiscal_year = self.start_date.year + 1
