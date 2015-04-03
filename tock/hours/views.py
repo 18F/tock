@@ -82,8 +82,18 @@ class TimecardView(UpdateView):
 
 class ReportsList(ListView):
     """Show a list of all Reporting Periods to navigate to various reports"""
-    queryset = ReportingPeriod.objects.all()
     template_name = "hours/reports_list.html"
+
+    def get_queryset(self, queryset=None):
+        query = ReportingPeriod.objects.all()
+        fiscal_years = {}
+        for reporting_period in query:
+            if str(reporting_period.get_fiscal_year()) in fiscal_years:
+                fiscal_years[str(reporting_period.get_fiscal_year())].append(reporting_period)
+            else:
+                fiscal_years[str(reporting_period.get_fiscal_year())] = [reporting_period]
+        sorted_fiscal_years = sorted(fiscal_years.items(), reverse=True)
+        return sorted_fiscal_years
 
 def TimecardCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""

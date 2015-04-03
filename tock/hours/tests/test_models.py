@@ -13,18 +13,18 @@ import projects.models
 
 
 class ReportingPeriodTests(TestCase):
-	def test_reporting_period_save(self):
-		reporting_period = hours.models.ReportingPeriod(
+	def setUp(self):
+		self.reporting_period = hours.models.ReportingPeriod(
 				start_date=datetime.date(2015, 1, 1),
 				end_date=datetime.date(2015, 1, 7),
 				working_hours=32)
-		reporting_period.save()
+	
+	def tearDown(self):
+		hours.models.ReportingPeriod.objects.all().delete()
 
-		retrieved = hours.models.ReportingPeriod.objects.get(
-			pk=reporting_period.pk)
-
-		self.assertEqual('2015-01-01', str(retrieved))
-		self.assertEqual(32, retrieved.working_hours)
+	def test_reporting_period_save(self):
+		self.assertEqual('2015-01-01', str(self.reporting_period))
+		self.assertEqual(32, self.reporting_period.working_hours)
 
 	def test_max_reporting_period_length(self):
 		"""Check to ensure a reporting period cannot be longer than 40 hours"""
@@ -33,6 +33,15 @@ class ReportingPeriodTests(TestCase):
 				start_date=datetime.date(2015, 1, 1),
 				end_date=datetime.date(2015, 1, 7),
 				working_hours=45).save()
+
+	def test_get_fiscal_year(self):
+		"""Check to ensure the proper fiscal year is returned"""
+		self.assertEqual(2015, self.reporting_period.get_fiscal_year())
+		reporting_period_2 = hours.models.ReportingPeriod(
+				start_date=datetime.date(2015, 10, 31),
+			end_date=datetime.date(2015, 11, 7),
+				working_hours=32)
+		self.assertEqual(2016, reporting_period_2.get_fiscal_year())
 
 class TimecardTests(TestCase):
 	fixtures = [

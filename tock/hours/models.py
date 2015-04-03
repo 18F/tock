@@ -1,3 +1,5 @@
+import datetime
+
 from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -20,6 +22,17 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         verbose_name = "Reporting Period"
         verbose_name_plural = "Reporting Periods"
         get_latest_by = "start_date"
+
+    def get_fiscal_year(self):
+        """Determines the Fiscal Year (Oct 1 - Sept 31) of a given
+        ReportingPeriod"""
+        # Oct, Nov, Dec are part of the *next* FY
+        next_calendar_year_months = [10, 11, 12]
+        if self.start_date.month in next_calendar_year_months:
+            fiscal_year = self.start_date.year + 1
+            return fiscal_year
+        else:
+            return self.start_date.year
 
 class Timecard(models.Model):
     user = models.ForeignKey(User)
