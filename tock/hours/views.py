@@ -95,6 +95,10 @@ class ReportsList(ListView):
         sorted_fiscal_years = sorted(fiscal_years.items(), reverse=True)
         return sorted_fiscal_years
 
+class ReportingPeriodDetailView(DetailView):
+    model = ReportingPeriod
+    template_name = "hours/reporting_period_detail.html"
+
 def TimecardCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')

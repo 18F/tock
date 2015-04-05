@@ -4,6 +4,18 @@
 
 <h2>Available Reports</h2>
 
+<div class="reporting-periods">
+	<h3>Available Reports (by Reporting Period)</h3>
+	{% for fiscal_year, reporting_periods in object_list %}
+	Fiscal Year {{ fiscal_year }}
+	<ul>
+	{% for reporting_period in reporting_periods %}
+	    <li><a href="/tock/reports/{{ reporting_period }}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
+	{% endfor %}
+	</ul>
+	{% endfor %}
+</div>
+{% endblock %}
 
 
 <div class="reporting-periods">
