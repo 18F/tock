@@ -26,7 +26,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         # individal formset submission
         total_number_of_hours = 0
         for form in self.forms:
-            print(form)
+            # print(form)
             if form.cleaned_data:
                 # Easy way of telling if we have the right data
                 if form.cleaned_data.get('time_percentage') == None:
