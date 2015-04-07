@@ -16,6 +16,7 @@ class TimecardObjectForm(forms.ModelForm):
 
         
 class TimecardInlineFormSet(BaseInlineFormSet):
+
     """This FormSet is used for submissions of timecard entries. Right now,
     it only works for initial entries and not for updates :/"""
     def clean(self):
@@ -25,6 +26,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         # individal formset submission
         total_number_of_hours = 0
         for form in self.forms:
+            print(form)
             if form.cleaned_data:
                 # Easy way of telling if we have the right data
                 if form.cleaned_data.get('time_percentage') == None:
@@ -35,10 +37,10 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 # Add the time percentage to the total number of hours
                 total_number_of_hours += form.cleaned_data.get('time_percentage')
 
-        if total_number_of_hours != 100:
+        # if total_number_of_hours != 100:
             # If you have more or less than 100, then you are not counting time
             # right.
-            raise forms.ValidationError('You must report exactly 100%.')
+            # raise forms.ValidationError('You must report exactly 100%.')
 
         return self.cleaned_data
 
