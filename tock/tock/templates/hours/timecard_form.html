@@ -134,7 +134,7 @@ $( document ).ready(function() {
 
                 // Update the name attribute, e.g.: form-1-field_name
                 parts = $(this).attr('name').split('-', 3);
-                num = parseInt(parts[1] + 1);
+                num = parseInt(parts[1]) + 1;
                 $(this).attr('name', parts[0] + '-' +num + '-' +parts[2]);
 
             });
@@ -149,7 +149,7 @@ $( document ).ready(function() {
             parts = $(this).attr('id').split('-', 3);
             num = parseInt(parts[1]) + 1;
             $(this).attr("id", parts[0] + '-' +num);
-
+            $(this).attr("name", parts[0] + '-' +num);
         }).appendTo('.entries');
 
         // Increment the TOTAL_FORMS

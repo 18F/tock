@@ -37,10 +37,10 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 # Add the time percentage to the total number of hours
                 total_number_of_hours += form.cleaned_data.get('time_percentage')
 
-        # if total_number_of_hours != 100:
+        if total_number_of_hours != 100:
             # If you have more or less than 100, then you are not counting time
             # right.
-            # raise forms.ValidationError('You must report exactly 100%.')
+            raise forms.ValidationError('You must report exactly 100%.')
 
         return self.cleaned_data
 
