@@ -123,6 +123,7 @@ def ReportingPeriodCSVView(request, reporting_period):
 
     writer.writerow([
         "Reporting Period",
+        "Last Modified",
         "User",
         "Project",
         "Time Percentage",
@@ -130,6 +131,7 @@ def ReportingPeriodCSVView(request, reporting_period):
     for timecard_object in timecard_objects:
         writer.writerow([
             "{0} - {1}".format(timecard_object.timecard.reporting_period.start_date, timecard_object.timecard.reporting_period.end_date),
+            timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
             timecard_object.timecard.user,
             timecard_object.project,
             "{0}%".format(timecard_object.time_percentage),

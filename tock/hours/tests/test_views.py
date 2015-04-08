@@ -35,7 +35,8 @@ class ReportTests(TestCase):
 		self.user = get_user_model().objects.get(id=1)
 		self.timecard = hours.models.Timecard.objects.create(
 			user=self.user,
-			reporting_period=self.reporting_period)
+			reporting_period=self.reporting_period
+			)
 		self.project_1 = projects.models.Project.objects.get(name="openFEC")
 		self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
 		self.timecard_object_1 = hours.models.TimecardObject.objects.create(
@@ -67,4 +68,4 @@ class ReportTests(TestCase):
 	def test_ReportingPeriodCSVView(self):
 		request = 'fake request'
 		response = hours.views.ReportingPeriodCSVView(request, "2015-01-01").content.decode('utf-8').splitlines()[2]
-		self.assertEqual('2015-01-01 - 2015-01-07,testuser@gsa.gov,Peace Corps,70%,28.0', response)
+		self.assertEqual('2015-01-01 - 2015-01-07,{0},testuser@gsa.gov,Peace Corps,70%,28.0'.format(self.timecard.modified.strftime("%Y-%m-%d %H:%M:%S")), response)
