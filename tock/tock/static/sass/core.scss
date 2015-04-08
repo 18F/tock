@@ -5,6 +5,7 @@
 @import "banner";
 @import "content";
 @import "entries";
+@import "utils";
 
 .container {
 	@include outer-container;

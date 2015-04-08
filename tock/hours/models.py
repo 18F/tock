@@ -34,6 +34,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         else:
             return self.start_date.year
 
+
 class Timecard(models.Model):
     user = models.ForeignKey(User)
     reporting_period = models.ForeignKey(ReportingPeriod)

@@ -4,13 +4,15 @@ import datetime
 # Create your views here.
 from django.shortcuts import render
 from django.shortcuts import render_to_response
+from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
+from django.contrib.auth.models import User
 
 from tock.utils import LoginRequiredMixin
 
@@ -94,6 +96,21 @@ class ReportsList(ListView):
                 fiscal_years[str(reporting_period.get_fiscal_year())] = [reporting_period]
         sorted_fiscal_years = sorted(fiscal_years.items(), reverse=True)
         return sorted_fiscal_years
+
+class ReportingPeriodDetailView(DetailView):
+    model = ReportingPeriod
+    template_name = "hours/reporting_period_detail.html"
+
+    def get_object(self):
+        return get_object_or_404(ReportingPeriod, start_date=datetime.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d").date())
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(
+            ReportingPeriodDetailView, self).get_context_data(**kwargs)
+        context['users'] = User.objects.all()
+        return context
 
 def TimecardCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""

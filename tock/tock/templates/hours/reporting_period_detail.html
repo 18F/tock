@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load has_submitted_timesheet %}
+
+{% block content %}
+
+<h2>Reporting Period {{ object.start_date }}!</h2>
+<a href="/tock/reports/{{ object }}.csv">Download Full CSV Report</a>
+<table>
+<tr>
+	<th>User</th>
+	<th>Timecard Filed</th>
+</tr>
+{% for user in users %}
+<tr>
+	<td>{{ user }}</td>
+	<td>{% if user|has_submitted_timesheet:object %}<i class="fa fa-check-square icon-green"></i> Yes{% else %}<i class="fa fa-minus-square icon-red"></i> No{%endif %}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

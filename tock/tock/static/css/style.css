@@ -300,6 +300,12 @@ picture {
   color: red;
   font-weight: bold; }
 
+.icon-green {
+  color: green; }
+
+.icon-red {
+  color: red; }
+
 .container {
   max-width: 68em;
   margin-left: auto;
