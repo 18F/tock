@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 
-from .utils import ValidateOnSaveMixin
+from .utils import ValidateOnSaveMixin, number_of_hours
 from projects.models import Project
 
 # Create your models here.
@@ -39,6 +39,8 @@ class Timecard(models.Model):
     user = models.ForeignKey(User)
     reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('user', 'reporting_period')
@@ -46,7 +48,7 @@ class Timecard(models.Model):
 
     def __str__(self):
         return "%s - %s" % (self.user, self.reporting_period.start_date)
-
+        
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
     project = models.ForeignKey(Project)
@@ -54,3 +56,6 @@ class TimecardObject(models.Model):
                         validators=[MaxValueValidator(100)])
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+
+    def hours(self):
+        return number_of_hours(self.time_percentage, self.timecard.reporting_period.working_hours)

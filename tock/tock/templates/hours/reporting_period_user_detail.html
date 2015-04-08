@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
+
+<table class="table-minimal report_table">
+	<tr class="report_table__header-row">
+		<th>Project</th>
+		<th>Billable</th>
+		<th>Percentage</th>
+		<th>Number of Hours</th>
+	</tr>
+	{% for entry in object.timecardobject_set.all %}
+	<tr class="report_table__row">
+		<td>{{ entry.project }}</td>
+		<td>
+		{% if entry.project.is_billable %}
+        <i class="fa fa-money icon-green"></i> <em>Billable</em>
+    {% else %}
+      	<i class="fa fa-money icon-18f"></i> <em>Non-Billable</em>
+    {% endif %}
+    </td>
+		<td>{{ entry.time_percentage }}%</td>
+		<td>{{ entry.hours|floatformat }}</td>
+	</tr>
+	{% endfor %}
+	<tfoot class="report_table__footer">
+		<tr>
+			<td colspan="2">Total Non-Billable</td>
+			<td>{{ nonbillable_percent }}%</td>
+			<td>{{ nonbillable_hours|floatformat }}</td>
+		</tr>
+		<tr>
+			<td colspan="2">Total Billable</td>
+			<td>{{ billable_percent }}%</td>
+			<td>{{ billable_hours|floatformat }}</td>
+		</tr>
+		<tr>
+			<td colspan="2">Total</td>
+			<td>{{ total_percent }}%</td>
+			<td>{{ total_hours|floatformat }}</td>
+		</tr>
+	</tfoot>
+</table>
+
+<div>First Submitted: {{ object.created }}</div>
+Last Changed: {{ object.modified }}
+{% endblock %}

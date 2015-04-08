@@ -64,7 +64,7 @@ class ReportTests(TestCase):
 		response = response.content.decode('utf-8')
 		self.assertTrue(response.index('2016') < response.index('2015'))
 
-	def test_TimecardCSVView(self):
+	def test_ReportingPeriodCSVView(self):
 		request = 'fake request'
-		response = hours.views.TimecardCSVView(request, "2015-01-01").content.decode('utf-8').splitlines()[2]
+		response = hours.views.ReportingPeriodCSVView(request, "2015-01-01").content.decode('utf-8').splitlines()[2]
 		self.assertEqual('2015-01-01 - 2015-01-07,testuser@gsa.gov,Peace Corps,70%,28.0', response)
