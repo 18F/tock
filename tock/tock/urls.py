@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     url(r'^tock/timesheet/(?P<reporting_period>[\w-]+)/$', TimecardView.as_view(success_url='/'), name='UpdateTimesheet'),
     url(r'^tock/reports/$', ReportsList.as_view(), name='ListReports'),
     url(r'^tock/reports/(?P<reporting_period>[\w-]+)$', ReportingPeriodDetailView.as_view(), name='ReportingPeriodDetailView'),
-    url(r'^tock/reports/reporting_period/(?P<reporting_period>[\w-]+).csv$', TimecardCSVView, name='TimecardCSVView'),
+    url(r'^tock/reports/(?P<reporting_period>[\w-]+).csv$', TimecardCSVView, name='TimecardCSVView'),
 
     # Uncomment the next line to enable the admin:
     url(r'^tock/admin/', include(admin.site.urls)),
