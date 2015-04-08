@@ -112,7 +112,7 @@ class ReportingPeriodDetailView(DetailView):
         context['users'] = User.objects.all()
         return context
 
-def TimecardCSVView(request, reporting_period):
+def ReportingPeriodCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="%s.csv"' % reporting_period
@@ -136,3 +136,29 @@ def TimecardCSVView(request, reporting_period):
             number_of_hours(timecard_object.time_percentage, timecard_object.timecard.reporting_period.working_hours)])
 
     return response
+
+class ReportingPeriodUserDetailView(DetailView):
+    model = Timecard
+    template_name = "hours/reporting_period_user_detail.html"
+
+    def get_object(self):
+        return get_object_or_404(Timecard, reporting_period__start_date=self.kwargs['reporting_period'], user__username=self.kwargs['user'])
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(
+            ReportingPeriodUserDetailView, self).get_context_data(**kwargs)
+
+        context['billable_percent'] = 0
+        context['billable_hours'] = 0
+        for item in self.object.timecardobject_set.all():
+            if item.project.is_billable():
+                context['billable_percent'] += item.time_percentage
+                context['billable_hours'] += item.hours()
+
+        context['nonbillable_percent'] = 100 - context['billable_percent']
+        context['nonbillable_hours'] = self.object.reporting_period.working_hours - context['billable_hours']
+        
+        context['total_percent'] = context['billable_percent'] +  context['nonbillable_percent']
+        context['total_hours'] = self.object.reporting_period.working_hours
+        return context
