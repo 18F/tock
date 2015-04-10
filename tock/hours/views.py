@@ -1,5 +1,6 @@
 import csv
 import datetime
+from itertools import chain
 
 # Create your views here.
 from django.shortcuts import render
@@ -37,9 +38,11 @@ class ReportingPeriodListView(ListView):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
         # Add in the current user
-        context['completed_reporting_periods'] = ReportingPeriod.objects.filter(
-            timecard__user=self.request.user)
-        context['uncompleted_reporting_periods'] = ReportingPeriod.objects.all().exclude(timecard__user=self.request.user)
+        context['completed_reporting_periods'] = self.queryset.filter(
+            timecard__user=self.request.user).exclude(timecard__time_spent__isnull=True)
+        unstarted_reporting_periods = self.queryset.exclude(timecard__user=self.request.user)
+        unfinished_reporting_periods = self.queryset.filter(timecard__time_spent__isnull=True, timecard__user=self.request.user)
+        context['uncompleted_reporting_periods'] = list(chain(unstarted_reporting_periods, unfinished_reporting_periods))
         context['user'] = self.request.user
         context['email'] = self.request.user.username
         return context
