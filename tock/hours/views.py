@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from tock.utils import LoginRequiredMixin
 
@@ -38,8 +39,7 @@ class ReportingPeriodListView(ListView):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
         # Add in the current user
-        context['completed_reporting_periods'] = self.queryset.filter(
-            timecard__user=self.request.user).exclude(timecard__time_spent__isnull=True)
+        context['completed_reporting_periods'] = self.queryset.filter(timecard__time_spent__isnull=False, timecard__user=self.request.user).distinct()
         unstarted_reporting_periods = self.queryset.exclude(timecard__user=self.request.user)
         unfinished_reporting_periods = self.queryset.filter(timecard__time_spent__isnull=True, timecard__user=self.request.user)
         context['uncompleted_reporting_periods'] = list(chain(unstarted_reporting_periods, unfinished_reporting_periods))
