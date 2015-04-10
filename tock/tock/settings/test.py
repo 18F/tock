@@ -11,12 +11,8 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS += (
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-)
+INSTALLED_APPS += ('django.contrib.admin', 'django.contrib.auth',
+                   'django.contrib.sessions', 'django.contrib.messages',)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -25,7 +21,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',)
 
 MEDIA_ROOT = './media/'

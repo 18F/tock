@@ -7,7 +7,6 @@ import logging
 from django.core.management.base import BaseCommand, CommandError
 
 from hours.models import Week
-
 '''
 TODO
 def get_next_weekday(day):
