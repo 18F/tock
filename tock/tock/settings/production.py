@@ -16,9 +16,9 @@ STATIC_ROOT = '/app/tock/tock/static/'
 STATIC_URL = '/tock/static/'
 
 DATABASES = {}
-DATABASES['default'] =  dj_database_url.config()
+DATABASES['default'] = dj_database_url.config()
 
 try:
-    from .local_settings import *
+  from .local_settings import *
 except ImportError:
-    pass
+  pass
