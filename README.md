@@ -35,3 +35,21 @@ $ python manage.py runserver
 ```
 
 From your host computer, going to http://192.168.33.10/tock will enable you to view Tock. You're automatically logged in as `testuser@gsa.gov`, the nginx proxy in production will pull the logged in user from Google Auth proxy. You can access the admin panel at http://192.168.33.10/tock/admin
+
+### Making SASS changes
+
+In order to make official changes to the styling of the website, you'll need to compile locally and submit the files accordingly. All of the files you should be editing are located in `tock/tock/static/sass/` and are labeled according to their purpose, e.g. `base/_typography.scss` focuses on website type stylings.
+
+Here are some steps to do to help make that happen:
+
+1. Make sure that you have Sass installed on your machine, [instructions for installing Sass on various platforms.](http://sass-lang.com/install)
+2. Open a new terminal window, separate from the one running the vagrant instance described above.
+3. Type the following command from the top level `tock` directory:
+
+```
+$ sass --watch tock/tock/static/sass/core.scss:tock/tock/static/css/style.css
+```
+
+Congrats! Now you'll be able to make the changes and they will compile automatically every time your changes are saved.
+
+**NOTE: Be sure to ONLY change files ending in  `.scss' extension and NOT `.css`**
