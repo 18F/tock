@@ -2,7 +2,7 @@
 {% load is_billable %}
 
 {% block content %}
-<h2>Tell us about your time:</h2>
+<h2>Tell us about your time</h2>
 
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
@@ -11,10 +11,15 @@
   {% endif %}
   {{ formset.management_form }}
   <div class="entries">
+    <ul class="entries-header">
+      <li>PROJECTS</li>
+      <li>BILLABLE</li>
+      <li>PERCENTAGE</li>
+    </ul>
     {% for project_entry in formset %}
       <div class="entry" id="entry-{{ forloop.counter0 }}">
         <div class="entry-project">
-          {{ project_entry.project.label_tag }}
+          <label for="project">Project:</label>
           <select id="{{ project_entry.project.id_for_label }}" name="{{ project_entry.project.html_name }}">
             {% for id, name in project_entry.project.field.choices %}
               <option value{% if id %}="{{ id }}"{% endif %} {% if project_entry.project.value == id %} selected{% endif %} data-billable="{% if id %}{% is_billable id %}{% endif %}">{{ name }}</option>
@@ -28,7 +33,7 @@
           </div>
         </div>
         <div class="entry-amount">
-          {{ project_entry.time_percentage.label_tag }}
+          <label for="percentage">Time Percentage:</label>
           {{ project_entry.time_percentage }}<span class="percentage">%</span>
         </div>
         <div class="entry-hidden">

@@ -14,6 +14,36 @@
 		width: 65%;
 		display:inline;
 	}
+
+	label {
+		border: 0;
+	  clip: rect(0 0 0 0);
+	  height: 1px;
+	  margin: -1px;
+	  overflow: hidden;
+	  padding: 0;
+	  position: absolute;
+	  width: 1px;
+	}
+	ul.entries-header {
+		font-weight: 900;
+		font-size: 0.8em;
+		padding-bottom: 25px;
+		height: auto;
+		li { 
+			display: inline;
+			&:first-child {
+				@include span-columns(6);
+			}
+			&:nth-child(2) {
+				text-align: center;
+				@include span-columns(1);
+			}
+			&:last-child {
+				@include span-columns(4);
+			}
+		}
+	}
 }
 
 .entry {
