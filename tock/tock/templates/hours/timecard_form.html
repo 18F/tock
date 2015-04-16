@@ -118,6 +118,10 @@
     populatePercentageTotals();
   });
 
+  $( "body" ).on( "click", ".entry-amount input", function() {
+    populatePercentageTotals();
+  });
+
   // When you change a project, redo the totals
   $( "body" ).on( "change", ".entry-project select", function() {
     isBillable();
