@@ -10,6 +10,7 @@ A simple time tracking experiment
 Make sure you have `vagrant` installed. For instance, on OS X with Homebrew:
 
 ```
+$ brew install caskroom/cask/brew-cask
 $ brew cask install vagrant
 ```
 
