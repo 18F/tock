@@ -16,7 +16,7 @@ class TimecardObjectForm(forms.ModelForm):
 
   class Meta:
     model = TimecardObject
-    fields = ['project', 'time_percentage']
+    fields = ['project', 'hours_spent']
 
 
 class TimecardInlineFormSet(BaseInlineFormSet):
@@ -33,18 +33,18 @@ class TimecardInlineFormSet(BaseInlineFormSet):
       # print(form)
       if form.cleaned_data:
         # Easy way of telling if we have the right data
-        if form.cleaned_data.get('time_percentage') == None:
+        if form.cleaned_data.get('hours_spent') == None:
           # Don't allow submissions that specify a project but not a
-          # percentage of time
+          # amount of time
           raise forms.ValidationError('If you have a project listed, \
-                        the Time Percentage cannot be blank')
-        # Add the time percentage to the total number of hours
-        total_number_of_hours += form.cleaned_data.get('time_percentage')
+                        the number of hours cannot be blank')
+        # Add the time to the total number of hours
+        total_number_of_hours += form.cleaned_data.get('hours_spent')
 
-    if total_number_of_hours != 100:
-      # If you have more or less than 100, then you are not counting time
+    if total_number_of_hours != 40:
+      # If you have more or less than 40, then you are not counting time
       # right.
-      raise forms.ValidationError('You must report exactly 100%.')
+      raise forms.ValidationError('You must report exactly 40 hours.')
 
     return self.cleaned_data
 

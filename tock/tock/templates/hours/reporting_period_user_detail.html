@@ -8,7 +8,6 @@
 	<tr class="report_table__header-row">
 		<th>Project</th>
 		<th>Billable</th>
-		<th>Percentage</th>
 		<th>Number of Hours</th>
 	</tr>
 	{% for entry in object.timecardobject_set.all %}
@@ -21,27 +20,9 @@
       	<i class="fa fa-money icon-18f"></i> <em>Non-Billable</em>
     {% endif %}
     </td>
-		<td>{{ entry.time_percentage }}%</td>
-		<td>{{ entry.hours|floatformat }}</td>
+		<td>{{ entry.hours_spent }}</td>
 	</tr>
 	{% endfor %}
-	<tfoot class="report_table__footer">
-		<tr>
-			<td colspan="2">Total Non-Billable</td>
-			<td>{{ nonbillable_percent }}%</td>
-			<td>{{ nonbillable_hours|floatformat }}</td>
-		</tr>
-		<tr>
-			<td colspan="2">Total Billable</td>
-			<td>{{ billable_percent }}%</td>
-			<td>{{ billable_hours|floatformat }}</td>
-		</tr>
-		<tr>
-			<td colspan="2">Total</td>
-			<td>{{ total_percent }}%</td>
-			<td>{{ total_hours|floatformat }}</td>
-		</tr>
-	</tfoot>
 </table>
 
 <div>First Submitted: {{ object.created }}</div>

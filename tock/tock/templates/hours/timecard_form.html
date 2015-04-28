@@ -14,7 +14,7 @@
     <ul class="entries-header">
       <li>PROJECTS</li>
       <li>BILLABLE</li>
-      <li>PERCENTAGE</li>
+      <li>HOURS</li>
     </ul>
     {% for project_entry in formset %}
       <div class="entry" id="entry-{{ forloop.counter0 }}">
@@ -33,8 +33,8 @@
           </div>
         </div>
         <div class="entry-amount">
-          <label for="percentage">Time Percentage:</label>
-          {{ project_entry.time_percentage }}<span class="percentage">%</span>
+          <label for="hours">Hours Spent:</label>
+          {{ project_entry.hours_spent }}
         </div>
         <div class="entry-hidden">
           {{ project_entry.timecard }}
@@ -49,10 +49,10 @@
       </button>
     </div>
     <div class="entries-total-reported">
-      Billable Reported: <span class="entries-total-billable-amount">0</span>%<br>
-      Non-Billable Reported: <span class="entries-total-non-billable-amount">0</span>%
+      Billable: <span class="entries-total-billable-amount">0</span> hours<br>
+      Non-Billable: <span class="entries-total-non-billable-amount">0</span> hours
       <div class="entries-total-reported-wrapper">
-        Total Reported: <span class="entries-total-reported-amount">0</span>%
+        Total: <span class="entries-total-reported-amount">0</span> hours
       </div>
       <button type="submit" class="btn btn-primary">Submit Timecard</button>
     </div>
@@ -60,33 +60,33 @@
  </form>
 
  <script>
- function getPercentageTotals() {
+ function getHourTotals() {
     // Get the total of all timecard object entries
     var billableTotal = 0;
     var nonBillableTotal = 0;
-    var percentageTotal = 0;
+    var hoursTotal = 0;
     $('.entry-amount input').each(function(i) {
       var billableStatus = $(this).parent().parent().children('.entry-project').children('select').children('option:selected').data('billable');
       if (billableStatus === 'billable') {
-        billableTotal += $(this).val() / 1;
+        billableTotal += ($(this).val() / 1);
       }
       if (billableStatus === 'non-billable') {
-        nonBillableTotal += $(this).val() / 1;
+        nonBillableTotal += ($(this).val() / 1);
       }
     });
-    percentageTotal = billableTotal + nonBillableTotal;
-    return {'billableTotal': billableTotal, 'nonBillableTotal': nonBillableTotal, 'percentageTotal': percentageTotal};
+    hoursTotal = billableTotal + nonBillableTotal;
+    return {'billableTotal': billableTotal, 'nonBillableTotal': nonBillableTotal, 'hoursTotal': hoursTotal};
   }
 
-  function populatePercentageTotals(){
+  function populateHourTotals(){
     // Populate The Bottom Addon Items with Totals
-    var totals = getPercentageTotals();
+    var totals = getHourTotals();
     $('.entries-total-billable-amount').html(totals['billableTotal']);
     $('.entries-total-non-billable-amount').html(totals['nonBillableTotal']);
     $('.entries-total-reported-amount').html();
 
-    $('.entries-total-reported-amount').html(totals['percentageTotal']);
-    if (totals['percentageTotal'] != 100) {
+    $('.entries-total-reported-amount').html(totals['hoursTotal']);
+    if (totals['hoursTotal'] != 40) {
       $('.entries-total-reported-amount').addClass('invalid');
     }
     else {
@@ -113,19 +113,19 @@
     });
   }
 
-  // When you change the percentage, redo the totals
+  // When you change the hours, redo the totals
   $( "body" ).on( "keyup", ".entry-amount input", function() {
-    populatePercentageTotals();
+    populateHourTotals();
   });
 
   $( "body" ).on( "click", ".entry-amount input", function() {
-    populatePercentageTotals();
+    populateHourTotals();
   });
 
   // When you change a project, redo the totals
   $( "body" ).on( "change", ".entry-project select", function() {
     isBillable();
-    populatePercentageTotals();
+    populateHourTotals();
   });
 
 
@@ -167,7 +167,7 @@ $( document ).ready(function() {
 
 
     // Run on initial load
-    populatePercentageTotals();
+    populateHourTotals();
     isBillable();
 });
  </script>

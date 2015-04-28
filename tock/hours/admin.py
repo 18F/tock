@@ -29,19 +29,19 @@ class TimecardObjectFormset(BaseInlineFormSet):
     if any(self.errors):
       return
 
-    percentage = Decimal(0.0)
-
+    hours = Decimal(0.0)
+    print(self.cleaned_data)
     for unit in self.cleaned_data:
       try:
-        percentage = percentage + unit["time_percentage"]
+        hours = hours + unit["hours_spent"]
       except KeyError:
         pass
+    print(hours)
+    if hours > 40:
+      raise ValidationError('You have entered more than 40 hours')
 
-    if percentage > 100:
-      raise ValidationError('You have entered more than 100%')
-
-    if percentage < 100:
-      raise ValidationError('You have entered less than 100%')
+    if hours < 40:
+      raise ValidationError('You have entered fewer than 40 hours')
 
 
 class ReportingPeriodAdmin(admin.ModelAdmin):
