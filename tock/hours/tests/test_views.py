@@ -40,11 +40,13 @@ class ReportTests(TestCase):
     self.timecard_object_1 = hours.models.TimecardObject.objects.create(
         timecard=self.timecard,
         project=self.project_1,
-        time_percentage=30)
+        time_percentage=30,
+        hours_spent=12)
     self.timecard_object_2 = hours.models.TimecardObject.objects.create(
         timecard=self.timecard,
         project=self.project_2,
-        time_percentage=70)
+        time_percentage=70,
+        hours_spent=28)
 
   def tearDown(self):
     hours.models.ReportingPeriod.objects.all().delete()
@@ -68,5 +70,5 @@ class ReportTests(TestCase):
     response = hours.views.ReportingPeriodCSVView(
         request, "2015-01-01").content.decode('utf-8').splitlines()[2]
     self.assertEqual(
-        '2015-01-01 - 2015-01-07,{0},testuser@gsa.gov,Peace Corps,70%,28.0'.format(
+        '2015-01-01 - 2015-01-07,{0},testuser@gsa.gov,Peace Corps,28'.format(
             self.timecard.modified.strftime("%Y-%m-%d %H:%M:%S")), response)

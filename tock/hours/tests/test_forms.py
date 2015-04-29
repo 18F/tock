@@ -57,7 +57,7 @@ class TimecardObjectFormTests(TestCase):
     hours.models.TimecardObject.objects.all().delete()
 
   def test_add_project(self):
-    form_data = {'project': '1', 'time_percentage': "50"}
+    form_data = {'project': '1', 'time_percentage': "50", "hours_spent": "20"}
     form = TimecardObjectForm(form_data)
     self.assertTrue(form.is_valid())
 
@@ -91,8 +91,10 @@ class TimecardInlineFormSetTests(TestCase):
         'timecardobject_set-MAX_NUM_FORMS': '',
         'timecardobject_set-0-project': '4',
         'timecardobject_set-0-time_percentage': '50',
+        'timecardobject_set-0-hours_spent': '20',
         'timecardobject_set-1-project': '5',
         'timecardobject_set-1-time_percentage': '50',
+        'timecardobject_set-1-hours_spent': '20'
     }
     for key in clear:
       del form_data[key]
@@ -109,6 +111,7 @@ class TimecardInlineFormSetTests(TestCase):
     form_data = self.form_data()
     form_data['timecardobject_set-2-project'] = '6'
     form_data['timecardobject_set-2-time_percentage'] = '50'
+    form_data['timecardobject_set-2-hours_spent'] = '20'
     form_data['timecardobject_set-TOTAL_FORMS'] = '3'
     formset = TimecardFormSet(form_data)
     self.assertFalse(formset.is_valid())

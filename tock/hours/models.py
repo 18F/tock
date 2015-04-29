@@ -57,10 +57,15 @@ class TimecardObject(models.Model):
   project = models.ForeignKey(Project)
   time_percentage = models.DecimalField(decimal_places=1,
                                         max_digits=4,
-                                        validators=[MaxValueValidator(100)])
+                                        validators=[MaxValueValidator(100)],
+                                        blank=True,
+                                        null=True)
+  hours_spent = models.DecimalField(decimal_places=2,
+                                    max_digits=4,
+                                    blank=True,
+                                    null=True)
   created = models.DateTimeField(auto_now_add=True)
   modified = models.DateTimeField(auto_now=True)
 
   def hours(self):
-    return number_of_hours(self.time_percentage,
-                           self.timecard.reporting_period.working_hours)
+    return self.hours_spent

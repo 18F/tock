@@ -137,7 +137,7 @@ def ReportingPeriodCSVView(request, reporting_period):
       timecard__reporting_period__start_date=reporting_period)
 
   writer.writerow(["Reporting Period", "Last Modified", "User", "Project",
-                   "Time Percentage", "Number of Hours"])
+                   "Number of Hours"])
   for timecard_object in timecard_objects:
     writer.writerow(
         ["{0} - {1}".format(
@@ -145,9 +145,7 @@ def ReportingPeriodCSVView(request, reporting_period):
             timecard_object.timecard.reporting_period.end_date),
          timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
          timecard_object.timecard.user, timecard_object.project,
-         "{0}%".format(timecard_object.time_percentage), number_of_hours(
-             timecard_object.time_percentage,
-             timecard_object.timecard.reporting_period.working_hours)])
+         timecard_object.hours_spent])
 
   return response
 
@@ -166,17 +164,4 @@ class ReportingPeriodUserDetailView(DetailView):
     # Call the base implementation first to get a context
     context = super(ReportingPeriodUserDetailView,
                     self).get_context_data(**kwargs)
-
-    context['billable_percent'] = 0
-    context['billable_hours'] = 0
-    for item in self.object.timecardobject_set.all():
-      if item.project.is_billable():
-        context['billable_percent'] += item.time_percentage
-        context['billable_hours'] += item.hours()
-
-    context['nonbillable_percent'] = 100 - context['billable_percent']
-    context['nonbillable_hours'] = self.object.reporting_period.working_hours - context['billable_hours']
-
-    context['total_percent'] = context['billable_percent'] + context['nonbillable_percent']
-    context['total_hours'] = self.object.reporting_period.working_hours
     return context
