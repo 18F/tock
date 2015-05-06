@@ -21,7 +21,7 @@ DATABASES = {}
 INSTALLED_APPS = ('django.contrib.contenttypes',  # may be okay to remove
                   'django.contrib.staticfiles', 'django.contrib.admin',
                   'django.contrib.auth', 'django.contrib.sessions',
-                  'django.contrib.messages', 'tock', 'projects', 'hours')
+                  'django.contrib.messages', 'tock', 'projects', 'hours', 'employees')
 
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'

@@ -3,6 +3,10 @@
 
 {% block content %}
 <h2>Tell us about your time</h2>
+<div class="alert">
+  <h3 class="alert-title">Yo!</h3>
+  <p class="alert-body">We're changing how Tock works - you now can enter the exact number of hours you've worked (including decimals) rather than a percentage. You must enter exactly 40 hours of work per reporting period.</p>
+</div>
 
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}

@@ -6,6 +6,7 @@
 @import "content";
 @import "entries";
 @import "utils";
+@import "alert";
 
 .container {
 	@include outer-container;
