@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Tock Users</h2>
+
+<table class="table-minimal report_table">
+	<tr class="report_table__header-row">
+		<th>Email Address</th>
+		<th>First Name</th>
+		<th>Last Name</th>
+		<th>Start Date</th>
+		<th>End Date</th>
+	</tr>
+	{% for user in object_list %}
+	<tr class="report_table__row">
+		<td><a href="/tock/users/{{ user.username }}">{{ user.username }}</a></td>
+		<td>{{ user.first_name }}</td>
+		<td>{{ user.last_name }}</td>
+		<td>{{ user.user_data.start_date }}</td>
+		<td>{{ user.user_data.end_date }}</td>
+	</tr>
+	{% endfor %}
+</table>
+
+{% endblock %}
