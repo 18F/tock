@@ -40,7 +40,7 @@ class ReportingPeriodListView(ListView):
     # Add in the current user
     context['completed_reporting_periods'] = self.queryset.filter(
         timecard__time_spent__isnull=False,
-        timecard__user=self.request.user).distinct().order_by('start_date')
+        timecard__user=self.request.user).distinct().order_by('-start_date')[:5]
     unstarted_reporting_periods = self.queryset.exclude(
         timecard__user=self.request.user)
     unfinished_reporting_periods = self.queryset.filter(

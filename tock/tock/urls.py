@@ -8,7 +8,7 @@ from django.contrib import admin
 admin.autodiscover()
 
 from hours.views import ReportingPeriodListView, ReportingPeriodDetailView, TimecardView, ReportsList, ReportingPeriodCSVView, ReportingPeriodUserDetailView
-from employees.views import UserListView, UserFormView
+from employees.views import UserListView, UserFormView, UserBulkFormView
 
 urlpatterns = patterns(
     '', url(r'^tock/$', ReportingPeriodListView.as_view(),
@@ -30,6 +30,7 @@ urlpatterns = patterns(
     url(r'^tock/users/(?P<username>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6})/$',
         UserFormView.as_view(),
         name='UserFormView'),
+    url(r'^tock/users/roster-upload/$', UserBulkFormView.as_view(), name='UserBulkFormView'),
     # Uncomment the next line to enable the admin:
     url(r'^tock/admin/', include(admin.site.urls)),)
 
