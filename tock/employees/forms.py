@@ -20,3 +20,6 @@ class UserForm(forms.Form):
 		if end_date:
 			if not start_date or (start_date >= end_date):
 				raise forms.ValidationError("You must provide a start date prior to the user's end date.")
+
+class UserBulkForm(forms.Form):
+	roster = forms.FileField(label="Roster")

@@ -1,4 +1,7 @@
 from functools import wraps
+import csv
+import io
+import datetime
 
 from django.conf import settings
 from django.shortcuts import render, resolve_url
@@ -11,15 +14,27 @@ from django.utils.decorators import method_decorator, available_attrs
 from django.utils.six.moves.urllib.parse import urlparse
 from django.core.exceptions import PermissionDenied
 
-from .forms import UserForm
+from .forms import UserForm, UserBulkForm
 
 from .models import UserData
 
 
+def parse_date(date):
+    if date == 'NA':
+        return None
+    else:
+        return datetime.datetime.strptime(date, '%m/%d/%Y')
+        
 # Create your views here.
 class UserListView(ListView):
     model = User
     template_name = 'employees/user_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(UserListView, self).get_context_data(**kwargs)
+        context['UserBulkForm'] = UserBulkForm()
+        context['UserBulkFormViewURL'] = reverse("UserBulkFormView")
+        return context
 
 
 class UserFormView(FormView):
@@ -57,6 +72,37 @@ class UserFormView(FormView):
             user_data.end_date = form.cleaned_data['end_date']
             user_data.save()
         return super(UserFormView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("UserListView")
+
+class UserBulkFormView(FormView):
+    template_name = 'employees/user_bulk_form.html'
+    form_class = UserBulkForm
+
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.is_superuser:
+            return super(UserBulkFormView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
+
+
+    def form_valid(self, form):
+        if form.is_valid():
+            roster = io.StringIO(self.request.FILES['roster'].read().decode('utf-8'))
+            c = csv.DictReader(roster)
+            for person in c:
+                user, created = User.objects.get_or_create(username=person['Email'].lower())
+                user.first_name = person['First Name']
+                user.last_name = person['Last Name']
+                user.save()
+                user_data, created = UserData.objects.get_or_create(user=user)
+
+                user_data.start_date = parse_date(person['Hire/Start Date'])
+                user_data.end_date = parse_date(person['NTE End Date'])
+                user_data.save()
+
+        return super(UserBulkFormView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse("UserListView")
