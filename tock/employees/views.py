@@ -92,15 +92,17 @@ class UserBulkFormView(FormView):
             roster = io.StringIO(self.request.FILES['roster'].read().decode('utf-8'))
             c = csv.DictReader(roster)
             for person in c:
-                user, created = User.objects.get_or_create(username=person['Email'].lower())
-                user.first_name = person['First Name']
-                user.last_name = person['Last Name']
-                user.save()
-                user_data, created = UserData.objects.get_or_create(user=user)
+                print(person)
+                if "@" in person['Email']:
+                    user, created = User.objects.get_or_create(username=person['Email'].lower())
+                    user.first_name = person['First Name']
+                    user.last_name = person['Last Name']
+                    user.save()
+                    user_data, created = UserData.objects.get_or_create(user=user)
 
-                user_data.start_date = parse_date(person['Hire/Start Date'])
-                user_data.end_date = parse_date(person['NTE End Date'])
-                user_data.save()
+                    user_data.start_date = parse_date(person['Hire/Start Date'])
+                    user_data.end_date = parse_date(person['NTE End Date'])
+                    user_data.save()
 
         return super(UserBulkFormView, self).form_valid(form)
 
