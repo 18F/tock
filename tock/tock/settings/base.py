@@ -66,4 +66,4 @@ TEMPLATE_DIRS = ('/templates/',)
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = '/tock/static/'
 
-AUTH_USER_MODEL = 'auth.User'
+#AUTH_USER_MODEL = 'employees.Employee'

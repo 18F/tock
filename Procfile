@@ -1,1 +1,1 @@
-web: cd tock && python manage.py migrate --settings=tock.settings.production && python manage.py collectstatic --settings=tock.settings.production --noinput && waitress-serve --port=$VCAP_APP_PORT tock.wsgi:application
+web: cd tock && python manage.py migrate --settings=tock.settings.production && python manage.py convert_users --settings=tock.settings.production && python manage.py collectstatic --settings=tock.settings.production --noinput && waitress-serve --port=$VCAP_APP_PORT tock.wsgi:application
