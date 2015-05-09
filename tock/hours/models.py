@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 
 from .utils import ValidateOnSaveMixin, number_of_hours
 from projects.models import Project
-from employees.models import Employee
 
 
 # Create your models here.
@@ -40,7 +39,6 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 class Timecard(models.Model):
   user = models.ForeignKey(User)
-  employee = models.ForeignKey(Employee, blank=True, null=True)
   reporting_period = models.ForeignKey(ReportingPeriod)
   time_spent = models.ManyToManyField(Project, through='TimecardObject')
   created = models.DateTimeField(auto_now_add=True)
