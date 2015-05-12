@@ -24,10 +24,7 @@
       <div class="entry" id="entry-{{ forloop.counter0 }}">
         <div class="entry-project">
           <label for="project">Project:</label>
-          <select id="{{ project_entry.project.id_for_label }}" name="{{ project_entry.project.html_name }}">
-            {% for id, name in project_entry.project.field.choices %}
-              <option value{% if id %}="{{ id }}"{% endif %} {% if project_entry.project.value == id %} selected{% endif %} data-billable="{% if id %}{% is_billable id %}{% endif %}">{{ name }}</option>
-            {% endfor %}
+          {{ project_entry.project }}
           </select>
         </div>
         <div class="entry-billable">
@@ -70,7 +67,7 @@
     var nonBillableTotal = 0;
     var hoursTotal = 0;
     $('.entry-amount input').each(function(i) {
-      var billableStatus = $(this).parent().parent().children('.entry-project').children('select').children('option:selected').data('billable');
+      var billableStatus = $(this).parent().parent().children('.entry-project').children('select').find('option:selected').data('billable');
       if (billableStatus === 'billable') {
         billableTotal += ($(this).val() / 1);
       }
@@ -102,7 +99,7 @@
     // Determine if a project is billable or not and append the proper class
     $('.entry-project option:selected').each(function(i) {
       var billableStatus = $(this).data('billable');
-      var element = $(this).parent().parent().next('.entry-billable').children('.entry-billable-icon').first();
+      var element = $(this).parent().parent().parent().next('.entry-billable').children('.entry-billable-icon').first();
 
       if (billableStatus === 'billable') {
         element.addClass('billable');
@@ -136,34 +133,15 @@
 $( document ).ready(function() {
     $(".add-timecard-entry").on( "click", function() {
         $('div.entry:last').clone().each(function(i) {
-            $(this).find('input,select').each(function(i) {
-                // Remove any existing values
-                $(this).val('');
-
-                // update the id attributes, incrementing the form number, e.g.: "id_form-1-field_name"
-                parts = $(this).attr('id').split('-', 3);
-                num = parseInt(parts[1]) + 1;
-                $(this).attr('id', parts[0] + '-' +num + '-' +parts[2]);
-
-                // Update the name attribute, e.g.: form-1-field_name
-                parts = $(this).attr('name').split('-', 3);
-                num = parseInt(parts[1]) + 1;
-                $(this).attr('name', parts[0] + '-' +num + '-' +parts[2]);
-
-            });
-
-            // Update the "for" attribute for all labels
-            $(this).find('label').each(function(i) {
-                parts = $(this).attr('for').split('-', 3);
-                num = parseInt(parts[1]) + 1;
-                $(this).attr('for', parts[0] + '-' +num + '-' +parts[2]);
-            });
-
-            parts = $(this).attr('id').split('-', 3);
-            num = parseInt(parts[1]) + 1;
-            $(this).attr("id", parts[0] + '-' +num);
-            $(this).attr("name", parts[0] + '-' +num);
+          var entry = $(this);
+          entry.find('.chosen-container').remove();
+          entry.find('select').show();
+          entry.find('input,select').val('');
+          // Remove any existing values
+          $(this).val('');
+           
         }).appendTo('.entries');
+        $(".entry-project select").chosen()
 
         // Increment the TOTAL_FORMS
         $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1);
@@ -173,6 +151,7 @@ $( document ).ready(function() {
     // Run on initial load
     populateHourTotals();
     isBillable();
+    $(".entry-project select").chosen()
 });
  </script>
 {% endblock %}
