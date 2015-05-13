@@ -138,7 +138,25 @@ $( document ).ready(function() {
           entry.find('select').show();
           entry.find('input,select').val('');
           // Remove any existing values
-          $(this).val('');
+          entry.val('');
+
+          var previousNumber = parseInt(entry.attr('id').split('-')[1]);
+          var nextNumber = previousNumber + 1;
+          
+          entry.attr("id", "entry-" + nextNumber);
+
+          entry.find('input,select').each(function(i) {
+            var formItem = $(this);
+            var formerID = formItem.attr('id');
+            var nextID = formerID.replace(previousNumber, nextNumber);
+            formItem.attr('id', nextID);
+
+            var formerName = formItem.attr('name');
+            var nextName = formerName.replace(previousNumber, nextNumber);
+            formItem.attr('name', nextName);
+
+
+          });
            
         }).appendTo('.entries');
         $(".entry-project select").chosen()
