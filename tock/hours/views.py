@@ -9,19 +9,20 @@ from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
 from django.template.context import RequestContext
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db.models import Q
 
 from tock.utils import LoginRequiredMixin
 
 from .utils import number_of_hours
 from .models import ReportingPeriod, Timecard, TimecardObject
-from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm
+from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm, ReportingPeriodImportForm
 
 
 def home(request):
@@ -66,6 +67,34 @@ class ReportingPeriodCreateView(CreateView):
             
   def get_success_url(self):
     return reverse("ListReportingPeriods")
+
+
+class ReportingPeriodBulkImportView(FormView):
+    template_name = 'hours/reporting_period_import.html'
+    form_class = ReportingPeriodImportForm
+
+    def dispatch(self, *args, **kwargs):
+        if self.request.user.is_superuser:
+            return super(UserBulkFormView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
+
+    def form_valid(self, form):
+        if form.is_valid():
+          reporting_period = self.cleaned_data['reporting_period']
+
+          line_items = io.StringIO(self.request.FILES['line_items'].read().decode('utf-8'))
+          c = csv.DictReader(roster)
+          for line_item in c:
+            user, created = get_user_model().objects.get_or_create(username=line_item['Tock Name'].lower())
+            timecard = Timecard(user=user, reporting_period=reporting_period)
+
+            timecard_object = TimecardObject()
+
+        return super(ReportingPeriodBulkImportView, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse("ListReportingPeriods")
 
 
 class TimecardView(UpdateView):
