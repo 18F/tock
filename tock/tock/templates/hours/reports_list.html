@@ -10,7 +10,7 @@
 	Fiscal Year {{ fiscal_year }}
 	<ul>
 	{% for reporting_period in reporting_periods %}
-	    <li><a href="{% url 'ReportingPeriodDetailView' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> (<em><a href="{% url 'ReportingPeriodCSVView' reporting_period %}">CSV</a></em>)</li>
+	    <li><a href="{% url 'reports:ReportingPeriodDetailView' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> (<em><a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">CSV</a></em>)</li>
 	{% endfor %}
 	</ul>
 	{% endfor %}

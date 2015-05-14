@@ -4,7 +4,7 @@
 {% block content %}
 
 <h2>Reporting Period {{ object.start_date }}!</h2>
-<a href="{% url 'ReportingPeriodCSVView' object %}">Download Full CSV Report</a>
+<a href="{% url 'reports:ReportingPeriodCSVView' object %}">Download Full CSV Report</a>
 <table>
 <tr>
 	<th>User</th>
@@ -12,7 +12,7 @@
 </tr>
 {% for user in users %}
 <tr>
-	<td>{% if user|has_submitted_timesheet:object %}<a href="{% url 'ReportingPeriodUserDetailView' reporting_period=object user=user.username %}">{{ user }}</a>{% else %}{{ user }}{% endif %}</td>
+	<td>{% if user|has_submitted_timesheet:object %}<a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=object user=user.username %}">{{ user }}</a>{% else %}{{ user }}{% endif %}</td>
 	<td>{% if user|has_submitted_timesheet:object %}<i class="fa fa-check-square icon-green"></i> Yes{% else %}<i class="fa fa-minus-square icon-red"></i> No{%endif %}</td>
 </tr>
 {% endfor %}
