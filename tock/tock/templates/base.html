@@ -32,8 +32,14 @@
       <h1>Tock</h1>
       <hr>
       <ul>
-        <li><a href="{% url 'ListReports' %}">Reports</a></li>
-        <li><a href="{% url 'UserListView' %}">Users</a></li>
+        <li><a href="{% url 'reports:ListReports' %}">Reports</a></li>
+        <li><a href="{% url 'employees:UserListView' %}">Users</a></li>
+        {% if request.user.is_superuser %}
+        <br>
+        <hr>
+        <strong>Admin</strong>
+        <li><a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">New Reporting Period</a></li>
+        {% endif %}
       </ul>
     </header>
     <div class="content">

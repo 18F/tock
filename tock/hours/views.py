@@ -21,7 +21,7 @@ from tock.utils import LoginRequiredMixin
 
 from .utils import number_of_hours
 from .models import ReportingPeriod, Timecard, TimecardObject
-from .forms import TimecardForm, TimecardFormSet
+from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm
 
 
 def home(request):
@@ -51,6 +51,21 @@ class ReportingPeriodListView(ListView):
     context['user'] = self.request.user
     context['email'] = self.request.user.username
     return context
+
+
+
+class ReportingPeriodCreateView(CreateView):
+  form_class = ReportingPeriodForm
+  template_name = 'hours/reporting_period_form.html'
+
+  def dispatch(self, *args, **kwargs):
+        if self.request.user.is_superuser:
+            return super(ReportingPeriodCreateView, self).dispatch(*args, **kwargs)
+        else:
+            raise PermissionDenied
+            
+  def get_success_url(self):
+    return reverse("ListReportingPeriods")
 
 
 class TimecardView(UpdateView):

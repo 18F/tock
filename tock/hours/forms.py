@@ -4,9 +4,19 @@ from django.forms.models import inlineformset_factory
 from django.utils.encoding import force_text
 from django.utils.html import escape, conditional_escape
 
-from .models import Timecard, TimecardObject
+from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
 
+
+class ReportingPeriodForm(forms.ModelForm):
+
+    class Meta:
+        model = ReportingPeriod
+        fields = ['start_date', 'end_date', 'working_hours', 'message']
+        widgets = {
+            'start_date': forms.TextInput(attrs={'class': "datepicker"}),
+            'end_date': forms.TextInput(attrs={'class': "datepicker"})
+        }
 
 class TimecardForm(forms.ModelForm):
 

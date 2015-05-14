@@ -11,7 +11,7 @@ from projects.models import Project
 
 # Create your models here.
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
-    start_date = models.DateField()
+    start_date = models.DateField(unique=True)
     end_date = models.DateField()
     working_hours = models.PositiveSmallIntegerField(
         default=40,
@@ -27,6 +27,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         verbose_name = "Reporting Period"
         verbose_name_plural = "Reporting Periods"
         get_latest_by = "start_date"
+        unique_together = ("start_date", "end_date")
 
     def get_fiscal_year(self):
         """Determines the Fiscal Year (Oct 1 - Sept 31) of a given

@@ -33,7 +33,7 @@ class UserListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
         context['UserBulkForm'] = UserBulkForm()
-        context['UserBulkFormViewURL'] = reverse("UserBulkFormView")
+        context['UserBulkFormViewURL'] = reverse("employees:UserBulkFormView", current_app=self.request.resolver_match.namespace)
         return context
 
 
@@ -74,7 +74,7 @@ class UserFormView(FormView):
         return super(UserFormView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("UserListView")
+        return reverse("employees:UserListView", current_app=self.request.resolver_match.namespace)
 
 class UserBulkFormView(FormView):
     template_name = 'employees/user_bulk_form.html'
@@ -107,4 +107,4 @@ class UserBulkFormView(FormView):
         return super(UserBulkFormView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("UserListView")
+        return reverse("employees:UserListView")

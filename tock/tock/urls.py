@@ -7,30 +7,15 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 admin.autodiscover()
 
-from hours.views import ReportingPeriodListView, ReportingPeriodDetailView, TimecardView, ReportsList, ReportingPeriodCSVView, ReportingPeriodUserDetailView
-from employees.views import UserListView, UserFormView, UserBulkFormView
+from hours.views import ReportingPeriodListView
 
 urlpatterns = patterns(
     '', url(r'^tock/$', ReportingPeriodListView.as_view(),
             name='ListReportingPeriods'),
-    url(r'^tock/timesheet/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/$',
-        TimecardView.as_view(success_url='/'),
-        name='UpdateTimesheet'), url(r'^tock/reports/$', ReportsList.as_view(),
-                                     name='ListReports'),
-    url(r'^tock/reports/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})$',
-        ReportingPeriodDetailView.as_view(),
-        name='ReportingPeriodDetailView'),
-    url(r'^tock/reports/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2}).csv$',
-        ReportingPeriodCSVView,
-        name='ReportingPeriodCSVView'),
-    url(r'^tock/reports/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/(?P<user>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6})/$',
-        ReportingPeriodUserDetailView.as_view(),
-        name='ReportingPeriodUserDetailView'),
-    url(r'^tock/users/$', UserListView.as_view(), name='UserListView'),
-    url(r'^tock/users/(?P<username>[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6})/$',
-        UserFormView.as_view(),
-        name='UserFormView'),
-    url(r'^tock/users/roster-upload/$', UserBulkFormView.as_view(), name='UserBulkFormView'),
+    url(r'^tock/reporting_period/', include("hours.urls.timesheets", namespace="reportingperiod")),
+    url(r'^tock/reports/', include("hours.urls.reports", namespace="reports")),
+    url(r'^tock/employees/', include("employees.urls", namespace="employees")),
+
     # Uncomment the next line to enable the admin:
     url(r'^tock/admin/', include(admin.site.urls)),)
 
