@@ -4,3 +4,4 @@ psycopg2==2.6
 model-mommy==1.2.3
 waitress==0.8.9
 whitenoise==1.0.6
+python-social-auth
