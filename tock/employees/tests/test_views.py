@@ -16,15 +16,15 @@ class UserViewTests(TestCase):
 
     def test_UserFormViewPermissionForAdmin(self):
         c = Client(HTTP_X_FORWARDED_EMAIL='testuser@gsa.gov')
-        response = c.get(reverse('UserFormView', args=["regular.user@gsa.gov"]), follow=True)
+        response = c.get(reverse('employees:UserFormView', args=["regular.user@gsa.gov"]), follow=True)
         self.assertEqual(response.status_code, 200)
 
     def test_UserFormViewPermissionForUser(self):
         c = Client(HTTP_X_FORWARDED_EMAIL='regular.user@gsa.gov')
-        response = c.get(reverse('UserFormView', args=["testuser@gsa.gov"]), follow=True)
+        response = c.get(reverse('employees:UserFormView', args=["testuser@gsa.gov"]), follow=True)
         self.assertEqual(response.status_code, 403)
 
     def test_UserFormViewPermissionForSelf(self):
         c = Client(HTTP_X_FORWARDED_EMAIL='regular.user@gsa.gov')
-        response = c.get(reverse('UserFormView', args=["regular.user@gsa.gov"]), follow=True)
+        response = c.get(reverse('employees:UserFormView', args=["regular.user@gsa.gov"]), follow=True)
         self.assertEqual(response.status_code, 200)

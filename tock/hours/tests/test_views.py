@@ -61,7 +61,7 @@ class ReportTests(TestCase):
         working_hours=40)
 
     request = 'fake request'
-    response = self.client.get(reverse('ListReports'))
+    response = self.client.get(reverse('reports:ListReports'))
     response = response.content.decode('utf-8')
     self.assertTrue(response.index('2016') < response.index('2015'))
 
