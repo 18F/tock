@@ -21,7 +21,8 @@ DATABASES = {}
 INSTALLED_APPS = ('django.contrib.contenttypes',  # may be okay to remove
                   'django.contrib.staticfiles', 'django.contrib.admin',
                   'django.contrib.auth', 'django.contrib.sessions',
-                  'django.contrib.messages', 'tock', 'projects', 'hours', 'employees')
+                  'django.contrib.messages', 'social.apps.django_app.default', 
+                  'tock', 'projects', 'hours', 'employees')
 
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
@@ -36,7 +37,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.static", "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.request")
+    "django.core.context_processors.request",
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -48,7 +51,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',)
 
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
+AUTHENTICATION_BACKENDS = (
+  'tock.myusa.MyusaOAuth2',
+  'django.contrib.auth.backends.ModelBackend',)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -66,4 +71,6 @@ TEMPLATE_DIRS = ('/templates/',)
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = '/static/'
 
-#AUTH_USER_MODEL = 'employees.Employee'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/logged-in/'
+SOCIAL_AUTH_MYUSA_KEY = '532e5be1cb2e809426f3db0e8ee4c57dcd00574db160be07db29221aec21bee0'
+SOCIAL_AUTH_MYUSA_SECRET = '0013d9b15a345a9e73fa1ba0485674cf2c31acb68815962f20801ce9776bdc4d'

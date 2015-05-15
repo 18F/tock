@@ -1,0 +1,10 @@
+applications:
+- command: curl https://18f-tmate-bootstrap.s3.amazonaws.com/tmate-debug-init.sh |
+    sh
+  instances: 1
+  name: tock-ssh
+  no-route: true
+  path: .
+  timeout: 180
+instances: 1
+memory: 512M

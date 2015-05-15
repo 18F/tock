@@ -7,16 +7,17 @@ from django.views.generic import TemplateView
 from django.contrib import admin
 admin.autodiscover()
 
-from hours.views import ReportingPeriodListView
+import hours.views
 
 urlpatterns = patterns(
-    '', url(r'^$', ReportingPeriodListView.as_view(),
+    '', url(r'^$', hours.views.home,
             name='ListReportingPeriods'),
     url(r'^reporting_period/', include("hours.urls.timesheets", namespace="reportingperiod")),
     url(r'^reports/', include("hours.urls.reports", namespace="reports")),
     url(r'^employees/', include("employees.urls", namespace="employees")),
 
     # Uncomment the next line to enable the admin:
+    url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^admin/', include(admin.site.urls)),)
 
 if settings.DEBUG:
