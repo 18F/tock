@@ -17,7 +17,6 @@ urlpatterns = patterns(
     url(r'^employees/', include("employees.urls", namespace="employees")),
 
     # Uncomment the next line to enable the admin:
-    url('', include('social.apps.django_app.urls', namespace='social')),
     url(r'^admin/', include(admin.site.urls)),)
 
 if settings.DEBUG:
