@@ -10,7 +10,7 @@ admin.autodiscover()
 import hours.views
 
 urlpatterns = patterns(
-    '', url(r'^$', hours.views.home,
+    '', url(r'^$', hours.views.ReportingPeriodListView,
             name='ListReportingPeriods'),
     url(r'^reporting_period/', include("hours.urls.timesheets", namespace="reportingperiod")),
     url(r'^reports/', include("hours.urls.reports", namespace="reports")),
