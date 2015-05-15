@@ -25,7 +25,7 @@ from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm
 
 
 def home(request):
-  context = RequestContext(request, {'request': request, 'user': 'hello'})
+  context = RequestContext(request, {'request': request})
   return render_to_response('base.html', context_instance=context)
 
 
