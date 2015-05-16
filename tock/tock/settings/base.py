@@ -65,5 +65,3 @@ TEMPLATE_DIRS = ('/templates/',)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = '/static/'
-
-#AUTH_USER_MODEL = 'employees.Employee'

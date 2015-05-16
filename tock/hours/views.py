@@ -23,12 +23,6 @@ from .utils import number_of_hours
 from .models import ReportingPeriod, Timecard, TimecardObject
 from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm
 
-
-def home(request):
-  context = RequestContext(request, {'request': request})
-  return render_to_response('base.html', context_instance=context)
-
-
 class ReportingPeriodListView(ListView):
   context_object_name = "incomplete_reporting_periods"
   queryset = ReportingPeriod.objects.all()
