@@ -27,16 +27,4 @@
 	{% endfor %}
 </table>
 
-{% if request.user.is_superuser %}
- <div id="csv-upload-form-content">
-  <form enctype="multipart/form-data" method="POST" action="{{ UserBulkFormViewURL }}">
-  {% csrf_token %}
-   
-   <div>{{ UserBulkForm.as_p }}</div>
-   
-   <input type="submit" value="Bulk Upload" />
-  </form>
- </div>
- {% endif %}
-
 {% endblock %}
