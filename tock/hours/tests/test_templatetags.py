@@ -28,12 +28,10 @@ class TemplateTagTests(TestCase):
     self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
     self.timecard_object_1 = hours.models.TimecardObject.objects.create(
         timecard=self.timecard,
-        project=self.project_1,
-        time_percentage=30)
+        project=self.project_1)
     self.timecard_object_2 = hours.models.TimecardObject.objects.create(
         timecard=self.timecard,
-        project=self.project_2,
-        time_percentage=70)
+        project=self.project_2)
 
   def tearDown(self):
     hours.models.ReportingPeriod.objects.all().delete()
