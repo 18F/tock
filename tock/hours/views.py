@@ -152,7 +152,7 @@ def ReportingPeriodCSVView(request, reporting_period):
             timecard_object.timecard.reporting_period.start_date,
             timecard_object.timecard.reporting_period.end_date),
          timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
-         timecard_object.timecard.user, timecard_object.project,
+         timecard_object.timecard.user.email, timecard_object.project,
          timecard_object.hours_spent])
 
   return response
