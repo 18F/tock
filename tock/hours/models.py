@@ -59,11 +59,6 @@ class Timecard(models.Model):
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
     project = models.ForeignKey(Project)
-    time_percentage = models.DecimalField(decimal_places=1,
-                                          max_digits=4,
-                                          validators=[MaxValueValidator(100)],
-                                          blank=True,
-                                          null=True)
     hours_spent = models.DecimalField(decimal_places=2,
                                       max_digits=4,
                                       blank=True,

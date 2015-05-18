@@ -61,12 +61,10 @@ class TimecardTests(TestCase):
     self.timecard_object_1 = hours.models.TimecardObject.objects.create(
         timecard=self.timecard,
         project=self.project_1,
-        time_percentage=30,
         hours_spent=12)
     self.timecard_object_2 = hours.models.TimecardObject.objects.create(
         timecard=self.timecard,
         project=self.project_2,
-        time_percentage=70,
         hours_spent=28)
 
   def tearDown(self):
