@@ -10,6 +10,8 @@ deploy()
 	current_deployment=$1
 	next_deployment=$2
 
+	current_vars="$(cf env $current_deployment)"
+
 	database_url=$(echo $current_vars | sed -n "s/DATABASE_URL: \([a-zA-Z0-9:/@.-]*\)/\1/p")
 	django_secret_key=$(echo $current_vars | sed -n "s/DJANGO_SECRET_KEY: \([a-zA-Z0-9:/@.-]*\)/\1/p")
 
@@ -28,10 +30,14 @@ deploy()
 	cf delete $current_deployment
 }
 
-if [ "${current_apps/green}" = "$current_apps" ]; then
-	deploy green blue
-elif [ "${current_apps/blue}" = "$current_apps" ]; then
-	deploy blue green
-else
-	echo "No Current Blue/Green Deployment Found!"
-fi
+deploy blue green
+
+#if [ "${ $current_apps/green }" = "$current_apps" ]; then
+#	#deploy green blue
+#	echo "green deployed"
+#elif [ "${ $current_apps/blue }" = "$current_apps" ]; then
+#	#deploy blue green
+#	echo "blue deployed"
+#else
+#	echo "No Current Blue/Green Deployment Found!"
+#fi
