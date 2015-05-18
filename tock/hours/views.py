@@ -42,8 +42,6 @@ class ReportingPeriodListView(ListView):
         timecard__user=self.request.user)
     context['uncompleted_reporting_periods'] = sorted(list(
         chain(unstarted_reporting_periods, unfinished_reporting_periods)), key=attrgetter('start_date'))
-    context['user'] = self.request.user
-    context['email'] = self.request.user.username
     return context
 
 
