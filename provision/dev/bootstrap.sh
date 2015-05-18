@@ -53,4 +53,6 @@ pyenv activate tock
 pip install -r /vagrant/requirements.txt
 pip install -r /vagrant/requirements-dev.txt
 cd /vagrant/tock
+echo 'cd /vagrant/tock' >> ~/.bash_profile
+echo 'pyenv activate tock' >> ~/.bash_profile
 EOF

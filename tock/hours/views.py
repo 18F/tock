@@ -24,12 +24,6 @@ from .utils import number_of_hours
 from .models import ReportingPeriod, Timecard, TimecardObject
 from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm, ReportingPeriodImportForm
 
-
-def home(request):
-  context = RequestContext(request, {'request': request, 'user': 'hello'})
-  return render_to_response('base.html', context_instance=context)
-
-
 class ReportingPeriodListView(ListView):
   context_object_name = "incomplete_reporting_periods"
   queryset = ReportingPeriod.objects.all()
@@ -49,8 +43,6 @@ class ReportingPeriodListView(ListView):
         timecard__user=self.request.user)
     context['uncompleted_reporting_periods'] = sorted(list(
         chain(unstarted_reporting_periods, unfinished_reporting_periods)), key=attrgetter('start_date'))
-    context['user'] = self.request.user
-    context['email'] = self.request.user.username
     return context
 
 
@@ -189,7 +181,7 @@ def ReportingPeriodCSVView(request, reporting_period):
             timecard_object.timecard.reporting_period.start_date,
             timecard_object.timecard.reporting_period.end_date),
          timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
-         timecard_object.timecard.user, timecard_object.project,
+         timecard_object.timecard.user.email, timecard_object.project,
          timecard_object.hours_spent])
 
   return response

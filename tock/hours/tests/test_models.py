@@ -77,4 +77,4 @@ class TimecardTests(TestCase):
 
   def test_timecard_string_return(self):
     """Ensure the returned string for the timecard is as expected"""
-    self.assertEqual('testuser@gsa.gov - 2015-01-01', str(self.timecard))
+    self.assertEqual('test.user - 2015-01-01', str(self.timecard))
