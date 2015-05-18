@@ -48,7 +48,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',)
 
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.RemoteUserBackend',)
+AUTHENTICATION_BACKENDS = ('tock.remote_user_auth.TockUserBackend',)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
@@ -66,4 +66,6 @@ TEMPLATE_DIRS = ('/templates/',)
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = '/static/'
 
-#AUTH_USER_MODEL = 'employees.Employee'
+ALLOWED_EMAIL_DOMAINS = {
+    'gsa.gov',
+}

@@ -14,8 +14,9 @@ from django.utils.decorators import method_decorator, available_attrs
 from django.utils.six.moves.urllib.parse import urlparse
 from django.core.exceptions import PermissionDenied
 
-from .forms import UserForm, UserBulkForm
+from tock.remote_user_auth import email_to_username
 
+from .forms import UserForm, UserBulkForm
 from .models import UserData
 
 
@@ -50,7 +51,7 @@ class UserFormView(FormView):
     def get_initial(self):
         initial = super(UserFormView, self).get_initial()
         user, created = User.objects.get_or_create(username=self.kwargs['username'])
-        initial['email'] = user.username
+        initial['email'] = user.email
         initial['first_name'] = user.first_name
         initial['last_name'] = user.last_name
 
@@ -63,7 +64,8 @@ class UserFormView(FormView):
     def form_valid(self, form):
         if form.is_valid():
             user, created = User.objects.get_or_create(username=self.kwargs['username'])
-            user.username = form.cleaned_data['email']
+            user.email = form.cleaned_data['email']
+            user.username = email_to_username(form.cleaned_data['email'])
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
             user.save()
@@ -94,7 +96,8 @@ class UserBulkFormView(FormView):
             for person in c:
                 print(person)
                 if "@" in person['Email']:
-                    user, created = User.objects.get_or_create(username=person['Email'].lower())
+                    user, created = User.objects.get_or_create(username=email_to_username(person['Email']))
+                    user.email = email_to_username(person['Email'].lower())
                     user.first_name = person['First Name']
                     user.last_name = person['Last Name']
                     user.save()
