@@ -15,15 +15,15 @@ deploy()
 
 	echo "$current_deployment is currently deployed, pushing $next_deployment"
 	cf push $next_deployment --no-start -n $app_name-$timestamp
-	cf set-env $app_name DATABASE_URL $database_url
-	cf set-env $app_name DJANGO_SECRET_KEY $django_secret_key
+	cf set-env $next_deployment DATABASE_URL $database_url
+	cf set-env $next_deployment DJANGO_SECRET_KEY $django_secret_key
 	cf push $next_deployment -n $app_name-$timestamp
 	echo "Mapping $next_deployment to the Main Domain"
 	cf map-route $next_deployment 18f.gov -n $app_name
+	cf map-route $next_deployment cf.18f.us -n $app_name
 	echo "Removing Green From the Main Domain"
 	cf unmap-route $current_deployment 18f.gov -n $app_name
-	echo "Unmapping the temporary $next_deployment Domain"
-	cf unmap-route $next_deployment 18f.gov -n $app_name-$timestamp
+	cf unmap-route $current_deployment cf.18f.us -n $app_name
 	echo "Deleting $current_deployment"
 	cf delete $current_deployment
 }
@@ -35,5 +35,3 @@ elif [ "${current_apps/blue}" = "$current_apps" ]; then
 else
 	echo "No Current Blue/Green Deployment Found!"
 fi
-
-
