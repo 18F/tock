@@ -82,15 +82,7 @@ class ReportingPeriodBulkImportView(FormView):
                 self.request.FILES['line_items'].read().decode('utf-8'), newline=None)
 
             c = csv.DictReader(line_items)
-
-#            for line_item in c:
-#                try:
-#                    timecard_object = Project.objects.get(id=
-#                        line_item['Tock Code'])
-#                except Project.DoesNotExist:
-#                    raise ValidationError('Project %s (Code %s) Does Not Exist' % (
-#                        line_item['Tock Proj. Name'], line_item['Tock_Code']))
-
+            
             for line_item in c:
                 user, created = get_user_model().objects.get_or_create(
                     username=email_to_username(line_item['Tock Name'].lower()))
