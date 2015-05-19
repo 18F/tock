@@ -37,6 +37,7 @@ class TockUserBackend(RemoteUserBackend):
         """
         user_data, created = UserData.objects.get_or_create(user=user)
         user_data.save()
+        return user
 
 
 class EmailHeaderMiddleware(RemoteUserMiddleware):
