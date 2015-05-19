@@ -33,8 +33,6 @@ class UserListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
-        context['UserBulkForm'] = UserBulkForm()
-        context['UserBulkFormViewURL'] = reverse("employees:UserBulkFormView", current_app=self.request.resolver_match.namespace)
         return context
 
 
