@@ -200,7 +200,6 @@ class ReportingPeriodDetailView(ListView):
         context['reporting_period'] = reporting_period
         return context
 
-
 def ReportingPeriodCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')
