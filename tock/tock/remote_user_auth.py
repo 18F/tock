@@ -31,6 +31,13 @@ class TockUserBackend(RemoteUserBackend):
         """
         return email_to_username(email_address)
 
+    def configure_user(self, user):
+        """
+        Configures a user after creation
+        """
+        user_data, created = UserData.objects.get_or_create(user=user)
+        user_data.save()
+
 
 class EmailHeaderMiddleware(RemoteUserMiddleware):
     header = 'HTTP_X_FORWARDED_EMAIL'
