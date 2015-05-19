@@ -28,6 +28,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         verbose_name_plural = "Reporting Periods"
         get_latest_by = "start_date"
         unique_together = ("start_date", "end_date")
+        ordering = ['-start_date']
 
     def get_fiscal_year(self):
         """Determines the Fiscal Year (Oct 1 - Sept 31) of a given
