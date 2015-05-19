@@ -83,14 +83,6 @@ class ReportingPeriodBulkImportView(FormView):
 
             c = csv.DictReader(line_items)
 
-#            for line_item in c:
-#                try:
-#                    timecard_object = Project.objects.get(id=
-#                        line_item['Tock Code'])
-#                except Project.DoesNotExist:
-#                    raise ValidationError('Project %s (Code %s) Does Not Exist' % (
-#                        line_item['Tock Proj. Name'], line_item['Tock_Code']))
-
             for line_item in c:
                 user, created = get_user_model().objects.get_or_create(
                     username=email_to_username(line_item['Tock Name'].lower()))
@@ -178,21 +170,21 @@ class ReportsList(ListView):
         return sorted_fiscal_years
 
 
-class ReportingPeriodDetailView(DetailView):
-    model = ReportingPeriod
+class ReportingPeriodDetailView(ListView):
     template_name = "hours/reporting_period_detail.html"
+    context_object_name = "timecard_list"
 
-    def get_object(self):
-        return get_object_or_404(
-            ReportingPeriod,
-            start_date=datetime.datetime.strptime(self.kwargs['reporting_period'],
-                                                  "%Y-%m-%d").date())
-
+    def get_queryset(self):
+        return Timecard.objects.filter(reporting_period__start_date=datetime.datetime.strptime(self.kwargs['reporting_period'],
+                                                                                               "%Y-%m-%d").date(), time_spent__isnull=False).distinct().order_by('user__last_name', 'user__first_name')
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(
             ReportingPeriodDetailView, self).get_context_data(**kwargs)
-        context['users'] = User.objects.all()
+        filed_users = list(Timecard.objects.filter(reporting_period__start_date=datetime.datetime.strptime(self.kwargs['reporting_period'], "%Y-%m-%d").date(), time_spent__isnull=False).distinct().all().values_list('user__id', flat=True))
+        context['users_without_filed_timecards'] = get_user_model().objects.exclude(id__in=filed_users).order_by('last_name', 'first_name')
+        context['reporting_period'] = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(self.kwargs['reporting_period'],
+                                                                                               "%Y-%m-%d").date())
         return context
 
 
