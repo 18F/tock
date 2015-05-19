@@ -1,4 +1,5 @@
 import csv
+import io
 import datetime
 from itertools import chain
 from operator import itemgetter, attrgetter
@@ -23,7 +24,7 @@ from tock.utils import LoginRequiredMixin
 from tock.remote_user_auth import email_to_username
 
 from .utils import number_of_hours
-from .models import ReportingPeriod, Timecard, TimecardObject
+from .models import ReportingPeriod, Timecard, TimecardObject, Project
 from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm, ReportingPeriodImportForm
 
 
@@ -75,40 +76,42 @@ class ReportingPeriodBulkImportView(FormView):
             raise PermissionDenied
 
     def form_valid(self, form):
-        print('valid')
         if form.is_valid():
-            print(self.request.FILES['line_items'])
-            reporting_period = self.cleaned_data['reporting_period']
+            reporting_period = form.cleaned_data['reporting_period']
             line_items = io.StringIO(
-                self.request.FILES['line_items'].read().decode('utf-8'))
+                self.request.FILES['line_items'].read().decode('utf-8'), newline=None)
+
             c = csv.DictReader(line_items)
 
-            for line_item in c:
-                try:
-                    timecard_object = Project.objects.get(
-                        line_item['Tock Code'])
-                except Project.DoesNotExist:
-                    raise ValidationError('Project %s (Code %s) Does Not Exist' % (
-                        line_item['Tock Proj. Name'], line_item['Tock_Code']))
-
-                try:
-                    user = get_user_model().objects.get(
-                        username=email_to_username(line_item['Tock Name'].lower()))
-                except get_user_model().DoesNotExist:
-                    raise ValidationError(
-                        'Unknown User %s' % (line_item['Tock Name'].lower()))
+#            for line_item in c:
+#                try:
+#                    timecard_object = Project.objects.get(id=
+#                        line_item['Tock Code'])
+#                except Project.DoesNotExist:
+#                    raise ValidationError('Project %s (Code %s) Does Not Exist' % (
+#                        line_item['Tock Proj. Name'], line_item['Tock_Code']))
 
             for line_item in c:
-                user, created = get_user_model().objects.get(
+                user, created = get_user_model().objects.get_or_create(
                     username=email_to_username(line_item['Tock Name'].lower()))
 
                 timecard, created = Timecard.objects.get_or_create(
                     user=user, reporting_period=reporting_period)
 
-                if not TimecardObject.objects.get(timecard=timecard, project__id=line_item['Tock_Code'], hours_spent=line_item['Hours Logged']).exists():
-                    TimecardObject.objects.create(timecard=timecard, project__id=line_item['Tock_Code'], hours_spent=line_item['Hours Logged'])
-                else:
-                    continue
+                timecard.save()
+
+                try:
+                    project = Project.objects.get(id=line_item['Tock Code'])
+                except Project.DoesNotExist:
+                    raise ValidationError('Project %s (Code %s) Does Not Exist' % (
+                        line_item['Tock Proj. Name'], line_item['Tock Code']))
+
+                try:
+                    TimecardObject.objects.get(
+                        timecard=timecard, project=project, hours_spent=line_item['Hours Logged'])
+                except TimecardObject.DoesNotExist:
+                    TimecardObject.objects.create(
+                        timecard=timecard, project=project, hours_spent=line_item['Hours Logged'])
 
         return super(ReportingPeriodBulkImportView, self).form_valid(form)
 
@@ -225,7 +228,7 @@ class ReportingPeriodUserDetailView(DetailView):
         return get_object_or_404(
             Timecard,
             reporting_period__start_date=self.kwargs['reporting_period'],
-            user__username=self.kwargs['user'])
+            user__username=self.kwargs['username'])
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context

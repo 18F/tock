@@ -22,7 +22,6 @@ class ReportingPeriodImportForm(forms.Form):
     reporting_period = forms.ModelChoiceField(queryset=ReportingPeriod.objects.all(), label="Reporting Period")
     line_items = forms.FileField(label="CSV of Objects in Reporting Period")
 
-
 class TimecardForm(forms.ModelForm):
 
     class Meta:
