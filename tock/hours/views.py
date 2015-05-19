@@ -41,11 +41,20 @@ class ReportingPeriodListView(ListView):
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__time_spent__isnull=False,
             timecard__user=self.request.user).distinct().order_by('-start_date')[:5]
-        unstarted_reporting_periods = self.queryset.exclude(
-            timecard__user=self.request.user).exclude(end_date__lte=self.request.user.user_data.start_date)
-        unfinished_reporting_periods = self.queryset.filter(
-            timecard__time_spent__isnull=True,
-            timecard__user=self.request.user).exclude(end_date__lte=self.request.user.user_data.start_date)
+
+        try:
+            unstarted_reporting_periods = self.queryset.exclude(
+                timecard__user=self.request.user).exclude(end_date__lte=self.request.user.user_data.start_date)
+            unfinished_reporting_periods = self.queryset.filter(
+                timecard__time_spent__isnull=True,
+                timecard__user=self.request.user).exclude(end_date__lte=self.request.user.user_data.start_date)
+        except ValueError:
+            unstarted_reporting_periods = self.queryset.exclude(
+                timecard__user=self.request.user)
+            unfinished_reporting_periods = self.queryset.filter(
+                timecard__time_spent__isnull=True,
+                timecard__user=self.request.user)
+
         context['uncompleted_reporting_periods'] = sorted(list(
             chain(unstarted_reporting_periods, unfinished_reporting_periods)), key=attrgetter('start_date'))
         return context
@@ -177,14 +186,17 @@ class ReportingPeriodDetailView(ListView):
     def get_queryset(self):
         return Timecard.objects.filter(reporting_period__start_date=datetime.datetime.strptime(self.kwargs['reporting_period'],
                                                                                                "%Y-%m-%d").date(), time_spent__isnull=False).distinct().order_by('user__last_name', 'user__first_name')
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(
             ReportingPeriodDetailView, self).get_context_data(**kwargs)
         reporting_period = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(self.kwargs['reporting_period'],
-                                                                                               "%Y-%m-%d").date())
-        filed_users = list(Timecard.objects.filter(reporting_period=reporting_period, time_spent__isnull=False).distinct().all().values_list('user__id', flat=True))
-        context['users_without_filed_timecards'] = get_user_model().objects.exclude(user_data__start_date__gte=reporting_period.end_date).exclude(id__in=filed_users).order_by('last_name', 'first_name')
+                                                                                             "%Y-%m-%d").date())
+        filed_users = list(Timecard.objects.filter(reporting_period=reporting_period,
+                                                   time_spent__isnull=False).distinct().all().values_list('user__id', flat=True))
+        context['users_without_filed_timecards'] = get_user_model().objects.exclude(
+            user_data__start_date__gte=reporting_period.end_date).exclude(id__in=filed_users).order_by('last_name', 'first_name')
         context['reporting_period'] = reporting_period
         return context
 
