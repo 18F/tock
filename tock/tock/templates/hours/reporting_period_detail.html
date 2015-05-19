@@ -3,17 +3,38 @@
 
 {% block content %}
 
-<h2>Reporting Period {{ object.start_date }}!</h2>
-<a href="{% url 'reports:ReportingPeriodCSVView' object %}">Download Full CSV Report</a>
+<h2>Reporting Period: {{ reporting_period.start_date }} to {{ reporting_period.end_date }}</h2>
+<a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">Download Full CSV Report</a>
+
+<br><br>
+<h3>Users Who Have Not Filed a Timecard!</h3>
 <table>
 <tr>
-	<th>User</th>
-	<th>Timecard Filed</th>
+	<th>First Name</th>
+	<th>Last Name</th>
+	<th>Email</th>
 </tr>
-{% for user in users %}
+{% for user in users_without_filed_timecards %}
 <tr>
-	<td>{% if user|has_submitted_timesheet:object %}<a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=object username=user.username %}">{{ user }}</a>{% else %}{{ user }}{% endif %}</td>
-	<td>{% if user|has_submitted_timesheet:object %}<i class="fa fa-check-square icon-green"></i> Yes{% else %}<i class="fa fa-minus-square icon-red"></i> No{%endif %}</td>
+	<td>{{ user.first_name }}</td>
+	<td>{{ user.last_name }}</td>
+	<td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
+</tr>
+{% endfor %}
+</table>
+<br><br>
+<h3>Users Who Have Filed a Timecard!</h3>
+<table>
+<tr>
+	<th>First Name</th>
+	<th>Last Name</th>
+	<th>View Timecard</th>
+</tr>
+{% for timecard in timecard_list %}
+<tr>
+	<td>{{ timecard.user.first_name }}</td>
+	<td>{{ timecard.user.last_name }}</td>
+	<td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
 </tr>
 {% endfor %}
 </table>
