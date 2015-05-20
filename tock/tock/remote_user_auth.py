@@ -3,6 +3,8 @@ from django.contrib.auth.middleware import RemoteUserMiddleware
 from django.core.exceptions import ValidationError
 from django.conf import settings
 
+from employees.models import UserData
+
 
 def email_to_username(email):
     """Converts a given email address to a Django compliant username"""
