@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
-from django.conf.urls.static import static
+# from django.conf.urls.static import static
 from django.conf import settings
-from django.views.generic import TemplateView
+# from django.views.generic import TemplateView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -10,10 +10,12 @@ admin.autodiscover()
 import hours.views
 import api.urls
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$', hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'),
-    url(r'^reporting_period/', include("hours.urls.timesheets", namespace="reportingperiod")),
+    url(r'^reporting_period/', include("hours.urls.timesheets",
+        namespace="reportingperiod")),
     url(r'^reports/', include("hours.urls.reports", namespace="reports")),
     url(r'^employees/', include("employees.urls", namespace="employees")),
 
