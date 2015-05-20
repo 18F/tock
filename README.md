@@ -35,7 +35,7 @@ $ pyenv activate tock
 $ python manage.py runserver
 ```
 
-From your host computer, going to http://192.168.33.10/tock will enable you to view Tock. You're automatically logged in as `testuser@gsa.gov`, the nginx proxy in production will pull the logged in user from Google Auth proxy. You can access the admin panel at http://192.168.33.10/tock/admin
+From your host computer, going to http://192.168.33.10 will enable you to view Tock. You're automatically logged in as `testuser@gsa.gov`, the nginx proxy in production will pull the logged in user from Google Auth proxy. You can access the admin panel at http://192.168.33.10/admin
 
 ### Making SASS changes
 
