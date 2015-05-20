@@ -8,21 +8,26 @@ from django.contrib import admin
 admin.autodiscover()
 
 import hours.views
+import api.urls
 
-urlpatterns = patterns(
-    '', url(r'^$', hours.views.ReportingPeriodListView.as_view(),
-            name='ListReportingPeriods'),
+urlpatterns = patterns('',
+    url(r'^$', hours.views.ReportingPeriodListView.as_view(),
+        name='ListReportingPeriods'),
     url(r'^reporting_period/', include("hours.urls.timesheets", namespace="reportingperiod")),
     url(r'^reports/', include("hours.urls.reports", namespace="reports")),
     url(r'^employees/', include("employees.urls", namespace="employees")),
 
     # Uncomment the next line to enable the admin:
-    url(r'^admin/', include(admin.site.urls)),)
+    url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^api/', include(api.urls))
+)
+
 
 if settings.DEBUG:
-  import debug_toolbar
-  urlpatterns += patterns(
-      '', url(r'^__debug__/', include(debug_toolbar.urls)),)
+    import debug_toolbar
+    urlpatterns += patterns(
+        '', url(r'^__debug__/', include(debug_toolbar.urls)),)
 
 # Uncomment the next line to serve media files in dev.
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
