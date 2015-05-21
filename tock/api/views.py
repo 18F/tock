@@ -10,6 +10,12 @@ from projects.models import Project, Agency, AccountingCode
 
 from rest_framework import serializers
 from rest_framework import generics
+from rest_framework import pagination
+
+class StandardResultsSetPagination(pagination.PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
 
 class ProjectSerializer(serializers.ModelSerializer):
     billable = serializers.BooleanField(source='accounting_code.billable')
@@ -35,13 +41,16 @@ class TimecardSerializer(serializers.ModelSerializer):
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    pagination_class = StandardResultsSetPagination
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    pagination_class = StandardResultsSetPagination
 
 class TimecardList(generics.ListAPIView):
     serializer_class = TimecardSerializer
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         params = self.request.QUERY_PARAMS

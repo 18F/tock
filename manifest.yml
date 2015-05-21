@@ -1,6 +1,6 @@
 ---
 # all applications use these settings and services
-memory: 512M
+memory: 1G
 instances: 1
 applications:
 - name: tock
