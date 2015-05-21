@@ -7,8 +7,9 @@ from api import views
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^projects.(?P<format>csv|json)$', views.ProjectList.as_view(), name='list_projects'),
-    url(r'^users.(?P<format>csv|json)$', views.UserList.as_view(), name='list_users'),
+    url(r'^projects.(?P<format>csv|json)$', views.ProjectList.as_view(), name='ProjectList'),
+    url(r'^users.(?P<format>csv|json)$', views.UserList.as_view(), name='UserList'),
+    url(r'^timecards.(?P<format>csv|json)$', views.TimecardList.as_view(), name='TimecardList'),
 
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
