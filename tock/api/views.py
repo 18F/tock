@@ -54,7 +54,18 @@ class TimecardList(generics.ListAPIView):
 
     def get_queryset(self):
         params = self.request.QUERY_PARAMS
-        queryset = TimecardObject.objects.all()
+        queryset = TimecardObject.objects.order_by('timecard__reporting_period__start_date')
+
+        # if the `date` query string parameter (in YYYY-MM-DD format) is
+        # provided, get rows for which the date falls within their reporting
+        # date range
+        if 'date' in params:
+            reporting_date = params.get('date')
+            # TODO: validate YYYY-MM-DD format
+            queryset = queryset.filter(
+                timecard__reporting_period__start_date__lte=reporting_date,
+                timecard__reporting_period__end_date__gte=reporting_date
+            )
 
         if 'user' in params:
             # allow either user name or ID
