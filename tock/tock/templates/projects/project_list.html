@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Tock Projects</h2>
+
+<table class="table-minimal report_table">
+  <tr class="report_table__header-row">
+    <th>Project</th>
+    <th>Billable</th>
+  </tr>
+  {% for project in object_list %}
+  <tr class="report_table__row">
+    <td>
+      <a href="/projects/{{ project.id }}">{{ project.name }}</a>
+    </td>
+    <td>{{ project.is_billable }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

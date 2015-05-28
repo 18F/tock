@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2><a href="/projects/">Tock Projects</a> / {{ object.name }}</h2>
+
+<p class="project__description">{{ object.description|default:'(no description)' }}</p>
+
+{% endblock %}
