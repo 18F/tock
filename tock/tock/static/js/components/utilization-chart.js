@@ -96,6 +96,11 @@
         change: onDataChange
       }),
 
+      href: descriptor('href', {
+        attr: 'href',
+        parse: dl.template
+      }),
+
       interpolate: descriptor('interpolate', {
         attr: 'interpolate',
         change: onDataChange
@@ -132,7 +137,7 @@
     // console.log('on data change');
     if (this.__timeout) return false;
     this.__timeout = setTimeout((function() {
-      console.log('timeout!', this);
+      // console.log('timeout!', this);
       delete this.__timeout;
       var url = this.dataUrl;
       if (url) {
@@ -181,22 +186,30 @@
       .key(getLayer)
       .key(getX)
       .rollup(function(d) {
-        return d3.sum(d, getY);
+        return {
+          values: d,
+          sum: d3.sum(d, getY)
+        };
       })
       .map(data);
 
     layers = d3.entries(layers)
       .map(function(d) {
+        var sample = first(d.value).values[0];
         return {
           key: d.key,
+          sample: sample,
           values: xd.map(function(x) {
             return {
               x: x,
-              y: d.value[x] || 0,
+              y: d.value[x] ? d.value[x].sum : 0,
               z: d.key
             };
           })
         };
+      })
+      .sort(function(a, b) {
+        return d3.ascending(a.key, b.key);
       });
 
     var stack = d3.layout.stack()
@@ -243,6 +256,14 @@
       .x(function(d) { return x(d.x); })
       .y0(function(d) { return y(d.y0); })
       .y1(function(d) { return y(d.y0 + d.y); })
+
+    if (this.href) {
+      var href = this.href;
+      layer.select('a')
+        .attr('xlink:href', function(d) {
+          return href(d.sample);
+        });
+    }
 
     layer.select('title')
       .text(dl.accessor('key'));
@@ -332,6 +353,12 @@
         proto
       )
     });
+  }
+
+  function first(entries) {
+    if (Array.isArray(entries)) return entries[0];
+    var keys = Object.keys(entries);
+    return keys.length ? entries[keys[0]] : null;
   }
 
 })(this);
