@@ -3,9 +3,10 @@
 {% block content %}
 <h2>Tock Projects</h2>
 
-<figure class="utilization">
-  <h3 class="utilization__title">Project Hours Over Time</h3>
+<figure class="chart chart--utilization">
+  <h3 class="chart__title">Project Hours Over Time</h3>
   <utilization-chart
+    class="timeline timeline--projects"
     data-url="/api/project_timeline.csv"
     layer="project_name"
     color="project"

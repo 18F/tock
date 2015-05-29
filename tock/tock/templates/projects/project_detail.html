@@ -5,9 +5,10 @@
 
 <p class="project__description">{{ object.description|default:'(no description)' }}</p>
 
-<figure class="utilization">
-  <h3 class="utilization__title">User Hours Over Time</h3>
+<figure class="chart chart--utilization">
+  <h3 class="chart__title">User Hours Over Time</h3>
   <utilization-chart
+    class="timeline timeline--project"
     data-url="/api/timecards.json?project={{ object.id }}"
     data-values="results"
     layer="user"
