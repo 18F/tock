@@ -11,7 +11,7 @@ from projects.models import Project, Agency, AccountingCode
 from rest_framework import serializers, generics, pagination, renderers
 
 from rest_framework.renderers import JSONRenderer
-from .renderers import PaginatedCSVRenderer, StreamingCSVRenderer
+from .renderers import PaginatedCSVRenderer
 
 import csv
 
