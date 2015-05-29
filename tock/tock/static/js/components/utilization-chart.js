@@ -239,7 +239,7 @@
       .range([bottom, top]);
 
     var area = d3.svg.area()
-      .interpolate(this.interpolate || 'linear')
+      .interpolate(this.interpolate || 'step-before')
       .x(function(d) { return x(d.x); })
       .y0(function(d) { return y(d.y0); })
       .y1(function(d) { return y(d.y0 + d.y); })
