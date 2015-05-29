@@ -372,8 +372,11 @@ utilization-chart {
   display: block; }
   utilization-chart svg {
     display: block; }
-  utilization-chart .axes path {
-    fill: none; }
+  utilization-chart .axis path,
+  utilization-chart .axis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 1; }
 
 .chart {
   margin: 0;
@@ -389,6 +392,13 @@ utilization-chart {
   stroke-width: .5; }
 .chart--utilization .timeline .layer:hover path {
   fill-opacity: 1; }
+.chart--utilization .timeline .axis text {
+  fill: #666;
+  font-size: .7em; }
+.chart--utilization .timeline .axis path,
+.chart--utilization .timeline .axis line {
+  stroke: #999;
+  shape-rendering: crispEdges; }
 
 .container {
   max-width: 68em;

@@ -9,6 +9,10 @@
           .attr('class', 'layers');
         var axes = svg.append('g')
           .attr('class', 'axes');
+        axes.append('g')
+          .attr('class', 'axis axis--x');
+        axes.append('g')
+          .attr('class', 'axis axis--y');
       },
 
       attachedCallback: function() {
@@ -230,10 +234,10 @@
     var width = this.width || UtilizationChart.DEFAULT_WIDTH;
     var height = this.height || UtilizationChart.DEFAULT_HEIGHT;
     var margin = {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0
+      top: 5,
+      right: 10,
+      bottom: 20,
+      left: 40
     };
     var left = margin.left;
     var right = width - margin.right;
@@ -251,6 +255,27 @@
     var y = d3.scale.linear()
       .domain([0, yMax])
       .range([bottom, top]);
+
+    var xAxis = d3.svg.axis()
+      .scale(x)
+      .tickFormat(function(str, i) {
+        if (i % 2 === 1) return '';
+        return str.substr(5)
+          .replace(/\b0/g, '')
+          .split('-')
+          .join('/');
+      })
+      .orient('bottom');
+    svg.select('.axis--x')
+      .attr('transform', 'translate(' + [0, bottom] + ')')
+      .call(xAxis);
+
+    var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient('left');
+    svg.select('.axis--y')
+      .attr('transform', 'translate(' + [left, 0] + ')')
+      .call(yAxis);
 
     var area = d3.svg.area()
       .interpolate(this.interpolate || 'step-before')

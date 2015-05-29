@@ -19,4 +19,17 @@
   .layer:hover path {
     fill-opacity: 1;
   }
+
+  .axis {
+    text {
+      fill: #666;
+      font-size: .7em;
+    }
+
+    path,
+    line {
+      stroke: #999;
+      shape-rendering: crispEdges;
+    }
+  }
 }
