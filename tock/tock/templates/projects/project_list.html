@@ -3,6 +3,17 @@
 {% block content %}
 <h2>Tock Projects</h2>
 
+<figure class="utilization">
+  <h3 class="utilization__title">Project Hours Over Time</h3>
+  <utilization-chart
+    data-url="/api/project_timeline.csv"
+    layer="project_name"
+    color="project"
+    x="start_date"
+    y="hours_spent">
+  </utilization-chart>
+</figure>
+
 <table class="table-minimal report_table">
   <tr class="report_table__header-row">
     <th>Project</th>
