@@ -213,6 +213,7 @@
       });
 
     var stack = d3.layout.stack()
+      .order('default')
       .values(dl.accessor('values'));
 
     var layer = svg.select('.layers')
