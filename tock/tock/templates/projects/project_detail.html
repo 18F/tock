@@ -9,8 +9,8 @@
   <h3 class="chart__title">User Hours Over Time</h3>
   <utilization-chart
     class="timeline timeline--project"
-    data-url="/api/timecards.json?project={{ object.id }}"
-    data-values="results"
+    data-url="/api/timecards.csv?project={{ object.id }}"
+    href="/employees/{% verbatim %}{{ user }}{% endverbatim %}"
     layer="user"
     color="user"
     x="start_date"
