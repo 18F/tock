@@ -119,7 +119,7 @@
   );
 
   UtilizationChart.DEFAULT_WIDTH = 800;
-  UtilizationChart.DEFAULT_HEIGHT = 200;
+  UtilizationChart.DEFAULT_HEIGHT = 160;
 
   UtilizationChart.FILL = {
     user: d3.scale.category20(),
