@@ -33,13 +33,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 class TimecardSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField(source='timecard.user')
-    project = serializers.CharField(source='project.name')
+    project_id = serializers.CharField(source='project.id')
+    project_name = serializers.CharField(source='project.name')
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     billable = serializers.BooleanField(source='project.accounting_code.billable')
     class Meta:
         model = TimecardObject
-        fields = ('user', 'project', 'start_date', 'end_date', 'hours_spent', 'billable',)
+        fields = ('user', 'project_id', 'project_name', 'start_date', 'end_date', 'hours_spent', 'billable',)
 
 
 class ProjectList(generics.ListAPIView):
