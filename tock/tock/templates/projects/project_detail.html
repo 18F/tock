@@ -5,13 +5,16 @@
 
 <p class="project__description">{{ object.description|default:'(no description)' }}</p>
 
-<utilization-chart
-  data-url="/api/timecards.json?project={{ object.id }}"
-  data-values="results"
-  layer="user"
-  color="user"
-  x="start_date"
-  y="hours_spent">
-</utilization-chart>
+<figure class="utilization">
+  <h3 class="utilization__title">User Hours Over Time</h3>
+  <utilization-chart
+    data-url="/api/timecards.json?project={{ object.id }}"
+    data-values="results"
+    layer="user"
+    color="user"
+    x="start_date"
+    y="hours_spent">
+  </utilization-chart>
+</figure>
 
 {% endblock %}
