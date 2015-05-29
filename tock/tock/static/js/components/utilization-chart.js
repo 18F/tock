@@ -145,7 +145,7 @@
           throw new Error('invalid data type: "' + type + '"');
         }
         var self = this;
-        console.info('loading:', url, 'as', type, '...');
+        // console.info('loading:', url, 'as', type, '...');
         load(url, function(error, data) {
           if (error) {
             console.error('error:', error);
@@ -209,16 +209,17 @@
 
     var enter = layer.enter().append('g')
       .attr('class', 'layer');
-    enter.append('path');
-    enter.append('title');
+    var a = enter.append('a')
+    a.append('path');
+    a.append('title');
 
     var width = this.width || UtilizationChart.DEFAULT_WIDTH;
     var height = this.height || UtilizationChart.DEFAULT_HEIGHT;
     var margin = {
-      top: 5,
+      top: 0,
       right: 0,
-      bottom: 20,
-      left: 80
+      bottom: 0,
+      left: 0
     };
     var left = margin.left;
     var right = width - margin.right;
