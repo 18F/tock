@@ -1,4 +1,4 @@
-from rest_framework_csv.renderers import CSVRenderer
+from rest_framework_csv.renderers import CSVRenderer, CSVStreamingRenderer
 
 # This class is needed to extract the "results" list from paginated data.
 # see: https://github.com/mjumbewu/django-rest-framework-csv#pagination
@@ -17,3 +17,5 @@ class PaginatedCSVRenderer(CSVRenderer):
             self.headers = data[0].keys()
         return super(PaginatedCSVRenderer, self).render(data, media_type, renderer_context)
 
+class StreamingCSVRenderer(CSVStreamingRenderer):
+    pass
