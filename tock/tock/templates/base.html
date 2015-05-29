@@ -41,6 +41,7 @@
       <ul>
         <li><a href="{% url 'reports:ListReports' %}">Reports</a></li>
         <li><a href="{% url 'employees:UserListView' %}">Users</a></li>
+        <li><a href="{% url 'ProjectListView' %}">Projects</a></li>
         {% if request.user.is_superuser %}
         <br>
         <hr>
