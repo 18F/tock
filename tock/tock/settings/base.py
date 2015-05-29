@@ -74,6 +74,7 @@ ALLOWED_EMAIL_DOMAINS = {
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework_csv.renderers.CSVRenderer',
+        # use our CSV renderer instead of rest_framework_csv's
+        'api.renderers.PaginatedCSVRenderer',
     ),
 }

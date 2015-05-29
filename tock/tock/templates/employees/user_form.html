@@ -1,7 +1,20 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Let's Tock about {{ form.initial.email }}!</h2>
+<h2>Let's Tock about {{ username }}!</h2>
+
+<figure class="chart chart--utilization">
+  <h3 class="chart__title">Project Hours Over Time</h3>
+  <utilization-chart
+    class="timeline timeline--project"
+    data-url="/api/timecards.csv?user={{ username }}"
+    href="/projects/{% verbatim %}{{ project_id }}{% endverbatim %}"
+    layer="project_name"
+    color="project"
+    x="start_date"
+    y="hours_spent">
+  </utilization-chart>
+</figure>
 
 <form action="" method="post">{% csrf_token %}
     {{ form.as_p }}

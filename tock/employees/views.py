@@ -40,6 +40,10 @@ class UserFormView(FormView):
     template_name = 'employees/user_form.html'
     form_class = UserForm
 
+    def get_context_data(self, **kwargs):
+        kwargs['username'] = self.kwargs['username']
+        return super(UserFormView, self).get_context_data(**kwargs)
+
     def dispatch(self, *args, **kwargs):
         if (self.request.user.is_superuser) or (self.request.user.username == self.kwargs['username']):
             return super(UserFormView, self).dispatch(*args, **kwargs)

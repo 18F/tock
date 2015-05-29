@@ -7,13 +7,20 @@
     <title>Tock</title>
 
 {% load staticfiles %}
-<link rel="stylesheet" href="{% static "css/style.css" %}" type="text/css" charset="utf-8">
-<link rel="stylesheet" href="{% static "css/jquery-ui.min.css" %}" type="text/css" charset="utf-8">
-<link rel="stylesheet" href="{% static "js/chosen/chosen.min.css" %}" type="text/css" charset="utf-8">
+<link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" charset="utf-8">
+<link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}" type="text/css" charset="utf-8">
+<link rel="stylesheet" href="{% static 'js/chosen/chosen.min.css' %}" type="text/css" charset="utf-8">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
-<script src="{% static "js/jquery-ui.min.js" %}"></script>
-<script src="{% static "js/chosen/chosen.jquery.min.js" %}"></script>
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'js/chosen/chosen.jquery.min.js' %}"></script>
+
+<!-- charting dependencies -->
+<script src="{% static 'js/vendor/d3.min.js' %}"></script>
+<script src="{% static 'js/vendor/datalib.min.js' %}"></script>
+<script src="{% static 'js/vendor/document-register-element.js' %}"></script>
+<script src="{% static 'js/components/utilization-chart.js' %}"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js" ></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -27,13 +34,14 @@
   <div class="container">
     <header class="banner">
       <a href="/">
-        <img src="{% static "img/logo-18f.png" %}" alt="18F logo" />
+        <img src="{% static 'img/logo-18f.png' %}" alt="18F logo" />
       </a>
       <h1>Tock</h1>
       <hr>
       <ul>
         <li><a href="{% url 'reports:ListReports' %}">Reports</a></li>
         <li><a href="{% url 'employees:UserListView' %}">Users</a></li>
+        <li><a href="{% url 'ProjectListView' %}">Projects</a></li>
         {% if request.user.is_superuser %}
         <br>
         <hr>

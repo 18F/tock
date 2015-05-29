@@ -8,6 +8,11 @@
 @import "utils";
 @import "alert";
 
+// generic web component styles
+@import "components";
+// chart-specific styles
+@import "charts";
+
 .container {
 	@include outer-container;
 	margin-top: 3em;

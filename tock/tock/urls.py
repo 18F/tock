@@ -9,6 +9,7 @@ admin.autodiscover()
 
 import hours.views
 import api.urls
+import projects.urls
 
 urlpatterns = patterns(
     '',
@@ -19,10 +20,14 @@ urlpatterns = patterns(
     url(r'^reports/', include("hours.urls.reports", namespace="reports")),
     url(r'^employees/', include("employees.urls", namespace="employees")),
 
+    # TODO: version the API?
+    url(r'^api/', include(api.urls)),
+
+    # project views
+    url(r'^projects/', include(projects.urls)),
+
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
-
-    url(r'^api/', include(api.urls))
 )
 
 
