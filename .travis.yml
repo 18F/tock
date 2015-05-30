@@ -8,4 +8,4 @@ install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
 script:
-  - "cd tock && python manage.py test"
+  - "cd tock && python manage.py migrate --settings=tock.settings.test && python manage.py test --settings=tock.settings.test"
