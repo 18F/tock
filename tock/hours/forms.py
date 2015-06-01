@@ -74,7 +74,9 @@ def projects_as_choices():
 class TimecardObjectForm(forms.ModelForm):
 
     project = forms.ChoiceField(
-        choices=projects_as_choices(), widget=SelectWithData())
+        choices=projects_as_choices(),
+        widget=SelectWithData()
+    )
 
     class Meta:
         model = TimecardObject
