@@ -68,5 +68,5 @@ class ReportTests(TestCase):
     response = hours.views.ReportingPeriodCSVView(
         request, "2015-01-01").content.decode('utf-8').splitlines()[1]
     self.assertEqual(
-        '2015-01-01 - 2015-01-07,{0},test.user@gsa.gov,Peace Corps,28.00'.format(
+        '2015-01-01 - 2015-01-07,{0},test.user@gsa.gov,openFEC,12'.format(
             self.timecard.modified.strftime("%Y-%m-%d %H:%M:%S")), response)
