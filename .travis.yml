@@ -8,5 +8,5 @@ install:
   - pip install -r requirements.txt
   - pip install -r requirements-dev.txt
 script:
-  - "cd tock && python manage.py syncdb --settings=tock.settings.test"
-  - "cd tock && python manage.py test --settings=tock.settings.test"
+  - "cd tock && python manage.py syncdb --noinput --settings=tock.settings.test"
+  - "cd tock && python manage.py test --noinput --settings=tock.settings.test"
