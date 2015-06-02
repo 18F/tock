@@ -7,7 +7,6 @@ from django.utils.html import escape, conditional_escape
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
 
-
 class ReportingPeriodForm(forms.ModelForm):
 
     class Meta:
@@ -71,12 +70,15 @@ def projects_as_choices():
     return accounting_codes
 
 
-class TimecardObjectForm(forms.ModelForm):
+class ProjectChoiceField(forms.ChoiceField):
+    widget = SelectWithData()
 
-    project = forms.ChoiceField(
-        choices=projects_as_choices(),
-        widget=SelectWithData()
-    )
+    def __init__(self, *args, **kwargs):
+        super(ProjectChoiceField, self).__init__(*args, **kwargs)
+        self.choices = projects_as_choices()
+
+class TimecardObjectForm(forms.ModelForm):
+    project = ProjectChoiceField()
 
     class Meta:
         model = TimecardObject
