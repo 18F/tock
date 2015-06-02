@@ -119,7 +119,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
             # right.
             raise forms.ValidationError('You must report exactly 40 hours.')
 
-        return hasattr(self, 'cleaned_data') and self.cleaned_data or None
+        return getattr(self, 'cleaned_data', None)
 
 
 TimecardFormSet = inlineformset_factory(Timecard, TimecardObject,
