@@ -4,9 +4,9 @@ from django.conf import settings
 from django.db.models import Count, Sum
 from decimal import Decimal
 
-from django.contrib.auth.models import User, Group
-from hours.models import ReportingPeriod, Timecard, TimecardObject
-from projects.models import Project, Agency, AccountingCode
+from django.contrib.auth.models import User
+from projects.models import Project
+from hours.models import TimecardObject
 
 from rest_framework import serializers, generics, pagination, renderers
 
