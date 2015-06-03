@@ -20,14 +20,6 @@ class PaginatedCSVRenderer(CSVRenderer):
             self.headers = data[0].keys()
         return super(PaginatedCSVRenderer, self).render(data, media_type, renderer_context)
 
-class Buffer(object):
-    """
-    A pseudo-buffer, see:
-    <https://docs.djangoproject.com/en/1.8/howto/outputting-csv/#streaming-large-csv-files>
-    """
-    def write(self, value):
-        return value
-
 def stream_csv(queryset, serializer):
     """
     Stream data as CSV, given an interable queryset and a DRF
@@ -35,8 +27,30 @@ def stream_csv(queryset, serializer):
     method.
     """
     rows = map(serializer.to_representation, queryset)
-    fieldnames = list(serializer.fields.keys())
-    writer = csv.DictWriter(Buffer(), fieldnames=fieldnames)
-    data = map(writer.writerow, rows)
-    response = StreamingHttpResponse(data, content_type='text/csv')
+    fields = list(serializer.fields.keys())
+    response = StreamingHttpResponse(generate_csv(rows, fields), content_type='text/csv')
     return response
+
+class Echo(object):
+    """
+    A pseudo-buffer, see:
+    <https://docs.djangoproject.com/en/1.8/howto/outputting-csv/#streaming-large-csv-files>
+    """
+    def write(self, value):
+        return value
+
+def generate_csv(rows, fields=None, **writer_options):
+    """
+    This generator yields text for each written row, and optionally
+    writes a header row. We're using DictWriter.writerow() instead of
+    writeheader() because the latter doesn't return a value.
+    """
+    buff = Echo()
+    if fields:
+        writer = csv.DictWriter(buff, fieldnames=fields, **writer_options)
+        header = dict((field, field) for field in fields)
+        yield writer.writerow(header)
+    else:
+        writer = csv.writer(buff, **writer_options)
+    for row in rows:
+        yield writer.writerow(row)
