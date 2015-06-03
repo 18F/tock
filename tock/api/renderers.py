@@ -3,9 +3,11 @@ from django.http import StreamingHttpResponse
 
 import csv
 
-# This class is needed to extract the "results" list from paginated data.
-# see: https://github.com/mjumbewu/django-rest-framework-csv#pagination
 class PaginatedCSVRenderer(CSVRenderer):
+    """
+    This class extracts the "results" list from paginated data. See:
+    <https://github.com/mjumbewu/django-rest-framework-csv#pagination>
+    """
     results_field = 'results'
 
     def render(self, data, media_type=None, renderer_context=None):
