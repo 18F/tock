@@ -75,6 +75,7 @@ class BulkTimecardSerializer(serializers.ModelSerializer):
             'employee',
             'start_date',
             'end_date',
+            'modified_date',
             'hours_spent',
         )
     project_name = serializers.CharField(source='project.name')
@@ -83,6 +84,12 @@ class BulkTimecardSerializer(serializers.ModelSerializer):
     employee = serializers.StringRelatedField(source='timecard.user')
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    modified_date = serializers.DateTimeField(source='modified')
+
+    def to_representation(self, obj, *args, **kwargs):
+        data = super(BulkTimecardSerializer, self).to_representation(obj, *args, **kwargs)
+        data['modified_date'] = obj.modified.strftime('%Y-%m-%d %H:%M:%S')
+        return data
 
 # API Views
 
