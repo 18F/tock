@@ -96,9 +96,19 @@ def ProjectTimelineView(request):
     return response
 
 def get_timecards(queryset, params={}):
-    # if the `date` query string parameter (in YYYY-MM-DD format) is
-    # provided, get rows for which the date falls within their reporting
-    # date range
+    """
+    Filter a TimecardObject queryset according to the provided GET
+    query string parameters:
+
+    * if `date` (in YYYY-MM-DD format) is provided, get rows for
+      which the date falls within their reporting date range.
+
+    * if `user` (in either `first.last` or numeric id) is provided,
+      get rows for that user.
+
+    * if `project` is provided as a numeric id or name, get rows for
+      that project.
+    """
     if 'date' in params:
         reporting_date = params.get('date')
         # TODO: validate YYYY-MM-DD format
