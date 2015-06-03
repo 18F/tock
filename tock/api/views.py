@@ -10,10 +10,8 @@ from projects.models import Project, Agency, AccountingCode
 
 from rest_framework import serializers, generics, pagination, renderers
 
-from rest_framework.renderers import JSONRenderer
-from .renderers import PaginatedCSVRenderer
-
 import csv
+from .renderers import PaginatedCSVRenderer, stream_csv
 
 class StandardResultsSetPagination(pagination.PageNumberPagination):
     page_size = 100
@@ -126,3 +124,11 @@ def get_timecards(queryset, params={}):
             queryset = queryset.filter(project__name=project)
 
     return queryset
+
+def timecard_list_bulk(request):
+    """
+    Stream all the timecards as CSV.
+    """
+    queryset = get_timecards(TimecardList.queryset, request.GET)
+    serializer = TimecardSerializer()
+    return stream_csv(queryset, serializer)
