@@ -14,32 +14,77 @@ import csv
 from .renderers import PaginatedCSVRenderer, stream_csv
 
 class StandardResultsSetPagination(pagination.PageNumberPagination):
+    """
+    This is a standard results set paginator for all API view classes
+    that need pagination.
+    """
     page_size = 100
     page_size_query_param = 'page_size'
     max_page_size = 500
 
+
+# Serializers for different models
+
 class ProjectSerializer(serializers.ModelSerializer):
-    billable = serializers.BooleanField(source='accounting_code.billable')
     class Meta:
         model = Project
-        fields = ('id', 'name', 'description', 'billable',)
+        fields = (
+            'id',
+            'name',
+            'description',
+            'billable',
+        )
+    billable = serializers.BooleanField(source='accounting_code.billable')
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name',)
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+        )
 
 class TimecardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimecardObject
+        fields = (
+            'user',
+            'project_name',
+            'project_id',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'billable',
+        )
     user = serializers.StringRelatedField(source='timecard.user')
     project_id = serializers.CharField(source='project.id')
     project_name = serializers.CharField(source='project.name')
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     billable = serializers.BooleanField(source='project.accounting_code.billable')
+
+class BulkTimecardSerializer(serializers.ModelSerializer):
     class Meta:
         model = TimecardObject
-        fields = ('user', 'project_id', 'project_name', 'start_date', 'end_date', 'hours_spent', 'billable',)
+        fields = (
+            'project_name',
+            'project_id',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+        )
+    project_name = serializers.CharField(source='project.name')
+    project_id = serializers.CharField(source='project.id')
+    billable = serializers.BooleanField(source='project.accounting_code.billable')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
 
+# API Views
 
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
@@ -135,10 +180,12 @@ def get_timecards(queryset, params={}):
 
     return queryset
 
+
+
 def timecard_list_bulk(request):
     """
     Stream all the timecards as CSV.
     """
     queryset = get_timecards(TimecardList.queryset, request.GET)
-    serializer = TimecardSerializer()
+    serializer = BulkTimecardSerializer()
     return stream_csv(queryset, serializer)
