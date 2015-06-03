@@ -182,7 +182,7 @@ def get_timecards(queryset, params={}):
 
 
 
-def timecard_list_bulk(request):
+def bulk_timecard_list(request):
     """
     Stream all the timecards as CSV.
     """
