@@ -46,50 +46,24 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name',
         )
 
-class TimecardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TimecardObject
-        fields = (
-            'user',
-            'project_name',
-            'project_id',
-            'start_date',
-            'end_date',
-            'hours_spent',
-            'billable',
-        )
+class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
     project_id = serializers.CharField(source='project.id')
     project_name = serializers.CharField(source='project.name')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     billable = serializers.BooleanField(source='project.accounting_code.billable')
 
-class BulkTimecardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TimecardObject
-        fields = (
-            'project_name',
-            'project_id',
-            'billable',
-            'employee',
-            'start_date',
-            'end_date',
-            'modified_date',
-            'hours_spent',
-        )
+class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     project_id = serializers.CharField(source='project.id')
-    billable = serializers.BooleanField(source='project.accounting_code.billable')
     employee = serializers.StringRelatedField(source='timecard.user')
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
-    modified_date = serializers.DateTimeField(source='modified')
-
-    def to_representation(self, obj, *args, **kwargs):
-        data = super(BulkTimecardSerializer, self).to_representation(obj, *args, **kwargs)
-        data['modified_date'] = obj.modified.strftime('%Y-%m-%d %H:%M:%S')
-        return data
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    billable = serializers.BooleanField(source='project.accounting_code.billable')
+    modified_date = serializers.DateTimeField(source='modified', format='%Y-%m-%d %H:%M:%S')
 
 # API Views
 
