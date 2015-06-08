@@ -30,8 +30,7 @@ def stream_csv(queryset, serializer):
     """
     rows = map(serializer.to_representation, queryset)
     fields = list(serializer.fields.keys())
-    response = StreamingHttpResponse(generate_csv(rows, fields), content_type='text/csv')
-    return response
+    return StreamingHttpResponse(generate_csv(rows, fields), content_type='text/csv')
 
 class Echo(object):
     """
