@@ -121,7 +121,7 @@ def ProjectTimelineView(request):
         writer.writerow(row)
     return response
 
-def get_timecards(queryset, params={}):
+def get_timecards(queryset, params=None):
     """
     Filter a TimecardObject queryset according to the provided GET
     query string parameters:
@@ -135,6 +135,9 @@ def get_timecards(queryset, params={}):
     * if `project` is provided as a numeric id or name, get rows for
       that project.
     """
+    if not params:
+        return queryset
+
     if 'date' in params:
         reporting_date = params.get('date')
         # TODO: validate YYYY-MM-DD format
