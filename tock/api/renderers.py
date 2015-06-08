@@ -28,7 +28,7 @@ def stream_csv(queryset, serializer):
     Serializer instance with a .fields dict and .to_representation()
     method.
     """
-    rows = map(serializer.to_representation, queryset)
+    rows = map(serializer.to_representation, queryset.iterator())
     fields = list(serializer.fields.keys())
     return StreamingHttpResponse(generate_csv(rows, fields), content_type='text/csv')
 
