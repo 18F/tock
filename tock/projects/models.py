@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 class Agency(models.Model):
-  name = models.CharField(max_length=200, verbose_name="Name")
+  name = models.CharField(max_length=200, verbose_name="Name", help_text="Don't make crappy names!")
 
   class Meta:
     verbose_name = "Agency"

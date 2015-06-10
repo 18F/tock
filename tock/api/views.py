@@ -4,44 +4,68 @@ from django.conf import settings
 from django.db.models import Count, Sum
 from decimal import Decimal
 
-from django.contrib.auth.models import User, Group
-from hours.models import ReportingPeriod, Timecard, TimecardObject
-from projects.models import Project, Agency, AccountingCode
+from django.contrib.auth.models import User
+from projects.models import Project
+from hours.models import TimecardObject
 
 from rest_framework import serializers, generics, pagination, renderers
 
-from rest_framework.renderers import JSONRenderer
-from .renderers import PaginatedCSVRenderer
-
 import csv
+from .renderers import PaginatedCSVRenderer, stream_csv
 
 class StandardResultsSetPagination(pagination.PageNumberPagination):
+    """
+    This is a standard results set paginator for all API view classes
+    that need pagination.
+    """
     page_size = 100
     page_size_query_param = 'page_size'
     max_page_size = 500
 
+
+# Serializers for different models
+
 class ProjectSerializer(serializers.ModelSerializer):
-    billable = serializers.BooleanField(source='accounting_code.billable')
     class Meta:
         model = Project
-        fields = ('id', 'name', 'description', 'billable',)
+        fields = (
+            'id',
+            'name',
+            'description',
+            'billable',
+        )
+    billable = serializers.BooleanField(source='accounting_code.billable')
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name',)
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+        )
 
-class TimecardSerializer(serializers.ModelSerializer):
+class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
     project_id = serializers.CharField(source='project.id')
     project_name = serializers.CharField(source='project.name')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     billable = serializers.BooleanField(source='project.accounting_code.billable')
-    class Meta:
-        model = TimecardObject
-        fields = ('user', 'project_id', 'project_name', 'start_date', 'end_date', 'hours_spent', 'billable',)
 
+class BulkTimecardSerializer(serializers.Serializer):
+    project_name = serializers.CharField(source='project.name')
+    project_id = serializers.CharField(source='project.id')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    billable = serializers.BooleanField(source='project.accounting_code.billable')
+    modified_date = serializers.DateTimeField(source='modified', format='%Y-%m-%d %H:%M:%S')
+
+# API Views
 
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
@@ -62,7 +86,7 @@ class TimecardList(generics.ListAPIView):
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.QUERY_PARAMS)
 
-def TimelineView(request, value_fields=[], **field_alias):
+def timeline_view(request, value_fields=[], **field_alias):
     queryset = get_timecards(TimecardList.queryset, request.GET)
 
     fields = list(value_fields) + [
@@ -98,25 +122,38 @@ def TimelineView(request, value_fields=[], **field_alias):
         writer.writerow(row)
     return response
 
-def ProjectTimelineView(request):
-    return TimelineView(
+def project_timeline_view(request):
+    return timeline_view(
         request,
         value_fields=['project__id', 'project__name'],
         project__id='project_id',
         project__name='project_name',
     )
 
-def UserTimelineView(request):
-    return TimelineView(
+def user_timeline_view(request):
+    return timeline_view(
         request,
         value_fields=['timecard__user__username'],
         timecard__user__username='user',
     )
 
-def get_timecards(queryset, params={}):
-    # if the `date` query string parameter (in YYYY-MM-DD format) is
-    # provided, get rows for which the date falls within their reporting
-    # date range
+def get_timecards(queryset, params=None):
+    """
+    Filter a TimecardObject queryset according to the provided GET
+    query string parameters:
+
+    * if `date` (in YYYY-MM-DD format) is provided, get rows for
+      which the date falls within their reporting date range.
+
+    * if `user` (in either `first.last` or numeric id) is provided,
+      get rows for that user.
+
+    * if `project` is provided as a numeric id or name, get rows for
+      that project.
+    """
+    if not params:
+        return queryset
+
     if 'date' in params:
         reporting_date = params.get('date')
         # TODO: validate YYYY-MM-DD format
@@ -142,3 +179,13 @@ def get_timecards(queryset, params={}):
             queryset = queryset.filter(project__name=project)
 
     return queryset
+
+
+
+def bulk_timecard_list(request):
+    """
+    Stream all the timecards as CSV.
+    """
+    queryset = get_timecards(TimecardList.queryset, request.GET)
+    serializer = BulkTimecardSerializer()
+    return stream_csv(queryset, serializer)
