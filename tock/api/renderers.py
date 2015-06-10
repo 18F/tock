@@ -1,8 +1,13 @@
 from rest_framework_csv.renderers import CSVRenderer
+from django.http import StreamingHttpResponse
 
-# This class is needed to extract the "results" list from paginated data.
-# see: https://github.com/mjumbewu/django-rest-framework-csv#pagination
+import csv
+
 class PaginatedCSVRenderer(CSVRenderer):
+    """
+    This class extracts the "results" list from paginated data. See:
+    <https://github.com/mjumbewu/django-rest-framework-csv#pagination>
+    """
     results_field = 'results'
 
     def render(self, data, media_type=None, renderer_context=None):
@@ -16,3 +21,37 @@ class PaginatedCSVRenderer(CSVRenderer):
         if not self.headers and len(data) > 0:
             self.headers = data[0].keys()
         return super(PaginatedCSVRenderer, self).render(data, media_type, renderer_context)
+
+def stream_csv(queryset, serializer):
+    """
+    Stream data as CSV, given an interable queryset and a DRF
+    Serializer instance with a .fields dict and .to_representation()
+    method.
+    """
+    rows = map(serializer.to_representation, queryset.iterator())
+    fields = list(serializer.fields.keys())
+    return StreamingHttpResponse(generate_csv(rows, fields), content_type='text/csv')
+
+class Echo(object):
+    """
+    A pseudo-buffer, see:
+    <https://docs.djangoproject.com/en/1.8/howto/outputting-csv/#streaming-large-csv-files>
+    """
+    def write(self, value):
+        return value
+
+def generate_csv(rows, fields=None, **writer_options):
+    """
+    This generator yields text for each written row, and optionally
+    writes a header row. We're using DictWriter.writerow() instead of
+    writeheader() because the latter doesn't return a value.
+    """
+    buff = Echo()
+    if fields:
+        writer = csv.DictWriter(buff, fieldnames=fields, **writer_options)
+        header = dict((field, field) for field in fields)
+        yield writer.writerow(header)
+    else:
+        writer = csv.writer(buff, **writer_options)
+    for row in rows:
+        yield writer.writerow(row)
