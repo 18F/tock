@@ -113,8 +113,8 @@ class BulkTimecardsTests(TestCase):
             self.assertEqual(set(row.keys()), expected_fields)
             self.assertEqual(row['project_id'], '1')
             rows_read += 1
-        self.assertTrue(rows_read > 0, 'no rows read, expecting 1 or more')
+        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
 
-def decode_streaming_csv(response, reader_options={}):
+def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
     return csv.DictReader(lines, **reader_options)
