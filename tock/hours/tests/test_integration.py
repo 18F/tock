@@ -1,0 +1,57 @@
+import datetime
+
+from django.core.urlresolvers import reverse
+from django.contrib.auth import get_user_model
+
+from django_webtest import WebTest
+
+import hours.models
+import projects.models
+
+
+class TestOptions(WebTest):
+
+    fixtures = ['projects/fixtures/projects.json', 'tock/fixtures/dev_user.json']
+
+    def setUp(self):
+        self.user = get_user_model().objects.get(id=1)
+        self.projects = [
+            projects.models.Project.objects.get(name='openFEC'),
+            projects.models.Project.objects.get(name='Peace Corps'),
+        ]
+        self.reporting_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 1),
+            end_date=datetime.date(2015, 1, 7),
+            working_hours=40,
+        )
+        self.timecard = hours.models.Timecard.objects.create(
+            user=self.user,
+            reporting_period=self.reporting_period,
+        )
+
+    def _assert_project_options(self, positive=None, negative=None):
+        """Browse to timecard update page, then assert that positive options are
+        present in select list, while negative options are absent.
+
+        :param list positive: Positive option values
+        :param list negative: Negative option values
+        """
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        url = reverse(
+            'reportingperiod:UpdateTimesheet',
+            kwargs={'reporting_period': date},
+        )
+        res = self.app.get(url, headers={'X_FORWARDED_EMAIL': self.user.email})
+        select = res.forms[0].fields['timecardobject_set-0-project'][0]
+        options = [each[-1] for each in select.options]
+        for each in (positive or []):
+            self.assertIn(each, options)
+        for each in (negative or []):
+            self.assertNotIn(each, options)
+
+    def test_project_select(self):
+        self._assert_project_options([each.name for each in self.projects])
+
+    def test_project_select_dynamic(self):
+        self.projects[1].delete()
+        self._assert_project_options([self.projects[0].name], [self.projects[1].name])
