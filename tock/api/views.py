@@ -78,7 +78,14 @@ class UserList(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
 class TimecardList(generics.ListAPIView):
-    queryset = TimecardObject.objects.order_by('timecard__reporting_period__start_date')
+    # Eagerly load related rows to avoid n+1 selects
+    queryset = TimecardObject.objects.select_related(
+        'timecard__user',
+        'project__accounting_code',
+        'timecard__reporting_period',
+    ).order_by(
+        'timecard__reporting_period__start_date'
+    )
 
     serializer_class = TimecardSerializer
     pagination_class = StandardResultsSetPagination
