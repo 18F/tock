@@ -70,15 +70,8 @@ def projects_as_choices():
     return accounting_codes
 
 
-class ProjectChoiceField(forms.ChoiceField):
-    widget = SelectWithData()
-
-    def __init__(self, *args, **kwargs):
-        super(ProjectChoiceField, self).__init__(*args, **kwargs)
-        self.choices = projects_as_choices()
-
 class TimecardObjectForm(forms.ModelForm):
-    project = ProjectChoiceField()
+    project = forms.ChoiceField(widget=SelectWithData(), choices=projects_as_choices)
 
     class Meta:
         model = TimecardObject
