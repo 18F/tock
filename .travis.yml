@@ -1,13 +1,21 @@
 language: python
+
+sudo: false
+
 python:
   - "3.4"
-cache:
-  directories:
-    - $HOME/.pip-cache/
+
+cache: pip
+
 install:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
+  - travis_retry pip install codecov
+  - travis_retry pip install -r requirements.txt
+  - travis_retry pip install -r requirements-dev.txt
+
 script:
   - cd tock
   - python manage.py syncdb --noinput --settings=tock.settings.test
   - python manage.py test --noinput --settings=tock.settings.test
+
+after_success:
+  - codecov
