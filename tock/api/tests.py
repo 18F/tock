@@ -1,14 +1,7 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from django.core.exceptions import ValidationError
-from django.conf import settings
-
-from django.contrib.auth.models import User
-from projects.models import Project
-from hours.models import TimecardObject
 
 import csv
-import logging
 
 # common fixtures for all API tests
 FIXTURES = [
@@ -19,14 +12,6 @@ FIXTURES = [
 
 class ProjectsAPITests(TestCase):
     fixtures = FIXTURES
-
-    @classmethod
-    def setUpClass(self):
-        pass
-
-    @classmethod
-    def tearDownClass(self):
-        pass
 
     def test_projects_json(self):
         pass
@@ -86,14 +71,6 @@ class ProjectTimelineTests(TestCase):
 
 class BulkTimecardsTests(TestCase):
     fixtures = FIXTURES
-
-    @classmethod
-    def setUpClass(self):
-        pass
-
-    @classmethod
-    def tearDownClass(self):
-        pass
 
     def test_bulk_timecards(self):
         response = self.client.get(reverse('BulkTimecardList'))

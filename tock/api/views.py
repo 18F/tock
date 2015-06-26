@@ -1,17 +1,14 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.conf import settings
-from django.db.models import Count, Sum
-from decimal import Decimal
+from django.http import HttpResponse
+from django.db.models import Sum
 
 from django.contrib.auth.models import User
 from projects.models import Project
 from hours.models import TimecardObject
 
-from rest_framework import serializers, generics, pagination, renderers
+from rest_framework import serializers, generics, pagination
 
 import csv
-from .renderers import PaginatedCSVRenderer, stream_csv
+from .renderers import stream_csv
 
 class StandardResultsSetPagination(pagination.PageNumberPagination):
     """
@@ -163,7 +160,6 @@ def get_timecards(queryset, params=None):
             queryset = queryset.filter(project__name=project)
 
     return queryset
-
 
 
 def bulk_timecard_list(request):
