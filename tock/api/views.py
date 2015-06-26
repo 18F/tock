@@ -83,7 +83,7 @@ class TimecardList(generics.ListAPIView):
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.QUERY_PARAMS)
 
-def timeline_view(request, value_fields=[], **field_alias):
+def timeline_view(request, value_fields=(), **field_alias):
     queryset = get_timecards(TimecardList.queryset, request.GET)
 
     fields = list(value_fields) + [
@@ -103,16 +103,17 @@ def timeline_view(request, value_fields=[], **field_alias):
 
     fields.append('hours_spent')
 
-    def map_row(row):
-        return dict(
-            (field_map.get(field, field), row.get(field)) for field in fields
-        )
-
-    data = map(map_row, data)
+    data = [
+        {
+            field_map.get(field, field): row.get(field)
+            for field in fields
+        }
+        for row in data
+    ]
 
     response = HttpResponse(content_type='text/csv')
 
-    fieldnames = list(map(lambda f: field_map.get(f, f), fields))
+    fieldnames = [field_map.get(field, field) for field in fields]
     writer = csv.DictWriter(response, fieldnames=fieldnames)
     writer.writeheader()
     for row in data:
