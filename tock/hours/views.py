@@ -35,19 +35,20 @@ class ReportingPeriodListView(ListView):
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
+        print(self.request.user.id)
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
         # Add in the current user
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__time_spent__isnull=False,
-            timecard__user=self.request.user).distinct().order_by('-start_date')[:5]
+            timecard__user=self.request.user.id).distinct().order_by('-start_date')[:5]
 
         try:
             unstarted_reporting_periods = self.queryset.exclude(
-                timecard__user=self.request.user).exclude(end_date__lte=self.request.user.user_data.start_date)
+                timecard__user=self.request.user.id).exclude(end_date__lte=self.request.user.user_data.start_date)
             unfinished_reporting_periods = self.queryset.filter(
                 timecard__time_spent__isnull=True,
-                timecard__user=self.request.user).exclude(end_date__lte=self.request.user.user_data.start_date)
+                timecard__user=self.request.user.id).exclude(end_date__lte=self.request.user.user_data.start_date)
         except ValueError:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user)
