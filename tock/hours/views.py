@@ -2,40 +2,34 @@ import csv
 import io
 import datetime
 from itertools import chain
-from operator import itemgetter, attrgetter
+from operator import attrgetter
 
 # Create your views here.
-from django.shortcuts import render
-from django.shortcuts import render_to_response
 from django.shortcuts import get_object_or_404
-from django.template.context import RequestContext
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
-from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.http import HttpResponse
-from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from django.core.exceptions import ValidationError
 
-from tock.utils import LoginRequiredMixin
+from rest_framework.permissions import IsAuthenticated
+
+from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from tock.remote_user_auth import email_to_username
 
-from .utils import number_of_hours
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm, ReportingPeriodImportForm
 
 
-class ReportingPeriodListView(ListView):
+class ReportingPeriodListView(PermissionMixin, ListView):
     context_object_name = "incomplete_reporting_periods"
     queryset = ReportingPeriod.objects.all()
     template_name = "hours/reporting_period_list.html"
+    permission_classes = (IsAuthenticated, )
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
-        print(self.request.user.id)
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
         # Add in the current user
@@ -61,35 +55,27 @@ class ReportingPeriodListView(ListView):
         return context
 
 
-class ReportingPeriodCreateView(CreateView):
+class ReportingPeriodCreateView(PermissionMixin, CreateView):
     form_class = ReportingPeriodForm
     template_name = 'hours/reporting_period_form.html'
-
-    def dispatch(self, *args, **kwargs):
-        if self.request.user.is_superuser:
-            return super(ReportingPeriodCreateView, self).dispatch(*args, **kwargs)
-        else:
-            raise PermissionDenied
+    permission_classes = (IsSuperUserOrSelf, )
 
     def get_success_url(self):
         return reverse("ListReportingPeriods")
 
 
-class ReportingPeriodBulkImportView(FormView):
+class ReportingPeriodBulkImportView(PermissionMixin, FormView):
     template_name = 'hours/reporting_period_import.html'
     form_class = ReportingPeriodImportForm
-
-    def dispatch(self, *args, **kwargs):
-        if self.request.user.is_superuser:
-            return super(ReportingPeriodBulkImportView, self).dispatch(*args, **kwargs)
-        else:
-            raise PermissionDenied
+    permission_classes = (IsSuperUserOrSelf, )
 
     def form_valid(self, form):
         if form.is_valid():
             reporting_period = form.cleaned_data['reporting_period']
             line_items = io.StringIO(
-                self.request.FILES['line_items'].read().decode('utf-8'), newline=None)
+                self.request.FILES['line_items'].read().decode('utf-8'),
+                newline=None,
+            )
 
             c = csv.DictReader(line_items)
 
@@ -233,10 +219,5 @@ class ReportingPeriodUserDetailView(DetailView):
         return get_object_or_404(
             Timecard,
             reporting_period__start_date=self.kwargs['reporting_period'],
-            user__username=self.kwargs['username'])
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(ReportingPeriodUserDetailView,
-                        self).get_context_data(**kwargs)
-        return context
+            user__username=self.kwargs['username'],
+        )

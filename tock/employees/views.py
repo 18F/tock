@@ -1,20 +1,12 @@
-from functools import wraps
-import csv
-import io
 import datetime
 
-from django.conf import settings
-from django.shortcuts import render, resolve_url
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import FormView
-from django.core import exceptions
-from django.utils.decorators import method_decorator, available_attrs
-from django.utils.six.moves.urllib.parse import urlparse
-from django.core.exceptions import PermissionDenied
 
 from tock.remote_user_auth import email_to_username
+from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
 from .forms import UserForm
 from .models import UserData
@@ -25,7 +17,7 @@ def parse_date(date):
         return None
     else:
         return datetime.datetime.strptime(date, '%m/%d/%Y')
-        
+
 # Create your views here.
 class UserListView(ListView):
     model = User
@@ -36,20 +28,15 @@ class UserListView(ListView):
         return context
 
 
-class UserFormView(FormView):
+class UserFormView(PermissionMixin, FormView):
     template_name = 'employees/user_form.html'
     form_class = UserForm
+    permission_classes = (IsSuperUserOrSelf, )
 
     def get_context_data(self, **kwargs):
         kwargs['username'] = self.kwargs['username']
         return super(UserFormView, self).get_context_data(**kwargs)
 
-    def dispatch(self, *args, **kwargs):
-        if (self.request.user.is_superuser) or (self.request.user.username == self.kwargs['username']):
-            return super(UserFormView, self).dispatch(*args, **kwargs)
-        else:
-            raise PermissionDenied
-    
     def get_initial(self):
         initial = super(UserFormView, self).get_initial()
         user, created = User.objects.get_or_create(username=self.kwargs['username'])
@@ -78,4 +65,7 @@ class UserFormView(FormView):
         return super(UserFormView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("employees:UserListView", current_app=self.request.resolver_match.namespace)
+        return reverse(
+            'employees:UserListView',
+            current_app=self.request.resolver_match.namespace,
+        )
