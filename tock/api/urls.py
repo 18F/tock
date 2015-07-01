@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^projects.(?P<format>csv|json)$', views.ProjectList.as_view(), name='ProjectList'),
     url(r'^users.(?P<format>csv|json)$', views.UserList.as_view(), name='UserList'),
     url(r'^timecards.(?P<format>csv|json)$', views.TimecardList.as_view(), name='TimecardList'),
-    url(r'^project_timeline.csv$', views.ProjectTimelineView, name='ProjectTimelineView'),
+    url(r'^project_timeline.csv$', views.project_timeline_view, name='ProjectTimelineView'),
+    url(r'^user_timeline.csv$', views.user_timeline_view, name='UserTimelineView'),
     url(r'^timecards_bulk.csv$', views.bulk_timecard_list, name='BulkTimecardList'),
 )

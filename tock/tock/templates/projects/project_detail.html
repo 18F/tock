@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2><a href="/projects/">Tock Projects</a> / {{ object.name }}</h2>
+<h2><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h2>
 
 <p class="project__description">{{ object.description|default:'(no description)' }}</p>
 
@@ -9,8 +9,8 @@
   <h3 class="chart__title">User Hours Over Time</h3>
   <utilization-chart
     class="timeline timeline--project"
-    data-url="/api/timecards.csv?project={{ object.id }}"
-    href="/employees/{% verbatim %}{{ user }}{% endverbatim %}"
+    data-url="{% url 'UserTimelineView' %}?project={{ object.id }}"
+    href="{% url 'employees:UserFormView' user %}"
     layer="user"
     color="user"
     x="start_date"

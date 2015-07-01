@@ -90,40 +90,57 @@ class TimecardList(generics.ListAPIView):
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.QUERY_PARAMS)
 
-def ProjectTimelineView(request):
+def timeline_view(request, value_fields=(), **field_alias):
     queryset = get_timecards(TimecardList.queryset, request.GET)
 
-    data = queryset.values(
-        'project__id',
-        'project__name',
-        # 'timecard__user__username',
+    fields = list(value_fields) + [
         'timecard__reporting_period__start_date',
-        # 'timecard__reporting_period__end_date',
+        'timecard__reporting_period__end_date',
         'project__accounting_code__billable'
-    ).annotate(hours_spent=Sum('hours_spent'))
+    ]
 
-    fields = (
-        ('project_id', 'project__id'),
-        ('project_name', 'project__name'),
-        ('start_date', 'timecard__reporting_period__start_date'),
-        ('billable', 'project__accounting_code__billable'),
-        ('hours_spent', 'hours_spent'),
-    )
+    field_map = {
+        'timecard__reporting_period__start_date': 'start_date',
+        'timecard__reporting_period__end_date': 'end_date',
+        'project__accounting_code__billable': 'billable',
+    }
+    field_map.update(field_alias)
 
-    def map_row(row):
-        return dict(
-            (dest, row.get(src)) for (dest, src) in fields
-        )
+    data = queryset.values(*fields).annotate(hours_spent=Sum('hours_spent'))
 
-    data = map(map_row, data)
+    fields.append('hours_spent')
+
+    data = [
+        {
+            field_map.get(field, field): row.get(field)
+            for field in fields
+        }
+        for row in data
+    ]
 
     response = HttpResponse(content_type='text/csv')
-    fieldnames = [f[0] for f in fields]
+
+    fieldnames = [field_map.get(field, field) for field in fields]
     writer = csv.DictWriter(response, fieldnames=fieldnames)
     writer.writeheader()
     for row in data:
         writer.writerow(row)
     return response
+
+def project_timeline_view(request):
+    return timeline_view(
+        request,
+        value_fields=['project__id', 'project__name'],
+        project__id='project_id',
+        project__name='project_name',
+    )
+
+def user_timeline_view(request):
+    return timeline_view(
+        request,
+        value_fields=['timecard__user__username'],
+        timecard__user__username='user',
+    )
 
 def get_timecards(queryset, params=None):
     """
