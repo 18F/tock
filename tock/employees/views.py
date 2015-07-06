@@ -18,7 +18,7 @@ def parse_date(date):
     else:
         return datetime.datetime.strptime(date, '%m/%d/%Y')
 
-# Create your views here.
+
 class UserListView(ListView):
     model = User
     template_name = 'employees/user_list.html'
@@ -39,7 +39,8 @@ class UserFormView(PermissionMixin, FormView):
 
     def get_initial(self):
         initial = super(UserFormView, self).get_initial()
-        user, created = User.objects.get_or_create(username=self.kwargs['username'])
+        user, created = User.objects.get_or_create(
+            username=self.kwargs['username'])
         initial['email'] = user.email
         initial['first_name'] = user.first_name
         initial['last_name'] = user.last_name
@@ -52,7 +53,8 @@ class UserFormView(PermissionMixin, FormView):
 
     def form_valid(self, form):
         if form.is_valid():
-            user, created = User.objects.get_or_create(username=self.kwargs['username'])
+            user, created = User.objects.get_or_create(
+                username=self.kwargs['username'])
             user.email = form.cleaned_data['email']
             user.username = email_to_username(form.cleaned_data['email'])
             user.first_name = form.cleaned_data['first_name']
