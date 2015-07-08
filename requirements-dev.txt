@@ -1,1 +1,1 @@
-django-debug-toolbardjango-webtestdjango-nosecoverage
+django-debug-toolbardjango-webtestcoverage
