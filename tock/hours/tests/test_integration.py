@@ -11,7 +11,10 @@ import projects.models
 
 class TestOptions(WebTest):
 
-    fixtures = ['projects/fixtures/projects.json', 'tock/fixtures/dev_user.json']
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'tock/fixtures/dev_user.json'
+    ]
 
     def setUp(self):
         self.user = get_user_model().objects.get(id=1)

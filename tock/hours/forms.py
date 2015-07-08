@@ -7,6 +7,7 @@ from django.utils.html import escape, conditional_escape
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
 
+
 class ReportingPeriodForm(forms.ModelForm):
 
     class Meta:
@@ -17,9 +18,12 @@ class ReportingPeriodForm(forms.ModelForm):
             'end_date': forms.TextInput(attrs={'class': "datepicker"})
         }
 
+
 class ReportingPeriodImportForm(forms.Form):
-    reporting_period = forms.ModelChoiceField(queryset=ReportingPeriod.objects.all(), label="Reporting Period")
+    reporting_period = forms.ModelChoiceField(
+        queryset=ReportingPeriod.objects.all(), label="Reporting Period")
     line_items = forms.FileField(label="CSV of Objects in Reporting Period")
+
 
 class TimecardForm(forms.ModelForm):
 
@@ -29,7 +33,6 @@ class TimecardForm(forms.ModelForm):
 
 
 class SelectWithData(forms.widgets.Select):
-
     """
     Subclass of Django's select widget that allows disabling options.
     To disable an option, pass a dict instead of a string for its label,
@@ -60,18 +63,24 @@ def projects_as_choices():
         accounting_code = []
         projects = []
         for project in code.project_set.all():
-            projects.append([project.id, {'label': project.name,
-                                          'billable': project.accounting_code.billable}])
+            projects.append([
+                project.id,
+                {
+                    'label': project.name,
+                    'billable': project.accounting_code.billable
+                }
+            ])
 
         accounting_code = [str(code), projects]
         accounting_codes.append(accounting_code)
-    accounting_codes.append(['', [['', {'label': '',
-                                          'billable': ''}]]])
+    accounting_codes.append(
+        ['', [['', {'label': '', 'billable': ''}]]])
     return accounting_codes
 
 
 class TimecardObjectForm(forms.ModelForm):
-    project = forms.ChoiceField(widget=SelectWithData(), choices=projects_as_choices)
+    project = forms.ChoiceField(
+        widget=SelectWithData(), choices=projects_as_choices)
 
     class Meta:
         model = TimecardObject
@@ -101,7 +110,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
             # print(form)
             if form.cleaned_data:
                 # Easy way of telling if we have the right data
-                if form.cleaned_data.get('hours_spent') == None:
+                if not form.cleaned_data.get('hours_spent'):
                     # Don't allow submissions that specify a project but not a
                     # amount of time
                     raise forms.ValidationError('If you have a project listed, \
