@@ -1,19 +1,22 @@
-from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
+from django_webtest import WebTest
+
 import datetime
-from employees.views import parse_date, UserListView
+from employees.views import parse_date
 from employees.models import UserData
 
 
-class UserViewTests(TestCase):
+class UserViewTests(WebTest):
 
     fixtures = ['tock/fixtures/dev_user.json']
+    csrf_checks = False
 
     def setUp(self):
         self.regular_user = get_user_model().objects.create(
             username="regular.user")
+        self.regular_user.save()
         UserData(
             user=self.regular_user,
             start_date=datetime.datetime(2014, 1, 1),
@@ -30,125 +33,124 @@ class UserViewTests(TestCase):
 
     def test_UserListViewPermissionforAdmin(self):
         """ Ensure that UserListView works for admin """
-        c = Client(HTTP_X_FORWARDED_EMAIL='test.user@gsa.gov')
-        response = c.get(
+        response = self.app.get(
             reverse('employees:UserListView'),
-            follow=True)
+            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'}
+        )
         self.assertEqual(response.status_code, 200)
-        # Check that all users' edit links exposed for admin
-        self.assertContains(
-            response, '<a href="/employees/test.user">test.user</a>')
-        self.assertContains(
-            response, '<a href="/employees/regular.user">regular.user</a>')
+        # Check that only user's own edit links exposed for user
+        self.assertEqual(
+            len(response.html.find_all('a', href='/employees/test.user')), 1)
+        self.assertEqual(
+            len(response.html.find_all('a', href='/employees/regular.user')), 1)
 
     def test_UserListViewPermissionforUser(self):
         """ Ensure that UserListView works for a regular user """
-        c = Client(HTTP_X_FORWARDED_EMAIL='regular.user@gsa.gov')
-        response = c.get(
+        response = self.app.get(
             reverse('employees:UserListView'),
-            follow=True)
+            headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'}
+        )
         self.assertEqual(response.status_code, 200)
         # Check that only user's own edit links exposed for user
-        self.assertNotContains(
-            response, '<a href="/employees/test.user">test.user</a>')
-        self.assertContains(
-            response, '<a href="/employees/regular.user">regular.user</a>')
+        self.assertEqual(
+            len(response.html.find_all('a', href='/employees/test.user')), 0)
+        self.assertEqual(
+            len(response.html.find_all('a', href='/employees/regular.user')), 1)
 
     def test_UserFormViewPermissionForAdmin(self):
         """ Ensure that admin has access to another user's UserFormView
         page """
-        c = Client(HTTP_X_FORWARDED_EMAIL='test.user@gsa.gov')
-        response = c.get(
+        response = self.app.get(
             reverse('employees:UserFormView', args=["regular.user"]),
-            follow=True)
-        self.assertEqual(response.status_code, 200)
+            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'},
+        )
         # Check that inital data for UserDate Populates
-        self.assertContains(response, 'value="2016-01-01"')
-        self.assertContains(response, 'value="2014-01-01"')
+        self.assertEqual(
+            response.html.find('input', {'id': 'id_start_date'})['value'],
+            '2014-01-01')
+        self.assertEqual(
+            response.html.find('input', {'id': 'id_end_date'})['value'],
+            '2016-01-01')
 
     def test_UserFormViewPermissionForUser(self):
         """ Ensure that UserFormView returns a 403 when a user tries to access
         another user's form"""
-        c = Client(HTTP_X_FORWARDED_EMAIL='regular.user@gsa.gov')
-        response = c.get(
-            reverse('employees:UserFormView', args=["test.user"]), follow=True)
+        response = self.app.get(
+            reverse('employees:UserFormView', args=["test.user"]),
+            headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'},
+            status=403)
         self.assertEqual(response.status_code, 403)
 
     def test_UserFormViewPermissionForSelf(self):
         """ Ensure that UserFormViews works for a user's own form """
-        c = Client(HTTP_X_FORWARDED_EMAIL='regular.user@gsa.gov')
-        response = c.get(
-            reverse('employees:UserFormView', args=["regular.user"]),
-            follow=True)
+        response = self.app.get(
+            reverse('employees:UserFormView', args=['regular.user']),
+            headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'}
+        )
         self.assertEqual(response.status_code, 200)
         # Check that inital data for UserDate Populates
-        self.assertContains(response, 'value="2016-01-01"')
-        self.assertContains(response, 'value="2014-01-01"')
+        self.assertEqual(
+            response.html.find('input', {'id': 'id_start_date'})['value'],
+            '2014-01-01')
+        self.assertEqual(
+            response.html.find('input', {'id': 'id_end_date'})['value'],
+            '2016-01-01')
 
     def test_UserFormViewPostForAdmin(self):
-        """ Ensure that an admin can change user data via the form """
-        c = Client(HTTP_X_FORWARDED_EMAIL='test.user@gsa.gov')
-        response = c.post(
+        """ Ensure that an admin can submit data via the form """
+        form = self.app.get(
             reverse('employees:UserFormView', args=['regular.user']),
-            data={
-                'email': 'regular.user@gsa.gov',
-                'first_name': 'Regular',
-                'last_name': 'User',
-                'start_date': '2015-01-01',
-                'end_date': '2017-01-01'
-            },
-            follow=True)
+            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'},
+        ).form
+        form['email'] = 'regular.user@gsa.gov'
+        form['first_name'] = 'Regular'
+        form['last_name'] = 'User'
+        form['start_date'] = '2013-01-01'
+        form['end_date'] = '2014-01-01'
+        response = form.submit(
+            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'}).follow()
         # Check if errors occured at submission
         self.assertEqual(response.status_code, 200)
-        # Check if submission form redirects to list view
-        self.assertTrue(
-            isinstance(response.context_data['view'], UserListView))
+        # Check if data was changed
         # Check that data was changed
-        self.assertEqual(
-            response.context_data['object_list'][1].user_data.start_date,
-            datetime.date(2015, 1, 1))
-        self.assertEqual(
-            response.context_data['object_list'][1].user_data.end_date,
-            datetime.date(2017, 1, 1))
+        user_data = UserData.objects.first()
+        self.assertEqual(user_data.start_date, datetime.date(2013, 1, 1))
+        self.assertEqual(user_data.end_date, datetime.date(2014, 1, 1))
 
     def test_UserFormViewPostForSelf(self):
         """ Check that a user can change thier own data via the form """
-        c = Client(HTTP_X_FORWARDED_EMAIL='regular.user@gsa.gov')
-        response = c.post(
+        form = self.app.get(
             reverse('employees:UserFormView', args=['regular.user']),
-            data={
-                'email': 'regular.user@gsa.gov',
-                'first_name': 'Regular',
-                'last_name': 'User',
-                'start_date': '2015-01-01',
-                'end_date': '2017-01-01'
-            },
-            follow=True)
+            headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'},
+        ).form
+        form['email'] = 'regular.user@gsa.gov'
+        form['first_name'] = 'Regular'
+        form['last_name'] = 'User'
+        form['start_date'] = '2015-01-01'
+        form['end_date'] = '2017-01-01'
+        response = form.submit(
+            headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'}).follow()
         # Check if errors occured at submission
         self.assertEqual(response.status_code, 200)
-        # Check if submission form redirects to list view
-        self.assertTrue(
-            isinstance(response.context_data['view'], UserListView))
+        # Check if data was changed
         # Check that data was changed
-        self.assertEqual(
-            response.context_data['object_list'][1].user_data.start_date,
-            datetime.date(2015, 1, 1))
-        self.assertEqual(
-            response.context_data['object_list'][1].user_data.end_date,
-            datetime.date(2017, 1, 1))
+        user_data = UserData.objects.first()
+        self.assertEqual(user_data.start_date, datetime.date(2015, 1, 1))
+        self.assertEqual(user_data.end_date, datetime.date(2017, 1, 1))
 
     def test_UserFormViewPostForUser(self):
         """ Check that a user cannot change another users data """
-        c = Client(HTTP_X_FORWARDED_EMAIL='regular.user@gsa.gov')
-        response = c.post(
+        response = self.app.post_json(
             reverse('employees:UserFormView', args=['test.user']),
-            data={
+            params={
                 'email': 'regular.user@gsa.gov',
                 'first_name': 'Regular',
                 'last_name': 'User',
                 'start_date': '2015-01-01',
                 'end_date': '2017-01-01'
             },
-            follow=True)
+            headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'},
+            status=403
+        )
         # Check if errors occured at submission
         self.assertEqual(response.status_code, 403)
