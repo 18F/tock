@@ -106,8 +106,10 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         for form in self.forms:
             if form.cleaned_data:
                 if not form.cleaned_data.get('hours_spent'):
-                    raise forms.ValidationError('If you have a project listed, \
-                        the number of hours cannot be blank')
+                    raise forms.ValidationError(
+                        'If you have a project listed, the number of hours '
+                        'cannot be blank'
+                    )
                 total_number_of_hours += form.cleaned_data.get('hours_spent')
 
         if total_number_of_hours != 40:

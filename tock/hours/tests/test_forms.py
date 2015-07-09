@@ -20,8 +20,7 @@ class TimecardFormTests(TestCase):
             working_hours=40)
         self.user = get_user_model().objects.get(id=1)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
-        self.project_2 = projects.models.Project.objects.get(
-            name="Peace Corps")
+        self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
 
     def test_valid_form(self):
         form_data = {

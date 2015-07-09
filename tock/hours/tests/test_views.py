@@ -121,9 +121,7 @@ class ReportTests(WebTest):
         form['end_date'] = '07/11/2015'
         form['working_hours'] = '40'
         form['message'] = 'always be coding'
-        form.submit(
-            headers={'X_FORWARDED_EMAIL': self.user.email},
-        )
+        form.submit(headers={'X_FORWARDED_EMAIL': self.user.email})
         updated_periods = list(hours.models.ReportingPeriod.objects.all())
         self.assertTrue(len(updated_periods) == len(periods) + 1)
 
