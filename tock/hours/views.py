@@ -32,10 +32,8 @@ class ReportingPeriodListView(PermissionMixin, ListView):
     permission_classes = (IsAuthenticated, )
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
-        # Add in the current user
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__time_spent__isnull=False,
             timecard__user=self.request.user.id
