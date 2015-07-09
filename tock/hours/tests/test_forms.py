@@ -93,6 +93,7 @@ class TimecardInlineFormSetTests(TestCase):
         hours.models.TimecardObject.objects.all().delete()
 
     def form_data(self, clear=[], **kwargs):
+        """ Method that auto generates form data for tests """
         form_data = {
             'timecardobject_set-TOTAL_FORMS': '2',
             'timecardobject_set-INITIAL_FORMS': '0',
@@ -110,14 +111,37 @@ class TimecardInlineFormSetTests(TestCase):
         return form_data
 
     def test_timecard_inline_formset_valid(self):
+        """ Test valid timecard data """
         form_data = self.form_data()
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())
 
     def test_timecard_is_not_100(self):
+        """ Test timecard form data that doesn't total the set working
+        hours """
         form_data = self.form_data()
         form_data['timecardobject_set-2-project'] = '6'
         form_data['timecardobject_set-2-hours_spent'] = '20'
+        form_data['timecardobject_set-TOTAL_FORMS'] = '3'
+        formset = TimecardFormSet(form_data)
+        self.assertFalse(formset.is_valid())
+
+    def test_timecard_has_empty_project(self):
+        """ Test timecard form data has an empty hours spent value for
+        a project """
+        form_data = self.form_data()
+        form_data['timecardobject_set-2-project'] = '6'
+        form_data['timecardobject_set-2-hours_spent'] = None
+        form_data['timecardobject_set-TOTAL_FORMS'] = '3'
+        formset = TimecardFormSet(form_data)
+        self.assertFalse(formset.is_valid())
+
+    def test_timecard_has_0_hours_for_project(self):
+        """ Test timecard form data has an 0 hours spent value for
+        a project """
+        form_data = self.form_data()
+        form_data['timecardobject_set-2-project'] = '6'
+        form_data['timecardobject_set-2-hours_spent'] = 0
         form_data['timecardobject_set-TOTAL_FORMS'] = '3'
         formset = TimecardFormSet(form_data)
         self.assertFalse(formset.is_valid())
