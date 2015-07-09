@@ -10,7 +10,7 @@
   <utilization-chart
     class="timeline timeline--project"
     data-url="{% url 'UserTimelineView' %}?project={{ object.id }}"
-    href="{% url 'employees:UserFormView' user %}"
+    href="/employees/{% verbatim %}{{ user }} {% endverbatim %}"
     layer="user"
     color="user"
     x="start_date"
