@@ -18,9 +18,6 @@ class ReportingPeriodTests(TestCase):
             message='This is not a vacation')
         self.reporting_period.save()
 
-    def tearDown(self):
-        hours.models.ReportingPeriod.objects.all().delete()
-
     def test_reporting_period_save(self):
         """Ensure that data was saved properly """
         reporting_period = hours.models.ReportingPeriod.objects.first()
@@ -84,12 +81,6 @@ class TimecardTests(TestCase):
             project=self.project_2,
             hours_spent=28).save()
         self.timecard.save()
-
-    def tearDown(self):
-        hours.models.ReportingPeriod.objects.all().delete()
-        hours.models.Timecard.objects.all().delete()
-        projects.models.Project.objects.all().delete()
-        hours.models.TimecardObject.objects.all().delete()
 
     def test_time_card_saved(self):
         """ Test that the time card was saved correctly """

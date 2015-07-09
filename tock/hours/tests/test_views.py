@@ -55,18 +55,6 @@ class ReportTests(WebTest):
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2017, 1, 1)
         ).save()
-        self.super_user = get_user_model().objects.create(
-            username='fred',
-            email='fred@gsa.gov',
-            is_superuser=True,
-        )
-        self.super_user.save()
-
-    def tearDown(self):
-        hours.models.ReportingPeriod.objects.all().delete()
-        hours.models.Timecard.objects.all().delete()
-        projects.models.Project.objects.all().delete()
-        hours.models.TimecardObject.objects.all().delete()
 
     def test_ReportList_get_queryset(self):
         hours.models.ReportingPeriod.objects.create(
@@ -126,7 +114,7 @@ class ReportTests(WebTest):
         periods = list(hours.models.ReportingPeriod.objects.all())
         get_res = self.app.get(
             reverse('reportingperiod:ReportingPeriodCreateView'),
-            headers={'X_FORWARDED_EMAIL': self.super_user.email},
+            headers={'X_FORWARDED_EMAIL': self.user.email},
         )
         form = get_res.forms[0]
         form['start_date'] = '07/04/2015'
@@ -134,7 +122,7 @@ class ReportTests(WebTest):
         form['working_hours'] = '40'
         form['message'] = 'always be coding'
         form.submit(
-            headers={'X_FORWARDED_EMAIL': self.super_user.email},
+            headers={'X_FORWARDED_EMAIL': self.user.email},
         )
         updated_periods = list(hours.models.ReportingPeriod.objects.all())
         self.assertTrue(len(updated_periods) == len(periods) + 1)

@@ -23,12 +23,6 @@ class TimecardFormTests(TestCase):
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")
 
-    def tearDown(self):
-        hours.models.ReportingPeriod.objects.all().delete()
-        hours.models.Timecard.objects.all().delete()
-        projects.models.Project.objects.all().delete()
-        hours.models.TimecardObject.objects.all().delete()
-
     def test_valid_form(self):
         form_data = {
             'user': self.user, 'reporting_period': self.reporting_period}
@@ -49,12 +43,6 @@ class TimecardObjectFormTests(TestCase):
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")
-
-    def tearDown(self):
-        hours.models.ReportingPeriod.objects.all().delete()
-        hours.models.Timecard.objects.all().delete()
-        projects.models.Project.objects.all().delete()
-        hours.models.TimecardObject.objects.all().delete()
 
     def test_add_project(self):
         """ Test that existing projects can be added without errors """
@@ -85,12 +73,6 @@ class TimecardInlineFormSetTests(TestCase):
         self.timecard = hours.models.Timecard.objects.create(
             reporting_period=self.reporting_period,
             user=self.user)
-
-    def tearDown(self):
-        hours.models.ReportingPeriod.objects.all().delete()
-        hours.models.Timecard.objects.all().delete()
-        projects.models.Project.objects.all().delete()
-        hours.models.TimecardObject.objects.all().delete()
 
     def form_data(self, clear=[], **kwargs):
         """ Method that auto generates form data for tests """
