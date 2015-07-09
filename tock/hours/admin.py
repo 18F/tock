@@ -12,9 +12,8 @@ class ReportingPeriodListFilter(admin.SimpleListFilter):
     parameter_name = 'reporting_period'
 
     def lookups(self, request, model_admin):
-        reportingperiods = set(
-            [p.start_date for p in ReportingPeriod.objects.all()])
-        return [(p, p) for p in reportingperiods]
+        data = ReportingPeriod.objects.distinct().values_list('start_date')
+        return [(p[0], p[0]) for p in data]
 
     def queryset(self, request, queryset):
         return queryset
