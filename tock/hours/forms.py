@@ -7,6 +7,7 @@ from django.utils.html import escape, conditional_escape
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
 
+
 class ReportingPeriodForm(forms.ModelForm):
 
     class Meta:
@@ -17,9 +18,12 @@ class ReportingPeriodForm(forms.ModelForm):
             'end_date': forms.TextInput(attrs={'class': "datepicker"})
         }
 
+
 class ReportingPeriodImportForm(forms.Form):
-    reporting_period = forms.ModelChoiceField(queryset=ReportingPeriod.objects.all(), label="Reporting Period")
+    reporting_period = forms.ModelChoiceField(
+        queryset=ReportingPeriod.objects.all(), label="Reporting Period")
     line_items = forms.FileField(label="CSV of Objects in Reporting Period")
+
 
 class TimecardForm(forms.ModelForm):
 
@@ -29,7 +33,6 @@ class TimecardForm(forms.ModelForm):
 
 
 class SelectWithData(forms.widgets.Select):
-
     """
     Subclass of Django's select widget that allows disabling options.
     To disable an option, pass a dict instead of a string for its label,
@@ -55,23 +58,30 @@ class SelectWithData(forms.widgets.Select):
 
 
 def projects_as_choices():
+    """ Adds all of the projects in database to the TimeCardObjectForm projcet
+    ChoiceField """
     accounting_codes = []
     for code in AccountingCode.objects.all():
         accounting_code = []
         projects = []
         for project in code.project_set.all():
-            projects.append([project.id, {'label': project.name,
-                                          'billable': project.accounting_code.billable}])
-
+            projects.append([
+                project.id,
+                {
+                    'label': project.name,
+                    'billable': project.accounting_code.billable
+                }
+            ])
         accounting_code = [str(code), projects]
         accounting_codes.append(accounting_code)
-    accounting_codes.append(['', [['', {'label': '',
-                                          'billable': ''}]]])
+    accounting_codes.append(
+        ['', [['', {'label': '', 'billable': ''}]]])
     return accounting_codes
 
 
 class TimecardObjectForm(forms.ModelForm):
-    project = forms.ChoiceField(widget=SelectWithData(), choices=projects_as_choices)
+    project = forms.ChoiceField(
+        widget=SelectWithData(), choices=projects_as_choices)
 
     class Meta:
         model = TimecardObject
@@ -87,33 +97,21 @@ class TimecardObjectForm(forms.ModelForm):
 
 
 class TimecardInlineFormSet(BaseInlineFormSet):
-
     """This FormSet is used for submissions of timecard entries. Right now,
       it only works for initial entries and not for updates :/"""
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
-
-        # We set the total number of hours to zero, then iterate through each
-        # individal formset submission
         total_number_of_hours = 0
         for form in self.forms:
-            # print(form)
             if form.cleaned_data:
-                # Easy way of telling if we have the right data
-                if form.cleaned_data.get('hours_spent') == None:
-                    # Don't allow submissions that specify a project but not a
-                    # amount of time
+                if not form.cleaned_data.get('hours_spent'):
                     raise forms.ValidationError('If you have a project listed, \
                         the number of hours cannot be blank')
-                # Add the time to the total number of hours
                 total_number_of_hours += form.cleaned_data.get('hours_spent')
 
         if total_number_of_hours != 40:
-            # If you have more or less than 40, then you are not counting time
-            # right.
             raise forms.ValidationError('You must report exactly 40 hours.')
-
         return getattr(self, 'cleaned_data', None)
 
 

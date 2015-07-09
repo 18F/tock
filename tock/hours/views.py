@@ -19,30 +19,34 @@ from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from tock.remote_user_auth import email_to_username
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
-from .forms import TimecardForm, TimecardFormSet, ReportingPeriodForm, ReportingPeriodImportForm
+from .forms import (TimecardForm, TimecardFormSet, ReportingPeriodForm,
+                    ReportingPeriodImportForm)
 
 
 class ReportingPeriodListView(PermissionMixin, ListView):
+    """ Currently the home view that lists the completed and missing time
+    periods """
     context_object_name = "incomplete_reporting_periods"
     queryset = ReportingPeriod.objects.all()
     template_name = "hours/reporting_period_list.html"
     permission_classes = (IsAuthenticated, )
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
-        # Add in the current user
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__time_spent__isnull=False,
-            timecard__user=self.request.user.id).distinct().order_by('-start_date')[:5]
+            timecard__user=self.request.user.id
+        ).distinct().order_by('-start_date')[:5]
 
         try:
             unstarted_reporting_periods = self.queryset.exclude(
-                timecard__user=self.request.user.id).exclude(end_date__lte=self.request.user.user_data.start_date)
+                timecard__user=self.request.user.id).exclude(
+                end_date__lte=self.request.user.user_data.start_date)
             unfinished_reporting_periods = self.queryset.filter(
                 timecard__time_spent__isnull=True,
-                timecard__user=self.request.user.id).exclude(end_date__lte=self.request.user.user_data.start_date)
+                timecard__user=self.request.user.id).exclude(
+                end_date__lte=self.request.user.user_data.start_date)
         except ValueError:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user)
@@ -50,8 +54,9 @@ class ReportingPeriodListView(PermissionMixin, ListView):
                 timecard__time_spent__isnull=True,
                 timecard__user=self.request.user)
 
-        context['uncompleted_reporting_periods'] = sorted(list(
-            chain(unstarted_reporting_periods, unfinished_reporting_periods)), key=attrgetter('start_date'))
+        context['uncompleted_reporting_periods'] = sorted(list(chain(
+            unstarted_reporting_periods, unfinished_reporting_periods)),
+            key=attrgetter('start_date'))
         return context
 
 
@@ -91,15 +96,20 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
                 try:
                     project = Project.objects.get(id=line_item['Tock Code'])
                 except Project.DoesNotExist:
-                    raise ValidationError('Project %s (Code %s) Does Not Exist' % (
-                        line_item['Tock Proj. Name'], line_item['Tock Code']))
+                    raise ValidationError(
+                        'Project %s (Code %s) Does Not Exist' %
+                        (line_item['Tock Proj. Name'], line_item['Tock Code']))
 
                 try:
                     TimecardObject.objects.get(
-                        timecard=timecard, project=project, hours_spent=line_item['Hours Logged'])
+                        timecard=timecard,
+                        project=project,
+                        hours_spent=line_item['Hours Logged'])
                 except TimecardObject.DoesNotExist:
                     TimecardObject.objects.create(
-                        timecard=timecard, project=project, hours_spent=line_item['Hours Logged'])
+                        timecard=timecard,
+                        project=project,
+                        hours_spent=line_item['Hours Logged'])
 
         return super(ReportingPeriodBulkImportView, self).form_valid(form)
 
@@ -114,8 +124,9 @@ class TimecardView(UpdateView):
     def get_object(self, queryset=None):
         r = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d").date())
-        obj, created = Timecard.objects.get_or_create(reporting_period_id=r.id,
-                                                      user_id=self.request.user.id)
+        obj, created = Timecard.objects.get_or_create(
+            reporting_period_id=r.id,
+            user_id=self.request.user.id)
         return obj
 
     def get_context_data(self, **kwargs):
@@ -157,7 +168,8 @@ class ReportsList(ListView):
         for reporting_period in query:
             if str(reporting_period.get_fiscal_year()) in fiscal_years:
                 fiscal_years[str(
-                    reporting_period.get_fiscal_year())].append(reporting_period)
+                    reporting_period.get_fiscal_year())].append(
+                    reporting_period)
             else:
                 fiscal_years[str(reporting_period.get_fiscal_year())] = [
                     reporting_period
@@ -171,27 +183,39 @@ class ReportingPeriodDetailView(ListView):
     context_object_name = "timecard_list"
 
     def get_queryset(self):
-        return Timecard.objects.filter(reporting_period__start_date=datetime.datetime.strptime(self.kwargs['reporting_period'],
-                                                                                               "%Y-%m-%d").date(), time_spent__isnull=False).distinct().order_by('user__last_name', 'user__first_name')
+        return Timecard.objects.filter(
+            reporting_period__start_date=datetime.datetime.strptime(
+                self.kwargs['reporting_period'],
+                "%Y-%m-%d").date(),
+            time_spent__isnull=False
+        ).distinct().order_by('user__last_name', 'user__first_name')
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(
             ReportingPeriodDetailView, self).get_context_data(**kwargs)
-        reporting_period = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(self.kwargs['reporting_period'],
-                                                                                             "%Y-%m-%d").date())
-        filed_users = list(Timecard.objects.filter(reporting_period=reporting_period,
-                                                   time_spent__isnull=False).distinct().all().values_list('user__id', flat=True))
-        context['users_without_filed_timecards'] = get_user_model().objects.exclude(
-            user_data__start_date__gte=reporting_period.end_date).exclude(id__in=filed_users).order_by('last_name', 'first_name')
+        reporting_period = ReportingPeriod.objects.get(
+            start_date=datetime.datetime.strptime(
+                self.kwargs['reporting_period'], "%Y-%m-%d").date())
+        filed_users = list(
+            Timecard.objects.filter(
+                reporting_period=reporting_period,
+                time_spent__isnull=False
+            ).distinct().all().values_list('user__id', flat=True))
+        context['users_without_filed_timecards'] = get_user_model().\
+            objects.exclude(
+            user_data__start_date__gte=reporting_period.end_date
+        ).exclude(id__in=filed_users).order_by('last_name', 'first_name')
         context['reporting_period'] = reporting_period
         return context
+
 
 def ReportingPeriodCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')
     response[
-        'Content-Disposition'] = 'attachment; filename="%s.csv"' % reporting_period
+        'Content-Disposition'] = 'attachment; filename="%s.csv"' \
+        % reporting_period
 
     writer = csv.writer(response)
     timecard_objects = TimecardObject.objects.filter(
@@ -219,5 +243,5 @@ class ReportingPeriodUserDetailView(DetailView):
         return get_object_or_404(
             Timecard,
             reporting_period__start_date=self.kwargs['reporting_period'],
-            user__username=self.kwargs['username'],
+            user__username=self.kwargs['username']
         )

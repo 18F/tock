@@ -1,15 +1,10 @@
-import datetime
-
-from django.core.validators import MaxValueValidator
-from django.core.exceptions import ValidationError
-from django.db import models
 from django.contrib.auth.models import User
-
-from .utils import ValidateOnSaveMixin, number_of_hours
+from django.core.validators import MaxValueValidator
+from django.db import models
+from .utils import ValidateOnSaveMixin
 from projects.models import Project
 
 
-# Create your models here.
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     start_date = models.DateField(unique=True)
     end_date = models.DateField()

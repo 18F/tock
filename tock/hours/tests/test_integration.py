@@ -11,7 +11,10 @@ import projects.models
 
 class TestOptions(WebTest):
 
-    fixtures = ['projects/fixtures/projects.json', 'tock/fixtures/dev_user.json']
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'tock/fixtures/dev_user.json'
+    ]
 
     def setUp(self):
         self.user = get_user_model().objects.get(id=1)
@@ -54,4 +57,21 @@ class TestOptions(WebTest):
 
     def test_project_select_dynamic(self):
         self.projects[1].delete()
-        self._assert_project_options([self.projects[0].name], [self.projects[1].name])
+        self._assert_project_options(
+            [self.projects[0].name], [self.projects[1].name])
+
+    def test_admin_page_reportingperiod(self):
+        """ Check that admin page reportingperiod works"""
+        res = self.app.get(
+            reverse('admin:hours_reportingperiod_changelist'),
+            headers={'X_FORWARDED_EMAIL': self.user.email})
+        self.assertEqual(200, res.status_code)
+
+    def test_admin_page_timecards(self):
+        """ Check that admin page timecard page works"""
+        res = self.app.get(
+            reverse(
+                'admin:hours_timecard_change',
+                args=['1']),
+            headers={'X_FORWARDED_EMAIL': self.user.email})
+        self.assertEqual(200, res.status_code)
