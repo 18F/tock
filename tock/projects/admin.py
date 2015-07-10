@@ -4,15 +4,15 @@ from .models import Agency, Project, AccountingCode
 
 
 class AgencyAdmin(admin.ModelAdmin):
-  pass
+    pass
 
 
 class AccountingCodeAdmin(admin.ModelAdmin):
-  pass
+    pass
 
 
 class ProjectAdmin(admin.ModelAdmin):
-  pass
+    pass
 
 
 admin.site.register(Agency, AgencyAdmin)
