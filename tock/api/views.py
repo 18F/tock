@@ -75,6 +75,8 @@ class UserList(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
 class TimecardList(generics.ListAPIView):
+    """ Endpoint for timecard data in csv or json """
+
     # Eagerly load related rows to avoid n+1 selects
     queryset = TimecardObject.objects.select_related(
         'timecard__user',
@@ -90,7 +92,9 @@ class TimecardList(generics.ListAPIView):
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.QUERY_PARAMS)
 
+
 def timeline_view(request, value_fields=(), **field_alias):
+    """ CSV endpoint for the project timeline viz """
     queryset = get_timecards(TimecardList.queryset, request.GET)
 
     fields = list(value_fields) + [
