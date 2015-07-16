@@ -55,6 +55,4 @@ class Project(models.Model):
         return '%s' % (self.name)
 
     def is_billable(self):
-        if self.accounting_code.billable:
-            return True
-        return False
+        return self.accounting_code.billable
