@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load is_billable %}
 
 {% block content %}
 <h2>Tell us about your time</h2>
@@ -141,7 +140,7 @@ $( document ).ready(function() {
 
           var previousNumber = parseInt(entry.attr('id').split('-')[1]);
           var nextNumber = previousNumber + 1;
-          
+
           entry.attr("id", "entry-" + nextNumber);
 
           entry.find('input,select').each(function(i) {
@@ -156,7 +155,7 @@ $( document ).ready(function() {
 
 
           });
-           
+
         }).appendTo('.entries');
         $(".entry-project select").chosen()
 
