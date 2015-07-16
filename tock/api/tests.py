@@ -88,8 +88,8 @@ class ProjectTimelineTests(WebTest):
 
     def test_project_timeline(self):
         res = self.app.get(reverse('UserTimelineView'))
-        self.assertTrue(
-            'test.user,2015-06-01,2015-06-08,False,20.00' in str(res.content))
+        self.assertIn(
+            'test.user,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
 
 class BulkTimecardsTests(TestCase):
