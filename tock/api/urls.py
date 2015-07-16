@@ -1,5 +1,4 @@
-from django.conf.urls import patterns, include, url
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.conf.urls import patterns, url
 from api import views
 
 # Uncomment the next two lines to enable the admin:
@@ -13,4 +12,6 @@ urlpatterns = patterns('',
     url(r'^project_timeline.csv$', views.project_timeline_view, name='ProjectTimelineView'),
     url(r'^user_timeline.csv$', views.user_timeline_view, name='UserTimelineView'),
     url(r'^timecards_bulk.csv$', views.bulk_timecard_list, name='BulkTimecardList'),
+    url(r'^hours/by_quarter.json$', views.hours_by_quarter, name='HoursByQuarter'),
+    url(r'^hours/by_quarter_by_user.json$', views.hours_by_quarter_by_user, name='HoursByQuarterByUser'),
 )
