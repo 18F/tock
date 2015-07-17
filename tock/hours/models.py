@@ -14,6 +14,11 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
+    projects = models.ManyToManyField(
+        Project,
+        through='ProjectPeriod',
+        related_name='reporting_periods',
+    )
 
     def __str__(self):
         return str(self.start_date)
@@ -64,3 +69,10 @@ class TimecardObject(models.Model):
 
     def hours(self):
         return self.hours_spent
+
+
+class ProjectPeriod(models.Model):
+    project = models.ForeignKey(Project, related_name='project_periods')
+    period = models.ForeignKey(ReportingPeriod, related_name='project_periods')
+    billable = models.BooleanField()
+    active = models.BooleanField()
