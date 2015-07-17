@@ -30,7 +30,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
                     ProjectPeriod.objects.create(
                         reporting_period=self,
                         project=last_project_period.project,
-                        billable=last_project_period.billable,
+                        accounting_code=last_project_period.accounting_code,
                         active=last_project_period.active,
                     )
 
@@ -88,5 +88,11 @@ class TimecardObject(models.Model):
 class ProjectPeriod(models.Model):
     project = models.ForeignKey(Project, related_name='project_periods')
     reporting_period = models.ForeignKey(ReportingPeriod, related_name='project_periods')
-    billable = models.BooleanField()
+    accounting_code = models.ForeignKey('projects.AccountingCode', related_name='project_periods')
     active = models.BooleanField()
+
+    def __str__(self):
+        return '{0}:{1}'.format(
+            self.project.name,
+            self.reporting_period.start_date.strftime('%Y-%m-%d'),
+        )

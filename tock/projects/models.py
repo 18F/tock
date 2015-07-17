@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.db.models.loading import get_model
 
 
@@ -59,7 +60,7 @@ class Project(models.Model):
                 ProjectPeriod.objects.create(
                     project=self,
                     reporting_period=last_period,
-                    billable=True,
+                    accounting_code_id=settings.DEFAULT_ACCOUNTING_CODE,
                     active=True,
                 )
 

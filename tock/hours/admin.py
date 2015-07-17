@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
-from .models import ReportingPeriod, Timecard, TimecardObject
+from .models import ReportingPeriod, Timecard, TimecardObject, ProjectPeriod
 
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
@@ -56,5 +56,10 @@ class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
 
 
+class ProjectPeriodAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
 admin.site.register(Timecard, TimecardAdmin)
+admin.site.register(ProjectPeriod, ProjectPeriodAdmin)

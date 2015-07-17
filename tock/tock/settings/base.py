@@ -78,3 +78,5 @@ REST_FRAMEWORK = {
         'api.renderers.PaginatedCSVRenderer',
     ),
 }
+
+DEFAULT_ACCOUNTING_CODE = 1
