@@ -20,6 +20,20 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         related_name='reporting_periods',
     )
 
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        super(ReportingPeriod, self).save(*args, **kwargs)
+        if created:
+            last_period = self.__class__.objects.order_by('-start_date').first()
+            if last_period is not None:
+                for last_project_period in last_period.project_periods.all():
+                    ProjectPeriod.objects.create(
+                        reporting_period=self,
+                        project=last_project_period.project,
+                        billable=last_project_period.billable,
+                        active=last_project_period.active,
+                    )
+
     def __str__(self):
         return str(self.start_date)
 
@@ -73,6 +87,6 @@ class TimecardObject(models.Model):
 
 class ProjectPeriod(models.Model):
     project = models.ForeignKey(Project, related_name='project_periods')
-    period = models.ForeignKey(ReportingPeriod, related_name='project_periods')
+    reporting_period = models.ForeignKey(ReportingPeriod, related_name='project_periods')
     billable = models.BooleanField()
     active = models.BooleanField()
