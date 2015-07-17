@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load project_tags %}
 
 {% block content %}
 <h2><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h2>
@@ -17,5 +18,36 @@
     y="hours_spent">
   </utilization-chart>
 </figure>
+
+<table id="dataTable">
+  <thead>
+    <th>Name</th>
+    {% for period in table.periods %}
+      <th>{{ period }}</th>
+    {% endfor %}
+  </thead>
+  <tbody>
+    {% for user, rows in table.groups.items %}
+    <tr>
+      <td>{{ user }}</td>
+      {% for period in table.periods %}
+      <td>{{ rows|get:period }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css" />
+<script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $('#dataTable').dataTable({
+    scrollX: true,
+    paging: false,
+    lengthChange: false,
+  });
+});
+</script>
 
 {% endblock %}
