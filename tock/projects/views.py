@@ -49,11 +49,11 @@ def project_timeline(project):
     periods = set()
     for user, rows in itertools.groupby(timecards, lambda row: row.timecard.user):
         groups[user] = {
-            row.timecard.reporting_period.start_date: row.hours_spent
+            row.timecard.reporting_period.start_date: float(row.hours_spent)
             for row in rows
         }
         periods.update(groups[user].keys())
     return {
         'groups': groups,
-        'periods': periods,
+        'periods': sorted(periods),
     }

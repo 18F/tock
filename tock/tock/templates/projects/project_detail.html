@@ -19,7 +19,7 @@
   </utilization-chart>
 </figure>
 
-<table id="dataTable">
+<table id="dataTable" class="striped">
   <thead>
     <th>Name</th>
     {% for period in table.periods %}
@@ -31,7 +31,7 @@
     <tr>
       <td>{{ user }}</td>
       {% for period in table.periods %}
-      <td>{{ rows|get:period }}</td>
+      <td>{{ rows|get:period|default:0.0 }}</td>
       {% endfor %}
     </tr>
     {% endfor %}
