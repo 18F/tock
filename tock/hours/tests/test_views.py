@@ -22,7 +22,9 @@ class UtilTests(TestCase):
 
 class ReportTests(WebTest):
     fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/dev_user.json']
+        'projects/fixtures/projects.json',
+        'tock/fixtures/dev_user.json',
+    ]
 
     def setUp(self):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
