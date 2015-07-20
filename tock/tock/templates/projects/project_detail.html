@@ -39,14 +39,16 @@
 </table>
 
 <link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css" />
-<script src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+<script src="https://www.datatables.net/release-datatables/extensions/FixedColumns/js/dataTables.fixedColumns.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-  $('#dataTable').dataTable({
+  var $table = $('#dataTable').dataTable({
     scrollX: true,
     paging: false,
-    lengthChange: false,
+    lengthChange: false
   });
+  new $.fn.dataTable.FixedColumns($table);
 });
 </script>
 
