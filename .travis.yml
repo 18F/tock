@@ -14,7 +14,7 @@ install:
 
 script:
   - cd tock
-  - python manage.py syncdb --noinput --settings=tock.settings.test
+  - python manage.py migrate --noinput --settings=tock.settings.test
   - python manage.py test --noinput --settings=tock.settings.test
 
 after_success:
