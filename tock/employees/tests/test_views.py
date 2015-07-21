@@ -102,7 +102,6 @@ class UserViewTests(WebTest):
             reverse('employees:UserFormView', args=['regular.user']),
             headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'},
         ).form
-        form['email'] = 'regular.user@gsa.gov'
         form['first_name'] = 'Regular'
         form['last_name'] = 'User'
         form['start_date'] = '2013-01-01'
@@ -123,7 +122,6 @@ class UserViewTests(WebTest):
             reverse('employees:UserFormView', args=['regular.user']),
             headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'},
         ).form
-        form['email'] = 'regular.user@gsa.gov'
         form['first_name'] = 'Regular'
         form['last_name'] = 'User'
         form['start_date'] = '2015-01-01'

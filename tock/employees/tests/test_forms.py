@@ -9,7 +9,6 @@ class UserFormTests(TestCase):
 
     def test_user_update(self):
         form_data = {
-            'email': 'testuser@gsa.gov',
             'first_name': 'Test',
             'last_name': 'User',
             'start_date': '2014-01-01',
@@ -17,7 +16,6 @@ class UserFormTests(TestCase):
         }
         form = UserForm(form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['email'], "testuser@gsa.gov")
         self.assertEqual(form.cleaned_data['first_name'], "Test")
         self.assertEqual(form.cleaned_data['last_name'], "User")
         self.assertEqual(
