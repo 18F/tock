@@ -68,10 +68,13 @@ class TestOptions(WebTest):
         self.assertEqual(200, res.status_code)
 
     def test_admin_page_timecards(self):
-        """ Check that admin page timecard page works"""
+        """Check that admin page timecard page works"""
+        timecard = hours.models.Timecard.objects.first()
         res = self.app.get(
             reverse(
                 'admin:hours_timecard_change',
-                args=['1']),
-            headers={'X_FORWARDED_EMAIL': self.user.email})
+                args=[timecard.id],
+            ),
+            headers={'X_FORWARDED_EMAIL': self.user.email},
+        )
         self.assertEqual(200, res.status_code)
