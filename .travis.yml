@@ -5,7 +5,13 @@ sudo: false
 python:
   - "3.4"
 
+addons:
+  postgresql: "9.4"
+
 cache: pip
+
+before_install:
+  - psql -c 'create database "tock-test";' -U postgres
 
 install:
   - travis_retry pip install codecov
