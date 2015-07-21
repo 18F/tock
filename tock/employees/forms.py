@@ -2,7 +2,6 @@ from django import forms
 
 
 class UserForm(forms.Form):
-    email = forms.EmailField(required=True, label="Email Address")
     first_name = forms.CharField(required=False, label="First Name")
     last_name = forms.CharField(required=False, label="Last Name")
     start_date = forms.DateField(
