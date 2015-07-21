@@ -5,7 +5,6 @@ from django.core.urlresolvers import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import FormView
 
-from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
 from .forms import UserForm
@@ -41,7 +40,6 @@ class UserFormView(PermissionMixin, FormView):
         initial = super(UserFormView, self).get_initial()
         user, created = User.objects.get_or_create(
             username=self.kwargs['username'])
-        initial['email'] = user.email
         initial['first_name'] = user.first_name
         initial['last_name'] = user.last_name
 
@@ -55,8 +53,6 @@ class UserFormView(PermissionMixin, FormView):
         if form.is_valid():
             user, created = User.objects.get_or_create(
                 username=self.kwargs['username'])
-            user.email = form.cleaned_data['email']
-            user.username = email_to_username(form.cleaned_data['email'])
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
             user.save()
