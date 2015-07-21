@@ -75,12 +75,11 @@ class TimecardTests(TestCase):
         self.timecard_object_1 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.project_1,
-            hours_spent=12).save()
+            hours_spent=12)
         self.timecard_object_2 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.project_2,
-            hours_spent=28).save()
-        self.timecard.save()
+            hours_spent=28)
 
     def test_time_card_saved(self):
         """ Test that the time card was saved correctly """
@@ -107,7 +106,9 @@ class TimecardTests(TestCase):
 
     def test_timecardobject_saved(self):
         """ Check that TimeCardObject was saved properly """
-        timecardobj = hours.models.TimecardObject.objects.get(pk=1)
+        timecardobj = hours.models.TimecardObject.objects.get(
+            pk=self.timecard_object_1.pk
+        )
         self.assertEqual(timecardobj.timecard.user.pk, 1)
         self.assertEqual(timecardobj.project.name, 'openFEC')
         self.assertEqual(timecardobj.hours_spent, 12)
@@ -116,5 +117,4 @@ class TimecardTests(TestCase):
 
     def test_timecardobject_hours(self):
         """ Test the TimeCardObject hours method """
-        timecardobj = hours.models.TimecardObject.objects.get(pk=1)
-        self.assertEqual(timecardobj.hours(), 12)
+        self.assertEqual(self.timecard_object_1.hours(), 12)

@@ -213,13 +213,15 @@ class ReportingPeriodDetailView(ListView):
 def ReportingPeriodCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')
-    response[
-        'Content-Disposition'] = 'attachment; filename="%s.csv"' \
-        % reporting_period
+    disposition = 'attachment; filename="{0}.csv"'.format(reporting_period)
+    response['Content-Disposition'] = disposition
 
     writer = csv.writer(response)
     timecard_objects = TimecardObject.objects.filter(
-        timecard__reporting_period__start_date=reporting_period)
+        timecard__reporting_period__start_date=reporting_period
+    ).order_by(
+        'timecard__reporting_period__start_date'
+    )
 
     writer.writerow(["Reporting Period", "Last Modified", "User", "Project",
                      "Number of Hours"])
