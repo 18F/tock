@@ -209,8 +209,8 @@ hours_by_quarter_query = '''
 with agg as (
     select
         extract(year from start_date) +
-            (extract(month from start_date) / 10)::int as year,
-        (extract(month from start_date) + 3 - 1)::int %% 12 / 3 + 1 as quarter,
+            (extract(month from start_date) / 10) as year,
+        (extract(month from start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
         billable,
         sum(hours_spent) as hours
     from hours_timecardobject tco
@@ -261,8 +261,8 @@ hours_by_quarter_by_user_query = '''
 with agg as (
     select
         extract(year from start_date) +
-            (extract(month from start_date) / 10)::int as year,
-        (extract(month from start_date) + 3 - 1)::int %% 12 / 3 + 1 as quarter,
+            (extract(month from start_date) / 10) as year,
+        (extract(month from start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
         username,
         billable,
         sum(hours_spent) as hours
