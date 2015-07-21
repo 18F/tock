@@ -20,6 +20,7 @@ install:
 
 script:
   - cd tock
+  - python manage.py makemigrations --noinput --settings=tock.settings.test
   - python manage.py migrate --noinput --settings=tock.settings.test
   - python manage.py test --noinput --settings=tock.settings.test
 
