@@ -115,6 +115,7 @@ class BulkTimecardsTests(TestCase):
             'end_date',
             'modified_date',
             'hours_spent',
+            'agency',
         ))
         rows_read = 0
         for row in rows:

@@ -54,6 +54,8 @@ class TimecardSerializer(serializers.Serializer):
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     billable = serializers.BooleanField(source='project.accounting_code.billable')
+    agency = serializers.CharField(source='project.accounting_code.agency.name')
+
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -64,6 +66,7 @@ class BulkTimecardSerializer(serializers.Serializer):
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     billable = serializers.BooleanField(source='project.accounting_code.billable')
     modified_date = serializers.DateTimeField(source='modified', format='%Y-%m-%d %H:%M:%S')
+    agency = serializers.CharField(source='project.accounting_code.agency.name')
 
 # API Views
 
@@ -83,7 +86,7 @@ class TimecardList(generics.ListAPIView):
     # Eagerly load related rows to avoid n+1 selects
     queryset = TimecardObject.objects.select_related(
         'timecard__user',
-        'project__accounting_code',
+        'project__accounting_code__agency',
         'timecard__reporting_period',
     ).order_by(
         'timecard__reporting_period__start_date'
