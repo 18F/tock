@@ -1,11 +1,19 @@
+# -*- coding: utf-8 -*-
+
+import csv
+import datetime
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from django_webtest import WebTest
 
-from .views import get_timecards, TimecardList
+from api.views import get_timecards, TimecardList
+from projects.factories import AccountingCodeFactory, ProjectFactory
+from hours.factories import (
+    UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
+)
 
-import csv
 
 # common fixtures for all API tests
 FIXTURES = [
@@ -119,3 +127,49 @@ class BulkTimecardsTests(TestCase):
 def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
     return csv.DictReader(lines, **reader_options)
+
+
+class TestAggregates(WebTest):
+
+    def setUp(self):
+        super(TestAggregates, self).setUp()
+        self.user = UserFactory()
+        self.billable_code = AccountingCodeFactory(billable=True)
+        self.nonbillable_code = AccountingCodeFactory(billable=False)
+        self.billable_project = ProjectFactory(accounting_code=self.billable_code)
+        self.nonbillable_project = ProjectFactory(accounting_code=self.nonbillable_code)
+        self.period = ReportingPeriodFactory(start_date=datetime.datetime(2015, 11, 1))
+        self.timecard = TimecardFactory(user=self.user, reporting_period=self.period)
+        self.timecard_objects = [
+            TimecardObjectFactory(
+                timecard=self.timecard,
+                project=self.billable_project,
+                hours_spent=15,
+            ),
+            TimecardObjectFactory(
+                timecard=self.timecard,
+                project=self.nonbillable_project,
+                hours_spent=5,
+            ),
+        ]
+
+    def test_hours_by_quarter(self):
+        response = self.app.get(reverse('HoursByQuarter'))
+        self.assertEqual(len(response.json), 1)
+        row = response.json[0]
+        self.assertEqual(row['billable'], 15)
+        self.assertEqual(row['nonbillable'], 5)
+        self.assertEqual(row['total'], 20)
+        self.assertEqual(row['year'], 2016)
+        self.assertEqual(row['quarter'], 1)
+
+    def test_hours_by_quarter_by_user(self):
+        response = self.app.get(reverse('HoursByQuarterByUser'))
+        self.assertEqual(len(response.json), 1)
+        row = response.json[0]
+        self.assertEqual(row['username'], str(self.user))
+        self.assertEqual(row['billable'], 15)
+        self.assertEqual(row['nonbillable'], 5)
+        self.assertEqual(row['total'], 20)
+        self.assertEqual(row['year'], 2016)
+        self.assertEqual(row['quarter'], 1)

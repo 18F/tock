@@ -1,4 +1,7 @@
+import collections
+
 from django.http import HttpResponse
+from django.db import connection
 from django.db.models import Sum
 
 from django.contrib.auth.models import User
@@ -197,3 +200,117 @@ def bulk_timecard_list(request):
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = BulkTimecardSerializer()
     return stream_csv(queryset, serializer)
+
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
+hours_by_quarter_query = '''
+with agg as (
+    select
+        extract(year from start_date) +
+            (extract(month from start_date) / 10) as year,
+        (extract(month from start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
+        billable,
+        sum(hours_spent) as hours
+    from hours_timecardobject tco
+    join hours_timecard tc on tco.timecard_id = tc.id
+    join hours_reportingperiod rp on tc.reporting_period_id = rp.id
+    join projects_project pr on tco.project_id = pr.id
+    join projects_accountingcode ac on pr.accounting_code_id = ac.id
+    group by
+        year,
+        quarter,
+        billable
+)
+select
+    year,
+    quarter,
+    coalesce(max(case when billable then hours else null end), 0) as billable,
+    coalesce(max(case when not billable then hours else null end), 0) as nonbillable,
+    sum(hours) as total
+from agg
+group by
+    year,
+    quarter
+'''
+
+HoursByQuarter = collections.namedtuple(
+    'HoursByQuarter',
+    ['year', 'quarter', 'billable', 'nonbillable', 'total'],
+)
+
+class HoursByQuarterSerializer(serializers.Serializer):
+    year = serializers.IntegerField()
+    quarter = serializers.IntegerField()
+    billable = serializers.FloatField()
+    nonbillable = serializers.FloatField()
+    total = serializers.FloatField()
+
+@api_view()
+def hours_by_quarter(request, *args, **kwargs):
+    cursor = connection.cursor()
+    cursor.execute(hours_by_quarter_query)
+    rows = cursor.fetchall()
+    return Response([
+        HoursByQuarterSerializer(HoursByQuarter(*each)).data
+        for each in rows
+    ])
+
+hours_by_quarter_by_user_query = '''
+with agg as (
+    select
+        extract(year from start_date) +
+            (extract(month from start_date) / 10) as year,
+        (extract(month from start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
+        username,
+        billable,
+        sum(hours_spent) as hours
+    from hours_timecardobject tco
+    join hours_timecard tc on tco.timecard_id = tc.id
+    join hours_reportingperiod rp on tc.reporting_period_id = rp.id
+    join auth_user usr on tc.user_id = usr.id
+    join projects_project pr on tco.project_id = pr.id
+    join projects_accountingcode ac on pr.accounting_code_id = ac.id
+    group by
+        year,
+        quarter,
+        username,
+        billable
+)
+select
+    year,
+    quarter,
+    username,
+    coalesce(max(case when billable then hours else null end), 0) as billable,
+    coalesce(max(case when not billable then hours else null end), 0) as nonbillable,
+    sum(hours) as total
+from agg
+group by
+    year,
+    quarter,
+    username
+'''
+
+HoursByQuarterByUser = collections.namedtuple(
+    'HoursByQuarter',
+    ['year', 'quarter', 'username', 'billable', 'nonbillable', 'total'],
+)
+
+class HoursByQuarterByUserSerializer(serializers.Serializer):
+    year = serializers.IntegerField()
+    quarter = serializers.IntegerField()
+    username = serializers.CharField()
+    billable = serializers.FloatField()
+    nonbillable = serializers.FloatField()
+    total = serializers.FloatField()
+
+@api_view()
+def hours_by_quarter_by_user(request, *args, **kwargs):
+    cursor = connection.cursor()
+    cursor.execute(hours_by_quarter_by_user_query)
+    rows = cursor.fetchall()
+    return Response([
+        HoursByQuarterByUserSerializer(HoursByQuarterByUser(*each)).data
+        for each in rows
+    ])

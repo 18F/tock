@@ -143,7 +143,7 @@ class ReportTests(WebTest):
             )
         )
         row = response.content.decode('utf-8').splitlines()[1]
-        result = '2015-01-01 - 2015-01-07,{0},test.user@gsa.gov,openFEC,12.00'
+        result = '2015-01-01 - 2015-01-07,{0},test.user@gsa.gov,Peace Corps,28.00'
         self.assertEqual(
             result.format(
                 self.timecard.modified.strftime('%Y-%m-%d %H:%M:%S')

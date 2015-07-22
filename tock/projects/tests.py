@@ -47,9 +47,8 @@ class ProjectsTest(WebTest):
         """ Check that the project list view is open and the saved project
         are listed """
         response = self.app.get(reverse('ProjectListView'))
-        self.assertEqual(
-            len(response.html.find('a', href='/projects/1')), 1)
-        self.assertEqual(response.status_code, 200)
+        anchor = response.html.find('a', href='/projects/{0}'.format(self.project.id))
+        self.assertIsNotNone(anchor)
 
 
 class TestProjectTimeline(WebTest):
