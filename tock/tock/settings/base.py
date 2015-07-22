@@ -45,9 +45,11 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'tock.remote_user_auth.EmailHeaderMiddleware',
+    'tock.remote_user_auth.UserDataMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',)
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
 
 AUTHENTICATION_BACKENDS = ('tock.remote_user_auth.TockUserBackend',)
 

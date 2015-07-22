@@ -67,30 +67,12 @@ class ReportTests(WebTest):
         response = response.content.decode('utf-8')
         self.assertTrue(response.index('2016') < response.index('2015'))
 
-    def test_report_list_authenticated_without_userdata(self):
-        """ Check that report list throws error when there is no user data """
-        new_user = get_user_model().objects.create(
-            username='new',
-            email='new@gsa.gov',
-        )
-        has_error = False
-        try:
-            self.app.get(
-                reverse('ListReportingPeriods'),
-                headers={'X_FORWARDED_EMAIL': new_user.email},
-                expect_errors=True,
-            )
-        except:
-            has_error = True
-        self.assertTrue(has_error)
-
-    def test_report_list_authenticated_with_userdata(self):
+    def test_report_list_authenticated(self):
         """ Check that main page loads with reporting periods for authenticated
         user with with userdata """
         response = self.app.get(
             reverse('ListReportingPeriods'),
             headers={'X_FORWARDED_EMAIL': self.regular_user.email},
-            expect_errors=True,
         )
         self.assertEqual(response.status_code, 200)
 
