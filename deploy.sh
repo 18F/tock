@@ -25,10 +25,10 @@ deploy()
 	cf push $next_deployment -n $app_name-$timestamp
 	echo "Mapping $next_deployment to the Main Domain"
 	cf map-route $next_deployment 18f.gov -n $app_name
-	cf map-route $next_deployment cf.18f.us -n $app_name
+  cf map-route $next_deployment 18f.gov -n $app_name-app
 	echo "Removing $current_deployment From the Main Domain"
 	cf unmap-route $current_deployment 18f.gov -n $app_name
-	cf unmap-route $current_deployment cf.18f.us -n $app_name
+  cf unmap-route $current_deployment 18f.gov -n $app_name-app
 	read -p "Check your app. Is it functioning properly? (y/n)" -n 1 -r
 	echo    # (optional) move to a new line
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
