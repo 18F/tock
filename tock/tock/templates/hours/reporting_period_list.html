@@ -15,12 +15,4 @@
 	</ul>
 </div>
 
-<div class="reporting-periods">
-	<h3>Previous Five Reporting Periods You Have Completed</h3>
-	<ul>
-	{% for reporting_period in completed_reporting_periods %}
-	    <li><a href="{% url 'reportingperiod:UpdateTimesheet' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
-	{% endfor %}
-	</ul>
-</div>
 {% endblock %}
