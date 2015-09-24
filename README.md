@@ -32,6 +32,7 @@ This will provision an entire setup for you pretty quickly (see `provision/dev/b
 $ vagrant ssh
 $ cd /vagrant/tock
 $ pyenv activate tock
+$ python manage.py migrate
 $ python manage.py runserver
 ```
 
