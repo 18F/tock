@@ -54,3 +54,9 @@ $ sass --watch tock/tock/static/sass/core.scss:tock/tock/static/css/style.css
 Congrats! Now you'll be able to make the changes and they will compile automatically every time your changes are saved.
 
 **NOTE: Be sure to ONLY change files ending in  `.scss` extension and NOT `.css`**
+
+## API
+
+Tock has an API, you can get the full dataset with:  https://tock.18f.gov/api/timecards_bulk.csv
+or page thru results with: https://tock.18f.gov/api/timecards.json
+you can choose a different page or page size: https://tock.18f.gov/api/timecards.json?page=2&page_size=100
