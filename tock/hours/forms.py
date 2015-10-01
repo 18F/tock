@@ -100,6 +100,14 @@ class TimecardInlineFormSet(BaseInlineFormSet):
     """This FormSet is used for submissions of timecard entries. Right now,
       it only works for initial entries and not for updates :/"""
 
+    def set_max_hours(self, max_hours):
+        """ Set the number of hours employees should work """
+        self.max_hours = max_hours
+
+    def get_max_hours(self):
+        """ Return max_hours if it exists otherwise assumes 40 """
+        return getattr(self, 'max_hours', 40)
+
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
         total_number_of_hours = 0
@@ -111,9 +119,9 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         'cannot be blank'
                     )
                 total_number_of_hours += form.cleaned_data.get('hours_spent')
-
-        if total_number_of_hours != 40:
-            raise forms.ValidationError('You must report exactly 40 hours.')
+        if total_number_of_hours != self.get_max_hours():
+            raise forms.ValidationError(
+                'You must report exactly %s hours.' % self.get_max_hours())
         return getattr(self, 'cleaned_data', None)
 
 
