@@ -127,12 +127,22 @@ class TimecardInlineFormSetTests(TestCase):
         formset = TimecardFormSet(form_data)
         self.assertFalse(formset.is_valid())
 
-    def test_reporting_period_with_less_than_40_hours(self):
+    def test_reporting_period_with_less_than_40_hours_success(self):
         """ Test the timecard form when the reporting period is less than
-        40 hours a week """
+        40 hours a week and the hours entered match the working hours """
         form_data = self.form_data()
         form_data['timecardobject_set-0-hours_spent'] = '8'
         form_data['timecardobject_set-1-hours_spent'] = '8'
         formset = TimecardFormSet(form_data)
         formset.set_working_hours(16)
         self.assertTrue(formset.is_valid())
+
+    def test_reporting_period_with_less_than_40_hours_failure(self):
+        """ Test the timecard form when the reporting period is less than
+        40 hours a week and the hours entered do not match the working hours"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-0-hours_spent'] = '5'
+        form_data['timecardobject_set-1-hours_spent'] = '5'
+        formset = TimecardFormSet(form_data)
+        formset.set_working_hours(16)
+        self.assertFalse(formset.is_valid())
