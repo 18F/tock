@@ -131,11 +131,15 @@ class TimecardView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
+        working_hours = ReportingPeriod.objects.get(
+            start_date=self.kwargs['reporting_period']).working_hours
+        context['working_hours'] = working_hours
         if self.request.POST:
             context['formset'] = TimecardFormSet(self.request.POST,
                                                  instance=self.object)
         else:
             context['formset'] = TimecardFormSet(instance=self.object)
+        context['formset'].set_working_hours(working_hours)
         return context
 
     def form_valid(self, form):
