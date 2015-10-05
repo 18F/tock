@@ -29,16 +29,19 @@ class TimecardObjectFormset(BaseInlineFormSet):
             return
 
         hours = Decimal(0.0)
+        working_hours = self.instance.reporting_period.working_hours
         for unit in self.cleaned_data:
             try:
                 hours = hours + unit["hours_spent"]
             except KeyError:
                 pass
-        if hours > 40:
-            raise ValidationError('You have entered more than 40 hours')
+        if hours > working_hours:
+            raise ValidationError(
+                'You have entered more than %s hours' % working_hours)
 
-        if hours < 40:
-            raise ValidationError('You have entered fewer than 40 hours')
+        if hours < working_hours:
+            raise ValidationError(
+                'You have entered fewer than %s hours' % working_hours)
 
 
 class ReportingPeriodAdmin(admin.ModelAdmin):
