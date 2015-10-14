@@ -19,6 +19,7 @@
 <table class="table-minimal report_table">
   <tr class="report_table__header-row">
     <th>Project</th>
+    <th>ID</th>
     <th>Billable</th>
   </tr>
   {% for project in object_list %}
@@ -26,6 +27,7 @@
     <td>
       <a href="/projects/{{ project.id }}">{{ project.name }}</a>
     </td>
+    <td>{{ project.id }}</td>
     <td>{{ project.is_billable }}</td>
   </tr>
   {% endfor %}
