@@ -25,12 +25,6 @@
           {{ project_entry.project }}
           </select>
         </div>
-        <div class="entry-billable">
-          <label for="billable">Billable:</label>
-          <div class="entry-billable-icon unknown">
-            <i class="fa fa-money"></i>
-          </div>
-        </div>
         <div class="entry-amount">
           <label for="hours">Hours Spent:</label>
           {{ project_entry.hours_spent }}
@@ -48,8 +42,8 @@
       </button>
     </div>
     <div class="entries-total-reported">
-      Billable: <span class="entries-total-billable-amount">0</span> hours<br>
-      Non-Billable: <span class="entries-total-non-billable-amount">0</span> hours
+     <span class="entries-total-billable-amount"></span><br>
+      <span class="entries-total-non-billable-amount"></span>
       <div class="entries-total-reported-wrapper">
         Total: <span class="entries-total-reported-amount">0</span> hours
       </div>
