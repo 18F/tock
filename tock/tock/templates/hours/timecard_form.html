@@ -15,7 +15,7 @@
   <div class="entries">
     <ul class="entries-header">
       <li>PROJECTS</li>
-      <li>BILLABLE</li>
+      <li></li>
       <li>HOURS</li>
     </ul>
     {% for project_entry in formset %}
@@ -37,13 +37,11 @@
     {% endfor %}
   </div>
   <div class="entries-total">
-    <div class="entries-add-more">
+    <div class="entries-add-more"></br>
       <button type="button" class="btn btn-info add-timecard-entry">Add More Items</a>
       </button>
     </div>
     <div class="entries-total-reported">
-     <span class="entries-total-billable-amount"></span><br>
-      <span class="entries-total-non-billable-amount"></span>
       <div class="entries-total-reported-wrapper">
         Total: <span class="entries-total-reported-amount">0</span> hours
       </div>
@@ -55,27 +53,16 @@
  <script>
  function getHourTotals() {
     // Get the total of all timecard object entries
-    var billableTotal = 0;
-    var nonBillableTotal = 0;
     var hoursTotal = 0;
     $('.entry-amount input').each(function(i) {
-      var billableStatus = $(this).parent().parent().children('.entry-project').children('select').find('option:selected').data('billable');
-      if (billableStatus === 'billable') {
-        billableTotal += ($(this).val() / 1);
-      }
-      if (billableStatus === 'non-billable') {
-        nonBillableTotal += ($(this).val() / 1);
-      }
+      hoursTotal += ($(this).val() / 1);
     });
-    hoursTotal = billableTotal + nonBillableTotal;
-    return {'billableTotal': billableTotal, 'nonBillableTotal': nonBillableTotal, 'hoursTotal': hoursTotal};
+    return {'hoursTotal': hoursTotal};
   }
 
   function populateHourTotals(){
     // Populate The Bottom Addon Items with Totals
     var totals = getHourTotals();
-    $('.entries-total-billable-amount').html(totals['billableTotal']);
-    $('.entries-total-non-billable-amount').html(totals['nonBillableTotal']);
     $('.entries-total-reported-amount').html();
 
     $('.entries-total-reported-amount').html(totals['hoursTotal']);
@@ -85,25 +72,6 @@
     else {
       $('.entries-total-reported-amount').removeClass('invalid');
     }
-  }
-
-  function isBillable() {
-    // Determine if a project is billable or not and append the proper class
-    $('.entry-project option:selected').each(function(i) {
-      var billableStatus = $(this).data('billable');
-      var element = $(this).parent().parent().parent().next('.entry-billable').children('.entry-billable-icon').first();
-
-      if (billableStatus === 'billable') {
-        element.addClass('billable');
-        element.removeClass('non-billable');
-        element.removeClass('unknown');
-      }
-      if (billableStatus === 'non-billable') {
-        element.addClass('non-billable');
-        element.removeClass('billable');
-        element.removeClass('unknown');
-      }
-    });
   }
 
   // When you change the hours, redo the totals
@@ -117,7 +85,6 @@
 
   // When you change a project, redo the totals
   $( "body" ).on( "change", ".entry-project select", function() {
-    isBillable();
     populateHourTotals();
   });
 
@@ -160,7 +127,6 @@ $( document ).ready(function() {
 
     // Run on initial load
     populateHourTotals();
-    isBillable();
     $(".entry-project select").chosen()
 });
  </script>
