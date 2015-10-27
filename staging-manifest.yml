@@ -1,0 +1,9 @@
+---
+# all applications use these settings and services
+memory: 512m
+instances: 1
+applications:
+- name: tock-staging
+  path: .
+  stack: cflinuxfs2
+  timeout: 180
