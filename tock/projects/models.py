@@ -22,7 +22,11 @@ class AccountingCode(models.Model):
     agency = models.ForeignKey(Agency)
     office = models.CharField(max_length=200, blank=True)
     billable = models.BooleanField(default=False)
+<<<<<<< HEAD
     flat_rate = models.BooleanField(default=False)
+=======
+    investment = models.BooleanField(default=False)
+>>>>>>> 0ee649b8b0a6148325df7a8e98082dc0603fd85e
 
     class Meta:
         verbose_name = "Accounting Code"
