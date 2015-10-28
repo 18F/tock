@@ -51,6 +51,7 @@ class Project(models.Model):
     accounting_code = models.ForeignKey(AccountingCode,
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
+    mb_number = models.CharField(max_length=200, blank=True)
 
     class Meta:
         verbose_name = "Project"

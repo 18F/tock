@@ -15,6 +15,12 @@ class Migration(migrations.Migration):
             model_name='accountingcode',
             name='flat_rate',
             field=models.BooleanField(default=False),
+
+            migrations.AddField(
+                model_name='project',
+                name='mb_number',
+                field=models.CharField(max_length=200, blank=True)
+
         ),
         migrations.AlterField(
             model_name='agency',
