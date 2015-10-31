@@ -1,1 +1,246 @@
-[{"model": "projects.agency", "fields": {"name": "General Services Administration"}, "pk": 1}, {"model": "projects.agency", "fields": {"name": "Federal Election Commission"}, "pk": 2}, {"model": "projects.agency", "fields": {"name": "Air Force"}, "pk": 3}, {"model": "projects.agency", "fields": {"name": "United States Citizenship and Immigration Services"}, "pk": 4}, {"model": "projects.agency", "fields": {"name": "Peace Corps"}, "pk": 5}, {"model": "projects.agency", "fields": {"name": "Department of Education"}, "pk": 6}, {"model": "projects.agency", "fields": {"name": "Department of the Treasury"}, "pk": 7}, {"model": "projects.agency", "fields": {"name": "Department of the Interior"}, "pk": 8}, {"model": "projects.agency", "fields": {"name": "Department of Labor"}, "pk": 9}, {"model": "projects.agency", "fields": {"name": "Social Security Administration"}, "pk": 10}, {"model": "projects.agency", "fields": {"name": "Navy"}, "pk": 11}, {"model": "projects.agency", "fields": {"name": "Department of Health and Human Services"}, "pk": 12}, {"model": "projects.accountingcode", "fields": {"billable": false, "office": "18F", "agency": 1, "code": ""}, "pk": 1}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "OCSIT", "agency": 1, "code": ""}, "pk": 2}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 2, "code": ""}, "pk": 3}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 3, "code": ""}, "pk": 4}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 4, "code": ""}, "pk": 5}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 5, "code": ""}, "pk": 6}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 6, "code": ""}, "pk": 7}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 7, "code": ""}, "pk": 8}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 8, "code": ""}, "pk": 9}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "FAS", "agency": 1, "code": ""}, "pk": 10}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 9, "code": ""}, "pk": 11}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "Office of Human Resource Management", "agency": 1, "code": ""}, "pk": 12}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 10, "code": ""}, "pk": 13}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "", "agency": 11, "code": ""}, "pk": 14}, {"model": "projects.accountingcode", "fields": {"billable": true, "office": "Centers for Medicaid and Medicare", "agency": 12, "code": ""}, "pk": 15}, {"model": "projects.project", "fields": {"name": "Out Of Office", "description": "", "accounting_code": 1, "active": "True"}, "pk": 1},
+[
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "General Services Administration"
+      },
+      "pk": 1
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Federal Election Commission"
+      },
+      "pk": 2
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Air Force"
+      },
+      "pk": 3
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "United States Citizenship and Immigration Services"
+      },
+      "pk": 4
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Peace Corps"
+      },
+      "pk": 5
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Department of Education"
+      },
+      "pk": 6
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Department of the Treasury"
+      },
+      "pk": 7
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Department of the Interior"
+      },
+      "pk": 8
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Department of Labor"
+      },
+      "pk": 9
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Social Security Administration"
+      },
+      "pk": 10
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Navy"
+      },
+      "pk": 11
+   },
+   {
+      "model": "projects.agency",
+      "fields": {
+         "name": "Department of Health and Human Services"
+      },
+      "pk": 12
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": false,
+         "office": "18F",
+         "agency": 1,
+         "code": ""
+      },
+      "pk": 1
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "OCSIT",
+         "agency": 1,
+         "code": ""
+      },
+      "pk": 2
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 2,
+         "code": ""
+      },
+      "pk": 3
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 3,
+         "code": ""
+      },
+      "pk": 4
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 4,
+         "code": ""
+      },
+      "pk": 5
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 5,
+         "code": ""
+      },
+      "pk": 6
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 6,
+         "code": ""
+      },
+      "pk": 7
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 7,
+         "code": ""
+      },
+      "pk": 8
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 8,
+         "code": ""
+      },
+      "pk": 9
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "FAS",
+         "agency": 1,
+         "code": ""
+      },
+      "pk": 10
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 9,
+         "code": ""
+      },
+      "pk": 11
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "Office of Human Resource Management",
+         "agency": 1,
+         "code": ""
+      },
+      "pk": 12
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 10,
+         "code": ""
+      },
+      "pk": 13
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "",
+         "agency": 11,
+         "code": ""
+      },
+      "pk": 14
+   },
+   {
+      "model": "projects.accountingcode",
+      "fields": {
+         "billable": true,
+         "office": "Centers for Medicaid and Medicare",
+         "agency": 12,
+         "code": ""
+      },
+      "pk": 15
+   },
+   {
+      "model": "projects.project",
+      "fields": {
+         "name": "Out Of Office",
+         "description": "",
+         "accounting_code": 1,
+         "active": "True"
+      },
+      "pk": 1
+   }
+]
