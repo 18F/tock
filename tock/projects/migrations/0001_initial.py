@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                   ('description', models.TextField(blank=True,
                                                    null=True)),
                 ('mb_number', models.CharField(max_length=200)),
-                ('active'),models.BooleanField(blank=True)),
+                ('active'),models.BooleanField(blank=True))
                   ('accounting_code',
                    models.ForeignKey(verbose_name='Accounting Code',
                                      to='projects.AccountingCode')),],

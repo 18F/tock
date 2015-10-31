@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='accountingcode',
             name='investment',
-            field=BooleanField(blank=True)
+            field=models.BooleanField(blank=True)
             ),
 
         migrations.AlterField(
