@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='accountingcode',
             name='flat_rate',
+<<<<<<< HEAD
             field=models.BooleanField(default=False)
             ),
 
@@ -35,6 +36,10 @@ class Migration(migrations.Migration):
             field=models.BooleanField(blank=True)
             ),
 
+=======
+            field=models.BooleanField(default=False),
+        ),
+>>>>>>> parent of 2b6c084... test-branch-commits
         migrations.AlterField(
             model_name='agency',
             name='name',

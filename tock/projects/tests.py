@@ -22,7 +22,7 @@ class ProjectsTest(WebTest):
             code='abc', agency=agency, office='18F', billable=True)
         accounting_code.save()
         self.project = Project(accounting_code=accounting_code,
-                               name="Test Project", active=False)
+                               name="Test Project")
         self.project.save()
 
     def test_model(self):
