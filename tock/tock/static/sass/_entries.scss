@@ -30,7 +30,7 @@
 		font-size: 0.8em;
 		padding-bottom: 25px;
 		height: auto;
-		li { 
+		li {
 			display: inline;
 			&:first-child {
 				@include span-columns(6);

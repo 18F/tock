@@ -46,6 +46,11 @@ class Migration(migrations.Migration):
                   ('name', models.CharField(max_length=200)),
                   ('description', models.TextField(blank=True,
                                                    null=True)),
+<<<<<<< HEAD
+                ('mb_number', models.CharField(max_length=200)),
+                ('active'),models.BooleanField(blank=True))
+=======
+>>>>>>> parent of 2b6c084... test-branch-commits
                   ('accounting_code',
                    models.ForeignKey(verbose_name='Accounting Code',
                                      to='projects.AccountingCode')),],
