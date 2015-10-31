@@ -54,3 +54,8 @@ $ sass --watch tock/tock/static/sass/core.scss:tock/tock/static/css/style.css
 Congrats! Now you'll be able to make the changes and they will compile automatically every time your changes are saved.
 
 **NOTE: Be sure to ONLY change files ending in  `.scss` extension and NOT `.css`**
+
+## Deploying Staging
+```bash
+cf push -f ./staging-manifest.yml
+```
