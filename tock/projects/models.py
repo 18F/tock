@@ -22,11 +22,8 @@ class AccountingCode(models.Model):
     agency = models.ForeignKey(Agency)
     office = models.CharField(max_length=200, blank=True)
     billable = models.BooleanField(default=False)
-<<<<<<< HEAD
     flat_rate = models.BooleanField(default=False)
-=======
     investment = models.BooleanField(default=False)
->>>>>>> 0ee649b8b0a6148325df7a8e98082dc0603fd85e
 
     class Meta:
         verbose_name = "Accounting Code"
@@ -51,7 +48,8 @@ class Project(models.Model):
     accounting_code = models.ForeignKey(AccountingCode,
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
-    mb_number = models.CharField(max_length=200, blank=True)
+    mb_number = models.CharField(max_length=200)
+    active = models.BooleanField(blank=True)
 
     class Meta:
         verbose_name = "Project"
