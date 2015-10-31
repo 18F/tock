@@ -17,12 +17,6 @@ class Migration(migrations.Migration):
             field=models.BooleanField(default=False),
         ),
 
-        migrations.AddField(
-            model_name='project',
-            name='active',
-            field=models.BooleanField(default=False),
-        ),
-        
         migrations.AlterField(
             model_name='agency',
             name='name',
