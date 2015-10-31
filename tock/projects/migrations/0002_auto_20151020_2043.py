@@ -14,8 +14,27 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='accountingcode',
             name='flat_rate',
-            field=models.BooleanField(default=False),
-        ),
+            field=models.BooleanField(default=False)
+            ),
+
+        migrations.AddField(
+            model_name='project',
+            name='mb_number',
+            field=models.CharField(max_length=200, blank=True)
+            ),
+
+        migrations.AddField(
+            model_name='project',
+            name='active',
+            field=models.BooleanField(blank=True)
+            ),
+
+        migrations.AddField(
+            model_name='accountingcode',
+            name='investment',
+            field=models.BooleanField(blank=True)
+            ),
+
         migrations.AlterField(
             model_name='agency',
             name='name',

@@ -19,7 +19,8 @@ class Migration(migrations.Migration):
                                             max_length=200)),
                   ('office', models.CharField(blank=True,
                                               max_length=200)),
-                  ('billable', models.BooleanField(default=False)),],
+                  ('billable', models.BooleanField(default=False)),
+                ('investment',models.CharField(max_length=200)),],
           options={
               'verbose_name_plural': 'Accounting Codes',
               'verbose_name': 'Accounting Code',
@@ -46,6 +47,8 @@ class Migration(migrations.Migration):
                   ('name', models.CharField(max_length=200)),
                   ('description', models.TextField(blank=True,
                                                    null=True)),
+                ('mb_number', models.CharField(max_length=200)),
+                ('active'),models.BooleanField(blank=True))
                   ('accounting_code',
                    models.ForeignKey(verbose_name='Accounting Code',
                                      to='projects.AccountingCode')),],
