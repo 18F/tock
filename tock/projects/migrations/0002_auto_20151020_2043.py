@@ -16,13 +16,6 @@ class Migration(migrations.Migration):
             name='flat_rate',
             field=models.BooleanField(default=False)),
 
-            migrations.AddField(
-                model_name='project',
-                name='active',
-                field=models.BooleanField(default=True),
-
-        ),
-
         migrations.AlterField(
             model_name='agency',
             name='name',
