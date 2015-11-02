@@ -127,6 +127,7 @@ table {
   font-feature-settings: "kern", "liga", "tnum";
   border-collapse: collapse;
   margin: 0.75em 0;
+  table-layout: fixed;
   width: 100%; }
 
 th {
@@ -143,10 +144,6 @@ tr,
 td,
 th {
   vertical-align: middle; }
-
-table.dataTable {
-  table-layout: auto;
-}
 
 body {
   -webkit-font-feature-settings: "kern", "liga", "pnum";
@@ -330,7 +327,7 @@ picture {
   margin-right: 2.35765%;
   width: 23.23176%;
   margin-left: 25.58941%;
-  text-align: right; }
+  text-align: left; }
   .entries-total .entries-total-reported:last-child {
     margin-right: 0; }
 .entries-total .entries-total-billable-amount {
