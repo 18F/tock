@@ -14,8 +14,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='accountingcode',
             name='flat_rate',
-            field=models.BooleanField(default=False),
-        ),
+            field=models.BooleanField(default=False)),
+
         migrations.AlterField(
             model_name='agency',
             name='name',
