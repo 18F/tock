@@ -106,6 +106,7 @@ class UserViewTests(WebTest):
         form['last_name'] = 'User'
         form['start_date'] = '2013-01-01'
         form['end_date'] = '2014-01-01'
+        form['current_employee'] = False
         response = form.submit(
             headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'}).follow()
         # Check if errors occured at submission
@@ -115,6 +116,7 @@ class UserViewTests(WebTest):
         user_data = UserData.objects.first()
         self.assertEqual(user_data.start_date, datetime.date(2013, 1, 1))
         self.assertEqual(user_data.end_date, datetime.date(2014, 1, 1))
+        self.assertFalse(user_data.current_employee)
 
     def test_UserFormViewPostForSelf(self):
         """ Check that a user can change thier own data via the form """
@@ -126,6 +128,7 @@ class UserViewTests(WebTest):
         form['last_name'] = 'User'
         form['start_date'] = '2015-01-01'
         form['end_date'] = '2017-01-01'
+        form['current_employee'] = False
         response = form.submit(
             headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'}).follow()
         # Check if errors occured at submission
@@ -135,6 +138,7 @@ class UserViewTests(WebTest):
         user_data = UserData.objects.first()
         self.assertEqual(user_data.start_date, datetime.date(2015, 1, 1))
         self.assertEqual(user_data.end_date, datetime.date(2017, 1, 1))
+        self.assertFalse(user_data.current_employee)
 
     def test_UserFormViewPostForUser(self):
         """ Check that a user cannot change another users data """
