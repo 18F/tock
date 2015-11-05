@@ -46,6 +46,7 @@ class UserFormView(PermissionMixin, FormView):
         if hasattr(user, 'user_data'):
             initial['start_date'] = user.user_data.start_date
             initial['end_date'] = user.user_data.end_date
+            initial['current_employee'] = user.user_data.current_employee
 
         return initial
 
@@ -59,6 +60,7 @@ class UserFormView(PermissionMixin, FormView):
             user_data, created = UserData.objects.get_or_create(user=user)
             user_data.start_date = form.cleaned_data['start_date']
             user_data.end_date = form.cleaned_data['end_date']
+            user_data.current_employee = form.cleaned_data['current_employee']
             user_data.save()
         return super(UserFormView, self).form_valid(form)
 

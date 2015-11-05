@@ -12,7 +12,8 @@ class UserFormTests(TestCase):
             'first_name': 'Test',
             'last_name': 'User',
             'start_date': '2014-01-01',
-            'end_date': '2016-01-01'
+            'end_date': '2016-01-01',
+            'current_employee': False
         }
         form = UserForm(form_data)
         self.assertTrue(form.is_valid())
@@ -22,6 +23,7 @@ class UserFormTests(TestCase):
             form.cleaned_data['start_date'], datetime.date(2014, 1, 1))
         self.assertEqual(
             form.cleaned_data['end_date'], datetime.date(2016, 1, 1))
+        self.assertFalse(form.cleaned_data['current_employee'])
 
     def test_date_validation(self):
         form_data = {'email': 'testuser@gsa.gov', 'end_date': '2015-01-01'}

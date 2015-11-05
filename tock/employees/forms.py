@@ -11,11 +11,15 @@ class UserForm(forms.Form):
     end_date = forms.DateField(
         required=False, label="Employment End Date",
         widget=forms.TextInput(attrs={'class': "datepicker"}))
+    current_employee = forms.BooleanField(
+        required=False, label="Is this person still employed?"        
+    )
 
     def clean(self):
         cleaned_data = super(UserForm, self).clean()
         start_date = cleaned_data.get("start_date")
         end_date = cleaned_data.get("end_date")
+        current_employee = cleaned_data.get('current_employee')
 
         if end_date:
             if not start_date or (start_date >= end_date):
