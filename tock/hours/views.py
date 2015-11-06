@@ -192,7 +192,6 @@ class ReportingPeriodDetailView(ListView):
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
             time_spent__isnull=False,
-            user__user_data__current_employee=True
         ).distinct().order_by('user__last_name', 'user__first_name')
 
     def get_context_data(self, **kwargs):
@@ -207,10 +206,11 @@ class ReportingPeriodDetailView(ListView):
                 reporting_period=reporting_period,
                 time_spent__isnull=False
             ).distinct().all().values_list('user__id', flat=True))
-        context['users_without_filed_timecards'] = get_user_model().\
-            objects.exclude(
-            user_data__start_date__gte=reporting_period.end_date
-        ).exclude(id__in=filed_users).order_by('last_name', 'first_name')
+        context['users_without_filed_timecards'] = get_user_model().objects \
+            .exclude(user_data__start_date__gte=reporting_period.end_date) \
+            .exclude(id__in=filed_users) \
+            .filter(user_data__current_employee=True) \
+            .order_by('last_name', 'first_name')
         context['reporting_period'] = reporting_period
         return context
 

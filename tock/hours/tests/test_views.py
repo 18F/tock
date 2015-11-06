@@ -55,7 +55,7 @@ class ReportTests(WebTest):
         UserData(
             user=self.regular_user,
             start_date=datetime.date(2015, 1, 1),
-            end_date=datetime.date(2017, 1, 1)
+            end_date=datetime.date(2017, 1, 1),
         ).save()
         self.former_employee = get_user_model().objects.create(
             username='maya',
@@ -69,7 +69,6 @@ class ReportTests(WebTest):
             end_date=datetime.date(2017, 1, 1),
             current_employee=False,
         ).save()
-
 
     def test_ReportList_get_queryset(self):
         hours.models.ReportingPeriod.objects.create(
@@ -145,15 +144,32 @@ class ReportTests(WebTest):
             ),
             row,
         )
-    
-    def test_ReportingPeriodDetailView_has_no_former_employees(self):
-        """ Check that the ReportingPeriodDetailView does not have users 
-        that have been marked no longer working at the organization """
+
+    def test_ReportingPeriodDetailView_current_employee_set_false(self):
+        """ Check that the ReportingPeriodDetailView does not show users
+        that have current_employee marked as false """
         response = self.app.get(
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
             )
         )
-        self.assertEqual(len(response.html.find_all('tr', {'class': 'user'})), 2)
+        self.assertEqual(
+            len(response.html.find_all('tr', {'class': 'user'})), 2
+        )
 
+    def test_ReportingPeriodDetailView_current_employee_toggle(self):
+        """ Check that changing user data attribute current_employee to
+        true shows the employee on the ReportingPeriodDetailView  """
+        self.former_employee.user_data.current_employee = True
+        self.former_employee.user_data.save()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodDetailView',
+                kwargs={'reporting_period': '2015-01-01'},
+            )
+        )
+        self.assertEqual(
+            len(response.html.find_all('tr', {'class': 'user'})), 3
+        )
+        self.former_employee
