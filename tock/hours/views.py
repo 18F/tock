@@ -191,8 +191,7 @@ class ReportingPeriodDetailView(ListView):
             reporting_period__start_date=datetime.datetime.strptime(
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
-            time_spent__isnull=False,
-            user__user_data__current_employee=True
+            time_spent__isnull=False
         ).distinct().order_by('user__last_name', 'user__first_name')
 
     def get_context_data(self, **kwargs):

@@ -15,7 +15,7 @@
 	<th>Email</th>
 </tr>
 {% for user in users_without_filed_timecards %}
-<tr class='user'>
+<tr>
 	<td>{{ user.first_name }}</td>
 	<td>{{ user.last_name }}</td>
 	<td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
@@ -31,7 +31,7 @@
 	<th>View Timecard</th>
 </tr>
 {% for timecard in timecard_list %}
-<tr class='user'>
+<tr>
 	<td>{{ timecard.user.first_name }}</td>
 	<td>{{ timecard.user.last_name }}</td>
 	<td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>

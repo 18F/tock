@@ -33,8 +33,3 @@ class UserDataTests(TestCase):
         self.assertEqual(
             self.regular_user.user_data.end_date,
             datetime.date(2016, 1, 1))
-    
-    def test_user_data_current_employee_default_is_true(self):
-        """ Check that the user data is initalized with the current
-        employee value being true """
-        self.assertTrue(self.regular_user.user_data.current_employee)
