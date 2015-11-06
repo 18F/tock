@@ -44,6 +44,7 @@ class AccountingCode(models.Model):
 class Project(models.Model):
     """ Stores information about a specific project"""
     name = models.CharField(max_length=200)
+    mbnumber = models.CharField(max_length=200, blank=True, verbose_name="MB Number")
     accounting_code = models.ForeignKey(AccountingCode,
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
