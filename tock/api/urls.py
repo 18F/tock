@@ -10,6 +10,7 @@ from api import views
 urlpatterns = patterns('',
     url(r'^projects.(?P<format>csv|json)$', views.ProjectList.as_view(), name='ProjectList'),
     url(r'^users.(?P<format>csv|json)$', views.UserList.as_view(), name='UserList'),
+    url(r'^reporting_period_audit/(?P<reporting_period_start_date>[0-9]{4}-[0-9]{2}-[0-9]{2})/$', view=views.ReportingPeriodAudit.as_view(), name='ReportingPeriodAudit'),
     url(r'^timecards.(?P<format>csv|json)$', views.TimecardList.as_view(), name='TimecardList'),
     url(r'^project_timeline.csv$', views.project_timeline_view, name='ProjectTimelineView'),
     url(r'^user_timeline.csv$', views.user_timeline_view, name='UserTimelineView'),
