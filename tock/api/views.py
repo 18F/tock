@@ -79,6 +79,13 @@ class ProjectList(generics.ListAPIView):
     serializer_class = ProjectSerializer
     pagination_class = StandardResultsSetPagination
 
+class ProjectInstanceView(generics.RetrieveAPIView):
+    """ Return the details of a specific project """
+    queryset =  Project.objects.all()
+    model = Project
+    serializer_class = ProjectSerializer
+
+
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer

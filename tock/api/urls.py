@@ -9,6 +9,7 @@ from api import views
 
 urlpatterns = patterns('',
     url(r'^projects.(?P<format>csv|json)$', views.ProjectList.as_view(), name='ProjectList'),
+    url(r'^projects/(?P<pk>\d+).json$',view=views.ProjectInstanceView.as_view(),name='ProjectInstanceView'),
     url(r'^users.(?P<format>csv|json)$', views.UserList.as_view(), name='UserList'),
     url(r'^timecards.(?P<format>csv|json)$', views.TimecardList.as_view(), name='TimecardList'),
     url(r'^project_timeline.csv$', views.project_timeline_view, name='ProjectTimelineView'),

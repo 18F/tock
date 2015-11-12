@@ -33,6 +33,13 @@ class ProjectsAPITests(TestCase):
         pass
 
 
+class ProjectInstanceAPITests(WebTest):
+    fixtures = FIXTURES
+
+    def test_projects_json(self):
+        res = self.app.get(reverse('ProjectInstanceView', kwargs={'pk': '29'}))
+        self.assertEqual(res.json['name'], "Consulting - Agile BPA")
+
 class UsersAPITests(TestCase):
     fixtures = FIXTURES
 
