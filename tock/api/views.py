@@ -50,6 +50,15 @@ class UserSerializer(serializers.ModelSerializer):
             'email'
         )
 
+class ReportingPeriodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportingPeriod
+        fields = (
+            'start_date',
+            'end_date',
+            'working_hours',
+        )
+
 class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
     project_id = serializers.CharField(source='project.id')
@@ -87,6 +96,12 @@ class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = StandardResultsSetPagination
+
+class ReportingPeriodList(generics.ListAPIView):
+    queryset = ReportingPeriod.objects.all()
+    serializer_class = ReportingPeriodSerializer
+    pagination_class = StandardResultsSetPagination
+
 
 class ReportingPeriodAudit(generics.ListAPIView):
     """ This endpoint retrieves a list of users who have not filled out
