@@ -14,6 +14,9 @@ from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
 )
 
+from django.contrib.auth import get_user_model
+from employees.models import UserData
+
 
 # common fixtures for all API tests
 FIXTURES = [
@@ -177,3 +180,62 @@ class TestAggregates(WebTest):
         self.assertEqual(row['total'], 20)
         self.assertEqual(row['year'], 2016)
         self.assertEqual(row['quarter'], 1)
+
+
+class ReportingPeriodList(WebTest):
+    fixtures = FIXTURES
+
+    def test_ReportingPeriodList_json(self):
+        """ Check that the reporting periods are listed """
+        res = self.app.get(reverse('ReportingPeriodList'))
+        self.assertEqual(res.json['count'], 1)
+
+    def test_ReportingPeriodList_json(self):
+        """ Check that the ReportingPeriodList is empty when all users
+        have filled out thier time cards"""
+        reporting_periods = self.app.get(reverse('ReportingPeriodList'))
+        start_date = reporting_periods.json['results'][0]['start_date']
+        res = self.app.get(reverse(
+                'ReportingPeriodAudit',
+                kwargs={'reporting_period_start_date': start_date}
+            )
+        )
+        self.assertEqual(res.json['count'], 0)
+
+    def test_ReportingPeriodList_json_missing_timesheet(self):
+        """ Check that the ReportingPeriodList shows users that have missing
+        time cards """
+        # Create a user
+        self.regular_user = get_user_model().objects.create(
+            username='new.user')
+        userdata = UserData(user=self.regular_user)
+        userdata.save()
+
+        reporting_periods = self.app.get(reverse('ReportingPeriodList'))
+        start_date = reporting_periods.json['results'][0]['start_date']
+        res = self.app.get(reverse(
+                'ReportingPeriodAudit',
+                kwargs={'reporting_period_start_date': start_date}
+            )
+        )
+        self.assertEqual(res.json['count'], 1)
+
+
+    def test_ReportingPeriodList_json_no_longer_employed(self):
+        """ Check that the ReportingPeriodList shows users that have missing
+        time cards """
+        # Create a user, but set the user as unemployed
+        self.regular_user = get_user_model().objects.create(
+            username='new.user')
+        userdata = UserData(user=self.regular_user)
+        userdata.current_employee = False
+        userdata.save()
+
+        reporting_periods = self.app.get(reverse('ReportingPeriodList'))
+        start_date = reporting_periods.json['results'][0]['start_date']
+        res = self.app.get(reverse(
+                'ReportingPeriodAudit',
+                kwargs={'reporting_period_start_date': start_date}
+            )
+        )
+        self.assertEqual(res.json['count'], 0)

@@ -102,7 +102,6 @@ class ReportingPeriodList(generics.ListAPIView):
     serializer_class = ReportingPeriodSerializer
     pagination_class = StandardResultsSetPagination
 
-
 class ReportingPeriodAudit(generics.ListAPIView):
     """ This endpoint retrieves a list of users who have not filled out
     their time cards for a given time period """
