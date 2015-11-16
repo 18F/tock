@@ -1,12 +1,15 @@
 import collections
+import datetime
 
 from django.http import HttpResponse
 from django.db import connection
 from django.db.models import Sum
 
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
 from projects.models import Project
-from hours.models import TimecardObject
+from hours.models import TimecardObject, Timecard, ReportingPeriod
 
 from rest_framework import serializers, generics, pagination
 
@@ -44,6 +47,16 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
+            'email'
+        )
+
+class ReportingPeriodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportingPeriod
+        fields = (
+            'start_date',
+            'end_date',
+            'working_hours',
         )
 
 class TimecardSerializer(serializers.Serializer):
@@ -90,6 +103,37 @@ class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = StandardResultsSetPagination
+
+class ReportingPeriodList(generics.ListAPIView):
+    queryset = ReportingPeriod.objects.all()
+    serializer_class = ReportingPeriodSerializer
+    pagination_class = StandardResultsSetPagination
+
+class ReportingPeriodAudit(generics.ListAPIView):
+    """ This endpoint retrieves a list of users who have not filled out
+    their time cards for a given time period """
+
+    queryset = ReportingPeriod.objects.all()
+    serializer_class = UserSerializer
+    pagination_class = StandardResultsSetPagination
+    lookup_field = 'start_date'
+
+    def get_queryset(self):
+        reporting_period = self.queryset.get(
+            start_date=datetime.datetime.strptime(
+                self.kwargs['reporting_period_start_date'], "%Y-%m-%d"
+            ).date()
+        )
+        filed_users = list(
+            Timecard.objects.filter(
+                reporting_period=reporting_period,
+                time_spent__isnull=False
+            ).distinct().all().values_list('user__id', flat=True))
+        return get_user_model().objects \
+            .exclude(user_data__start_date__gte=reporting_period.end_date) \
+            .exclude(id__in=filed_users) \
+            .filter(user_data__current_employee=True) \
+            .order_by('last_name', 'first_name')
 
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """
