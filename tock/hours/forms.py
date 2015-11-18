@@ -58,13 +58,13 @@ class SelectWithData(forms.widgets.Select):
 
 
 def projects_as_choices():
-    """ Adds all of the projects in database to the TimeCardObjectForm projcet
+    """ Adds all of the projects in database to the TimeCardObjectForm project
     ChoiceField """
     accounting_codes = []
     for code in AccountingCode.objects.all():
         accounting_code = []
         projects = []
-        for project in code.project_set.all():
+        for project in code.project_set.filter(active=True):
             projects.append([
                 project.id,
                 {

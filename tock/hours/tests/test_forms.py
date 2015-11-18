@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 import hours.models
 import projects.models
 
-from hours.forms import TimecardForm, TimecardObjectForm, TimecardFormSet
+from hours.forms import TimecardForm, TimecardObjectForm, TimecardFormSet, projects_as_choices
 
 
 class TimecardFormTests(TestCase):
@@ -27,6 +27,17 @@ class TimecardFormTests(TestCase):
             'user': self.user, 'reporting_period': self.reporting_period}
         form = TimecardForm(form_data)
         self.assertTrue(form.is_valid())
+
+    def test_projects_as_choices(self):
+        """tests projects_as_choices only returns projects marked active:(1) mark a project as inactive; (2) look for that project inside projects_as_choices; (3) test should fail if it finds the project"""
+        data_before_inactive_change = projects_as_choices()
+        project_test = projects.models.Project.objects.first() #get the first project in the db"""
+        project_test.active = False #set active field to to false"""
+        project_test.save() #save change to DB"""
+        data_after_inactive_change = projects_as_choices()
+        self.assertNotEqual(data_before_inactive_change, data_after_inactive_change)
+
+
 
 
 class TimecardObjectFormTests(TestCase):
