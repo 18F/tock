@@ -28,12 +28,12 @@ class ReportingPeriodTests(TestCase):
         self.assertEqual('This is not a vacation', reporting_period.message)
 
     def test_max_reporting_period_length(self):
-        """Check to ensure a reporting period cannot be longer than 40 hours"""
+        """Check to ensure a reporting period cannot be longer than 80 hours"""
         with self.assertRaises(ValidationError):
             hours.models.ReportingPeriod(
                 start_date=datetime.date(2015, 1, 7),
                 end_date=datetime.date(2015, 1, 14),
-                working_hours=45).save()
+                working_hours=85).save()
 
     def test_unique_constraint(self):
         """ Check that unique constrains work for reporting period """

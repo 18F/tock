@@ -10,7 +10,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     end_date = models.DateField()
     working_hours = models.PositiveSmallIntegerField(
         default=40,
-        validators=[MaxValueValidator(40)])
+        validators=[MaxValueValidator(80)])
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
