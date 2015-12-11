@@ -61,6 +61,10 @@ class TimecardObject(models.Model):
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    """the notes field is where the user records notes about time spent on certain
+    projects (for example, time spent on general projects). it may only be display and
+    required when certain projects are selected."""
+    notes = models.TextField(blank=True)
 
     def hours(self):
         return self.hours_spent

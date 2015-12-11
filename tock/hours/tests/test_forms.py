@@ -68,12 +68,12 @@ class TimecardObjectFormTests(TestCase):
         form = TimecardObjectForm(form_data)
         self.assertFalse(form.is_valid())
 
-#    def test_general_has_notes_field(self):
-#        """tests that a timecard object with a General entry that is missing an
-#        accompaning blank notes field is not valid"""
-#        form_data = {'project':'General','hours_spent': '40'}
-#        form = TimecardObjectForm(form_data)
-#        self.assertFalse(form.is_valid())
+    def test_general_has_notes_field(self):
+        """tests that a timecard object with a General entry that is missing an
+        accompaning blank notes field is not valid"""
+        form_data = {'project':'General','hours_spent': '40'}
+        form = TimecardObjectForm(form_data)
+        self.assertFalse(form.is_valid())
 
 class TimecardInlineFormSetTests(TestCase):
     fixtures = [
