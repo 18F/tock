@@ -9,7 +9,7 @@ class UserDataTests(TestCase):
 
     def setUp(self):
         self.regular_user = get_user_model().objects.create(
-            username='test.user')
+            username='aaron.snow')
         userdata = UserData(user=self.regular_user)
         userdata.start_date = datetime.date(2014, 1, 1)
         userdata.end_date = datetime.date(2016, 1, 1)

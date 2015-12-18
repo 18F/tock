@@ -10,7 +10,7 @@ from employees.models import UserData
 
 class UserViewTests(WebTest):
 
-    fixtures = ['tock/fixtures/dev_user.json']
+    fixtures = ['tock/fixtures/prod_user.json']
     csrf_checks = False
 
     def setUp(self):
@@ -35,12 +35,12 @@ class UserViewTests(WebTest):
         """ Ensure that UserListView works for admin """
         response = self.app.get(
             reverse('employees:UserListView'),
-            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'}
+            headers={'X_FORWARDED_EMAIL': 'aaron.snow@gsa.gov'}
         )
         self.assertEqual(response.status_code, 200)
         # Check that only user's own edit links exposed for user
         self.assertEqual(
-            len(response.html.find_all('a', href='/employees/test.user')), 1)
+            len(response.html.find_all('a', href='/employees/aaron.snow')), 1)
         self.assertEqual(
             len(response.html.find_all('a', href='/employees/regular.user')), 1)
 
@@ -53,7 +53,7 @@ class UserViewTests(WebTest):
         self.assertEqual(response.status_code, 200)
         # Check that only user's own edit links exposed for user
         self.assertEqual(
-            len(response.html.find_all('a', href='/employees/test.user')), 0)
+            len(response.html.find_all('a', href='/employees/aaron.snow')), 0)
         self.assertEqual(
             len(response.html.find_all('a', href='/employees/regular.user')), 1)
 
@@ -62,7 +62,7 @@ class UserViewTests(WebTest):
         page """
         response = self.app.get(
             reverse('employees:UserFormView', args=["regular.user"]),
-            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'},
+            headers={'X_FORWARDED_EMAIL': 'aaron.snow@gsa.gov'},
         )
         # Check that inital data for UserDate Populates
         self.assertEqual(
@@ -76,7 +76,7 @@ class UserViewTests(WebTest):
         """ Ensure that UserFormView returns a 403 when a user tries to access
         another user's form"""
         response = self.app.get(
-            reverse('employees:UserFormView', args=["test.user"]),
+            reverse('employees:UserFormView', args=["aaron.snow"]),
             headers={'X_FORWARDED_EMAIL': 'regular.user@gsa.gov'},
             status=403)
         self.assertEqual(response.status_code, 403)
@@ -100,7 +100,7 @@ class UserViewTests(WebTest):
         """ Ensure that an admin can submit data via the form """
         form = self.app.get(
             reverse('employees:UserFormView', args=['regular.user']),
-            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'},
+            headers={'X_FORWARDED_EMAIL': 'aaron.snow@gsa.gov'},
         ).form
         form['first_name'] = 'Regular'
         form['last_name'] = 'User'
@@ -108,7 +108,7 @@ class UserViewTests(WebTest):
         form['end_date'] = '2014-01-01'
         form['current_employee'] = False
         response = form.submit(
-            headers={'X_FORWARDED_EMAIL': 'test.user@gsa.gov'}).follow()
+            headers={'X_FORWARDED_EMAIL': 'aaron.snow@gsa.gov'}).follow()
         # Check if errors occured at submission
         self.assertEqual(response.status_code, 200)
         # Check if data was changed
@@ -143,7 +143,7 @@ class UserViewTests(WebTest):
     def test_UserFormViewPostForUser(self):
         """ Check that a user cannot change another users data """
         response = self.app.post_json(
-            reverse('employees:UserFormView', args=['test.user']),
+            reverse('employees:UserFormView', args=['aaron.snow']),
             params={
                 'email': 'regular.user@gsa.gov',
                 'first_name': 'Regular',

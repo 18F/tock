@@ -5,7 +5,7 @@ from employees.forms import UserForm
 
 
 class UserFormTests(TestCase):
-    fixtures = ['tock/fixtures/dev_user.json']
+    fixtures = ['tock/fixtures/prod_user.json']
 
     def test_user_update(self):
         form_data = {

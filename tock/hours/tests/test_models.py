@@ -56,7 +56,7 @@ class ReportingPeriodTests(TestCase):
 class TimecardTests(TestCase):
     fixtures = [
         'projects/fixtures/projects.json',
-        'tock/fixtures/dev_user.json'
+        'tock/fixtures/prod_user.json'
     ]
 
     def setUp(self):
@@ -102,7 +102,7 @@ class TimecardTests(TestCase):
 
     def test_timecard_string_return(self):
         """ Ensure the returned string for the timecard is as expected"""
-        self.assertEqual('test.user - 2015-01-01', str(self.timecard))
+        self.assertEqual('aaron.snow - 2015-01-01', str(self.timecard))
 
     def test_timecardobject_saved(self):
         """ Check that TimeCardObject was saved properly """
