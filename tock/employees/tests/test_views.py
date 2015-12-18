@@ -10,7 +10,7 @@ from employees.models import UserData
 
 class UserViewTests(WebTest):
 
-    fixtures = ['tock/fixtures/dev_user.json']
+    fixtures = ['tock/fixtures/prod_user.json']
     csrf_checks = False
 
     def setUp(self):

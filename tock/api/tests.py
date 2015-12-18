@@ -20,7 +20,7 @@ from employees.models import UserData
 
 # common fixtures for all API tests
 FIXTURES = [
-    'tock/fixtures/dev_user.json',
+    'tock/fixtures/prod_user.json',
     'projects/fixtures/projects.json',
     'hours/fixtures/timecards.json'
 ]

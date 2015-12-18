@@ -10,7 +10,7 @@ from hours.templatetags.has_submitted_timesheet import has_submitted_timesheet
 
 class TemplateTagTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/dev_user.json'
+        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json'
     ]
 
     def setUp(self):

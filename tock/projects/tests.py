@@ -52,7 +52,7 @@ class ProjectsTest(WebTest):
 
 
 class TestProjectTimeline(WebTest):
-    fixtures = ['tock/fixtures/dev_user.json']
+    fixtures = ['tock/fixtures/prod_user.json']
 
     def setUp(self):
         super(TestProjectTimeline, self).setUp()

@@ -23,7 +23,7 @@ class UtilTests(TestCase):
 class ReportTests(WebTest):
     fixtures = [
         'projects/fixtures/projects.json',
-        'tock/fixtures/dev_user.json',
+        'tock/fixtures/prod_user.json',
     ]
 
     def setUp(self):

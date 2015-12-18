@@ -11,7 +11,7 @@ from hours.forms import TimecardForm, TimecardObjectForm, TimecardFormSet, proje
 
 class TimecardFormTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/dev_user.json']
+        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
 
     def setUp(self):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
@@ -44,7 +44,7 @@ class TimecardFormTests(TestCase):
 
 class TimecardObjectFormTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/dev_user.json']
+        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
 
     def setUp(self):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
@@ -77,7 +77,7 @@ class TimecardObjectFormTests(TestCase):
 
 class TimecardInlineFormSetTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/dev_user.json']
+        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
 
     def setUp(self):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
