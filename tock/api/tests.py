@@ -84,7 +84,7 @@ class TimecardsAPITests(WebTest):
                                  params={'user': '1'})
         self.assertEqual(len(queryset), 1)
         queryset = get_timecards(TimecardList.queryset,
-                                 params={'user': 'test.user'})
+                                 params={'user': 'aaron.snow'})
         self.assertEqual(len(queryset), 1)
         queryset = get_timecards(TimecardList.queryset,
                                  params={'user': '22'})
@@ -107,7 +107,7 @@ class ProjectTimelineTests(WebTest):
     def test_project_timeline(self):
         res = self.app.get(reverse('UserTimelineView'))
         self.assertIn(
-            'test.user,2015-06-01,2015-06-08,False,20.00', str(res.content))
+            'aaron.snow,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
 
 class BulkTimecardsTests(TestCase):
