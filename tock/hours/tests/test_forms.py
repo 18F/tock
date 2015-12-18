@@ -21,6 +21,7 @@ class TimecardFormTests(TestCase):
         self.user = get_user_model().objects.get(id=1)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
+        self.project_3 = projects.models.Project.objects.get(name="General")
 
     def test_valid_form(self):
         form_data = {
@@ -29,15 +30,16 @@ class TimecardFormTests(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_projects_as_choices(self):
-        """tests projects_as_choices only returns projects marked active:(1) mark a project as inactive; (2) look for that project inside projects_as_choices; (3) test should fail if it finds the project"""
+        """tests projects_as_choices only returns projects marked active:
+        (1) mark a project as inactive;
+        (2) look for that project inside projects_as_choices;
+        (3) test should fail if it finds the project"""
         data_before_inactive_change = projects_as_choices()
-        project_test = projects.models.Project.objects.first() #get the first project in the db"""
-        project_test.active = False #set active field to to false"""
-        project_test.save() #save change to DB"""
+        project_test = projects.models.Project.objects.first() #get the first project in the db
+        project_test.active = False #set active field to to false
+        project_test.save() #save change to DB
         data_after_inactive_change = projects_as_choices()
         self.assertNotEqual(data_before_inactive_change, data_after_inactive_change)
-
-
 
 
 class TimecardObjectFormTests(TestCase):
@@ -66,6 +68,12 @@ class TimecardObjectFormTests(TestCase):
         form = TimecardObjectForm(form_data)
         self.assertFalse(form.is_valid())
 
+#    def test_general_has_notes_field(self):
+#        """tests that a timecard object with a General entry that is missing an
+#        accompaning blank notes field is not valid"""
+#        form_data = {'project':'General','hours_spent': '40'}
+#        form = TimecardObjectForm(form_data)
+#        self.assertFalse(form.is_valid())
 
 class TimecardInlineFormSetTests(TestCase):
     fixtures = [

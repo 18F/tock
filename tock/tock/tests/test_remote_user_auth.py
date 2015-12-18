@@ -12,18 +12,18 @@ class AuthTests(WebTest):
         """Ensure that a given email address is a member of the right domain"""
 
         with self.settings(ALLOWED_EMAIL_DOMAINS={'gsa.gov'}):
-            email = 'sean.herron@gsa.gov'
-            self.assertEqual('sean.herron', email_to_username(email))
+            email = 'aaron.snow@gsa.gov'
+            self.assertEqual('aaron.snow', email_to_username(email))
             with self.assertRaises(ValidationError):
-                email = 'sean.herron@nasa.gov'
+                email = 'aaron.snow@nasa.gov'
                 email_to_username(email)
 
     def test_username_stripping(self):
         """Ensure that a proper username is created"""
-        email = 'sean.herron@gsa.gov'
-        self.assertEqual('sean.herron', email_to_username(email))
-        email = 'sean.herronherronherronherron@gsa.gov'
-        self.assertEqual('sean.herronherronherronherron', email_to_username(email))
+        email = 'aaron.snow@gsa.gov'
+        self.assertEqual('aaron.snow', email_to_username(email))
+        email = 'aaron.snowsnowsnowsnow@gsa.gov'
+        self.assertEqual('aaron.snowsnowsnowsnow', email_to_username(email))
 
     def _login(self, email):
         self.app.get(
