@@ -3,6 +3,7 @@ from django.forms.models import BaseInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.utils.encoding import force_text
 from django.utils.html import escape, conditional_escape
+from django.db.models import Prefetch
 
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
@@ -61,15 +62,16 @@ def projects_as_choices():
     """ Adds all of the projects in database to the TimeCardObjectForm project
     ChoiceField """
     accounting_codes = []
-    for code in AccountingCode.objects.all():
+    prefetch = Prefetch('project_set', queryset=Project.objects.filter(active=True))
+    for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
         accounting_code = []
         projects = []
-        for project in code.project_set.filter(active=True):
+        for project in code.project_set.all():
             projects.append([
                 project.id,
                 {
                     'label': project.name,
-                    'billable': project.accounting_code.billable
+                    'billable': code.billable
                 }
             ])
         accounting_code = [str(code), projects]

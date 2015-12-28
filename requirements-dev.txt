@@ -1,1 +1,1 @@
-django-debug-toolbardjango-webtestfactory-boycoverage
+coveragedjango-debug-toolbardjango-webtestfactory-boynplusone

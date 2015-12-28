@@ -12,4 +12,8 @@ DATABASES = {
     }
 }
 
+INSTALLED_APPS += ('nplusone.ext.django', )
+MIDDLEWARE_CLASSES += ('nplusone.ext.django.NPlusOneMiddleware', )
+NPLUSONE_RAISE = True
+
 MEDIA_ROOT = './media/'
