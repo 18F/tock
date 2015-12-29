@@ -1,5 +1,5 @@
-import random
 import datetime
+import random
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -7,36 +7,49 @@ from django.core.urlresolvers import reverse
 from django.utils.dateformat import format as date_format
 from django_webtest import WebTest
 
+from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
 from projects.models import Agency, Project, AccountingCode
 
-from hours.models import ReportingPeriod, Timecard, TimecardObject
-
 
 class ProjectsTest(WebTest):
-
     def setUp(self):
         agency = Agency(name='General Services Administration')
         agency.save()
+
         accounting_code = AccountingCode(
-            code='abc', agency=agency, office='18F', billable=True)
+            code='abc',
+            agency=agency,
+            office='18F',
+            billable=True
+        )
         accounting_code.save()
-        self.project = Project(accounting_code=accounting_code,
-                               name="Test Project")
+
+        self.project = Project(
+            accounting_code=accounting_code,
+            name='Test Project'
+        )
         self.project.save()
 
     def test_model(self):
-        """ Check that the project model stores data correctly and links to
-        AccountingCode model properly"""
+        """
+        Check that the project model stores data correctly and links to
+        AccountingCode model properly.
+        """
+
         retrieved = Project.objects.get(pk=self.project.pk)
         self.assertEqual(
             retrieved.accounting_code.agency.name,
-            'General Services Administration')
+            'General Services Administration'
+        )
         self.assertEqual(retrieved.accounting_code.office, '18F')
         self.assertTrue(retrieved.accounting_code.billable)
 
     def test_is_billable(self):
-        """ Check that the is_billable method works """
+        """
+        Check that the is_billable method works.
+        """
+
         retrieved = Project.objects.get(name='Test Project')
         self.assertTrue(retrieved.is_billable())
         retrieved.accounting_code.billable = False
@@ -44,11 +57,29 @@ class ProjectsTest(WebTest):
         self.assertFalse(retrieved.is_billable())
 
     def test_projects_list_view(self):
-        """ Check that the project list view is open and the saved project
-        are listed """
+        """
+        Check that the project list view is open and the saved project are
+        listed.
+        """
+
         response = self.app.get(reverse('ProjectListView'))
-        anchor = response.html.find('a', href='/projects/{0}'.format(self.project.id))
+        anchor = response.html.find(
+            'a',
+            href='/projects/{0}'.format(self.project.id)
+        )
         self.assertIsNotNone(anchor)
+
+    def test_notes_required_enables_notes_displayed(self):
+        """
+        Test when the notes_required attribute is enabled on a Project
+        instance that the notes_displayed attribute is automatically enabled.
+        """
+
+        project = Project.objects.get(name='Test Project')
+        self.assertFalse(project.notes_displayed)
+        project.notes_required = True
+        project.save()
+        self.assertTrue(project.notes_displayed)
 
 
 class TestProjectTimeline(WebTest):

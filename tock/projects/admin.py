@@ -4,15 +4,15 @@ from .models import Agency, Project, AccountingCode
 
 
 class AgencyAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['name',]
 
 
 class AccountingCodeAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['agency__name', 'office',]
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['name',]
 
 
 admin.site.register(Agency, AgencyAdmin)

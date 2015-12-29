@@ -1,1 +1,6 @@
-django-debug-toolbardjango-webtestfactory-boycoverage
+django-debug-toolbar
+django-webtest
+factory-boy
+coverage
+ipython
+ipdb

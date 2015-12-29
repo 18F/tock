@@ -55,6 +55,10 @@ class TimecardObjectFormTests(TestCase):
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")
+        self.project_3 = projects.models.Project.objects.get(name='General')
+        self.project_3.notes_displayed = True
+        self.project_3.notes_required = True
+        self.project_3.save()
 
     def test_add_project(self):
         """ Test that existing projects can be added without errors """
@@ -68,12 +72,25 @@ class TimecardObjectFormTests(TestCase):
         form = TimecardObjectForm(form_data)
         self.assertFalse(form.is_valid())
 
-    def test_general_has_notes_field(self):
+    def test_general_has_required_notes_field(self):
         """tests that a timecard object with a General entry that is missing an
         accompaning blank notes field is not valid"""
-        form_data = {'project':'General','hours_spent': '40'}
+        form_data = {'project': '2', 'hours_spent': '40'}
         form = TimecardObjectForm(form_data)
         self.assertFalse(form.is_valid())
+
+    def test_general_notes_field_strips_html(self):
+        """tests that a timecard object with a notes field that has HTML in it
+        strips the HTML before saving."""
+        form_data = {
+            'project': '2',
+            'hours_spent': '40',
+            'notes': '<strong>This is a <em>test</em>!</strong>'
+        }
+
+        form = TimecardObjectForm(form_data)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['notes'], 'This is a test!')
 
 class TimecardInlineFormSetTests(TestCase):
     fixtures = [
@@ -88,6 +105,10 @@ class TimecardInlineFormSetTests(TestCase):
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")
+        self.project_3 = projects.models.Project.objects.get(name='General')
+        self.project_3.notes_displayed = True
+        self.project_3.notes_required = True
+        self.project_3.save()
         self.timecard = hours.models.Timecard.objects.create(
             reporting_period=self.reporting_period,
             user=self.user)
@@ -165,3 +186,20 @@ class TimecardInlineFormSetTests(TestCase):
         formset = TimecardFormSet(form_data)
         formset.set_working_hours(16)
         self.assertFalse(formset.is_valid())
+
+    def test_one_project_with_notes_and_one_without_notes_is_invalid(self):
+        """ Test the timecard form when one entry requires notes and another
+        entry does not, and the notes are not filled in"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-0-project'] = '2'
+        formset = TimecardFormSet(form_data)
+        self.assertFalse(formset.is_valid())
+
+    def test_one_project_with_notes_and_one_without_notes_is_valid(self):
+        """ Test the timecard form when one entry requires notes and another
+        entry does not, and the notes are filled in"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-0-project'] = '2'
+        form_data['timecardobject_set-0-notes'] = 'Did some work.'
+        formset = TimecardFormSet(form_data)
+        self.assertTrue(formset.is_valid())
