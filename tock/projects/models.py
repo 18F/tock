@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.db.models.loading import get_model
 
 
 class Agency(models.Model):
@@ -49,6 +51,21 @@ class Project(models.Model):
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
     active = models.BooleanField(default=True)
+
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        super(Project, self).save(*args, **kwargs)
+        if created:
+            ReportingPeriod = get_model('hours.ReportingPeriod')
+            ProjectPeriod = get_model('hours.ProjectPeriod')
+            last_period = ReportingPeriod.objects.order_by('-start_date').first()
+            if last_period is not None:
+                ProjectPeriod.objects.create(
+                    project=self,
+                    reporting_period=last_period,
+                    accounting_code_id=settings.DEFAULT_ACCOUNTING_CODE,
+                    active=True,
+                )
 
     class Meta:
         verbose_name = "Project"

@@ -14,6 +14,25 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
+    projects = models.ManyToManyField(
+        Project,
+        through='ProjectPeriod',
+        related_name='reporting_periods',
+    )
+
+    def save(self, *args, **kwargs):
+        created = self.pk is None
+        super(ReportingPeriod, self).save(*args, **kwargs)
+        if created:
+            last_period = self.__class__.objects.order_by('-start_date').first()
+            if last_period is not None:
+                for last_project_period in last_period.project_periods.all():
+                    ProjectPeriod.objects.create(
+                        reporting_period=self,
+                        project=last_project_period.project,
+                        accounting_code=last_project_period.accounting_code,
+                        active=last_project_period.active,
+                    )
 
     def __str__(self):
         return str(self.start_date)
@@ -64,3 +83,16 @@ class TimecardObject(models.Model):
 
     def hours(self):
         return self.hours_spent
+
+
+class ProjectPeriod(models.Model):
+    project = models.ForeignKey(Project, related_name='project_periods')
+    reporting_period = models.ForeignKey(ReportingPeriod, related_name='project_periods')
+    accounting_code = models.ForeignKey('projects.AccountingCode', related_name='project_periods')
+    active = models.BooleanField()
+
+    def __str__(self):
+        return '{0}:{1}'.format(
+            self.project.name,
+            self.reporting_period.start_date.strftime('%Y-%m-%d'),
+        )
