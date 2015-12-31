@@ -53,9 +53,19 @@
 .entry-project {
 	@include span-columns(6);
 }
+
 .entry-billable {
 	@include span-columns(1);
 }
+
+.entry-notes {
+    @include span-columns(8);
+
+    textarea {
+        height: 100px;
+    }
+}
+
 .entry-billable-icon {
 	text-align:center;
 	font-size: 1.5rem;
@@ -70,6 +80,7 @@
 		color: #1188ff;
 	}
 }
+
 .entry-amount {
 	@include span-columns(3);
 }

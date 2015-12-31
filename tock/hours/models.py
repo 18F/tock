@@ -1,8 +1,9 @@
+from .utils import ValidateOnSaveMixin
+from projects.models import Project
+
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
-from .utils import ValidateOnSaveMixin
-from projects.models import Project
 
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
@@ -62,5 +63,17 @@ class TimecardObject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    # The notes field is where the user records notes about time spent on
+    # certain projects (for example, time spent on general projects).  It may
+    # only be display and required when certain projects are selected.
+    notes = models.TextField(
+        blank=True,
+        default='',
+        help_text='Please provide details about how you spent your time.'
+    )
+
     def hours(self):
         return self.hours_spent
+
+    def notes_list(self):
+        return self.notes.split('\n')

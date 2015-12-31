@@ -129,6 +129,7 @@ class BulkTimecardsTests(TestCase):
             'flat_rate',
             'active',
             'mbnumber',
+            'notes',
         ))
         rows_read = 0
         for row in rows:

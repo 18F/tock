@@ -22,6 +22,19 @@
     </td>
 		<td>{{ entry.hours_spent }}</td>
 	</tr>
+    {% if entry.notes %}
+    <tr class="report_table__row">
+        <td colspan="3">
+            <strong>Notes entered for {{ entry.project }}</strong><br />
+
+            <ul>
+                {% for note in entry.notes_list %}
+                <li>{{ note }}</li>
+                {% endfor %}
+            <ul>
+        </td>
+    </tr>
+    {% endif %}
 	{% endfor %}
 </table>
 

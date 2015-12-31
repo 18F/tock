@@ -43,6 +43,16 @@
           {{ project_entry.timecard }}
           {{ project_entry.id }}
         </div>
+        <div class="entry-hidden" id="entry-notes">
+          <label for="notes">Notes:</label>
+          {{ project_entry.notes.help_text }}
+          {% if project_entry.notes.errors %}
+            <div class="invalid">
+              {{ project_entry.notes.errors }}
+            </div>
+          {% endif %}
+          {{ project_entry.notes }}
+        </div>
       </div>
     {% endfor %}
   </div>
@@ -84,6 +94,20 @@
     }
   }
 
+  function toggleNotesField(selectBox) {
+    var $fieldset = $(selectBox).parent().parent(),
+        $selected = $(selectBox).find(':selected'),
+        $notes = $fieldset.find('#entry-notes'),
+        notesDisplayed = $selected.data('notes-displayed'),
+        notesRequired = $selected.data('notes-required');
+
+    if (notesRequired || notesDisplayed) {
+        $notes.removeClass('entry-hidden').addClass('entry-notes');
+    } else {
+        $notes.addClass('entry-hidden').removeClass('entry-notes');
+    }
+  }
+
   // When you change the hours, redo the totals
   $( "body" ).on( "keyup", ".entry-amount input", function() {
     populateHourTotals();
@@ -104,8 +128,11 @@ $( document ).ready(function() {
         $('div.entry:last').clone().each(function(i) {
           var entry = $(this);
           entry.find('.chosen-container').remove();
+          entry.find('#entry-notes').addClass('entry-hidden').removeClass('entry-notes');
+          entry.find('#entry-notes .invalid').remove();
           entry.find('select').show();
-          entry.find('input,select').val('');
+          entry.find('input, select, textarea').val('');
+
           // Remove any existing values
           entry.val('');
 
@@ -114,7 +141,7 @@ $( document ).ready(function() {
 
           entry.attr("id", "entry-" + nextNumber);
 
-          entry.find('input,select').each(function(i) {
+          entry.find('input, select, textarea').each(function(i) {
             var formItem = $(this);
             var formerID = formItem.attr('id');
             var nextID = formerID.replace(previousNumber, nextNumber);
@@ -128,16 +155,28 @@ $( document ).ready(function() {
           });
 
         }).appendTo('.entries');
-        $(".entry-project select").chosen()
+        $(".entry-project select").chosen();
 
         // Increment the TOTAL_FORMS
         $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1);
+
+        // Rebind events.
+        $('.entry-project select').chosen().on('change', function(e) {
+            toggleNotesField(this);
+        });
     });
 
+    $('.entry-project select').chosen().on('change', function(e) {
+        toggleNotesField(this);
+    });
 
     // Run on initial load
     populateHourTotals();
-    $(".entry-project select").chosen()
+    $('.entry-project select').chosen();
+
+    // Force an update to each project selection menu in case a notes field
+    // needs to be re-displayed.
+    $('.entry-project select').trigger('change');
 });
  </script>
 {% endblock %}

@@ -292,6 +292,16 @@ picture {
   .entry-billable:last-child {
     margin-right: 0; }
 
+.entry-notes {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 65.88078%; }
+  .entry-notes:last-child {
+    margin-right: 0; }
+  .entry-notes textarea {
+    height: 100px; }
+
 .entry-billable-icon {
   text-align: center;
   font-size: 1.5rem;
