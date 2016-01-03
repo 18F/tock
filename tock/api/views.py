@@ -69,6 +69,7 @@ class TimecardSerializer(serializers.Serializer):
     billable = serializers.BooleanField(source='project.accounting_code.billable')
     agency = serializers.CharField(source='project.accounting_code.agency.name')
     flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
+    notes = serializers.CharField()
 
 
 class BulkTimecardSerializer(serializers.Serializer):
@@ -84,6 +85,7 @@ class BulkTimecardSerializer(serializers.Serializer):
     flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
+    notes = serializers.CharField()
 
 # API Views
 

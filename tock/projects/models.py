@@ -49,6 +49,14 @@ class Project(models.Model):
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
     active = models.BooleanField(default=True)
+    notes_required = models.BooleanField(
+        default=False,
+        help_text='Check this if notes should be required for time entries against this project.  Note:  Checking this will enable notes to be displayed as well.'
+    )
+    notes_displayed = models.BooleanField(
+        default=False,
+        help_text='Check this if a notes field should be displayed along with a time entry against a project.'
+    )
 
     class Meta:
         verbose_name = "Project"
@@ -59,3 +67,9 @@ class Project(models.Model):
 
     def is_billable(self):
         return self.accounting_code.billable
+
+    def save(self, *args, **kwargs):
+        if self.notes_required:
+            self.notes_displayed = True
+
+        super(Project, self).save(*args, **kwargs)

@@ -1,3 +1,5 @@
+import bleach
+
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.forms.models import inlineformset_factory
@@ -42,60 +44,117 @@ class SelectWithData(forms.widgets.Select):
 
     def render_option(self, selected_choices, option_value, option_label):
         option_value = force_text(option_value)
+
         if (option_value in selected_choices):
             selected_html = u' selected="selected"'
         else:
             selected_html = ''
+
         billable_html = ''
+        notes_displayed_html = ' data-notes-displayed="false"'
+        notes_required_html = ' data-notes-required="false"'
+
         if isinstance(option_label, dict):
             if dict.get(option_label, 'billable'):
                 billable_html = ' data-billable="billable"'
             else:
                 billable_html = ' data-billable="non-billable"'
+
+            if dict.get(option_label, 'notes_displayed'):
+                notes_displayed_html = ' data-notes-displayed="true"'
+
+            if dict.get(option_label, 'notes_required'):
+                notes_required_html = ' data-notes-required="true"'
+
             option_label = option_label['label']
-        return '<option value="%s"%s%s>%s</option>' % (
+
+        return '<option value="%s"%s%s%s%s>%s</option>' % (
             escape(option_value), selected_html, billable_html,
+            notes_displayed_html, notes_required_html,
             conditional_escape(force_text(option_label)))
 
 
 def projects_as_choices():
     """ Adds all of the projects in database to the TimeCardObjectForm project
     ChoiceField """
+
     accounting_codes = []
     prefetch = Prefetch('project_set', queryset=Project.objects.filter(active=True))
     for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
         accounting_code = []
         projects = []
+
         for project in code.project_set.all():
             projects.append([
                 project.id,
                 {
                     'label': project.name,
-                    'billable': code.billable
+                    'billable': code.billable,
+                    'notes_displayed': project.notes_displayed,
+                    'notes_required': project.notes_required,
                 }
             ])
+
         accounting_code = [str(code), projects]
         accounting_codes.append(accounting_code)
-    accounting_codes.append(
-        ['', [['', {'label': '', 'billable': ''}]]])
+
+    accounting_codes.append([
+        '',
+        [['', {
+            'label': '',
+            'billable': '',
+            'notes_displayed': '',
+            'notes_required': ''
+        }]]
+    ])
+
     return accounting_codes
 
 
 class TimecardObjectForm(forms.ModelForm):
+    notes = forms.CharField(
+        help_text='Please provide details about how you spent your time.',
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'entry-notes-text'})
+    )
     project = forms.ChoiceField(
-        widget=SelectWithData(), choices=projects_as_choices)
+        widget=SelectWithData(),
+        choices=projects_as_choices
+    )
 
     class Meta:
         model = TimecardObject
-        fields = ['project', 'hours_spent']
+        fields = ['project', 'hours_spent', 'notes']
 
     def clean_project(self):
         data = self.cleaned_data.get('project')
+
         try:
             data = Project.objects.get(id=data)
         except Project.DoesNotExist:
             raise forms.ValidationError('Invalid Project Selected')
+
         return data
+
+    def clean(self):
+        super(TimecardObjectForm, self).clean()
+
+        if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
+            self.cleaned_data['notes'] = bleach.clean(
+                self.cleaned_data['notes'],
+                tags=[],
+                strip=True
+            )
+
+            if self.cleaned_data['project'].notes_required and self.cleaned_data['notes'] == '':
+                self.add_error(
+                    'notes',
+                    forms.ValidationError('You must enter notes for this project.')
+                )
+            elif not self.cleaned_data['project'].notes_displayed:
+                del self.cleaned_data['notes']
+
+        return self.cleaned_data
 
 
 class TimecardInlineFormSet(BaseInlineFormSet):
