@@ -192,6 +192,9 @@ class ReportingPeriodDetailView(ListView):
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
             time_spent__isnull=False,
+        ).select_related(
+            'user',
+            'reporting_period',
         ).distinct().order_by('user__last_name', 'user__first_name')
 
     def get_context_data(self, **kwargs):
@@ -226,6 +229,10 @@ def ReportingPeriodCSVView(request, reporting_period):
         timecard__reporting_period__start_date=reporting_period
     ).order_by(
         'timecard__reporting_period__start_date'
+    ).select_related(
+        'timecard__user',
+        'timecard__reporting_period',
+        'project',
     )
 
     writer.writerow(["Reporting Period", "Last Modified", "User", "Project",

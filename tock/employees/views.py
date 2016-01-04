@@ -19,8 +19,10 @@ def parse_date(date):
 
 
 class UserListView(ListView):
-    model = User
     template_name = 'employees/user_list.html'
+
+    def get_queryset(self):
+        return User.objects.select_related('user_data')
 
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
