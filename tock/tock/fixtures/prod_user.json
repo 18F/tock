@@ -16,5 +16,41 @@
       "is_staff": true
     },
     "pk": 1
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "date_joined": "2015-03-18T22:47:51.077Z",
+      "groups": [],
+      "last_login": "2015-03-19T01:35:16.923Z",
+      "first_name": "",
+      "email": "john.reallylongname@gsa.gov",
+      "is_active": true,
+      "user_permissions": [],
+      "password": "",
+      "last_name": "",
+      "username": "john.reallylongname",
+      "is_superuser": true,
+      "is_staff": true
+    },
+    "pk": 2
+  },
+  {
+    "model": "auth.user",
+    "fields": {
+      "date_joined": "2015-03-18T22:47:51.077Z",
+      "groups": [],
+      "last_login": "2015-03-19T01:35:16.923Z",
+      "first_name": "",
+      "email": "susie.talksalot@gsa.gov",
+      "is_active": true,
+      "user_permissions": [],
+      "password": "",
+      "last_name": "",
+      "username": "susie.talksalot",
+      "is_superuser": true,
+      "is_staff": true
+    },
+    "pk": 3
   }
 ]
