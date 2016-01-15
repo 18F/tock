@@ -5,6 +5,8 @@ A simple time tracking experiment
 
 [![Build Status](https://travis-ci.org/18F/tock.svg)](https://travis-ci.org/18F/tock)
 
+![Screenshot of Tock](https://18f.gsa.gov/assets/blog/tockingtime/tock03.jpg)
+
 ## Getting Started
 
 Make sure you have `vagrant` installed. For instance, on OS X with Homebrew:
