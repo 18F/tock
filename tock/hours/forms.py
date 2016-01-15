@@ -113,7 +113,7 @@ def projects_as_choices():
 
 class TimecardObjectForm(forms.ModelForm):
     notes = forms.CharField(
-        help_text='Please provide details about how you spent your time.',
+        help_text='Please provide a snippet about how you spent your time.',
         required=False,
         widget=forms.Textarea(attrs={'class': 'entry-notes-text'})
     )
@@ -149,7 +149,7 @@ class TimecardObjectForm(forms.ModelForm):
             if self.cleaned_data['project'].notes_required and self.cleaned_data['notes'] == '':
                 self.add_error(
                     'notes',
-                    forms.ValidationError('You must enter notes for this project.')
+                    forms.ValidationError('Please enter a snippet for this item.')
                 )
             elif not self.cleaned_data['project'].notes_displayed:
                 del self.cleaned_data['notes']
