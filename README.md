@@ -1,9 +1,11 @@
 tock
 ===============
 
-A simple time tracking experiment
+We use Tock to track our time. You can read more about Tock in this [blog post](https://18f.gsa.gov/2015/05/21/tockingtime/) about its features.
 
 [![Build Status](https://travis-ci.org/18F/tock.svg)](https://travis-ci.org/18F/tock)
+
+![Screenshot of Tock](https://18f.gsa.gov/assets/blog/tockingtime/tock03.jpg)
 
 ## Getting Started
 
