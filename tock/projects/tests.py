@@ -101,7 +101,7 @@ class TestProjectTimeline(WebTest):
         )
         self.dates = [
             datetime.date.today() + datetime.timedelta(weeks * 7)
-            for weeks in range(5)
+            for weeks in range(10)
         ]
         self.objs = [
             TimecardObject.objects.create(
@@ -117,28 +117,48 @@ class TestProjectTimeline(WebTest):
             )
             for date in self.dates
         ]
+        self.dates_recent = self.dates[-5:]
+        self.objs_recent = [
+            obj for obj in self.objs
+            if obj.timecard.reporting_period.start_date in self.dates_recent
+        ]
 
     def test_project_timeline(self):
         res = project_timeline(self.project)
-        self.assertEqual(res['periods'], self.dates)
+        self.assertEqual(len(res['periods']), 5)
+        self.assertEqual(res['periods'], self.dates_recent)
         self.assertEqual(
             res['groups'],
             {
                 self.user: {
                     obj.timecard.reporting_period.start_date: obj.hours_spent
-                    for obj in self.objs
+                    for obj in self.objs_recent
                 }
             },
         )
+
+    def test_project_timeline_diff_limit(self):
+        limit = 8
+        res = project_timeline(self.project, period_limit=limit)
+        self.assertEqual(res['periods'], self.dates[-limit:])
+        self.assertEqual(len(list(res['groups'].values())[0]), limit)
+
+    def test_project_timeline_no_limit(self):
+        res = project_timeline(self.project, period_limit=None)
+        self.assertEqual(res['periods'], self.dates)
+        self.assertEqual(len(list(res['groups'].values())[0]), len(self.objs))
 
     def test_project_timeline_view(self):
         response = self.app.get(reverse('ProjectView', args=[self.project.pk]))
         table = response.html.find('table')
         self.assertEqual(
             [each.text for each in table.find_all('th')[1:]],
-            [date_format(each, settings.DATE_FORMAT) for each in self.dates],
+            [
+                date_format(each, settings.DATE_FORMAT)
+                for each in self.dates_recent
+            ],
         )
         self.assertEqual(
             [each.text for each in table.find_all('td')[1:]],
-            [str(float(each.hours_spent)) for each in self.objs],
+            [str(float(each.hours_spent)) for each in self.objs_recent],
         )
