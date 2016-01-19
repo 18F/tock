@@ -1,5 +1,4 @@
-import itertools
-
+from collections import defaultdict
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from django.db.models.loading import get_model
@@ -30,30 +29,38 @@ class ProjectView(DetailView):
         return context
 
 
-def project_timeline(project):
-    """Gather hours spent per user per reporting period for the specified
-    project. Returns hours per user per period, plus an ordered list of
-    relevant periods.
+def project_timeline(project, period_limit=5):
     """
-    TimecardObject = get_model('hours.TimecardObject')
-    timecards = TimecardObject.objects.filter(
-        project=project,
+    Gather hours spent per user per reporting period for the specified
+    project, defaulted to the five most recent time periods. Returns hours
+    per user per period, plus an ordered list of periods.
+    """
+    groups, periods = defaultdict(dict), []
+
+    # fetch timecard objs, sorted by report period date
+    timecards = get_model('hours.TimecardObject').objects.filter(
+        project=project
     ).order_by(
-        'timecard__user__pk',
-        '-timecard__reporting_period__start_date',
+        '-timecard__reporting_period__start_date'
     ).select_related(
         'timecard__user',
         'timecard__reporting_period',
-    ).all()
-    groups = {}
-    periods = set()
-    for user, rows in itertools.groupby(timecards, lambda row: row.timecard.user):
-        groups[user] = {
-            row.timecard.reporting_period.start_date: float(row.hours_spent)
-            for row in rows
-        }
-        periods.update(groups[user].keys())
+    )
+
+    for t in timecards:
+        tc = t.timecard
+        report_date = tc.reporting_period.start_date
+
+        # add report date to period array if not present
+        # if period limit set, stop after limit reached
+        if report_date not in periods:
+            if len(periods) == period_limit:
+                break
+            periods.append(report_date)
+
+        groups[tc.user][report_date] = float(t.hours_spent)
+
     return {
-        'groups': groups,
+        'groups': dict(groups),
         'periods': sorted(periods),
     }
