@@ -2,7 +2,7 @@
 {% load project_tags %}
 
 {% block content %}
-<h2><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h2>
+<h2><a href="{% url 'ProjectListView' %}">Tock Billable Projects</a> / {{ object.name }}</h2>
 
 <p class="project__description">{{ object.description|default:'(no description)' }}</p>
 
