@@ -8,6 +8,144 @@
     "pk": 1
   },
   {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-06-08",
+      "end_date": "2015-06-15"
+    },
+    "pk": 2
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-06-16",
+      "end_date": "2015-06-23"
+    },
+    "pk": 3
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-06-24",
+      "end_date": "2015-07-01"
+    },
+    "pk": 4
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-07-02",
+      "end_date": "2015-07-09"
+    },
+    "pk": 5
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-07-10",
+      "end_date": "2015-07-17"
+    },
+    "pk": 6
+  },
+
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-07-18",
+      "end_date": "2015-07-25"
+    },
+    "pk": 7
+  },
+
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-07-26",
+      "end_date": "2015-08-02"
+    },
+    "pk": 8
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-08-03",
+      "end_date": "2015-08-10"
+    },
+    "pk": 9
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-08-11",
+      "end_date": "2015-08-18"
+    },
+    "pk": 10
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-08-25",
+      "end_date": "2015-09-02"
+    },
+    "pk": 11
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-09-09",
+      "end_date": "2015-09-16"
+    },
+    "pk": 12
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-09-17",
+      "end_date": "2015-09-24"
+    },
+    "pk": 13
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-10-01",
+      "end_date": "2015-10-08"
+    },
+    "pk": 14
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-10-15",
+      "end_date": "2015-10-22"
+    },
+    "pk": 15
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-10-23",
+      "end_date": "2015-10-30"
+    },
+    "pk": 16
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-10-31",
+      "end_date": "2015-11-06"
+    },
+    "pk": 17
+  },
+  {
+    "model": "hours.reportingperiod",
+    "fields": {
+      "start_date": "2015-11-07",
+      "end_date": "2015-11-14"
+    },
+    "pk": 18
+  },
+  {
     "model": "hours.timecard",
     "fields": {
       "user": 1,
@@ -18,14 +156,393 @@
     "pk": 1
   },
   {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 2,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 2
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 3,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 3
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 4,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 4
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 5,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 5
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 6,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 6
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 7,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 7
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 8,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 8
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 3,
+      "reporting_period": 9,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 9
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 2,
+      "reporting_period": 10,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 10
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 11,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 11
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 12,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 12
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 13,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 13
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 3,
+      "reporting_period": 13,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 13
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 14,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 14
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 2,
+      "reporting_period": 15,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 15
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 16,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 16
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 1,
+      "reporting_period": 17,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 17
+  },
+  {
+    "model": "hours.timecard",
+    "fields": {
+      "user": 2,
+      "reporting_period": 17,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 18
+  },
+  {
     "model": "hours.timecardobject",
     "fields": {
       "timecard": 1,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 1
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 2,
+      "project": 1,
+      "hours_spent": 30,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 2
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 3,
       "project": 1,
       "hours_spent": 20,
       "created": "2015-06-08T12:00:00.000Z",
       "modified": "2015-06-08T12:00:00.000Z"
     },
-    "pk": 1
+    "pk": 3
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 3,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 3
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 4,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 4
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 5,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 5
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 6,
+      "project": 1,
+      "hours_spent": 30,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 6
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 7,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 7
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 8,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 8
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 9,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 10
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 11,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 11
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 12,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 12
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 13,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 13
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 14,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 14
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 15,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 15
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 16,
+      "project": 1,
+      "hours_spent": 40,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 16
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 13,
+      "project": 1,
+      "hours_spent": 20,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 17
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 17,
+      "project": 1,
+      "hours_spent": 20,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 18
+  },
+  {
+    "model": "hours.timecardobject",
+    "fields": {
+      "timecard": 18,
+      "project": 1,
+      "hours_spent": 20,
+      "created": "2015-06-08T12:00:00.000Z",
+      "modified": "2015-06-08T12:00:00.000Z"
+    },
+    "pk": 19
   }
+
 ]
