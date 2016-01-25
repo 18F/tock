@@ -3,11 +3,14 @@
 
 {% block content %}
 <h2><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h2>
-
-<p class="project__description">{{ object.description|default:'(no description)' }}</p>
+<p class="project__description">Description: {{ object.description|default:'(no description)' }}</p>
+<br>
+<table>
+    <tr><b>All hours reported, by user:</b></tr>
+  </table>
 
 <figure class="chart chart--utilization">
-  <h3 class="chart__title">User Hours Over Time</h3>
+
   <utilization-chart
     class="timeline timeline--project"
     data-url="{% url 'UserTimelineView' %}?project={{ object.id }}"
@@ -18,9 +21,15 @@
     y="hours_spent">
   </utilization-chart>
 </figure>
+<br>
+<br>
+<table>
+    <tr><b>Per person detail for the last five periods in which hours were reported:</b></tr>
+  </table>
 
 <table id="dataTable" class="striped">
   <thead>
+
     <th>Name</th>
     {% for period in table.periods %}
       <th>{{ period }}</th>
