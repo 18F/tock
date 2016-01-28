@@ -131,15 +131,28 @@ class TimecardView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
+
         working_hours = ReportingPeriod.objects.get(
-            start_date=self.kwargs['reporting_period']).working_hours
-        context['working_hours'] = working_hours
-        if self.request.POST:
-            context['formset'] = TimecardFormSet(self.request.POST,
-                                                 instance=self.object)
+            start_date=self.kwargs['reporting_period']
+        ).working_hours
+
+        post = self.request.POST
+
+        if post:
+            formset = TimecardFormSet(post, instance=self.object)
         else:
-            context['formset'] = TimecardFormSet(instance=self.object)
-        context['formset'].set_working_hours(working_hours)
+            formset = TimecardFormSet(instance=self.object)
+
+        formset.set_working_hours(working_hours)
+
+        if post.get('save_only') is not None:
+            formset.save_only = True
+
+        context.update({
+            'working_hours': working_hours,
+            'formset': formset,
+        })
+
         return context
 
     def form_valid(self, form):
@@ -148,6 +161,7 @@ class TimecardView(UpdateView):
         if formset.is_valid():
             self.object = form.save(commit=False)
             self.object.user = self.request.user
+            self.object.submitted = not formset.save_only
             self.object.reporting_period = ReportingPeriod.objects.get(
                 start_date=self.kwargs['reporting_period'])
             self.object.save()
@@ -158,7 +172,13 @@ class TimecardView(UpdateView):
             return self.render_to_response(self.get_context_data(form=form))
 
     def get_success_url(self):
-        return reverse("ListReportingPeriods")
+        if self.object.submitted:
+            return reverse("ListReportingPeriods")
+
+        return reverse(
+            'reportingperiod:UpdateTimesheet',
+            kwargs={'reporting_period': self.kwargs['reporting_period']}
+        )
 
 
 class ReportsList(ListView):

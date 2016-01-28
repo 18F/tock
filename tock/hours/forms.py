@@ -158,8 +158,11 @@ class TimecardObjectForm(forms.ModelForm):
 
 
 class TimecardInlineFormSet(BaseInlineFormSet):
-    """This FormSet is used for submissions of timecard entries. Right now,
-      it only works for initial entries and not for updates :/"""
+    """This FormSet is used for submissions of timecard entries."""
+
+    def __init__(self, *args, **kwargs):
+        super(TimecardInlineFormSet, self).__init__(*args, **kwargs)
+        self.save_only = False
 
     def set_working_hours(self, working_hours):
         """ Set the number of hours employees should work """
@@ -171,7 +174,8 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
-        total_number_of_hours = 0
+
+        total_hrs = 0
         for form in self.forms:
             if form.cleaned_data:
                 if not form.cleaned_data.get('hours_spent'):
@@ -179,10 +183,12 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         'If you have a project listed, the number of hours '
                         'cannot be blank'
                     )
-                total_number_of_hours += form.cleaned_data.get('hours_spent')
-        if total_number_of_hours != self.get_working_hours():
+                total_hrs += form.cleaned_data.get('hours_spent')
+
+        if not self.save_only and total_hrs != self.get_working_hours():
             raise forms.ValidationError(
                 'You must report exactly %s hours.' % self.get_working_hours())
+
         return getattr(self, 'cleaned_data', None)
 
 
