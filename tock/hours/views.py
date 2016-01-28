@@ -35,7 +35,7 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
         context['completed_reporting_periods'] = self.queryset.filter(
-            timecard__time_spent__isnull=False,
+            timecard__submitted=True,
             timecard__user=self.request.user.id
         ).distinct().order_by('-start_date')[:5]
 
@@ -44,14 +44,14 @@ class ReportingPeriodListView(PermissionMixin, ListView):
                 timecard__user=self.request.user.id).exclude(
                 end_date__lte=self.request.user.user_data.start_date)
             unfinished_reporting_periods = self.queryset.filter(
-                timecard__time_spent__isnull=True,
+                timecard__submitted=False,
                 timecard__user=self.request.user.id).exclude(
                 end_date__lte=self.request.user.user_data.start_date)
         except ValueError:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user)
             unfinished_reporting_periods = self.queryset.filter(
-                timecard__time_spent__isnull=True,
+                timecard__submitted=False,
                 timecard__user=self.request.user)
 
         context['uncompleted_reporting_periods'] = sorted(list(chain(

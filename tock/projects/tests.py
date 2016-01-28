@@ -107,6 +107,7 @@ class TestProjectTimeline(WebTest):
             TimecardObject.objects.create(
                 timecard=Timecard.objects.create(
                     user=self.user,
+                    submitted=True,
                     reporting_period=ReportingPeriod.objects.create(
                         start_date=date,
                         end_date=date + datetime.timedelta(days=6),
