@@ -29,6 +29,7 @@ class TimecardFactory(DjangoModelFactory):
         model = models.Timecard
     user = factory.SubFactory(UserFactory)
     reporting_period = factory.SubFactory(ReportingPeriodFactory)
+    submitted = True
 
 
 class TimecardObjectFactory(DjangoModelFactory):

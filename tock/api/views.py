@@ -129,7 +129,7 @@ class ReportingPeriodAudit(generics.ListAPIView):
         filed_users = list(
             Timecard.objects.filter(
                 reporting_period=reporting_period,
-                time_spent__isnull=False
+                submitted=True
             ).distinct().all().values_list('user__id', flat=True))
         return get_user_model().objects \
             .exclude(user_data__start_date__gte=reporting_period.end_date) \
