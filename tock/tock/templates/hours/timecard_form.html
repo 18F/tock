@@ -1,40 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Tell us about your time</h2>
+<h2>Please tell us about your time: </h2>
 
 <div class="alert">
   <p class="alert-body">
-    <b> We’re running a Tock experiment for the next few weeks. ​​​​
-    We’ve added a mandatory snippets field to fill out any time you bill
+    <b> We’ve added a mandatory snippets field to fill out any time you bill
     time to <i> General </i></b>. ​Our goal is to get a better idea of what types of
     activities people are assigning to <i>General</i>, which will help us identify
     more Tock ​categories and understand what kinds of time sinks you all
-    experience. Any questions, head over to #tock in Slack!
-    <br>
-    <br>
-
-    For questions about where to log your time, please head over to #tock on Slack.  <b> Also please note that
+    experience. Any questions, head over to #tock in Slack! <b> Also please note that
     project descriptions are available via the <a href="https://tock.18f.gov/projects">
     Projects </a> page. </b>
-  </p>
-</div>
-<div class="alert-red">
-  <p class="alert-red-body">
+    <br>
+    <br>
 
-Please include 8 hours of <b> Out of Office </b>for the Birthday of Martin Luther King, Jr. holday.
+    <b><i> A few more Tock announcements: </i></b>
+    <br>
+    <br>
+<b>Employees who teleworked during the Federal government closure this week should log their time as normal.</b>
 <br>
 <br>
-The following projects have been de-activated in Tock: <b> Delivery / OCSIT / Open Opportunities
-   Identity Management Sprint I, Consulting / Master Data Management Evaluation,
-    Digital Analytics Program. </b>
-  <br>
-  <br>
-The following projects were added to Tock:
-  <b> Eligibility Platform Sprint,Assisted Business Development, PIF / VACI / Claims Clinic,
-Agile Lab-to-Market, Open Source Policy Discovery Sprint, 18F Productization Sprint. </b>
+The following projects have been de-activated in Tock: <b> Delivery / OCSIT / Open Opportunities,
+  Identity Management Sprint I, Consulting / Master Data Management Evaluation,
+  Digital Analytics Program, Consulting / OSBU / Forecasting Tool FY16. </b>
+<br>
+<br>
+The following projects were added to Tock: <b> Eligibility Platform Sprint,
+    Assisted Business Development, PIF / VACI / Claims Clinic,
+    Agile Lab-to-Market, Open Source Policy Discovery Sprint,
+    18F Productization Sprint, Consulting / OSBU / Forecasting Tool FY16 Non-Billable. </b>
   </p>
 </div>
+
 
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
