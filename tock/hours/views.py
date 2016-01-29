@@ -211,7 +211,7 @@ class ReportingPeriodDetailView(ListView):
             reporting_period__start_date=datetime.datetime.strptime(
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
-            time_spent__isnull=False,
+            submitted=True,
         ).select_related(
             'user',
             'reporting_period',
@@ -227,7 +227,7 @@ class ReportingPeriodDetailView(ListView):
         filed_users = list(
             Timecard.objects.filter(
                 reporting_period=reporting_period,
-                time_spent__isnull=False
+                submitted=True
             ).distinct().all().values_list('user__id', flat=True))
         context['users_without_filed_timecards'] = get_user_model().objects \
             .exclude(user_data__start_date__gte=reporting_period.end_date) \
@@ -251,6 +251,7 @@ def ReportingPeriodCSVView(request, reporting_period):
         'timecard__reporting_period__start_date'
     ).select_related(
         'timecard__user',
+        'timecard__submitted',
         'timecard__reporting_period',
         'project',
     )
@@ -258,6 +259,10 @@ def ReportingPeriodCSVView(request, reporting_period):
     writer.writerow(["Reporting Period", "Last Modified", "User", "Project",
                      "Number of Hours"])
     for timecard_object in timecard_objects:
+        # skip entries if timecard not submitted yet
+        if not timecard_object.timecard.submitted:
+            continue
+
         writer.writerow(
             ["{0} - {1}".format(
                 timecard_object.timecard.reporting_period.start_date,

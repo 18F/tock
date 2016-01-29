@@ -25,6 +25,7 @@ class ReportTests(WebTest):
         'projects/fixtures/projects.json',
         'tock/fixtures/prod_user.json',
     ]
+    csrf_checks = False
 
     def setUp(self):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
@@ -34,6 +35,7 @@ class ReportTests(WebTest):
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
+            submitted=True,
             reporting_period=self.reporting_period)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
@@ -89,8 +91,9 @@ class ReportTests(WebTest):
         self.assertEqual(response.status_code, 200)
 
     def test_reportperiod_updatetimesheet_self(self):
-        """ Test that users can access thier own timesheets update
-        forms """
+        """
+        Test that users can access their own timesheets update forms
+        """
         date = self.reporting_period.start_date.strftime('%Y-%m-%d')
         response = self.app.get(
             reverse(
@@ -100,6 +103,30 @@ class ReportTests(WebTest):
             headers={'X_FORWARDED_EMAIL': self.regular_user.email},
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_reportperiod_updatetimesheet_save_only_set(self):
+        """
+        Check that save_only flag switched to True if 'save_only' in post data
+        """
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.post(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            {
+                'save_only': '1',
+                'timecardobject_set-TOTAL_FORMS': '1',
+                'timecardobject_set-INITIAL_FORMS': '0',
+                'timecardobject_set-MIN_NUM_FORMS': '0',
+                'timecardobject_set-MAX_NUM_FORMS': '1000',
+                'timecardobject_set-0-project': '4',
+                'timecardobject_set-0-hours_spent': '',
+            },
+            headers={'X_FORWARDED_EMAIL': self.regular_user.email},
+        )
+        formset = response.context['formset']
+        self.assertTrue(formset.save_only)
 
     def test_report_list_not_authenticated(self):
         response = self.app.get(
@@ -136,14 +163,59 @@ class ReportTests(WebTest):
                 kwargs={'reporting_period': '2015-01-01'},
             )
         )
-        row = response.content.decode('utf-8').splitlines()[1]
+        lines = response.content.decode('utf-8').splitlines()
+        self.assertEqual(len(lines), 3)
         result = '2015-01-01 - 2015-01-07,{0},aaron.snow@gsa.gov,Peace Corps,28.00'
         self.assertEqual(
             result.format(
                 self.timecard.modified.strftime('%Y-%m-%d %H:%M:%S')
             ),
-            row,
+            lines[1],
         )
+
+    def test_ReportingPeriodCSVView_add_additional_row(self):
+        """
+        Check that adding another entry adds another row
+        """
+        self.timecard = hours.models.Timecard.objects.create(
+            user=self.regular_user,
+            submitted=True,
+            reporting_period=self.reporting_period)
+        self.timecard_object_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project_1,
+            hours_spent=12)
+
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodCSVView',
+                kwargs={'reporting_period': '2015-01-01'},
+            )
+        )
+        lines = response.content.decode('utf-8').splitlines()
+        self.assertEqual(len(lines), 4)
+
+    def test_ReportingPeriodCSVView_add_additional_row_unsubmitted_time(self):
+        """
+        Check that adding an unsubmitted timecard DOES NOT add another row
+        """
+        self.timecard = hours.models.Timecard.objects.create(
+            user=self.regular_user,
+            submitted=False,
+            reporting_period=self.reporting_period)
+        self.timecard_object_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project_1,
+            hours_spent=12)
+
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodCSVView',
+                kwargs={'reporting_period': '2015-01-01'},
+            )
+        )
+        lines = response.content.decode('utf-8').splitlines()
+        self.assertEqual(len(lines), 3)
 
     def test_ReportingPeriodDetailView_current_employee_set_false(self):
         """ Check that the ReportingPeriodDetailView does not show users
@@ -156,6 +228,23 @@ class ReportTests(WebTest):
         )
         self.assertEqual(
             len(response.html.find_all('tr', {'class': 'user'})), 2
+        )
+
+    def test_ReportingPeriodDetailView_unsubmitted_time(self):
+        """
+        Check that the ReportingPeriodDetailView only shows users
+        with submitted timecards
+        """
+        self.timecard.submitted = False
+        self.timecard.save()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodDetailView',
+                kwargs={'reporting_period': '2015-01-01'},
+            )
+        )
+        self.assertEqual(
+            len(response.html.find_all('tr', {'class': 'user'})), 1
         )
 
     def test_ReportingPeriodDetailView_current_employee_toggle(self):

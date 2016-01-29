@@ -6,7 +6,10 @@ from django.contrib.auth import get_user_model
 import hours.models
 import projects.models
 
-from hours.forms import TimecardForm, TimecardObjectForm, TimecardFormSet, projects_as_choices
+from hours.forms import (
+    TimecardForm, TimecardObjectForm,
+    TimecardFormSet, projects_as_choices
+)
 
 
 class TimecardFormTests(TestCase):
@@ -137,6 +140,14 @@ class TimecardInlineFormSetTests(TestCase):
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())
 
+    def test_timecard_inline_formset_save_only(self):
+        """ Test formset's save_only field """
+        form_data = self.form_data()
+        formset = TimecardFormSet(form_data)
+        self.assertFalse(formset.save_only)  # default
+        formset.save_only = True
+        self.assertTrue(formset.save_only)
+
     def test_timecard_is_not_100(self):
         """ Test timecard form data that doesn't total the set working
         hours """
@@ -186,6 +197,17 @@ class TimecardInlineFormSetTests(TestCase):
         formset = TimecardFormSet(form_data)
         formset.set_working_hours(16)
         self.assertFalse(formset.is_valid())
+
+    def test_reporting_period_with_less_than_40_hours_success_save_mode(self):
+        """ Test the timecard form when the reporting period is less than
+        40 hours a week and you save (not submit) """
+        form_data = self.form_data()
+        form_data['timecardobject_set-0-hours_spent'] = '5'
+        form_data['timecardobject_set-1-hours_spent'] = '5'
+        formset = TimecardFormSet(form_data)
+        formset.set_working_hours(16)
+        formset.save_only = True
+        self.assertTrue(formset.is_valid())
 
     def test_one_project_with_notes_and_one_without_notes_is_invalid(self):
         """ Test the timecard form when one entry requires notes and another
