@@ -230,21 +230,65 @@ class ReportTests(WebTest):
             len(response.html.find_all('tr', {'class': 'user'})), 2
         )
 
-    def test_ReportingPeriodDetailView_unsubmitted_time(self):
+    def test_ReportingPeriodDetailView_add_submitted_time(self):
         """
-        Check that the ReportingPeriodDetailView only shows users
-        with submitted timecards
+        Check that ReportingPeriodDetailView properly allocates
+        those who filled out (submitted) time vs. not
         """
-        self.timecard.submitted = False
-        self.timecard.save()
+
+        self.timecard = hours.models.Timecard.objects.create(
+            user=self.regular_user,
+            submitted=True,
+            reporting_period=self.reporting_period
+        )
+
         response = self.app.get(
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
             )
         )
+
+        tables = response.html.find_all('table')
+        not_filed_time = tables[0]
+        filed_time = tables[1]
+
         self.assertEqual(
-            len(response.html.find_all('tr', {'class': 'user'})), 1
+            len(not_filed_time.find_all('tr', {'class': 'user'})), 0
+        )
+        self.assertEqual(
+            len(filed_time.find_all('tr', {'class': 'user'})), 2
+        )
+
+
+    def test_ReportingPeriodDetailView_add_unsubmitted_time(self):
+        """
+        Check that ReportingPeriodDetailView properly allocates
+        those who filled out (submitted) time vs. not, another example
+        """
+
+        self.timecard = hours.models.Timecard.objects.create(
+            user=self.regular_user,
+            submitted=False,
+            reporting_period=self.reporting_period
+        )
+
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodDetailView',
+                kwargs={'reporting_period': '2015-01-01'},
+            )
+        )
+
+        tables = response.html.find_all('table')
+        not_filed_time = tables[0]
+        filed_time = tables[1]
+
+        self.assertEqual(
+            len(not_filed_time.find_all('tr', {'class': 'user'})), 1
+        )
+        self.assertEqual(
+            len(filed_time.find_all('tr', {'class': 'user'})), 1
         )
 
     def test_ReportingPeriodDetailView_current_employee_toggle(self):
