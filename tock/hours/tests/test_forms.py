@@ -14,11 +14,14 @@ class TimecardFormTests(TestCase):
         'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
 
     def setUp(self):
+        self.user = get_user_model().objects.get(id=1)
+        x = 40
+        if ( self.user.is_superuser ):
+            x = 60
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
-        self.user = get_user_model().objects.get(id=1)
+            working_hours=x)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
         self.project_3 = projects.models.Project.objects.get(name="General")
@@ -47,11 +50,14 @@ class TimecardObjectFormTests(TestCase):
         'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
 
     def setUp(self):
+        self.user = get_user_model().objects.get(id=1)
+        x = 40
+        if ( self.user.is_superuser ):
+            x = 60
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
-        self.user = get_user_model().objects.get(id=1)
+            working_hours=x)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")
@@ -97,11 +103,14 @@ class TimecardInlineFormSetTests(TestCase):
         'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
 
     def setUp(self):
+        self.user = get_user_model().objects.get(id=1)
+        x = 40
+        if ( self.user.is_superuser ):
+            x = 60
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
-        self.user = get_user_model().objects.get(id=1)
+            working_hours=x)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")

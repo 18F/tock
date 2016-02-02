@@ -3,6 +3,7 @@ import bleach
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.forms.models import inlineformset_factory
+from django.contrib.auth import get_user_model
 from django.utils.encoding import force_text
 from django.utils.html import escape, conditional_escape
 from django.db.models import Prefetch
@@ -167,7 +168,11 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
     def get_working_hours(self):
         """ Return working hours if it exists otherwise assumes 40 """
-        return getattr(self, 'working_hours', 40)
+        userm = get_user_model().objects.get(id=1)
+        x = 40
+        if ( userm.is_superuser ):
+            x = 60
+        return getattr(self, 'working_hours', x)
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
