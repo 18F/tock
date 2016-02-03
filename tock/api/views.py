@@ -129,7 +129,7 @@ class ReportingPeriodAudit(generics.ListAPIView):
         filed_users = list(
             Timecard.objects.filter(
                 reporting_period=reporting_period,
-                time_spent__isnull=False
+                submitted=True
             ).distinct().all().values_list('user__id', flat=True))
         return get_user_model().objects \
             .exclude(user_data__start_date__gte=reporting_period.end_date) \
@@ -223,6 +223,13 @@ def get_timecards(queryset, params=None):
     * if `project` is provided as a numeric id or name, get rows for
       that project.
     """
+
+    # include only submitted timecards unless submitted=no in params
+    submitted = True
+    if params and 'submitted' in params:
+        submitted = params['submitted'] != 'no'
+    queryset = queryset.filter(timecard__submitted=submitted)
+
     if not params:
         return queryset
 
@@ -278,6 +285,7 @@ with agg as (
     join hours_reportingperiod rp on tc.reporting_period_id = rp.id
     join projects_project pr on tco.project_id = pr.id
     join projects_accountingcode ac on pr.accounting_code_id = ac.id
+    where tc.submitted = True
     group by
         year,
         quarter,
@@ -332,6 +340,7 @@ with agg as (
     join auth_user usr on tc.user_id = usr.id
     join projects_project pr on tco.project_id = pr.id
     join projects_accountingcode ac on pr.accounting_code_id = ac.id
+    where tc.submitted = True
     group by
         year,
         quarter,

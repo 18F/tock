@@ -83,7 +83,8 @@ The following projects were added to Tock: <b> Eligibility Platform Sprint,
       <div class="entries-total-reported-wrapper">
         Total: <span class="entries-total-reported-amount">0</span> hours
       </div>
-      <button type="submit" class="btn btn-primary">Submit Timecard</button>
+      <button type="button" class="btn btn-primary" id="save-timecard">Save</button>
+      <button type="submit" class="btn btn-primary">Submit</button>
     </div>
   </div>
  </form>
@@ -142,6 +143,14 @@ The following projects were added to Tock: <b> Eligibility Platform Sprint,
 
 
 $( document ).ready(function() {
+    $("#save-timecard").on("click", function() {
+      var form = $('form'),
+          save_input = '<input type="hidden" name="save_only" value="1"/>';
+
+      form.append(save_input);
+      form.submit();
+    });
+
     $(".add-timecard-entry").on( "click", function() {
         $('div.entry:last').clone().each(function(i) {
           var entry = $(this);

@@ -51,6 +51,10 @@ def project_timeline(project, period_limit=5):
         tc = t.timecard
         report_date = tc.reporting_period.start_date
 
+        # skip if timecard not submitted yet
+        if not tc.submitted:
+            continue
+
         # add report date to period array if not present
         # if period limit set, stop after limit reached
         if report_date not in periods:

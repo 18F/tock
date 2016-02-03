@@ -35,7 +35,7 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
         context['completed_reporting_periods'] = self.queryset.filter(
-            timecard__time_spent__isnull=False,
+            timecard__submitted=True,
             timecard__user=self.request.user.id
         ).distinct().order_by('-start_date')[:5]
 
@@ -44,14 +44,14 @@ class ReportingPeriodListView(PermissionMixin, ListView):
                 timecard__user=self.request.user.id).exclude(
                 end_date__lte=self.request.user.user_data.start_date)
             unfinished_reporting_periods = self.queryset.filter(
-                timecard__time_spent__isnull=True,
+                timecard__submitted=False,
                 timecard__user=self.request.user.id).exclude(
                 end_date__lte=self.request.user.user_data.start_date)
         except ValueError:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user)
             unfinished_reporting_periods = self.queryset.filter(
-                timecard__time_spent__isnull=True,
+                timecard__submitted=False,
                 timecard__user=self.request.user)
 
         context['uncompleted_reporting_periods'] = sorted(list(chain(
@@ -131,15 +131,28 @@ class TimecardView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
+
         working_hours = ReportingPeriod.objects.get(
-            start_date=self.kwargs['reporting_period']).working_hours
-        context['working_hours'] = working_hours
-        if self.request.POST:
-            context['formset'] = TimecardFormSet(self.request.POST,
-                                                 instance=self.object)
+            start_date=self.kwargs['reporting_period']
+        ).working_hours
+
+        post = self.request.POST
+
+        if post:
+            formset = TimecardFormSet(post, instance=self.object)
         else:
-            context['formset'] = TimecardFormSet(instance=self.object)
-        context['formset'].set_working_hours(working_hours)
+            formset = TimecardFormSet(instance=self.object)
+
+        formset.set_working_hours(working_hours)
+
+        if post.get('save_only') is not None:
+            formset.save_only = True
+
+        context.update({
+            'working_hours': working_hours,
+            'formset': formset,
+        })
+
         return context
 
     def form_valid(self, form):
@@ -148,6 +161,7 @@ class TimecardView(UpdateView):
         if formset.is_valid():
             self.object = form.save(commit=False)
             self.object.user = self.request.user
+            self.object.submitted = not formset.save_only
             self.object.reporting_period = ReportingPeriod.objects.get(
                 start_date=self.kwargs['reporting_period'])
             self.object.save()
@@ -158,7 +172,13 @@ class TimecardView(UpdateView):
             return self.render_to_response(self.get_context_data(form=form))
 
     def get_success_url(self):
-        return reverse("ListReportingPeriods")
+        if self.object.submitted:
+            return reverse("ListReportingPeriods")
+
+        return reverse(
+            'reportingperiod:UpdateTimesheet',
+            kwargs={'reporting_period': self.kwargs['reporting_period']}
+        )
 
 
 class ReportsList(ListView):
@@ -191,7 +211,7 @@ class ReportingPeriodDetailView(ListView):
             reporting_period__start_date=datetime.datetime.strptime(
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
-            time_spent__isnull=False,
+            submitted=True,
         ).select_related(
             'user',
             'reporting_period',
@@ -207,7 +227,7 @@ class ReportingPeriodDetailView(ListView):
         filed_users = list(
             Timecard.objects.filter(
                 reporting_period=reporting_period,
-                time_spent__isnull=False
+                submitted=True
             ).distinct().all().values_list('user__id', flat=True))
         context['users_without_filed_timecards'] = get_user_model().objects \
             .exclude(user_data__start_date__gte=reporting_period.end_date) \
@@ -231,6 +251,7 @@ def ReportingPeriodCSVView(request, reporting_period):
         'timecard__reporting_period__start_date'
     ).select_related(
         'timecard__user',
+        'timecard__submitted',
         'timecard__reporting_period',
         'project',
     )
@@ -238,6 +259,10 @@ def ReportingPeriodCSVView(request, reporting_period):
     writer.writerow(["Reporting Period", "Last Modified", "User", "Project",
                      "Number of Hours"])
     for timecard_object in timecard_objects:
+        # skip entries if timecard not submitted yet
+        if not timecard_object.timecard.submitted:
+            continue
+
         writer.writerow(
             ["{0} - {1}".format(
                 timecard_object.timecard.reporting_period.start_date,

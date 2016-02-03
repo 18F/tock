@@ -21,6 +21,7 @@ class TemplateTagTests(TestCase):
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
+            submitted=True,
             reporting_period=self.reporting_period)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(

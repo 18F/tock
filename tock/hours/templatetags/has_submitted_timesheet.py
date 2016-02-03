@@ -8,6 +8,6 @@ register = template.Library()
 def has_submitted_timesheet(user, reporting_period):
     return Timecard.objects.filter(
         reporting_period=reporting_period,
-        time_spent__isnull=False,
+        submitted=True,
         user=user
     ).exists()
