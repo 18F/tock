@@ -62,3 +62,6 @@ Congrats! Now you'll be able to make the changes and they will compile automatic
 Tock has an API, you can get the full dataset with:  https://tock.18f.gov/api/timecards_bulk.csv
 or page thru results with: https://tock.18f.gov/api/timecards.json
 you can choose a different page or page size: https://tock.18f.gov/api/timecards.json?page=2&page_size=100
+
+You can also get a list of projects with:  https://tock.18f.gov/api/projects.json
+or as a spreadsheet with: https://tock.18f.gov/api/projects.json
