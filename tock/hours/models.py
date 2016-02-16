@@ -1,6 +1,7 @@
 from .utils import ValidateOnSaveMixin
 from projects.models import Project
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -9,8 +10,12 @@ from django.db import models
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     start_date = models.DateField(unique=True)
     end_date = models.DateField()
+    userm = get_user_model().objects.get(id=1)
+    deflt = 40
+    if ( userm.is_superuser ):
+        deflt = 60
     working_hours = models.PositiveSmallIntegerField(
-        default=40,
+        default=deflt,
         validators=[MaxValueValidator(80)])
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
