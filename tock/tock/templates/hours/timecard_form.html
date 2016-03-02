@@ -2,16 +2,17 @@
 
 {% block content %}
 <h2>Tell us about your time</h2>
-<div class="alert-red">
-  <p class="alert-body">
-    Be sure to check out the new <b>Save</b> button for your timecards! This feature
-    allows the user to save their time card in progress during the week and then
-    submit a completed card at a later time. A big thank you to the Micropurchase team for
-    getting this delivered on time and at a great price! Encounter any problems with <b>Save</b>
-    button? Please file an issue at the <b><a href="https://www.github.com/18f/tock"> Tock repo</a></b>.
-  </p>
+<div class="clearfix">
+  <div class="alert-red">
+    <p class="alert-body">
+      Be sure to check out the new <b>Save</b> button for your timecards! This feature
+      allows the user to save their time card in progress during the week and then
+      submit a completed card at a later time. A big thank you to the Micropurchase team for
+      getting this delivered on time and at a great price! Encounter any problems with <b>Save</b>
+      button? Please file an issue at the <b><a href="https://www.github.com/18f/tock"> Tock repo</a></b>.
+    </p>
+  </div>
 </div>
-
 
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
@@ -22,8 +23,8 @@
   <div class="entries">
     <ul class="entries-header">
       <li>PROJECTS</li>
-      <li></li>
       <li>HOURS</li>
+      {% if unsubmitted %}<li>DELETE?</li>{% endif %}
     </ul>
     {% for project_entry in formset %}
       <div class="entry" id="entry-{{ forloop.counter0 }}">
@@ -36,6 +37,11 @@
           <label for="hours">Hours Spent:</label>
           {{ project_entry.hours_spent }}
         </div>
+        {% if unsubmitted %}
+        <div class="entry-delete">
+          {{ project_entry.DELETE }}
+        </div>
+        {% endif %}
         <div class="entry-hidden">
           {{ project_entry.timecard }}
           {{ project_entry.id }}
@@ -73,7 +79,11 @@
     // Get the total of all timecard object entries
     var hoursTotal = 0;
     $('.entry-amount input').each(function(i) {
-      hoursTotal += ($(this).val() / 1);
+      var is_checked = $(this).parents('.entry')
+          .find('.entry-delete input')
+          .prop('checked');
+
+      if (!is_checked) hoursTotal += ($(this).val() / 1);
     });
     return {'hoursTotal': hoursTotal};
   }
@@ -111,7 +121,7 @@
     populateHourTotals();
   });
 
-  $( "body" ).on( "click", ".entry-amount input", function() {
+  $( "body" ).on( "click", ".entry-amount input, .entry-delete input", function() {
     populateHourTotals();
   });
 

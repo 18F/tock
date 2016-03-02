@@ -178,6 +178,8 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         total_hrs = 0
         for form in self.forms:
             if form.cleaned_data:
+                if form.cleaned_data.get('DELETE'):
+                    continue
                 if not form.cleaned_data.get('hours_spent'):
                     raise forms.ValidationError(
                         'If you have a project listed, the number of hours '
@@ -192,6 +194,14 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         return getattr(self, 'cleaned_data', None)
 
 
-TimecardFormSet = inlineformset_factory(Timecard, TimecardObject,
-                                        extra=1, form=TimecardObjectForm,
-                                        formset=TimecardInlineFormSet)
+def timecard_formset_factory(extra=1):
+    return inlineformset_factory(
+        Timecard,
+        TimecardObject,
+        extra=extra,
+        form=TimecardObjectForm,
+        formset=TimecardInlineFormSet
+    )
+
+
+TimecardFormSet = timecard_formset_factory()

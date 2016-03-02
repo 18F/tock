@@ -19,8 +19,10 @@ from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from tock.remote_user_auth import email_to_username
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
-from .forms import (TimecardForm, TimecardFormSet, ReportingPeriodForm,
-                    ReportingPeriodImportForm)
+from .forms import (
+    ReportingPeriodForm, ReportingPeriodImportForm,
+    TimecardForm, TimecardFormSet, timecard_formset_factory
+)
 
 
 class ReportingPeriodListView(PermissionMixin, ListView):
@@ -122,8 +124,10 @@ class TimecardView(UpdateView):
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        r = ReportingPeriod.objects.get(start_date=datetime.datetime.strptime(
-            self.kwargs['reporting_period'], "%Y-%m-%d").date())
+        self.report_date = datetime.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d"
+        ).date()
+        r = ReportingPeriod.objects.get(start_date=self.report_date)
         obj, created = Timecard.objects.get_or_create(
             reporting_period_id=r.id,
             user_id=self.request.user.id)
@@ -136,24 +140,53 @@ class TimecardView(UpdateView):
             start_date=self.kwargs['reporting_period']
         ).working_hours
 
-        post = self.request.POST
-
-        if post:
-            formset = TimecardFormSet(post, instance=self.object)
-        else:
-            formset = TimecardFormSet(instance=self.object)
-
+        formset = self.get_formset()
         formset.set_working_hours(working_hours)
 
-        if post.get('save_only') is not None:
+        if self.request.POST.get('save_only') is not None:
             formset.save_only = True
 
         context.update({
             'working_hours': working_hours,
             'formset': formset,
+            'unsubmitted': not self.object.submitted,
         })
 
         return context
+
+    def get_formset(self):
+        post = self.request.POST
+
+        if post:
+            return TimecardFormSet(post, instance=self.object)
+
+        if self.object.timecardobject_set.count() == 0:
+            last_tc = self.last_timecard()
+            if last_tc:
+                return self.prefilled_formset(last_tc)
+
+        return TimecardFormSet(instance=self.object)
+
+    def last_timecard(self):
+        timecards = Timecard.objects.filter(
+            reporting_period__start_date__lt=self.report_date,
+            user_id=self.request.user.id,
+            submitted=True
+        ).order_by('-reporting_period__start_date')
+        if timecards:
+            return timecards[0]
+
+    def prefilled_formset(self, timecard):
+        project_ids = set(
+            tco.project_id for tco in
+            timecard.timecardobject_set.all()
+        )
+        extra = len(project_ids) + 1
+        formset = timecard_formset_factory(extra=extra)
+        return formset(initial=[
+            {'hours_spent': None, 'project': pid}
+            for pid in project_ids
+        ])
 
     def form_valid(self, form):
         context = self.get_context_data()

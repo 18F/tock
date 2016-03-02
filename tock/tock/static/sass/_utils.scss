@@ -13,3 +13,7 @@
 .report_table__footer {
 	font-weight:bold;
 }
+
+.clearfix {
+    @include clearfix;
+}

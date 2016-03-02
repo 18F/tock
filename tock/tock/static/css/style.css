@@ -252,19 +252,18 @@ picture {
       .entries ul.entries-header li:first-child:last-child {
         margin-right: 0; }
     .entries ul.entries-header li:nth-child(2) {
-      text-align: center;
+      float: left;
+      display: block;
+      margin-right: 2.35765%;
+      width: 23.23176%; }
+      .entries ul.entries-header li:nth-child(2):last-child {
+        margin-right: 0; }
+    .entries ul.entries-header li:nth-child(3) {
       float: left;
       display: block;
       margin-right: 2.35765%;
       width: 6.17215%; }
-      .entries ul.entries-header li:nth-child(2):last-child {
-        margin-right: 0; }
-    .entries ul.entries-header li:last-child {
-      float: left;
-      display: block;
-      margin-right: 2.35765%;
-      width: 31.76157%; }
-      .entries ul.entries-header li:last-child:last-child {
+      .entries ul.entries-header li:nth-child(3):last-child {
         margin-right: 0; }
 
 .entry {
@@ -321,6 +320,14 @@ picture {
   .entry-amount:last-child {
     margin-right: 0; }
 
+.entry-delete {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 6.17215%; }
+  .entry-delete:last-child {
+    margin-right: 0; }
+
 .entry-hidden {
   display: none; }
 
@@ -347,6 +354,7 @@ picture {
 .entries-total .entries-total-reported-wrapper {
   font-weight: bold; }
 
+.form-error,
 .invalid {
   color: red;
   font-weight: bold; }
@@ -362,6 +370,11 @@ picture {
 
 .report_table__footer {
   font-weight: bold; }
+
+.clearfix::after {
+  clear: both;
+  content: "";
+  display: table; }
 
 .alert {
   -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
