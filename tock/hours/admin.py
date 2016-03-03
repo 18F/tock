@@ -32,17 +32,24 @@ class TimecardObjectFormset(BaseInlineFormSet):
             return
 
         hours = Decimal(0.0)
+        superuser_hours = Decimal(60.0)
+        more_than_60 = False
         working_hours = self.instance.reporting_period.working_hours
-
         for unit in self.cleaned_data:
             try:
                 hours = hours + unit['hours_spent']
+                more_than_60 = unit['timecard'].more_than_60
             except KeyError:
                 pass
 
-        if hours > working_hours:
+        if hours > working_hours and not more_than_60:
             raise ValidationError(
                 'You have entered more than %s hours' % working_hours
+            )
+
+        if hours > superuser_hours and more_than_60:
+            raise ValidationError(
+                'You have entered more than %s hours' % superuser_hours
             )
 
         if hours < working_hours:
