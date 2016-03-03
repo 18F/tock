@@ -104,6 +104,127 @@ class ReportTests(WebTest):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_prefilled_timecard(self):
+        """
+        Test that new timecard form is prefilled with
+        last (submitted) timecard's projects
+        """
+        new_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+        )
+        date = new_period.start_date.strftime('%Y-%m-%d')
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_FORWARDED_EMAIL': self.user.email},
+        )
+
+        # projects prefilled in the html
+        prefilled_projects = response.html.find_all(
+            'div', {'class': 'entry-project'}
+        )[:-1]
+        prefilled_projects_names = set(
+            p.find('option', {'selected': True}).text
+            for p in prefilled_projects
+        )
+
+        # projects based on last submitted timecard
+        last_timecard_projects = set(
+            tco.project.name for tco
+            in self.timecard.timecardobject_set.all()
+        )
+
+        self.assertEqual(prefilled_projects_names, last_timecard_projects)
+
+        # ensure hours field is left blank
+        prefilled_hours = set(
+            e.find('input').get('value') for e in
+            response.html.find_all('div', {'class': 'entry-amount'})[:-1]
+        )
+        self.assertEqual(prefilled_hours, {None})
+
+    def test_do_not_prefill_timecard(self):
+        """
+        Test that a timecard doesn't get prefilled
+        if it already has its own entries
+        """
+        new_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+        )
+        new_timecard = hours.models.Timecard.objects.create(
+            user=self.user,
+            submitted=False,
+            reporting_period=new_period
+        )
+        new_project = projects.models.Project.objects.get(name="Midas")
+        new_tco = hours.models.TimecardObject.objects.create(
+            timecard=new_timecard,
+            project=new_project,
+            hours_spent=10.12
+        )
+
+        date = new_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_FORWARDED_EMAIL': self.user.email},
+        )
+        first_hour_val = response.html \
+            .find('div', {'class': 'entry-amount'}) \
+            .find('input').get('value')
+
+        self.assertEqual(first_hour_val, str(new_tco.hours_spent))
+        self.assertEqual(
+            len(response.html.find_all('div', {'class': 'entry'})),
+            new_timecard.timecardobject_set.count() + 1
+        )
+
+    def test_can_delete_unsubmitted_timecard_entries(self):
+        """
+        Test that entries for unsubmitted timecards can
+        be deleteable (have delete checkbox inputs on page)
+        """
+        self.timecard.submitted = False
+        self.timecard.save()
+
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_FORWARDED_EMAIL': self.user.email},
+        )
+        delete_divs = response.html.find_all('div', {'class': 'entry-delete'})
+
+        self.assertTrue(len(delete_divs) > 0)
+        self.assertTrue(response.context['unsubmitted'])
+
+    def test_cannot_delete_submitted_timecard_entries(self):
+        """
+        Test that entries for submitted timecards cannot
+        be deleted (do not have delete checkbox inputs on page)
+        """
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_FORWARDED_EMAIL': self.user.email},
+        )
+        delete_divs = response.html.find_all('div', {'class': 'entry-delete'})
+
+        self.assertEqual(len(delete_divs), 0)
+        self.assertFalse(response.context['unsubmitted'])
+
     def test_reportperiod_updatetimesheet_save_only_set(self):
         """
         Check that save_only flag switched to True if 'save_only' in post data
