@@ -425,6 +425,12 @@ utilization-chart {
   stroke: #999;
   shape-rendering: crispEdges; }
 
+.errorlist {
+  font-style: italic; }
+
+.error label {
+  color: red; }
+
 .container {
   max-width: 68em;
   margin-left: auto;
