@@ -1,11 +1,14 @@
-from django.contrib.auth import get_user_model
-from django.core.urlresolvers import reverse
+import datetime
+import re
 
+from django.contrib.auth import get_user_model
+from django.core import mail
+from django.core.urlresolvers import reverse
+from django.test import TestCase, Client
 from django_webtest import WebTest
 
-import datetime
-from employees.views import parse_date
 from employees.models import UserData
+from employees.views import parse_date
 
 
 class UserViewTests(WebTest):
@@ -156,3 +159,71 @@ class UserViewTests(WebTest):
         )
         # Check if errors occured at submission
         self.assertEqual(response.status_code, 403)
+
+
+class UserTravelRequestFormViewTest(WebTest):
+    def test_send_travel_form_email(self):
+        today = datetime.date.today()
+        one_day = datetime.timedelta(days=1)
+        one_week = datetime.timedelta(weeks=1)
+
+        form_data = {
+            'requestor_name': 'Aaron Snow',
+            'requestor_email': 'aaron.snow@gsa.gov',
+            'billability': 'billable',
+            'tock_project_name': 'Travel Request Form',
+            'tock_project_id': '1337',
+            'client_email': 'dan@blacksuncollective.net',
+            'home_location': 'Thomas Hammer Coffee Roasters',
+            'work_location': 'Spokane Public Library',
+            'work_to_be_done': 'build an awesome travel request form',
+            'departure_date': today,
+            'return_date': today + one_week,
+            'first_day_of_travel_work_date': today + one_day
+        }
+
+        header_fields = [
+            'billability',
+            'tock_project_name',
+            'tock_project_id',
+            'departure_date',
+            'return_date'
+        ]
+        body_fields = [
+            'home_location',
+            'work_location',
+            'departure_date',
+            'return_date',
+            'work_to_be_done',
+            'first_day_of_travel_work_date',
+            'requestor_name'
+        ]
+
+        form = self.app.get(
+            reverse(
+                'employees:UserTravelRequestFormView',
+                kwargs={'username': 'aaron.snow'}
+            ),
+            headers={'X_FORWARDED_EMAIL': 'aaron.snow@gsa.gov'}
+        ).form
+
+        for key, value in form_data.items():
+            form[key] = value
+
+        form.submit(
+            headers={'X_FORWARDED_EMAIL': 'aaron.snow@gsa.gov'}
+        ).follow()
+
+        self.assertEqual(len(mail.outbox), 1)
+
+        for field in header_fields:
+            if re.search(r'_date$', field):
+                pass
+            else:
+                self.assertTrue(re.search(str(form_data[field]), mail.outbox[0].subject))
+
+        for field in body_fields:
+            if re.search(r'_date$', field):
+                pass
+            else:
+                self.assertTrue(re.search(str(form_data[field]), mail.outbox[0].body))

@@ -3,7 +3,6 @@ from random import SystemRandom
 from string import ascii_letters
 
 from django.test import TestCase, SimpleTestCase
-from django.test.runner import DiscoverRunner
 
 from employees.forms import UserForm, UserTravelRequestForm
 
@@ -45,14 +44,6 @@ class UserFormTests(TestCase):
             'end_date': '2015-05-05'}
         form = UserForm(form_data)
         self.assertTrue(form.is_valid())
-
-
-class NoDbTestRunner(DiscoverRunner):
-    def setup_databases(self, **kwargs):
-        pass
-
-    def teardown_databases(self, old_config, **kwargs):
-        pass
 
 
 class UserTravelRequestFormTests(SimpleTestCase):
