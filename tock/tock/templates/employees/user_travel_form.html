@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Travel Request Form</h2>
+
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="File Travel Request">
+</form>
+{% endblock %}
+
+{% block js %}
+<script>
+$(function() {
+	$('.datepicker').datepicker();
+});
+</script>
+{% endblock %}
