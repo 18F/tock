@@ -15,6 +15,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
+    users = models.ManyToManyField(User, verbose_name='Zero to 60 users',  blank=True)
 
     def __str__(self):
         return str(self.start_date)

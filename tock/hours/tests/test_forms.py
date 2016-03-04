@@ -184,7 +184,7 @@ class TimecardInlineFormSetTests(TestCase):
         form_data['timecardobject_set-1-hours_spent'] = '80'
         self.timecard.zero_to_60 = True
         formset = self.TimecardObjectFormset(form_data, instance=self.timecard)
-        self.assertEqual(formset.is_valid(), True)
+        self.assertEqual(formset.is_valid(), False)
 
     def test_timecard_inline_formset_valid(self):
         """ Test valid timecard data """

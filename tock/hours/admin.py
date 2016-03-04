@@ -20,6 +20,7 @@ class ReportingPeriodListFilter(admin.SimpleListFilter):
         return queryset
 
 
+
 class TimecardObjectFormset(BaseInlineFormSet):
     def clean(self):
         """
@@ -35,6 +36,7 @@ class TimecardObjectFormset(BaseInlineFormSet):
         superuser_hours = Decimal(60.0)
         zero_to_60 = False
         working_hours = self.instance.reporting_period.working_hours
+
         for unit in self.cleaned_data:
             try:
                 hours = hours + unit['hours_spent']
@@ -60,6 +62,7 @@ class TimecardObjectFormset(BaseInlineFormSet):
 
 class ReportingPeriodAdmin(admin.ModelAdmin):
     list_display = ('start_date', 'end_date',)
+    filter_horizontal = ('users',)
 
 
 class TimecardObjectInline(admin.TabularInline):
