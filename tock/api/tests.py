@@ -143,7 +143,6 @@ class BulkTimecardsTests(TestCase):
             'employee',
             'start_date',
             'end_date',
-            'modified_date',
             'hours_spent',
             'agency',
             'flat_rate',
