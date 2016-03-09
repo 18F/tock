@@ -80,7 +80,6 @@ class BulkTimecardSerializer(serializers.Serializer):
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     billable = serializers.BooleanField(source='project.accounting_code.billable')
-    modified_date = serializers.DateTimeField(source='modified', format='%Y-%m-%d %H:%M:%S')
     agency = serializers.CharField(source='project.accounting_code.agency.name')
     flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
     active = serializers.BooleanField(source='project.active')
