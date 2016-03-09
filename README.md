@@ -7,6 +7,8 @@ We use Tock to track our time. You can read more about Tock in this [blog post](
 
 ![Screenshot of Tock](https://18f.gsa.gov/assets/blog/tockingtime/tock03.jpg)
 
+If your team uses Tock and Slack, you might also find the ["angrytock" reminder bot](https://github.com/18F/angrytock) helpful.
+
 ## Getting Started
 
 Make sure you have `vagrant` installed. For instance, on OS X with Homebrew:
