@@ -1,0 +1,8 @@
+Hello,
+
+    I request approval to travel from {{ home_location }} to {{ work_location }}.  The dates of travel are {{ departure_date }} - {{ return_date }}.  I will depart the {{ departure_date }}, to arrive in time for {{ work_to_be_done }} scheduled for {{ first_day_of_travel_work_date }}.  I will return to {{ home_location }} on {{ return_date }}.
+
+    Please reply with your approval, or with any subsequent clarifications you may have.
+
+Many thanks,
+{{ requestor_name }}
