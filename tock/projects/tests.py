@@ -4,6 +4,7 @@ import random
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db.models import Sum
 from django.utils.dateformat import format as date_format
 from django_webtest import WebTest
 
@@ -163,3 +164,34 @@ class TestProjectTimeline(WebTest):
             [each.text for each in table.find_all('td')[1:]],
             [str(float(each.hours_spent)) for each in self.objs_recent],
         )
+
+
+class ProjectViewTests(WebTest):
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'hours/fixtures/timecards.json',
+        'tock/fixtures/prod_user.json'
+    ]
+    csrf_checks = False
+
+    def test_total_hours_billed(self):
+        """
+        For a given project, ensure that the view displays the correct total.
+
+        (Note that this project is the only test project for which timecards have been saved.)
+
+        :return:
+        """
+        project = Project.objects.get(id__exact=1)
+        timecard_objects = TimecardObject.objects.filter(
+            project=project.id
+        )
+
+        total = timecard_objects.aggregate(Sum('hours_spent'))['hours_spent__sum']
+
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': project.id}),
+            headers={'X-FORWARDED-EMAIL': 'aaron.snow@gsa.gov'}
+        )
+
+        self.assertEqual(float(response.html.select('#totalHours')[0].string), total)
