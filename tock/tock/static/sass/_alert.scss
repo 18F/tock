@@ -1,10 +1,18 @@
-.alert {
-	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+@mixin alert($color: '#d0e9c6') {
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-	background-color: #d0e9c6;
+	background-color: #{$color};
 	font-size: 0.8rem;
 	padding: 0.5em;
 	@include span-columns(10);
 	border-radius:0.5em;
 	margin-bottom: 1em;
+}
+
+.alert-red {
+	@include alert('#E9967A');
+}
+
+.alert-info {
+    @include alert('#ff0');
 }

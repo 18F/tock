@@ -1,23 +1,23 @@
 import csv
-import io
 import datetime
+import io
 from itertools import chain
 from operator import attrgetter
 
 # Create your views here.
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
-from django.core.urlresolvers import reverse
-from django.http import HttpResponse
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 
 from rest_framework.permissions import IsAuthenticated
 
-from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from tock.remote_user_auth import email_to_username
-
+from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 from .forms import (TimecardForm, TimecardFormSet, ReportingPeriodForm,
                     ReportingPeriodImportForm)
@@ -151,6 +151,7 @@ class TimecardView(UpdateView):
         context.update({
             'working_hours': working_hours,
             'formset': formset,
+            'messages': messages.get_messages(self.request),
         })
 
         return context
@@ -174,11 +175,17 @@ class TimecardView(UpdateView):
     def get_success_url(self):
         if self.object.submitted:
             return reverse("ListReportingPeriods")
+        else:
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                'Timesheet saved.  Please remember to submit your timesheet when finished.'
+            )
 
-        return reverse(
-            'reportingperiod:UpdateTimesheet',
-            kwargs={'reporting_period': self.kwargs['reporting_period']}
-        )
+            return reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.kwargs['reporting_period']}
+            )
 
 
 class ReportsList(ListView):
