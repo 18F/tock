@@ -1,6 +1,7 @@
 from collections import defaultdict
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
+from django.db.models import Sum
 from django.db.models.loading import get_model
 
 from .models import Project
@@ -26,6 +27,9 @@ class ProjectView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectView, self).get_context_data(**kwargs)
         context['table'] = project_timeline(kwargs['object'])
+        context['total_hours'] = get_model('hours.TimecardObject').objects.filter(
+            project=kwargs['object'].id
+        ).aggregate(Sum('hours_spent'))['hours_spent__sum']
         return context
 
 
