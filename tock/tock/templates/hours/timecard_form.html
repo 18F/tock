@@ -2,6 +2,13 @@
 
 {% block content %}
 <h2>Tell us about your time</h2>
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+    <li{% if message.tags %} class="alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
 <div class="alert-red">
   <p class="alert-body">
     Be sure to check out the new <b>Save</b> button for your timecards! This feature
