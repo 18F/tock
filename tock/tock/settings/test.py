@@ -10,8 +10,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'tock-test',
         'HOST': os.environ.get('DATABASE_HOST'),
-        'USER': 'tock',
-        'PASSWORD': 'tock',
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PW'),
     }
 }
 
