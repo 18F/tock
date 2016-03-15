@@ -1,4 +1,5 @@
 from .base import *  # noqa
+import os
 
 from django.utils.crypto import get_random_string
 
@@ -8,7 +9,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'tock-test',
-        'HOST': 'localhost',
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'USER': 'tock',
+        'PASSWORD': 'tock',
     }
 }
 

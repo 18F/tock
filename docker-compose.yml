@@ -1,0 +1,19 @@
+version: '2'
+services:
+  tock:
+    build: .
+    command: python manage.py runserver 0.0.0.0:4001
+    env_file: .env
+    ports:
+      - 80:4001
+    links:
+      - db:db
+
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=tock
+      - POSTGRES_PASSWORD=tock
+      - POSTGRES_DB=tock
+      - PGPASSWORD=tock
+      - PGPUSER=tock
