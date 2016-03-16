@@ -33,11 +33,13 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = (
             'id',
+            'client',
             'name',
             'description',
             'billable',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
+    client = serializers.StringRelatedField(source='accounting_code')
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
