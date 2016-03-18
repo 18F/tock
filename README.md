@@ -51,6 +51,20 @@ To build a new image run:
 ```shell
 $ docker-compose build tock
 ```
+
+After the build you can create a running instance by using.
+This must be perfomed once before the migration. To ensure the database is setup correctly.
+
+```shell
+$ docker-compose up
+```
+
+or
+```shell
+$ docker-compose up -d
+```
+to run it in the background.
+
 After the initial build you should run:
 ```shell
 $ scripts/docker-migrate.sh
@@ -67,16 +81,6 @@ To run tests with docker simply run
 $ scripts/docker-test.sh
 ```
 
-To create a running instance use
-```shell
-$ docker-compose up
-```
-
-or
-```shell
-$ docker-compose up -d
-```
-to run it in the background.
 Now you can visit your browser and go to http://192.168.100.99/employees or another IP depending on your docker setup.
 
 ### Making SASS changes
