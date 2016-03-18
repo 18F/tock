@@ -43,7 +43,10 @@ From your host computer, going to http://192.168.33.10 will enable you to view T
 
 ### Using Docker
 
-To use Tock with docker make sure you have the latest version fo docker installed.
+To use Tock with docker make sure you have the latest version fo docker installed.  
+You need an `.env` file or change the setting in the `docker-compose.yml` to your environment file.  
+You can copy the `sample.env`to `.env`to get started right away.
+
 To build a new image run:
 ```shell
 $ docker-compose build tock
