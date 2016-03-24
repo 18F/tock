@@ -4,7 +4,7 @@ button {
   -webkit-font-smoothing: antialiased;
   background-color: $action-color;
   border-radius: $base-border-radius;
-  border: none;
+  border: 2px solid transparent;
   color: #fff;
   cursor: pointer;
   display: inline-block;
@@ -27,5 +27,18 @@ button {
   &:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+  }
+}
+
+.btn-outline {
+  background-color: inherit;
+  color: $action-color;
+  border-color: $action-color;
+
+  &:hover,
+  &:focus {
+    background-color: inherit;
+    color: darken($action-color, 15%);
+    border-color: darken($action-color, 15%);
   }
 }

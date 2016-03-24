@@ -14,7 +14,7 @@ button {
   -webkit-font-smoothing: antialiased;
   background-color: #477dca;
   border-radius: 3px;
-  border: none;
+  border: 2px solid transparent;
   color: #fff;
   cursor: pointer;
   display: inline-block;
@@ -36,6 +36,15 @@ button {
   button:disabled {
     cursor: not-allowed;
     opacity: 0.5; }
+
+.btn-outline {
+  background-color: inherit;
+  color: #477dca;
+  border-color: #477dca; }
+  .btn-outline:hover, .btn-outline:focus {
+    background-color: inherit;
+    color: #2c5999;
+    border-color: #2c5999; }
 
 fieldset {
   background-color: #f7f7f7;
