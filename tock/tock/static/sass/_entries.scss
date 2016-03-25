@@ -36,11 +36,10 @@
 				@include span-columns(6);
 			}
 			&:nth-child(2) {
-				text-align: center;
-				@include span-columns(1);
+				@include span-columns(3);
 			}
-			&:last-child {
-				@include span-columns(4);
+			&:nth-child(3) {
+				@include span-columns(1);
 			}
 		}
 	}
@@ -85,6 +84,10 @@
 	@include span-columns(3);
 }
 
+.entry-delete {
+	@include span-columns(1);
+}
+
 .entry-hidden {
 	display: none;
 }
@@ -109,6 +112,7 @@
 	}
 }
 
+.form-error,
 .invalid {
 	color: red;
 	font-weight: bold;
