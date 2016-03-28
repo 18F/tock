@@ -180,7 +180,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
                     continue
-                if not form.cleaned_data.get('hours_spent'):
+                if form.cleaned_data.get('hours_spent') is None:
                     raise forms.ValidationError(
                         'If you have a project listed, the number of hours '
                         'cannot be blank'
