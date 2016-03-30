@@ -153,6 +153,7 @@ $( document ).ready(function() {
           entry.find('#entry-notes .invalid').remove();
           entry.find('select').show();
           entry.find('input, select, textarea').val('');
+          entry.find(':checkbox').prop('checked', false);
 
           // Remove any existing values
           entry.val('');
