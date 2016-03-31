@@ -136,6 +136,9 @@ class TimecardObjectForm(forms.ModelForm):
 
         return data
 
+    def clean_hours_spent(self):
+        return self.cleaned_data.get('hours_spent') or 0
+
     def clean(self):
         super(TimecardObjectForm, self).clean()
 

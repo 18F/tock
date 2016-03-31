@@ -82,6 +82,17 @@ class TimecardObjectFormTests(TestCase):
         form = TimecardObjectForm(form_data)
         self.assertFalse(form.is_valid())
 
+    def test_blank_hrs(self):
+        """blank/null hrs become 0"""
+        form_data = {
+            'project': '2',
+            'hours_spent': None,
+        }
+
+        form = TimecardObjectForm(form_data)
+        self.assertFalse(form.is_valid())
+        self.assertEqual(form.cleaned_data['hours_spent'], 0)
+
     def test_general_notes_field_strips_html(self):
         """tests that a timecard object with a notes field that has HTML in it
         strips the HTML before saving."""
@@ -166,7 +177,7 @@ class TimecardInlineFormSetTests(TestCase):
         form_data['timecardobject_set-2-hours_spent'] = None
         form_data['timecardobject_set-TOTAL_FORMS'] = '3'
         formset = TimecardFormSet(form_data)
-        self.assertFalse(formset.is_valid())
+        self.assertTrue(formset.is_valid())
 
     def test_timecard_has_0_hours_for_project(self):
         """ Test timecard form data has an 0 hours spent value for

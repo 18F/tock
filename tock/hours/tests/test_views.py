@@ -242,7 +242,7 @@ class ReportTests(WebTest):
                 'timecardobject_set-MIN_NUM_FORMS': '0',
                 'timecardobject_set-MAX_NUM_FORMS': '1000',
                 'timecardobject_set-0-project': '4',
-                'timecardobject_set-0-hours_spent': '',
+                'timecardobject_set-0-hours_spent': None,
             },
             headers={'X_FORWARDED_EMAIL': self.regular_user.email},
         )
