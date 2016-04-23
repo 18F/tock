@@ -204,10 +204,10 @@ picture {
   max-width: 100%; }
 
 .banner {
-  float: left;
+  float: left ;
   display: block;
-  margin-right: 2.35765%;
-  width: 14.70196%; }
+  margin-right: 5.35765%;
+  width: 10%; }
   .banner:last-child {
     margin-right: 0; }
 
