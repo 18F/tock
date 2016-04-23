@@ -10,7 +10,6 @@ from django.contrib.auth import get_user_model
 
 from projects.models import Project
 from hours.models import TimecardObject, Timecard, ReportingPeriod
-from employees.models import UserData
 
 from rest_framework import serializers, generics, pagination
 
@@ -88,8 +87,6 @@ class BulkTimecardSerializer(serializers.Serializer):
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
-
-
 
 # API Views
 
