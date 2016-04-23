@@ -43,7 +43,7 @@ class Timecard(models.Model):
     reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
     modified = models.DateTimeField(auto_now=True)
 
     class Meta:
