@@ -13,8 +13,6 @@ class UserDataTests(TestCase):
         userdata = UserData(user=self.regular_user)
         userdata.start_date = datetime.date(2014, 1, 1)
         userdata.end_date = datetime.date(2016, 1, 1)
-        userdata.unit = 1
-        userdata.is_18f_employee = True
         userdata.save()
 
     def test_user_data_is_stored(self):
@@ -26,7 +24,6 @@ class UserDataTests(TestCase):
         self.assertEqual(
             userdata.end_date,
             datetime.date(2016, 1, 1))
-        self.assertEqual(userdata.unit, 1)
 
     def test_check_user_data_connected_to_user_model(self):
         """ Check that user data can be retrieved from User Model """
@@ -36,11 +33,7 @@ class UserDataTests(TestCase):
         self.assertEqual(
             self.regular_user.user_data.end_date,
             datetime.date(2016, 1, 1))
-        self.assertEqual(
-            self.regular_user.user_data.unit, 1)
-        self.assertTrue(
-            self.regular_user.user_data.is_18f_employee)
-
+    
     def test_user_data_current_employee_default_is_true(self):
         """ Check that the user data is initalized with the current
         employee value being true """
