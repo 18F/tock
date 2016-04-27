@@ -34,21 +34,18 @@
   <div class="container">
     <header class="banner">
       <a href="/">
-        <img src="{% static 'img/logo-18f.png' %}" alt="18F logo" />
+        <img src="{% static 'img/18F-Logo-S.png' %}" alt="18F logo" />
       </a>
-      <h1>Tock</h1>
       <hr>
       <ul>
+        <li><a href="{% url 'ProjectListView' %}">Projects</a></li>
         <li><a href="{% url 'reports:ListReports' %}">Reports</a></li>
         <li><a href="{% url 'employees:UserListView' %}">Users</a></li>
-        <li><a href="{% url 'ProjectListView' %}">Projects</a></li>
         {% if request.user.is_superuser %}
         <br>
-        <hr>
-        <strong>Admin</strong>
         <li><a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">New Reporting Period</a></li>
-        <li><a href="{% url 'reportingperiod:ImportReportingPeriod' %}">Import Reporting Period</a></li>
         {% endif %}
+        <hr>
       </ul>
     </header>
     <div class="content">

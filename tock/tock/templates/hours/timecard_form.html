@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Tell us about your time</h2>
+<h2>Tell us about your time for <font color='#2c5999'> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</font></h2>
+
 
 {% if messages %}
 <ul class="messages">
@@ -14,7 +15,7 @@
 <div class="clearfix">
   <div class="alert-red">
     <p class="alert-body">
-      <b> New features added! </b> Your entries from your previous week's time card are now copied forward to your current week's time card. Please fill in the correct hours for each category, delete categories that are no longer relevant (the delete checkbox is new too! simply tick the box, and click 'Save'), and add any additional categories as needed. Have trouble? Please file an issue at the <b><a href="https://www.github.com/18f/tock">Tock repo</a></b> or head over #tock in Slack.
+      <b> New features added! </b> Your entries from your previous week's time card are now copied forward to your current week's time card. Please fill in the correct hours for each category, delete categories that are no longer relevant (the delete checkbox is new too! simply tick the box, and click 'Save'), and add any additional categories as needed. Have trouble? Please file an issue at the <b><a href="https://www.github.com/18f/tock/issues">Tock repo</a></b> or head over #tock in Slack.
     </p>
   </div>
 </div>
