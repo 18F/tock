@@ -5,6 +5,9 @@ sudo: false
 python:
   - "3.4"
 
+env:
+  - DATABASE_HOST=localhost DATABASE_USER=postgres DATABASE_PW=
+
 addons:
   postgresql: "9.4"
 

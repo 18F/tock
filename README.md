@@ -41,6 +41,48 @@ $ python manage.py runserver
 
 From your host computer, going to http://192.168.33.10 will enable you to view Tock. You're automatically logged in as `testuser@gsa.gov`, the nginx proxy in production will pull the logged in user from Google Auth proxy. You can access the admin panel at http://192.168.33.10/admin
 
+### Using Docker
+
+To use Tock with docker make sure you have the latest version fo docker installed.  
+You need an `.env` file or change the setting in the `docker-compose.yml` to your environment file.  
+You can copy the `sample.env`to `.env`to get started right away.
+
+To build a new image run:
+```shell
+$ docker-compose build tock
+```
+
+After the build you can create a running instance by using.
+This must be perfomed once before the migration. To ensure the database is setup correctly.
+
+```shell
+$ docker-compose up
+```
+
+or
+```shell
+$ docker-compose up -d
+```
+to run it in the background.
+
+After the initial build you should run:
+```shell
+$ scripts/docker-migrate.sh
+```
+This will run all the migrations.
+
+If you want to include test data run
+```shell
+$ scripts/docker-seed.sh
+```
+
+To run tests with docker simply run
+```shell
+$ scripts/docker-test.sh
+```
+
+Now you can visit your browser and go to http://192.168.100.99/employees or another IP depending on your docker setup.
+
 ### Making SASS changes
 
 In order to make official changes to the styling of the website, you'll need to compile locally and submit the files accordingly. All of the files you should be editing are located in `tock/tock/static/sass/` and are labeled according to their purpose, e.g. `base/_typography.scss` focuses on website type stylings.
