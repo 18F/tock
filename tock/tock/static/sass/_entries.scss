@@ -65,6 +65,15 @@
     }
 }
 
+.entry-alerts {
+    @include span-columns(8);
+
+    .important {
+        color: red;
+        font-weight: bold;
+    }
+}
+
 .entry-billable-icon {
 	text-align:center;
 	font-size: 1.5rem;

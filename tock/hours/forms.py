@@ -1,10 +1,12 @@
+import json
+
 import bleach
 
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.forms.models import inlineformset_factory
 from django.utils.encoding import force_text
-from django.utils.html import escape, conditional_escape
+from django.utils.html import escape, conditional_escape, escapejs
 from django.db.models import Prefetch
 
 from .models import Timecard, TimecardObject, ReportingPeriod
@@ -53,6 +55,7 @@ class SelectWithData(forms.widgets.Select):
         billable_html = ''
         notes_displayed_html = ' data-notes-displayed="false"'
         notes_required_html = ' data-notes-required="false"'
+        alerts_html = ''
 
         if isinstance(option_label, dict):
             if dict.get(option_label, 'billable'):
@@ -66,11 +69,14 @@ class SelectWithData(forms.widgets.Select):
             if dict.get(option_label, 'notes_required'):
                 notes_required_html = ' data-notes-required="true"'
 
+            if dict.get(option_label, 'alerts'):
+                alerts_html = 'data-alerts="%s"' % (escapejs(json.dumps(option_label['alerts'])))
+
             option_label = option_label['label']
 
-        return '<option value="%s"%s%s%s%s>%s</option>' % (
+        return '<option value="%s"%s%s%s%s%s>%s</option>' % (
             escape(option_value), selected_html, billable_html,
-            notes_displayed_html, notes_required_html,
+            notes_displayed_html, notes_required_html, alerts_html,
             conditional_escape(force_text(option_label)))
 
 
@@ -92,6 +98,7 @@ def projects_as_choices():
                     'billable': code.billable,
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
+                    'alerts': [ {'style': alert.style, 'text': alert.full_alert} for alert in project.alerts.all() ],
                 }
             ])
 
@@ -104,7 +111,8 @@ def projects_as_choices():
             'label': '',
             'billable': '',
             'notes_displayed': '',
-            'notes_required': ''
+            'notes_required': '',
+            'alerts': [],
         }]]
     ])
 

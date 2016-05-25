@@ -73,6 +73,9 @@ class TimecardObject(models.Model):
         help_text='Please provide details about how you spent your time.'
     )
 
+    def project_alerts(self):
+        return self.project.alerts.all()
+
     def hours(self):
         return self.hours_spent
 

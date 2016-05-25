@@ -204,10 +204,10 @@ picture {
   max-width: 100%; }
 
 .banner {
-  float: left ;
+  float: left;
   display: block;
-  margin-right: 5.35765%;
-  width: 10%; }
+  margin-right: 2.35765%;
+  width: 14.70196%; }
   .banner:last-child {
     margin-right: 0; }
 
@@ -309,6 +309,17 @@ picture {
     margin-right: 0; }
   .entry-notes textarea {
     height: 100px; }
+
+.entry-alerts {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 65.88078%; }
+  .entry-alerts:last-child {
+    margin-right: 0; }
+  .entry-alerts .important {
+    color: red;
+    font-weight: bold; }
 
 .entry-billable-icon {
   text-align: center;

@@ -52,6 +52,8 @@
           {{ project_entry.timecard }}
           {{ project_entry.id }}
         </div>
+        <div class="entry-alerts" id="entry-alerts">
+        </div>
         <div class="entry-hidden" id="entry-notes">
           <label for="notes">Notes:</label>
           {{ project_entry.notes.help_text }}
@@ -122,6 +124,25 @@
     }
   }
 
+  function displayAlerts(selectBox) {
+    var $fieldset = $(selectBox).parent().parent(),
+        $selected = $(selectBox).find(':selected'),
+        $alerts = $fieldset.find('#entry-alerts'),
+        all_alerts = $selected.data('alerts');
+
+    if (all_alerts !== undefined) {
+      all_alerts = JSON.parse(JSON.parse('"' + all_alerts + '"'));
+
+      for (var i = 0; i < all_alerts.length; i++) {
+        $alerts.append(
+            '<div class="' + all_alerts[i].style + '">' + all_alerts[i].text + '</div>'
+        );
+      }
+    } else {
+      $alerts.empty();
+    }
+  }
+
   // When you change the hours, redo the totals
   $( "body" ).on( "keyup", ".entry-amount input", function() {
     populateHourTotals();
@@ -150,6 +171,7 @@ $( document ).ready(function() {
         $('div.entry:last').clone().each(function(i) {
           var entry = $(this);
           entry.find('.chosen-container').remove();
+          entry.find('#entry-alerts').empty();
           entry.find('#entry-notes').addClass('entry-hidden').removeClass('entry-notes');
           entry.find('#entry-notes .invalid').remove();
           entry.find('select').show();
@@ -186,11 +208,13 @@ $( document ).ready(function() {
         // Rebind events.
         $('.entry-project select').chosen().on('change', function(e) {
             toggleNotesField(this);
+            displayAlerts(this);
         });
     });
 
     $('.entry-project select').chosen().on('change', function(e) {
         toggleNotesField(this);
+        displayAlerts(this);
     });
 
     // Run on initial load
