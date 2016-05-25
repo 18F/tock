@@ -4,7 +4,21 @@
 {% block content %}
 <h2><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h2>
 
-<p class="project__description">{{ object.description|default:'(no description)' }}</p>
+<p class="project__description">{{ object.description|default:'(no description provided)' }}</p>
+
+{% if object.alerts.exists %}
+  <h3>Alerts</h3>
+
+  <ul>
+    {% for alert in object.alerts.prefetch_related %}
+      <li><span class="{{ alert.full_style }}">{{ alert.full_alert }}</span></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  (no alerts have been set for this project)
+{% endif %}
+
+<br />
 
 <figure class="chart chart--utilization">
   <h3 class="chart__title">User Hours Over Time</h3>
@@ -18,6 +32,8 @@
     y="hours_spent">
   </utilization-chart>
 </figure>
+
+<br />
 
 <div>
   Total hours billed: <span id="totalHours">{{ total_hours }}</span>

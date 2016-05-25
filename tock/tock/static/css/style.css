@@ -317,9 +317,24 @@ picture {
   width: 65.88078%; }
   .entry-alerts:last-child {
     margin-right: 0; }
+  .entry-alerts .warning {
+    color: red; }
+    .entry-alerts .warning.bold {
+      font-weight: bold; }
+    .entry-alerts .warning.italic {
+      font-style: italic; }
   .entry-alerts .important {
-    color: red;
-    font-weight: bold; }
+    color: orange; }
+    .entry-alerts .important.bold {
+      font-weight: bold; }
+    .entry-alerts .important.italic {
+      font-style: italic; }
+  .entry-alerts .info {
+    color: green; }
+    .entry-alerts .info.bold {
+      font-weight: bold; }
+    .entry-alerts .info.italic {
+      font-style: italic; }
 
 .entry-billable-icon {
   text-align: center;
@@ -390,6 +405,9 @@ picture {
 
 .report_table__footer {
   font-weight: bold; }
+
+.report_table th, .report_table td {
+  padding: 0.75em; }
 
 .clearfix::after {
   clear: both;

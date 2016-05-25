@@ -43,12 +43,16 @@ class AccountingCode(models.Model):
 
 class ProjectAlert(models.Model):
     """ Contains information that can be displayed as an alert related to a project line item."""
-    IMPORTANT = 'important'
     NORMAL = ''
+    INFO = 'info'
+    IMPORTANT = 'important'
+    WARNING = 'warning'
 
     STYLE_CHOICES = (
-        (NORMAL, 'Normal'),
+        (NORMAL, 'No style'),
+        (INFO, 'Info'),
         (IMPORTANT, 'Important'),
+        (WARNING, 'Warning'),
     )
 
     title = models.CharField(
@@ -70,6 +74,14 @@ class ProjectAlert(models.Model):
         default=NORMAL,
         help_text='An optional style option to change the display and formatting of the alert.'
     )
+    style_bold = models.BooleanField(
+        default=False,
+        help_text='A toggle for whether or not the alert should also be bold. Not applicable when no style is selected.'
+    )
+    style_italic = models.BooleanField(
+        default=False,
+        help_text='A toggle for whether or not the alert should also be italicized. Not applicable when no style is selected.'
+    )
 
     class Meta:
         verbose_name = 'Project Alert'
@@ -83,8 +95,27 @@ class ProjectAlert(models.Model):
 
         return self.description
 
+    @property
+    def full_style(self):
+        style = self.style
+
+        if self.style_bold:
+            style += ' bold'
+
+        if self.style_italic:
+            style += ' italic'
+
+        return style
+
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if self.style == self.NORMAL:
+            self.style_bold = False
+            self.style_italic = False
+
+        super(ProjectAlert, self).save(*args, **kwargs)
 
 class Project(models.Model):
     """ Stores information about a specific project"""

@@ -68,9 +68,41 @@
 .entry-alerts {
     @include span-columns(8);
 
-    .important {
+    .warning {
         color: red;
-        font-weight: bold;
+
+        &.bold {
+            font-weight: bold;
+        }
+
+        &.italic {
+            font-style: italic;
+        }
+    }
+
+    .important {
+        color: orange;
+
+
+        &.bold {
+            font-weight: bold;
+        }
+
+        &.italic {
+            font-style: italic;
+        }
+    }
+
+    .info {
+        color: green;
+
+        &.bold {
+            font-weight: bold;
+        }
+
+        &.italic {
+            font-style: italic;
+        }
     }
 }
 

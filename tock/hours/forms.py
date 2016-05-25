@@ -98,7 +98,7 @@ def projects_as_choices():
                     'billable': code.billable,
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
-                    'alerts': [ {'style': alert.style, 'text': alert.full_alert} for alert in project.alerts.all() ],
+                    'alerts': [ {'style': alert.full_style, 'text': alert.full_alert} for alert in project.alerts.prefetch_related() ],
                 }
             ])
 
