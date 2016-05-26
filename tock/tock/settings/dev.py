@@ -17,11 +17,16 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS += ('debug_toolbar',)
+INSTALLED_APPS += ('debug_toolbar', 'nplusone.ext.django', )
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+MIDDLEWARE_CLASSES += (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'nplusone.ext.django.NPlusOneMiddleware',
+)
+
+NPLUSONE_RAISE = True
 
 INTERNAL_IPS = ['127.0.0.1', '::1', '192.168.33.10']
 
