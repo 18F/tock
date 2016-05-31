@@ -8,6 +8,7 @@ app:
   entrypoint: python /tock/docker_entrypoint.py
   environment:
     - DATABASE_URL=postgres://tock_user@db/tock
+    - RUNNING_IN_DOCKER=yup
   command: python manage.py runserver 0.0.0.0:8000
 db:
   image: postgres:9.4
