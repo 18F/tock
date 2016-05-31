@@ -1,21 +1,16 @@
 from .base import *  # noqa
 
+import dj_database_url
+
 DEBUG = True
 TEMPLATE_DEBUG = True
 
 INTERNAL_IPS = ('127.0.0.1',)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'tock',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': 'tock',
-        'PASSWORD': 'tock',
-        'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
-    }
-}
+DATABASES = {}
+DATABASES['default'] = dj_database_url.config(
+    default='postgres://tock:tock@localhost/tock'
+)
 
 INSTALLED_APPS += ('debug_toolbar',)
 
