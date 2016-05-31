@@ -24,3 +24,10 @@ web:
     - app
   ports:
     - "8000:80"
+sass:
+  build: .
+  volumes:
+    - ./tock:/tock
+  working_dir: /tock
+  entrypoint: python /tock/docker_entrypoint.py
+  command: sass --watch tock/static/sass/core.scss:tock/static/css/style.css
