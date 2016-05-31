@@ -35,11 +35,33 @@ def setup_docker_sigterm_handler():
     print("Setting up Docker SIGTERM handler for quick, graceful exit.")
     signal.signal(signal.SIGTERM, handler)
 
+def wait_for_db(max_attempts=15, seconds_between_attempts=1):
+    import time
+    from django.db import DEFAULT_DB_ALIAS, connections
+    from django.db.utils import OperationalError
+
+    connection = connections[DEFAULT_DB_ALIAS]
+    attempts = 0
+
+    while True:
+        try:
+            connection.ensure_connection()
+            break
+        except OperationalError as e:
+            if attempts >= max_attempts:
+                raise e
+            attempts += 1
+            time.sleep(seconds_between_attempts)
+            print("Attempting to connect to database.")
+
+    print("Connection to database established.")
+
 if __name__ == '__main__':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tock.settings.dev')
+
     if os.environ.get('RUNNING_IN_DOCKER') == 'yup':
         setup_docker_sigterm_handler()
-
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tock.settings.dev')
+        wait_for_db()
 
     try:
         from django.core.management import execute_from_command_line
