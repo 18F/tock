@@ -9,10 +9,16 @@ app:
   environment:
     - DATABASE_URL=postgres://tock_user@db/tock
   command: python manage.py runserver 0.0.0.0:8000
-  ports:
-    - "8000:8000"
 db:
   image: postgres:9.4
   environment:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
+web:
+  image: nginx
+  volumes:
+    - ./provision/dev/nginx_site_docker.conf:/etc/nginx/conf.d/nginx_site_docker.conf
+  links:
+    - app
+  ports:
+    - "8000:80"
