@@ -11,51 +11,63 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 ## Getting Started
 
-Make sure you have `vagrant` installed. For instance, on OS X with Homebrew:
+First, install [Docker][] and [Docker Compose][]. (If you're on OS X or
+Windows, you'll also have to explicitly start the Docker Quickstart Terminal,
+at least until [Docker goes native][].)
 
-```
-$ brew install caskroom/cask/brew-cask
-$ brew cask install vagrant
-```
+Then `cd` into the `tock` directory of the repository--it's the one with
+the `manage.py` file.
 
-Then, ensure you have the appropriate Vagrant Box installed:
+Now run:
 
-```
-$ vagrant box add ubuntu/trusty32
-```
-
-You can get started with development by running the `Vagrantfile`:
-
-```
-$ vagrant up
+```shell
+$ cp .env.sample .env
+$ docker-compose build
+$ docker-compose run app python manage.py migrate
+$ docker-compose run app python manage.py loaddata test_data/data-update.json
 ```
 
-This will provision an entire setup for you pretty quickly (see `provision/dev/bootstrap.sh`). You can access Django and start `runserver` by doing the following:
+Once the above commands are successful, run:
 
 ```
-$ vagrant ssh
-$ python manage.py migrate
-$ python manage.py loaddata test_data/data-update.json  
-$ python manage.py runserver
+docker-compose up
 ```
 
-From your host computer, going to http://192.168.33.10 will enable you to view Tock. You're automatically logged in as `testuser@gsa.gov`, the nginx proxy in production will pull the logged in user from Google Auth proxy. You can access the admin panel at http://192.168.33.10/admin
+This will start up all required servers in containers and output their
+log information to stdout. If you're on Linux, you should be able
+to visit http://localhost:8000/ directly to access the site. If you're on
+OS X or Windows, you'll likely have to visit port 8000 on the IP
+address given to you by `docker-machine ip default`. (Note that this 
+hassle will go away once [Docker goes native][] for OS X/Windows.)
+
+You can access the admin panel at `/admin`.
+
+### Accessing the app container
+
+You'll likely want to run `manage.py` to do other things at some point.
+To do this, it's probably easiest to run:
+
+```
+docker-compose run app bash
+```
+
+This will run an interactive bash session inside the main app container.
+In this container, the `/tock` directory is mapped to the `tock`
+directory of the repository on your host; you can run `manage.py` from there.
+
+Note that if you don't have Django installed on your host system, you
+can just run `python manage.py` directly from outside the container--the
+`manage.py` script has been modified to run itself in a Docker container
+if it detects that Django isn't installed.
 
 ### Making SASS changes
 
-In order to make official changes to the styling of the website, you'll need to compile locally and submit the files accordingly. All of the files you should be editing are located in `tock/tock/static/sass/` and are labeled according to their purpose, e.g. `base/_typography.scss` focuses on website type stylings.
+`docker-compose up` will also launch SASS and automatically compile
+SASS files into CSS as you change them.
 
-Here are some steps to do to help make that happen:
-
-1. Make sure that you have Sass installed on your machine, [instructions for installing Sass on various platforms.](http://sass-lang.com/install)
-2. Open a new terminal window, separate from the one running the vagrant instance described above.
-3. Type the following command from the top level `tock` directory:
-
-```
-$ sass --watch tock/tock/static/sass/core.scss:tock/tock/static/css/style.css
-```
-
-Congrats! Now you'll be able to make the changes and they will compile automatically every time your changes are saved.
+All of the files you should be editing are located in
+`tock/tock/static/sass/` and are labeled according to their purpose,
+e.g. `base/_typography.scss` focuses on website type stylings.
 
 **NOTE: Be sure to ONLY change files ending in  `.scss` extension and NOT `.css`**
 
@@ -67,3 +79,7 @@ you can choose a different page or page size: https://tock.18f.gov/api/timecards
 
 You can also get a list of projects with:  https://tock.18f.gov/api/projects.json
 or as a spreadsheet with: https://tock.18f.gov/api/projects.json
+
+[Docker]: https://www.docker.com/
+[Docker Compose]: https://docs.docker.com/compose/
+[Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
