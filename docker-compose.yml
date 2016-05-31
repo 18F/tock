@@ -23,7 +23,7 @@ web:
   links:
     - app
   ports:
-    - "8000:80"
+    - "${EXTERNAL_PORT}:80"
 sass:
   build: .
   volumes:
