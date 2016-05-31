@@ -1,0 +1,18 @@
+app:
+  build: .
+  volumes:
+    - ./tock:/tock
+  links:
+    - db
+  working_dir: /tock
+  entrypoint: python /tock/docker_entrypoint.py
+  environment:
+    - DATABASE_URL=postgres://tock_user@db/tock
+  command: python manage.py runserver 0.0.0.0:8000
+  ports:
+    - "8000:8000"
+db:
+  image: postgres:9.4
+  environment:
+    - POSTGRES_DB=tock
+    - POSTGRES_USER=tock_user
