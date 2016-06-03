@@ -74,6 +74,15 @@ class SelectWithData(forms.widgets.Select):
             conditional_escape(force_text(option_label)))
 
 
+def choice_label_for_project(project):
+    """
+    Returns the label for a project as it should appear in an
+    auto-completable list of choices.
+    """
+
+    return '%s - %s' % (project.id, project.name)
+
+
 def projects_as_choices():
     """ Adds all of the projects in database to the TimeCardObjectForm project
     ChoiceField """
@@ -88,7 +97,7 @@ def projects_as_choices():
             projects.append([
                 project.id,
                 {
-                    'label': '%d - %s' % (project.id, project.name),
+                    'label': choice_label_for_project(project),
                     'billable': code.billable,
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
