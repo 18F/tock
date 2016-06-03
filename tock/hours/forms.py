@@ -88,7 +88,7 @@ def projects_as_choices():
             projects.append([
                 project.id,
                 {
-                    'label': project.name,
+                    'label': '%d - %s' % (project.id, project.name),
                     'billable': code.billable,
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
