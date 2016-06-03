@@ -12,7 +12,7 @@ class ProjectListView(ListView):
     model = Project
     template_name = 'projects/project_list.html'
 
-    queryset = Project.objects.all().order_by('name')
+    queryset = Project.objects.all().prefetch_related('alerts').order_by('name')
 
     def get_context_data(self, **kwargs):
         context = super(ProjectListView, self).get_context_data(**kwargs)

@@ -85,7 +85,8 @@ def projects_as_choices():
     ChoiceField """
 
     accounting_codes = []
-    prefetch = Prefetch('project_set', queryset=Project.objects.filter(active=True))
+    prefetch_queryset = Project.objects.filter(active=True).prefetch_related('alerts')
+    prefetch = Prefetch('project_set', queryset=prefetch_queryset)
     for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
         accounting_code = []
         projects = []
@@ -98,7 +99,10 @@ def projects_as_choices():
                     'billable': code.billable,
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
-                    'alerts': [ {'style': alert.full_style, 'text': alert.full_alert} for alert in project.alerts.all() ],
+                    'alerts': [
+                        {'style': alert.full_style, 'text': alert.full_alert}
+                        for alert in project.alerts.all()
+                    ],
                 }
             ])
 
