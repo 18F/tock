@@ -169,13 +169,13 @@ class TimecardView(UpdateView):
         return TimecardFormSet(instance=self.object)
 
     def last_timecard(self):
-        timecards = Timecard.objects.filter(
+        return Timecard.objects.filter(
             reporting_period__start_date__lt=self.report_date,
             user_id=self.request.user.id,
-            submitted=True
-        ).order_by('-reporting_period__start_date')
-        if timecards:
-            return timecards[0]
+            submitted=True,
+        ).order_by(
+            '-reporting_period__start_date',
+        ).first()
 
     def prefilled_formset(self, timecard):
         project_ids = set(

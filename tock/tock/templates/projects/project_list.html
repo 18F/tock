@@ -32,7 +32,7 @@
     <td>{{ project.description}}</td>
     <td>
       <ul>
-        {% for alert in project.alerts.prefetch_related %}
+        {% for alert in project.alerts.all %}
           <li><span class="{{ alert.full_style }}">{{ alert.full_alert }}</span></li>
         {% endfor %}
       </ul>
