@@ -70,6 +70,100 @@ class ProjectsTest(WebTest):
         )
         self.assertIsNotNone(anchor)
 
+    def test_projects_list_view_with_alert(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(reverse('ProjectListView'))
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+
+    def test_projects_list_view_with_alert_including_url(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert that has a URL.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.',
+            destination_url='http://www.gsa.gov/'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(reverse('ProjectListView'))
+        anchor = response.html.find(
+            'a',
+            href='http://www.gsa.gov/'
+        )
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+        self.assertIsNotNone(anchor)
+
+    def test_project_detail_view_with_alert(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project.id})
+        )
+
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+
+    def test_project_detail_view_with_alert_including_url(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert that has a URL.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.',
+            destination_url='http://www.gsa.gov/'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project.id})
+        )
+
+        anchor = response.html.find(
+            'a',
+            href='http://www.gsa.gov/'
+        )
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+        self.assertIsNotNone(anchor)
+
     def test_notes_required_enables_notes_displayed(self):
         """
         Test when the notes_required attribute is enabled on a Project
