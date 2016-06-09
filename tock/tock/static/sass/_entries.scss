@@ -67,6 +67,7 @@
 
 .entry-alerts {
     @include span-columns(8);
+    margin-bottom: 10px;
 
     .warning {
         color: red;

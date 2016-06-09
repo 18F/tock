@@ -33,7 +33,13 @@
     <td>
       <ul>
         {% for alert in project.alerts.all %}
-          <li><span class="{{ alert.full_style }}">{{ alert.full_alert }}</span></li>
+          <li>
+            {% if alert.destination_url %}
+                <a href="{{ alert.destination_url }}" target="_blank"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
+            {% else %}
+                <span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span>
+            {% endif %}
+          </li>
         {% endfor %}
       </ul>
     </td>

@@ -10,8 +10,14 @@
   <h3>Alerts</h3>
 
   <ul>
-    {% for alert in object.alerts.prefetch_related %}
-      <li><span class="{{ alert.full_style }}">{{ alert.full_alert }}</span></li>
+    {% for alert in object.alerts.all %}
+      <li>
+        {% if alert.destination_url %}
+          <a href="{{ alert.destination_url }}" target="_blank"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
+        {% else %}
+          <span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span>
+        {% endif %}
+      </li>
     {% endfor %}
   </ul>
 {% else %}

@@ -100,7 +100,11 @@ def projects_as_choices():
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
                     'alerts': [
-                        {'style': alert.full_style, 'text': alert.full_alert}
+                        {
+                            'style': alert.full_style,
+                            'text': alert.full_alert_text,
+                            'url': alert.destination_url
+                        }
                         for alert in project.alerts.all()
                     ],
                 }

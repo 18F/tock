@@ -26,7 +26,7 @@ MIDDLEWARE_CLASSES += (
     'nplusone.ext.django.NPlusOneMiddleware',
 )
 
-NPLUSONE_RAISE = True
+NPLUSONE_RAISE = False
 
 INTERNAL_IPS = ['127.0.0.1', '::1', '192.168.33.10']
 

@@ -314,7 +314,8 @@ picture {
   float: left;
   display: block;
   margin-right: 2.35765%;
-  width: 65.88078%; }
+  width: 65.88078%;
+  margin-bottom: 10px; }
   .entry-alerts:last-child {
     margin-right: 0; }
   .entry-alerts .warning {

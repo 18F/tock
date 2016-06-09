@@ -82,13 +82,18 @@ class ProjectAlert(models.Model):
         default=False,
         help_text='A toggle for whether or not the alert should also be italicized. Not applicable when no style is selected.'
     )
+    destination_url = models.URLField(
+        max_length=512,
+        blank=True,
+        help_text='An optional URL to wrap the alert in, e.g. pointing to some additional documentation around a time tracking policy.'
+    )
 
     class Meta:
         verbose_name = 'Project Alert'
         verbose_name_plural = 'Project Alerts'
 
     @property
-    def full_alert(self):
+    def full_alert_text(self):
         """ Returns the full string of the alert, accounting for any optional label"""
         if self.label:
             return '%s: %s' % (self.label, self.description)

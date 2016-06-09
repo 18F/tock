@@ -128,14 +128,21 @@
     var $fieldset = $(selectBox).parent().parent(),
         $selected = $(selectBox).find(':selected'),
         $alerts = $fieldset.find('#entry-alerts'),
-        all_alerts = $selected.data('alerts');
+        all_alerts = $selected.data('alerts'),
+        alert_text;
 
     if (all_alerts !== undefined) {
       all_alerts = JSON.parse(JSON.parse('"' + all_alerts + '"'));
 
       for (var i = 0; i < all_alerts.length; i++) {
+        alert_text = all_alerts[i].text;
+
+        if (all_alerts[i].url !== '' && all_alerts[i].url !== undefined) {
+            alert_text = '<a href="' + all_alerts[i].url + '" target="_blank">' + alert_text + '</a>';
+        }
+
         $alerts.append(
-            '<div class="' + all_alerts[i].style + '">' + all_alerts[i].text + '</div>'
+            '<div class="' + all_alerts[i].style + '">' + alert_text + '</div>'
         );
       }
     } else {
