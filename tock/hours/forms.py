@@ -9,7 +9,8 @@ from django.db.models import Prefetch
 
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
-
+from django.db.models import Q
+from datetime import datetime, timedelta, time
 
 class ReportingPeriodForm(forms.ModelForm):
 
@@ -29,6 +30,10 @@ class ReportingPeriodImportForm(forms.Form):
 
 
 class TimecardForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(TimecardForm, self).__init__(*args, **kwargs)
+        global reporting_period
+        reporting_period = ReportingPeriod.objects.get(id=self.instance.reporting_period_id)
 
     class Meta:
         model = Timecard
@@ -79,7 +84,21 @@ def projects_as_choices():
     ChoiceField """
 
     accounting_codes = []
-    prefetch = Prefetch('project_set', queryset=Project.objects.filter(active=True))
+    prefetch = Prefetch('project_set', queryset=Project.objects.filter(
+        Q(active=True)
+        & Q(
+            Q(start_date__lte=reporting_period.start_date)
+            | Q(
+                Q(start_date__gte=reporting_period.start_date)
+                & Q(start_date__lte=datetime.now().date())
+            )
+            | Q(start_date__isnull=True)
+        )
+        & Q(
+            Q(end_date__gte=reporting_period.end_date)
+            | Q(end_date__isnull=True)
+        )
+    ))
     for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
         accounting_code = []
         projects = []
