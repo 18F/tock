@@ -66,4 +66,36 @@ or page thru results with: https://tock.18f.gov/api/timecards.json
 you can choose a different page or page size: https://tock.18f.gov/api/timecards.json?page=2&page_size=100
 
 You can also get a list of projects with:  https://tock.18f.gov/api/projects.json
-or as a spreadsheet with: https://tock.18f.gov/api/projects.json
+or as a `csv` with: https://tock.18f.gov/api/projects.csv
+
+If you are interested in accessing the API endpoints via command line / terminal, clone this repository locally and do the following:
+
+### Step 0 - Get Set Up
+
+The following requires [Requests: HTTP for Humans](http://docs.python-requests.org/en/master/).
+
+### Step 1 - Get your OAuth Cookie
+
+First, using the Chrome browser, navigate over to `https://tock.18f.gov` and sign into the application via OAuth (likely via your Google account).
+
+Then open the Developer Tools console in Chrome via `View...Developer...Developer Tools`. Refresh `https://tock.18f.gov`, click `tock.18f.gov` in the right-hand pane, and click `Headers`. Scroll down the output to `Request Headers`, find `cookie:`, and locate the super long alphanumeric string after `_oauthproxy`. Highlight this string (be sure to get the whole thing!) and copy it to your clipboard.
+
+### Step 2 - Set an Environmental Variable w/ OAuth Cookie
+
+Open up a new terminal or command line session and enter:
+
+```
+$ export OAUTHPROXY="..."
+```
+
+...substituting the OAuth cookie you copied from the Developer Tools console in Chrome for the `...`, but retaining the quotation marks.
+
+### Step 3 - Run the Script!
+
+In the terminal or command line session you opened (and saved your `OAUTHPROXY` environmental variable) run:
+
+```
+$ python tock_api_script.py
+```
+
+...and follow the prompts!
