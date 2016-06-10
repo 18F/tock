@@ -93,7 +93,6 @@ class BulkTimecardSerializer(serializers.Serializer):
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    pagination_class = StandardResultsSetPagination
 
 class ProjectInstanceView(generics.RetrieveAPIView):
     """ Return the details of a specific project """
