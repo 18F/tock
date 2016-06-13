@@ -11,14 +11,17 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 ## Getting Started
 
-First, install [Docker][] and [Docker Compose][]. (If you're on OS X or
+**First**, install [Docker][] and [Docker Compose][]. (If you're on OS X or
 Windows, you'll also have to explicitly start the Docker Quickstart Terminal,
 at least until [Docker goes native][].)
 
-Then `cd` into the `tock` directory of the repository--it's the one with
-the `manage.py` file.
+**Second**, move a level down from your root `~\tock` directory (the one with the `manage.py` file):
+```
+$ cd tock
+```
+This is where the `env.sample` file is held.
 
-Now run:
+**Third**, run:
 
 ```shell
 $ cp .env.sample .env
@@ -27,7 +30,7 @@ $ docker-compose run app python manage.py migrate
 $ docker-compose run app python manage.py loaddata test_data/data-update.json
 ```
 
-Once the above commands are successful, run:
+**Fourth**, once the above commands are successful, run:
 
 ```
 docker-compose up
@@ -41,6 +44,12 @@ address given to you by `docker-machine ip default`. (Note that this
 hassle will go away once [Docker goes native][] for OS X/Windows.)
 
 You can access the admin panel at `/admin`.
+
+If you receive an `ERROR: Couldn't connect to Docker daemon - you might need to run...` error and you have confirmed that the Docker machine is running, you may need to run:
+
+```
+$ eval "$(docker-machine env default)"
+```
 
 ### Accessing the app container
 
