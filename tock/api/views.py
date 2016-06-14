@@ -124,7 +124,7 @@ class ReportingPeriodAudit(generics.ListAPIView):
 
     queryset = ReportingPeriod.objects.all()
     serializer_class = UserSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = JumboResultsSetPagination
     lookup_field = 'start_date'
 
     def get_queryset(self):
