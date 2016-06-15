@@ -131,6 +131,11 @@ class ReportTests(WebTest):
             p.find('option', {'selected': True}).text
             for p in prefilled_projects
         )
+        scrubbed_projects_names = []
+        for n in prefilled_projects_names:
+            n = n.split(' - ')[1] if ' - ' in n else n
+            scrubbed_projects_names.append(n)
+        prefilled_projects_names = set(scrubbed_projects_names)
 
         # projects based on last submitted timecard
         last_timecard_projects = set(
