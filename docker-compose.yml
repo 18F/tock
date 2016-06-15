@@ -10,7 +10,8 @@ app:
     - PYTHONUNBUFFERED=yup
     - DATABASE_URL=postgres://tock_user@db/tock
     - RUNNING_IN_DOCKER=yup
-  command: python manage.py runserver 0.0.0.0:8000
+    - DJANGO_SETTINGS_MODULE=tock.settings.dev
+  command: "python manage.py runserver 0.0.0.0:${EXTERNAL_PORT}"
 db:
   image: postgres:9.4
   environment:
