@@ -28,7 +28,9 @@ class ProjectsTest(WebTest):
 
         self.project = Project(
             accounting_code=accounting_code,
-            name='Test Project'
+            name='Test Project',
+            start_date='2016-01-01',
+            end_date='2016-02-01'
         )
         self.project.save()
 
@@ -44,6 +46,8 @@ class ProjectsTest(WebTest):
             'General Services Administration'
         )
         self.assertEqual(retrieved.accounting_code.office, '18F')
+        self.assertEqual(retrieved.start_date, datetime.date(2016, 1, 1))
+        self.assertEqual(retrieved.end_date, datetime.date(2016, 2, 1))
         self.assertTrue(retrieved.accounting_code.billable)
 
     def test_is_billable(self):
