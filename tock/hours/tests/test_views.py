@@ -142,6 +142,12 @@ class ReportTests(WebTest):
             tco.project.name for tco
             in self.timecard.timecardobject_set.all()
         )
+        scrubbed_projects_names = []
+        for n in last_timecard_projects:
+            n = n.split(' - ')[1] if ' - ' in n else n
+            scrubbed_projects_names.append(n)
+        last_timecard_projects = set(scrubbed_projects_names)
+
 
         self.assertEqual(prefilled_projects_names, last_timecard_projects)
 
