@@ -1,6 +1,6 @@
-from .base import *  # noqa
-
 from django.utils.crypto import get_random_string
+
+from .base import *  # noqa
 
 SECRET_KEY = get_random_string(50)
 

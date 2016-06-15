@@ -1,9 +1,7 @@
-from django.conf.urls import patterns, include, url
-# from django.conf.urls.static import static
 from django.conf import settings
-# from django.views.generic import TemplateView
+from django.conf.urls import patterns, include, url
 
-# Uncomment the next two lines to enable the admin:
+# Enable the Django admin.
 from django.contrib import admin
 admin.autodiscover()
 
@@ -13,28 +11,40 @@ import projects.urls
 
 urlpatterns = patterns(
     '',
-    url(r'^$', hours.views.ReportingPeriodListView.as_view(),
-        name='ListReportingPeriods'),
-    url(r'^reporting_period/', include("hours.urls.timesheets",
-        namespace="reportingperiod")),
-    url(r'^reports/', include("hours.urls.reports", namespace="reports")),
-    url(r'^employees/', include("employees.urls", namespace="employees")),
+    url(r'^$',
+        hours.views.ReportingPeriodListView.as_view(),
+        name='ListReportingPeriods'
+    ),
+    url(r'^reporting_period/', include(
+        'hours.urls.timesheets',
+        namespace='reportingperiod'
+    )),
+    url(r'^reports/', include(
+        'hours.urls.reports',
+        namespace='reports'
+    )),
+    url(r'^employees/', include(
+        'employees.urls',
+        namespace='employees'
+    )),
+    url(r'^projects/', include(projects.urls)),
 
     # TODO: version the API?
     url(r'^api/', include(api.urls)),
 
-    # project views
-    url(r'^projects/', include(projects.urls)),
-
-    # Uncomment the next line to enable the admin:
+    # Enable the Django admin.
     url(r'^admin/', include(admin.site.urls)),
 )
 
 
+# Enable Django Debug Toolbar only if in DEBUG mode.
 if settings.DEBUG:
     import debug_toolbar
+
     urlpatterns += patterns(
-        '', url(r'^__debug__/', include(debug_toolbar.urls)),)
+        '', url(r'^__debug__/', include(debug_toolbar.urls)),
+    )
+
 
 # Uncomment the next line to serve media files in dev.
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
