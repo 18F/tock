@@ -13,12 +13,14 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.db.models import Prefetch, Q
 
 from rest_framework.permissions import IsAuthenticated
 
 from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
+from projects.models import AccountingCode
 from .forms import (
     ReportingPeriodForm, ReportingPeriodImportForm,
     TimecardForm, TimecardFormSet, timecard_formset_factory
@@ -142,6 +144,65 @@ class TimecardView(UpdateView):
 
         formset = self.get_formset()
         formset.set_working_hours(working_hours)
+
+        """ The section below limits the choices a user has for projects
+        based on the Timecard ReportingPeriod.
+
+        TODO: Abstract the data assembly out into a shared module so that
+        the form init can share."""
+
+        reporting_period = ReportingPeriod.objects.get(pk=self.object.reporting_period_id)
+        rps = reporting_period.start_date
+        rpe = reporting_period.end_date
+
+        project_query_set = Project.objects.filter(
+            Q(active=True)
+            & Q(
+                Q(start_date__lte=rps)
+                | Q(
+                    Q(start_date__gte=rps)
+                    & Q(start_date__lte=datetime.datetime.now().date())
+                )
+                | Q(start_date__isnull=True)
+            )
+            & Q(
+                Q(end_date__gte=rpe)
+                | Q(end_date__isnull=True)
+            )
+        )
+
+        accounting_codes = []
+        prefetch = Prefetch('project_set', queryset=project_query_set)
+        for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
+            accounting_code = []
+            projects = []
+
+            for project in code.project_set.all():
+                projects.append([
+                    project.id,
+                    {
+                        'label': project.name,
+                        'billable': code.billable,
+                        'notes_displayed': project.notes_displayed,
+                        'notes_required': project.notes_required,
+                    }
+                ])
+
+            accounting_code = [str(code), projects]
+            accounting_codes.append(accounting_code)
+
+        accounting_codes.append([
+            '',
+            [['', {
+                'label': '',
+                'billable': '',
+                'notes_displayed': '',
+                'notes_required': ''
+            }]]
+        ])
+
+        for form in formset.forms:
+            form.fields['project'].choices = accounting_codes
 
         if self.request.POST.get('save_only') is not None:
             formset.save_only = True
