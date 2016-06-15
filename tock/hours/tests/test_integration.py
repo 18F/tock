@@ -48,8 +48,10 @@ class TestOptions(WebTest):
         select = res.forms[0].fields['timecardobject_set-0-project'][0]
         options = [each[-1] for each in select.options]
         for each in (positive or []):
+            each = each.split(' - ')[1] if ' - ' in each else each
             self.assertIn(each, options)
         for each in (negative or []):
+            each = each.split(' - ')[1] if ' - ' in each else each
             self.assertNotIn(each, options)
 
     def test_project_select(self):
