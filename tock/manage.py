@@ -69,7 +69,10 @@ def wait_for_db(max_attempts=15, seconds_between_attempts=1):
     print("Connection to database established.")
 
 if __name__ == '__main__':
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'tock.settings.dev')
+    os.environ.setdefault(
+        'DJANGO_SETTINGS_MODULE',
+        'tock.settings.production'
+    )
 
     if os.environ.get('RUNNING_IN_DOCKER') == 'yup':
         setup_docker_sigterm_handler()
