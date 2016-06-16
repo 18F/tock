@@ -63,4 +63,7 @@ local_settings.py
 
 .DS_Store
 
-.vagrant
+# Docker
+.env
+docker-compose.yml
+Dockerfile

@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 
 from django_webtest import WebTest
 
+from hours.forms import choice_label_for_project
 import hours.models
 import projects.models
 
@@ -53,12 +54,16 @@ class TestOptions(WebTest):
             self.assertNotIn(each, options)
 
     def test_project_select(self):
-        self._assert_project_options([each.name for each in self.projects])
+        self._assert_project_options([
+            choice_label_for_project(each) for each in self.projects
+        ])
 
     def test_project_select_dynamic(self):
         self.projects[1].delete()
         self._assert_project_options(
-            [self.projects[0].name], [self.projects[1].name])
+            [choice_label_for_project(self.projects[0])],
+            [choice_label_for_project(self.projects[1])]
+        )
 
     def test_admin_page_reportingperiod(self):
         """ Check that admin page reportingperiod works"""

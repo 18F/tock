@@ -1,37 +1,49 @@
+import os
+import sys
+import dj_database_url
+
 from .base import *  # noqa
 
 DEBUG = True
-TEMPLATE_DEBUG = True
-
-INTERNAL_IPS = ('127.0.0.1',)
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'tock',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': 'tock',
-        'PASSWORD': 'tock',
-        'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
-        'PORT': '',                      # Set to empty string for default.
-    }
-}
-
-INSTALLED_APPS += ('debug_toolbar', 'nplusone.ext.django', )
-
+TEMPLATE_DEBUG = DEBUG
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-MIDDLEWARE_CLASSES += (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'nplusone.ext.django.NPlusOneMiddleware',
+INTERNAL_IPS = [
+    '127.0.0.1',
+    '::1',
+]
+
+DATABASES['default'] = dj_database_url.config(
+    default='postgres://tock:tock@localhost/tock'
 )
 
-NPLUSONE_RAISE = False
+IS_RUNNING_TEST_SUITE = (os.path.basename(sys.argv[0]) == 'manage.py' and
+                         len(sys.argv) > 1 and sys.argv[1] == 'test')
 
-INTERNAL_IPS = ['127.0.0.1', '::1', '192.168.33.10']
+if not IS_RUNNING_TEST_SUITE:
+    INSTALLED_APPS += ('debug_toolbar',)
+    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
 
 MEDIA_ROOT = './media/'
 MEDIA_URL = '/media/'
+
+# Due to the Docker configuration and Django Debug Toolbar's need to account
+# for the local machine's IP address in INTERNAL_IPS to display itself, opt
+# to show the debug toolbar with a custom callback instead. For more
+# information on this setup please take a look at these resources:
+# https://django-debug-toolbar.readthedocs.io/en/1.4/installation.html#internal-ips
+# https://django-debug-toolbar.readthedocs.io/en/1.4/configuration.html#toolbar-options (SHOW_TOOLBAR_CALLBACK)
+# http://stackoverflow.com/questions/10517765/django-debug-toolbar-not-showing-up
+# https://gist.github.com/douglasmiranda/9de51aaba14543851ca3 (code taken from here)
+def show_django_debug_toolbar(request):
+    if request.is_ajax():
+        return False
+
+    return True
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': 'tock.settings.dev.show_django_debug_toolbar',
+}
 
 try:
   from .local_settings import *
