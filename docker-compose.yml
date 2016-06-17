@@ -11,20 +11,25 @@ app:
     - DATABASE_URL=postgres://tock_user@db/tock
     - RUNNING_IN_DOCKER=yup
     - DJANGO_SETTINGS_MODULE=tock.settings.dev
-  command: "python manage.py runserver 0.0.0.0:${EXTERNAL_PORT}"
+  command: "python manage.py runserver 0.0.0.0:1234"
 db:
   image: postgres:9.4
   environment:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
 web:
-  image: nginx
+  image: nginx:1.11
   volumes:
-    - ./provision/dev/nginx_site_docker.conf:/etc/nginx/conf.d/nginx_site_docker.conf
+    - ./provision/dev/nginx_site_docker.template:/etc/nginx/conf.d/nginx_site_docker.template
+  command: /bin/bash -c "envsubst '$$EXTERNAL_PORT $$DJANGO_SERVER $$USER_EMAIL' < /etc/nginx/conf.d/nginx_site_docker.template > /etc/nginx/conf.d/nginx_site_docker.conf && exec nginx -g 'daemon off;'"
+  environment:
+    - EXTERNAL_PORT=${EXTERNAL_PORT}
+    - DJANGO_SERVER=http://app:1234
+    - USER_EMAIL=aaron.snow@gsa.gov
   links:
     - app
   ports:
-    - "${EXTERNAL_PORT}:80"
+    - "${EXTERNAL_PORT}:${EXTERNAL_PORT}"
 sass:
   build: .
   volumes:
