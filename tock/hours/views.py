@@ -165,10 +165,6 @@ class TimecardView(UpdateView):
                 )
                 | Q(start_date__isnull=True)
             )
-            & Q(
-                Q(end_date__gte=rpe)
-                | Q(end_date__isnull=True)
-            )
         )
 
         accounting_codes = []
