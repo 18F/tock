@@ -25,6 +25,13 @@ class StandardResultsSetPagination(pagination.PageNumberPagination):
     page_size_query_param = 'page_size'
     max_page_size = 2000
 
+class JumboResultsSetPagination(pagination.PageNumberPagination):
+    """
+    For bigger results!
+    """
+    page_size = 500
+    page_size_query_param = 'page_size'
+    max_page_size = 2000
 
 # Serializers for different models
 
@@ -95,14 +102,13 @@ class BulkTimecardSerializer(serializers.Serializer):
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = JumboResultsSetPagination
 
 class ProjectInstanceView(generics.RetrieveAPIView):
     """ Return the details of a specific project """
     queryset =  Project.objects.all()
     model = Project
     serializer_class = ProjectSerializer
-
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
@@ -120,7 +126,7 @@ class ReportingPeriodAudit(generics.ListAPIView):
 
     queryset = ReportingPeriod.objects.all()
     serializer_class = UserSerializer
-    pagination_class = StandardResultsSetPagination
+    pagination_class = JumboResultsSetPagination
     lookup_field = 'start_date'
 
     def get_queryset(self):
@@ -157,7 +163,6 @@ class TimecardList(generics.ListAPIView):
 
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.QUERY_PARAMS)
-
 
 def timeline_view(request, value_fields=(), **field_alias):
     """ CSV endpoint for the project timeline viz """

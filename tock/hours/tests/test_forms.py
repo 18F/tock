@@ -8,7 +8,8 @@ import projects.models
 
 from hours.forms import (
     TimecardForm, TimecardObjectForm,
-    TimecardFormSet, projects_as_choices
+    TimecardFormSet, projects_as_choices,
+    choice_label_for_project
 )
 
 
@@ -31,6 +32,10 @@ class TimecardFormTests(TestCase):
             'user': self.user, 'reporting_period': self.reporting_period}
         form = TimecardForm(form_data)
         self.assertTrue(form.is_valid())
+
+    def test_choice_label_for_project(self):
+        self.assertEqual(choice_label_for_project(self.project_1),
+                         '32 - openFEC')
 
     def test_projects_as_choices(self):
         """tests projects_as_choices only returns projects marked active:

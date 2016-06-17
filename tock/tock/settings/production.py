@@ -2,9 +2,10 @@ import os
 
 import dj_database_url
 
-from .base import *
+from .base import *  # noqa
 
 DEBUG = False
+TEMPLATE_DEBUG = DEBUG
 
 USE_X_FORWARDED_HOST = True
 
@@ -15,9 +16,7 @@ ALLOWED_HOSTS = ['*']  # proxied
 STATIC_ROOT = '/app/tock/tock/static/'
 STATIC_URL = '/tock/static/'
 
-DATABASES = {}
 DATABASES['default'] = dj_database_url.config()
-
 
 LOGGING = {
     'version': 1,

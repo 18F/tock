@@ -8,6 +8,7 @@ from django_webtest import WebTest
 from hours.utils import number_of_hours
 
 from employees.models import UserData
+from hours.forms import choice_label_for_project
 import hours.models
 import projects.models
 import hours.views
@@ -139,7 +140,7 @@ class ReportTests(WebTest):
 
         # projects based on last submitted timecard
         last_timecard_projects = set(
-            tco.project.name for tco
+            choice_label_for_project(tco.project) for tco
             in self.timecard.timecardobject_set.all()
         )
         scrubbed_projects_names = []

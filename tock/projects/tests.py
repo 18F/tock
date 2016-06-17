@@ -10,7 +10,7 @@ from django_webtest import WebTest
 
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
-from projects.models import Agency, Project, AccountingCode
+from projects.models import Agency, Project, ProjectAlert, AccountingCode
 
 
 class ProjectsTest(WebTest):
@@ -74,6 +74,100 @@ class ProjectsTest(WebTest):
         )
         self.assertIsNotNone(anchor)
 
+    def test_projects_list_view_with_alert(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(reverse('ProjectListView'))
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+
+    def test_projects_list_view_with_alert_including_url(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert that has a URL.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.',
+            destination_url='http://www.gsa.gov/'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(reverse('ProjectListView'))
+        anchor = response.html.find(
+            'a',
+            href='http://www.gsa.gov/'
+        )
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+        self.assertIsNotNone(anchor)
+
+    def test_project_detail_view_with_alert(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project.id})
+        )
+
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+
+    def test_project_detail_view_with_alert_including_url(self):
+        """
+        Check that the project list view is open and the saved project is
+        listed with an alert that has a URL.
+        """
+
+        project_alert = ProjectAlert(
+            title='Test Alert',
+            description='This is a test alert.',
+            destination_url='http://www.gsa.gov/'
+        )
+        project_alert.save()
+
+        self.project.alerts.add(project_alert)
+
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project.id})
+        )
+
+        anchor = response.html.find(
+            'a',
+            href='http://www.gsa.gov/'
+        )
+        span = response.html.find('span')
+
+        self.assertIsNotNone(span)
+        self.assertIsNotNone(anchor)
+
     def test_notes_required_enables_notes_displayed(self):
         """
         Test when the notes_required attribute is enabled on a Project
@@ -85,6 +179,71 @@ class ProjectsTest(WebTest):
         project.notes_required = True
         project.save()
         self.assertTrue(project.notes_displayed)
+
+
+class ProjectAlertTests(WebTest):
+    def setUp(self):
+        self.alert_label = 'ALERT'
+        self.alert_description = 'This is a test alert.'
+        self.alert_style = ProjectAlert.INFO
+        self.project_alert = ProjectAlert(
+            title='Test Alert',
+            description=self.alert_description,
+            style=self.alert_style
+        )
+        self.project_alert.save()
+
+    def test_default_string_representation(self):
+        self.assertEqual('Test Alert', str(self.project_alert))
+
+    def test_full_alert_text_without_label(self):
+        self.assertEqual(self.alert_description, self.project_alert.full_alert_text)
+
+    def test_full_alert_text_with_label(self):
+        self.project_alert.label = self.alert_label
+        self.project_alert.save()
+
+        test_string = '%s: %s' % (self.alert_label, self.alert_description)
+        self.assertEqual(test_string, self.project_alert.full_alert_text)
+
+    def test_full_style(self):
+        self.assertEqual(self.alert_style, self.project_alert.full_style)
+
+    def test_full_style_with_bold(self):
+        self.project_alert.style_bold = True
+        self.project_alert.save()
+
+        test_string = '%s bold' % (self.alert_style)
+        self.assertEqual(test_string, self.project_alert.full_style)
+
+    def test_full_style_with_italic(self):
+        self.project_alert.style_italic = True
+        self.project_alert.save()
+
+        test_string = '%s italic' % (self.alert_style)
+        self.assertEqual(test_string, self.project_alert.full_style)
+
+    def test_full_style_with_bold_and_italic(self):
+        self.project_alert.style_bold = True
+        self.project_alert.style_italic = True
+        self.project_alert.save()
+
+        test_string = '%s bold italic' % (self.alert_style)
+        self.assertEqual(test_string, self.project_alert.full_style)
+
+    def test_normal_style_clears_bold_and_italic_on_save(self):
+        self.project_alert.style_bold = True
+        self.project_alert.style_italic = True
+        self.project_alert.save()
+
+        self.assertTrue(self.project_alert.style_bold)
+        self.assertTrue(self.project_alert.style_italic)
+
+        self.project_alert.style = ProjectAlert.NORMAL
+        self.project_alert.save()
+
+        self.assertFalse(self.project_alert.style_bold)
+        self.assertFalse(self.project_alert.style_italic)
 
 
 class TestProjectTimeline(WebTest):
