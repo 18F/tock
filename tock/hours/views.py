@@ -176,7 +176,7 @@ class TimecardView(UpdateView):
         ).order_by(
             '-reporting_period__start_date',
         ).first()
-        
+
     def prefilled_formset(self, timecard):
         project_ids = set(
             tco.project_id for tco in

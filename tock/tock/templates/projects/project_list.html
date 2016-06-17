@@ -21,6 +21,7 @@
     <th>Project</th>
     <th>ID</th>
     <th>Description</th>
+    <th>Alerts</th>
   </tr>
   {% for project in object_list %}
   <tr class="report_table__row">
@@ -29,6 +30,19 @@
     </td>
     <td>{{ project.id }}</td>
     <td>{{ project.description}}</td>
+    <td>
+      <ul>
+        {% for alert in project.alerts.all %}
+          <li>
+            {% if alert.destination_url %}
+                <a href="{{ alert.destination_url }}" target="_blank"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
+            {% else %}
+                <span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </td>
   </tr>
 
   {% endfor %}

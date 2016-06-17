@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Agency, Project, AccountingCode
+from .models import Agency, Project, ProjectAlert, AccountingCode
 
 
 class AgencyAdmin(admin.ModelAdmin):
@@ -14,7 +14,11 @@ class AccountingCodeAdmin(admin.ModelAdmin):
 class ProjectAdmin(admin.ModelAdmin):
     search_fields = ['name',]
 
+class ProjectAlertAdmin(admin.ModelAdmin):
+    search_fields = ['title',]
+
 
 admin.site.register(Agency, AgencyAdmin)
 admin.site.register(AccountingCode, AccountingCodeAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(ProjectAlert, ProjectAlertAdmin)

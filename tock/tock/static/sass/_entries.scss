@@ -65,6 +65,48 @@
     }
 }
 
+.entry-alerts {
+    @include span-columns(8);
+    margin-bottom: 10px;
+
+    .warning {
+        color: red;
+
+        &.bold {
+            font-weight: bold;
+        }
+
+        &.italic {
+            font-style: italic;
+        }
+    }
+
+    .important {
+        color: orange;
+
+
+        &.bold {
+            font-weight: bold;
+        }
+
+        &.italic {
+            font-style: italic;
+        }
+    }
+
+    .info {
+        color: green;
+
+        &.bold {
+            font-weight: bold;
+        }
+
+        &.italic {
+            font-style: italic;
+        }
+    }
+}
+
 .entry-billable-icon {
 	text-align:center;
 	font-size: 1.5rem;

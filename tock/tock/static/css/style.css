@@ -204,10 +204,10 @@ picture {
   max-width: 100%; }
 
 .banner {
-  float: left ;
+  float: left;
   display: block;
-  margin-right: 5.35765%;
-  width: 10%; }
+  margin-right: 2.35765%;
+  width: 14.70196%; }
   .banner:last-child {
     margin-right: 0; }
 
@@ -310,6 +310,33 @@ picture {
   .entry-notes textarea {
     height: 100px; }
 
+.entry-alerts {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 65.88078%;
+  margin-bottom: 10px; }
+  .entry-alerts:last-child {
+    margin-right: 0; }
+  .entry-alerts .warning {
+    color: red; }
+    .entry-alerts .warning.bold {
+      font-weight: bold; }
+    .entry-alerts .warning.italic {
+      font-style: italic; }
+  .entry-alerts .important {
+    color: orange; }
+    .entry-alerts .important.bold {
+      font-weight: bold; }
+    .entry-alerts .important.italic {
+      font-style: italic; }
+  .entry-alerts .info {
+    color: green; }
+    .entry-alerts .info.bold {
+      font-weight: bold; }
+    .entry-alerts .info.italic {
+      font-style: italic; }
+
 .entry-billable-icon {
   text-align: center;
   font-size: 1.5rem;
@@ -379,6 +406,9 @@ picture {
 
 .report_table__footer {
   font-weight: bold; }
+
+.report_table th, .report_table td {
+  padding: 0.75em; }
 
 .clearfix::after {
   clear: both;
