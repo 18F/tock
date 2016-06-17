@@ -6,23 +6,22 @@
 
 <p class="project__description">{{ object.description|default:'(no description provided)' }}</p>
 
+<ul>
+  <li> <b> Alerts: </b>
 {% if object.alerts.exists %}
-  <h3>Alerts</h3>
-
-  <ul>
     {% for alert in object.alerts.all %}
-      <li>
         {% if alert.destination_url %}
           <a href="{{ alert.destination_url }}" target="_blank"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
         {% else %}
           <span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span>
         {% endif %}
-      </li>
     {% endfor %}
-  </ul>
+
 {% else %}
-  (no alerts have been set for this project)
+  No alerts have been set for this project.
 {% endif %}
+</li>
+</ul>
 
 <br />
 
