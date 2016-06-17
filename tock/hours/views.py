@@ -171,7 +171,8 @@ class TimecardView(UpdateView):
         )
 
         accounting_codes = []
-        prefetch = Prefetch('project_set', queryset=project_query_set)
+        prefetch_queryset = Project.objects.filter(active=True).prefetch_related('alerts')
+        prefetch = Prefetch('project_set', queryset=prefetch_queryset)
         for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
             accounting_code = []
             projects = []
@@ -184,6 +185,14 @@ class TimecardView(UpdateView):
                         'billable': code.billable,
                         'notes_displayed': project.notes_displayed,
                         'notes_required': project.notes_required,
+                        'alerts': [
+                            {
+                                'style': alert.full_style,
+                                'text': alert.full_alert_text,
+                                'url': alert.destination_url
+                            }
+                            for alert in project.alerts.all()
+                        ],
                     }
                 ])
 
@@ -196,7 +205,8 @@ class TimecardView(UpdateView):
                 'label': '',
                 'billable': '',
                 'notes_displayed': '',
-                'notes_required': ''
+                'notes_required': '',
+                'alerts': [],
             }]]
         ])
 
