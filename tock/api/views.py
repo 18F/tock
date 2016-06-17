@@ -44,6 +44,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'name',
             'description',
             'billable',
+            'start_date',
+            'end_date'
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
     client = serializers.StringRelatedField(source='accounting_code')
@@ -281,9 +283,9 @@ from rest_framework.decorators import api_view
 hours_by_quarter_query = '''
 with agg as (
     select
-        extract(year from start_date) +
-            (extract(month from start_date) / 10) as year,
-        (extract(month from start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
+        extract(year from rp.start_date) +
+            (extract(month from rp.start_date) / 10) as year,
+        (extract(month from rp.start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
         billable,
         sum(hours_spent) as hours
     from hours_timecardobject tco
@@ -334,9 +336,9 @@ def hours_by_quarter(request, *args, **kwargs):
 hours_by_quarter_by_user_query = '''
 with agg as (
     select
-        extract(year from start_date) +
-            (extract(month from start_date) / 10) as year,
-        (extract(month from start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
+        extract(year from rp.start_date) +
+            (extract(month from rp.start_date) / 10) as year,
+        (extract(month from rp.start_date) + 3 - 1)::int % 12 / 3 + 1 as quarter,
         username,
         billable,
         sum(hours_spent) as hours

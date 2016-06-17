@@ -11,7 +11,8 @@ from django.db.models import Prefetch
 
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
-
+from django.db.models import Q
+from datetime import datetime, timedelta, time
 
 class ReportingPeriodForm(forms.ModelForm):
 
@@ -96,6 +97,7 @@ def projects_as_choices():
     accounting_codes = []
     prefetch_queryset = Project.objects.filter(active=True).prefetch_related('alerts')
     prefetch = Prefetch('project_set', queryset=prefetch_queryset)
+
     for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
         accounting_code = []
         projects = []

@@ -21,6 +21,8 @@
     <th>Project</th>
     <th>ID</th>
     <th>Description</th>
+    <th>Start Date</th>
+    <th>End Date</th>
     <th>Alerts</th>
   </tr>
   {% for project in object_list %}
@@ -30,6 +32,8 @@
     </td>
     <td>{{ project.id }}</td>
     <td>{{ project.description}}</td>
+    <td>{{ project.start_date}}</td>
+    <td>{{ project.end_date}}</td>
     <td>
       <ul>
         {% for alert in project.alerts.all %}

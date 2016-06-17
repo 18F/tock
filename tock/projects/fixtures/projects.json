@@ -490,7 +490,8 @@
       "fields":{
          "name":"Consulting - Agile BPA",
          "description":"",
-         "accounting_code":1
+         "accounting_code":1,
+         "start_date": "2016-01-01"
       },
       "pk":29
    },
