@@ -153,7 +153,6 @@ class TimecardView(UpdateView):
 
         reporting_period = ReportingPeriod.objects.get(pk=self.object.reporting_period_id)
         rps = reporting_period.start_date
-        rpe = reporting_period.end_date
 
         project_query_set = Project.objects.filter(
             Q(active=True)
@@ -164,6 +163,10 @@ class TimecardView(UpdateView):
                     & Q(start_date__lte=datetime.datetime.now().date())
                 )
                 | Q(start_date__isnull=True)
+            )
+            & Q(
+                Q(end_date__gte=rps)
+                | Q(end_date__isnull=True)
             )
         )
 
