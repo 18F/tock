@@ -1,9 +1,12 @@
+import datetime
+
 from .utils import ValidateOnSaveMixin
 from projects.models import Project
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.db.models import Q
 
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
@@ -36,6 +39,29 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
             return fiscal_year
         else:
             return self.start_date.year
+
+    def get_projects(self):
+        """
+        Return the valid projects that exist during this reporting period.
+        """
+
+        rps = self.start_date
+
+        return Project.objects.filter(
+            Q(active=True)
+            & Q(
+                Q(start_date__lte=rps)
+                | Q(
+                    Q(start_date__gte=rps)
+                    & Q(start_date__lte=datetime.datetime.now().date())
+                )
+                | Q(start_date__isnull=True)
+            )
+            & Q(
+                Q(end_date__gte=rps)
+                | Q(end_date__isnull=True)
+            )
+        )
 
 
 class Timecard(models.Model):

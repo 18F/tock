@@ -90,12 +90,16 @@ def choice_label_for_project(project):
     return '%s - %s' % (project.id, project.name)
 
 
-def projects_as_choices():
+def projects_as_choices(queryset=None):
     """ Adds all of the projects in database to the TimeCardObjectForm project
     ChoiceField """
 
     accounting_codes = []
-    prefetch_queryset = Project.objects.filter(active=True).prefetch_related('alerts')
+
+    if queryset is None:
+        queryset = Project.objects.filter(active=True)
+
+    prefetch_queryset = queryset.prefetch_related('alerts')
     prefetch = Prefetch('project_set', queryset=prefetch_queryset)
 
     for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
