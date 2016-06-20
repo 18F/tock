@@ -22,7 +22,7 @@ from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 from projects.models import AccountingCode
 from .forms import (
-    ReportingPeriodForm, ReportingPeriodImportForm,
+    ReportingPeriodForm, ReportingPeriodImportForm, projects_as_choices,
     TimecardForm, TimecardFormSet, timecard_formset_factory
 )
 
@@ -145,73 +145,18 @@ class TimecardView(UpdateView):
         formset = self.get_formset()
         formset.set_working_hours(working_hours)
 
-        """ The section below limits the choices a user has for projects
-        based on the Timecard ReportingPeriod.
-
-        TODO: Abstract the data assembly out into a shared module so that
-        the form init can share."""
-
         reporting_period = ReportingPeriod.objects.get(pk=self.object.reporting_period_id)
-        rps = reporting_period.start_date
 
-        project_query_set = Project.objects.filter(
-            Q(active=True)
-            & Q(
-                Q(start_date__lte=rps)
-                | Q(
-                    Q(start_date__gte=rps)
-                    & Q(start_date__lte=datetime.datetime.now().date())
-                )
-                | Q(start_date__isnull=True)
-            )
-            & Q(
-                Q(end_date__gte=rps)
-                | Q(end_date__isnull=True)
-            )
-        )
 
         accounting_codes = []
-        prefetch_queryset = Project.objects.filter(active=True).prefetch_related('alerts')
-        prefetch = Prefetch('project_set', queryset=prefetch_queryset)
-        for code in AccountingCode.objects.all().prefetch_related(prefetch, 'agency'):
-            accounting_code = []
-            projects = []
 
-            for project in code.project_set.all():
-                projects.append([
-                    project.id,
-                    {
-                        'label': project.name,
-                        'billable': code.billable,
-                        'notes_displayed': project.notes_displayed,
-                        'notes_required': project.notes_required,
-                        'alerts': [
-                            {
-                                'style': alert.full_style,
-                                'text': alert.full_alert_text,
-                                'url': alert.destination_url
-                            }
-                            for alert in project.alerts.all()
-                        ],
-                    }
-                ])
-
-            accounting_code = [str(code), projects]
-            accounting_codes.append(accounting_code)
-
-        accounting_codes.append([
-            '',
-            [['', {
-                'label': '',
-                'billable': '',
-                'notes_displayed': '',
-                'notes_required': '',
-                'alerts': [],
-            }]]
-        ])
+        # TODO: This is inefficient because we're writing over the
+        # already-generated choices. Ideally we should be passing these
+        # into the formset constructor.
+        choices = projects_as_choices(reporting_period.get_projects())
 
         for form in formset.forms:
-            form.fields['project'].choices = accounting_codes
+            form.fields['project'].choices = choices
 
         if self.request.POST.get('save_only') is not None:
             formset.save_only = True
