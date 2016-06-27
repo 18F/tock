@@ -26,9 +26,11 @@ class UserData(models.Model):
     user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username')
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
-    current_employee = models.BooleanField(default=True, verbose_name='Current Employee')
-    is_18f_employee = models.BooleanField(default=True, verbose_name='18F Employee')
-    unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select unit", blank=True)
+    current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
+    is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
+    is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
+    unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
+
 
     class Meta:
         verbose_name='Employee'
