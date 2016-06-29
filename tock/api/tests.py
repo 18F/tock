@@ -159,6 +159,29 @@ class BulkTimecardsTests(TestCase):
             rows_read += 1
         self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
 
+class BulkTimecardsTests(TestCase):
+    fixtures = FIXTURES
+
+    def test_slim_bulk_timecards(self):
+        response = self.client.get(reverse('SlimBulkTimecardList'))
+        rows = decode_streaming_csv(response)
+        expected_fields = set((
+            'project_name',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'mbnumber',
+        ))
+        rows_read = 0
+        for row in rows:
+            self.assertEqual(set(row.keys()), expected_fields)
+            self.assertEqual(row['project_name'], 'Out Of Office')
+            self.assertEqual(row['billable'], 'False')
+            rows_read += 1
+        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
+
 
 def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
