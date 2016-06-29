@@ -54,6 +54,8 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': 'tock.settings.dev.show_django_debug_toolbar',
 }
 
+USE_X_FORWARDED_HOST = True
+
 try:
   from .local_settings import *
 except ImportError:
