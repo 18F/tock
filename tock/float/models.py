@@ -10,7 +10,7 @@ class FloatTasks(models.Model):
      client_name = models.CharField(max_length=500, blank=True)
      start_date = models.DateField(null=True)
      end_date = models.DateField(null=True)
-     hours_pd = models.CharField(max_length=200, blank=True)
+     hours_pd = models.CharField(max_length=200, blank=True, default=0)
      task_cal_days = models.CharField(max_length=200, blank=True)
      created_by = models.CharField(max_length=500, blank=True)
      creator_id = models.CharField(max_length=200, blank=True)
@@ -23,3 +23,19 @@ class FloatTasks(models.Model):
 
         def __str__(self):
             return '%s - %s (%s)' % (self.person_name, self.project_name)
+
+class FloatPeople(models.Model):
+    people_id = models.CharField(max_length=200, blank=True)
+    name = models.CharField(max_length=500, blank=True)
+    job_title = models.CharField(max_length=500, blank=True)
+    email = models.CharField(max_length=500, blank=True)
+    description = models.TextField(blank=True)
+    im = models.CharField(max_length=500, blank=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Float People Data"
+        verbose_name_plural = "Float People Data"
+
+        def __str__(self):
+            return '%s (%s)' % (self.name, self.job_title)
