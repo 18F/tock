@@ -27,6 +27,7 @@ class AccountingCode(models.Model):
     class Meta:
         verbose_name = "Accounting Code"
         verbose_name_plural = "Accounting Codes"
+        ordering = ('agency', 'office')
 
     def __str__(self):
         if self.office:
