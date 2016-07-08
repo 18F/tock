@@ -18,6 +18,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
+    users = models.ManyToManyField(User, verbose_name='Zero to 60 users',  blank=True)
 
     def __str__(self):
         return str(self.start_date)
@@ -69,6 +70,7 @@ class Timecard(models.Model):
     reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
+    zero_to_60 = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

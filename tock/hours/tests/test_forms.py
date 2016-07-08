@@ -1,7 +1,11 @@
 import datetime
 
+from django import forms
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.forms.models import inlineformset_factory
+
+from hours.models import Timecard, TimecardObject, ReportingPeriod
 
 import hours.models
 import projects.models
@@ -10,6 +14,10 @@ from hours.forms import (
     TimecardForm, TimecardObjectForm,
     TimecardFormSet, projects_as_choices,
     choice_label_for_project
+)
+
+from hours.admin import (
+    TimecardObjectFormset
 )
 
 
@@ -120,6 +128,9 @@ class TimecardInlineFormSetTests(TestCase):
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
             working_hours=40)
+        self.TimecardObjectFormset = inlineformset_factory(Timecard, TimecardObject,
+                                                        extra=1,form=TimecardObjectForm,
+                                                        formset=TimecardObjectFormset)
         self.user = get_user_model().objects.get(id=1)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
@@ -130,7 +141,8 @@ class TimecardInlineFormSetTests(TestCase):
         self.project_3.save()
         self.timecard = hours.models.Timecard.objects.create(
             reporting_period=self.reporting_period,
-            user=self.user)
+            user=self.user,
+            zero_to_60 = True)
 
     def form_data(self, clear=[], **kwargs):
         """ Method that auto generates form data for tests """
@@ -149,6 +161,46 @@ class TimecardInlineFormSetTests(TestCase):
         for key, value in kwargs.items():
             form_data[key] = value
         return form_data
+
+    def test_card_less_than_working_hours_wout_0_60(self):
+        """ Test hours spent can't be less than working hours when 0_60 is False"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-1-hours_spent'] = '1'
+        self.timecard.zero_to_60 = False
+        formset = self.TimecardObjectFormset(form_data, instance=self.timecard)
+        self.assertEqual(formset.is_valid(), False)
+
+    def test_card_less_than_working_hours_w_0_60(self):
+        """ Test hours spent can be less than working hours when 0_60 is True"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-1-hours_spent'] = '1'
+        self.timecard.zero_to_60 = True
+        formset = self.TimecardObjectFormset(form_data, instance=self.timecard)
+        self.assertEqual(formset.is_valid(), True)
+
+    def test_card_greater_than_working_hours_w_0_60(self):
+        """ Test hours spent can be greater than working hours when 0_60 is True"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-1-hours_spent'] = '21'
+        self.timecard.zero_to_60 = True
+        formset = self.TimecardObjectFormset(form_data, instance=self.timecard)
+        self.assertEqual(formset.is_valid(), True)
+
+    def test_card_greater_than_working_hours_wout_0_60(self):
+        """ Test hours spent can't be greater than working hours when 0_60 is False"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-1-hours_spent'] = '21'
+        self.timecard.zero_to_60 = False
+        formset = self.TimecardObjectFormset(form_data, instance=self.timecard)
+        self.assertEqual(formset.is_valid(), False)
+
+    def test_card_greater_than_superuserworking_hours_w_0_60(self):
+        """ Test hours spent can't be greater than working hours when 0_60 is False"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-1-hours_spent'] = '80'
+        self.timecard.zero_to_60 = True
+        formset = self.TimecardObjectFormset(form_data, instance=self.timecard)
+        self.assertEqual(formset.is_valid(), False)
 
     def test_timecard_inline_formset_valid(self):
         """ Test valid timecard data """
