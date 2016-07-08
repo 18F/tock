@@ -233,7 +233,7 @@ class TimecardInlineFormSetTests(TestCase):
 
     def test_reporting_period_with_more_than_max_hours_success(self):
         """ Test the timecard form when the reporting period requires no more
-        than 60 hours to be reported and the hours entered are more than 60"""
+        than 60 hours to be reported and the hours entered are less than 60"""
         form_data = self.form_data()
         form_data['timecardobject_set-0-hours_spent'] = '50'
         form_data['timecardobject_set-1-hours_spent'] = '2'
