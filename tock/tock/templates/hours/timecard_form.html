@@ -3,31 +3,23 @@
 {% block content %}
 <h2>Tell us about your time for <font color='#2c5999'> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</font></h2>
 
-
-{% if messages %}
-<ul class="messages">
-  {% for message in messages %}
-    <li{% if message.tags %} class="alert-{{ message.tags }}"{% endif %}>{{ message }}</li>
-  {% endfor %}
-</ul>
-{% endif %}
-
 <div class="clearfix">
-  <div class="alert-red">
+  <div class="alert-grey">
+    <p class "alert-body">
+      <b>There are {{ object.reporting_period.min_working_hours }} hours in this reporting period. You may report up to {{ object.reporting_period.max_working_hours }} hours if needed. Please note that all requests for compensatory time and/or over time must be submitted via <b>ALOHA</b> for approval by your supervisor.</b>
+  </p>
+  </div>
+  <div class="alert-grey">
     <p class="alert-body">
-      <b> Another new feature added! </b> As many of you know, we have recently tackled discrepancies between hours recorded as <b>Out of Office</b> here in Tock and those recorded as <b>Leave</b> in <a href="https://aloha.gsa.gov/"> ALOHA </a> (GSA's official leave processing system). To help reduce the frequency of discrepancies going forward, we have added an alert feature that reminds users to <i> also </i> file an ALOHA leave request when logging time in one of the various Out of Office categories in Tock. Alerts may be added to any project, so if you have an idea for an alert beyond the Out of Office categories, please let us know in <b>#Tock</b>!
+      <b> Another new feature added! </b> As many of you know, we have recently tackled discrepancies between hours recorded as <b>Out of Office</b> here in Tock and those recorded as <b>Leave</b> in <b><a href="https://aloha.gsa.gov/"> ALOHA </a></b> (GSA's official leave processing system). To help reduce the frequency of discrepancies going forward, we have added an alert feature that reminds users to <i> also </i> file an ALOHA leave request when logging time in one of the various Out of Office categories in Tock. Alerts may be added to any project, so if you have an idea for an alert beyond the Out of Office categories, please let us know in <b>#Tock</b>!
       <br>
       <br>
       <b> New feature added! </b> Ever have trouble finding a commonly named project? Now you now have the option to autocomplete your Tock entries below using a Tock ID number! For a listing of Tock ID numbers, please head over to the <b><a href="https://tock.18f.gov/projects/">Projects</a></b> page. Want to suggest a new feature? Please file an issue at the <b><a href="https://www.github.com/18f/tock/issues">Tock repo</a></b> or head over <b>#tock</b> on Slack.
     </p>
   </div>
 </div>
-
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
-  {% if formset.errors %}
-    <div class="form-error">{{ formset.non_form_errors }}</div>
-  {% endif %}
   {{ formset.management_form }}
   <div class="entries">
     <ul class="entries-header">
@@ -70,6 +62,16 @@
       </div>
     {% endfor %}
   </div>
+  {% if formset.errors %}
+    <div class="alert-red"><b>{{ formset.non_form_errors }}</b></div>
+  {% endif %}
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <b><li{% if message.tags %} class="alert-{{ message.tags }}"{% endif %}>{{ message }}</li></b>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <div class="entries-total">
     <div class="entries-add-more"></br>
       <button type="button" class="btn btn-info add-timecard-entry">Add More Items</a>
@@ -84,6 +86,7 @@
     </div>
   </div>
  </form>
+
 
  <script>
  function getHourTotals() {

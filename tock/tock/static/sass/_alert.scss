@@ -13,6 +13,14 @@
 	@include alert('#E9967A');
 }
 
+.alert-green {
+  @include alert('#88cc00');
+}
+
 .alert-info {
-    @include alert('#ff0');
+    @include alert('#E9967A');
+}
+
+.alert-grey {
+  @include alert('#B8B8B8');
 }

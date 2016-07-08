@@ -32,7 +32,7 @@ class ReportTests(WebTest):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
+            exact_working_hours=40)
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
@@ -77,7 +77,7 @@ class ReportTests(WebTest):
         hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2016, 1, 1),
             end_date=datetime.date(2016, 1, 7),
-            working_hours=40)
+            exact_working_hours=40)
         response = self.app.get(reverse('reports:ListReports'))
         response = response.content.decode('utf-8')
         self.assertTrue(response.index('2016') < response.index('2015'))
@@ -275,8 +275,8 @@ class ReportTests(WebTest):
         form = get_res.forms[0]
         form['start_date'] = '07/04/2015'
         form['end_date'] = '07/11/2015'
-        form['working_hours'] = '40'
-        form['message'] = 'always be coding'
+        form['min_working_hours'] = '40'
+        form['max_working_hours'] = '60'
         form.submit(headers={'X_FORWARDED_EMAIL': self.user.email})
         updated_periods = list(hours.models.ReportingPeriod.objects.all())
         self.assertTrue(len(updated_periods) == len(periods) + 1)

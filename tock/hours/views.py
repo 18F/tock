@@ -138,12 +138,20 @@ class TimecardView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
 
-        working_hours = ReportingPeriod.objects.get(
+        exact_working_hours = ReportingPeriod.objects.get(
             start_date=self.kwargs['reporting_period']
-        ).working_hours
+        ).exact_working_hours
+
+        min_working_hours = ReportingPeriod.objects.get(
+            start_date=self.kwargs['reporting_period']).min_working_hours
+
+        max_working_hours = ReportingPeriod.objects.get(
+            start_date=self.kwargs['reporting_period']).max_working_hours
 
         formset = self.get_formset()
-        formset.set_working_hours(working_hours)
+        formset.set_exact_working_hours(exact_working_hours)
+        formset.set_max_working_hours(max_working_hours)
+        formset.set_min_working_hours(min_working_hours)
 
         reporting_period = ReportingPeriod.objects.get(pk=self.object.reporting_period_id)
 
@@ -162,7 +170,9 @@ class TimecardView(UpdateView):
             formset.save_only = True
 
         context.update({
-            'working_hours': working_hours,
+            'exact_working_hours': exact_working_hours,
+            'min_working_hours': min_working_hours,
+            'max_working_hours': max_working_hours,
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
