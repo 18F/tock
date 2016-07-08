@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 
 from projects.models import Project
 from hours.models import TimecardObject, Timecard, ReportingPeriod
+from employees.models import UserData
 
 from rest_framework import serializers, generics, pagination
 
@@ -61,6 +62,20 @@ class UserSerializer(serializers.ModelSerializer):
             'email'
         )
 
+class UserDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserData
+        fields = (
+            'user',
+            'start_date',
+            'end_date',
+            'current_employee',
+            'is_18f_employee',
+            'is_billable',
+            'unit',
+        )
+
+
 class ReportingPeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportingPeriod
@@ -107,6 +122,11 @@ class SlimBulkTimecardSerializer(serializers.Serializer):
     mbnumber = serializers.CharField(source='project.mbnumber')
 
 # API Views
+
+class UserDataView(generics.ListAPIView):
+    queryset = UserData.objects.all()
+    serializer_class = UserDataSerializer
+    pagination_class = JumboResultsSetPagination
 
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
