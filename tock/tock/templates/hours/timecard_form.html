@@ -1,14 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h2>Tell us about your time for <font color='#2c5999'> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</font></h2>
 
-<div class="clearfix">
-  <div class="alert-grey">
-    <p class "alert-body">
-      <b>There are {{ object.reporting_period.min_working_hours }} hours in this reporting period. You may report up to {{ object.reporting_period.max_working_hours }} hours if needed. Please note that all requests for compensatory time and/or over time must be submitted via <a href="https://aloha.gsa.gov">ALOHA</a> for approval by your supervisor.</b>
-  </p>
-  </div>
   <div class="alert-grey">
     <p class="alert-body">
       <b> Another new feature added! </b> As many of you know, we have recently tackled discrepancies between hours recorded as <b>Out of Office</b> here in Tock and those recorded as <b>Leave</b> in <b><a href="https://aloha.gsa.gov/"> ALOHA </a></b> (GSA's official leave processing system). To help reduce the frequency of discrepancies going forward, we have added an alert feature that reminds users to <i> also </i> file an ALOHA leave request when logging time in one of the various Out of Office categories in Tock. Alerts may be added to any project, so if you have an idea for an alert beyond the Out of Office categories, please let us know in <b>#tock</b>!
