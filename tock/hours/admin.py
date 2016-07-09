@@ -32,7 +32,8 @@ class TimecardObjectFormset(BaseInlineFormSet):
             return
 
         hours = Decimal(0.0)
-        working_hours = self.instance.reporting_period.working_hours
+        min_working_hours = self.instance.reporting_period.min_working_hours
+        max_working_hours = self.instance.reporting_period.max_working_hours
 
         for unit in self.cleaned_data:
             try:
@@ -40,14 +41,14 @@ class TimecardObjectFormset(BaseInlineFormSet):
             except KeyError:
                 pass
 
-        if hours > working_hours:
+        if hours > max_working_hours:
             raise ValidationError(
-                'You have entered more than %s hours' % working_hours
+                'You have entered more than %s hours' % max_working_hours
             )
 
-        if hours < working_hours:
+        if hours < min_working_hours:
             raise ValidationError(
-                'You have entered fewer than %s hours' % working_hours
+                'You have entered fewer than %s hours' % min_working_hours
             )
 
 

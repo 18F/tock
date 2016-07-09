@@ -10,11 +10,13 @@ from django.db.models import Q
 
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
+    """Reporting period model details"""
     start_date = models.DateField(unique=True)
-    end_date = models.DateField()
-    working_hours = models.PositiveSmallIntegerField(
-        default=40,
-        validators=[MaxValueValidator(80)])
+    end_date = models.DateField(unique=True)
+    exact_working_hours = models.PositiveSmallIntegerField(
+        default=40)
+    max_working_hours = models.PositiveSmallIntegerField(default=60)
+    min_working_hours = models.PositiveSmallIntegerField(default=40)
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
@@ -31,8 +33,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
     def get_fiscal_year(self):
         """Determines the Fiscal Year (Oct 1 - Sept 31) of a given
-            ReportingPeriod"""
-        # Oct, Nov, Dec are part of the *next* FY
+            ReportingPeriod. Oct, Nov, Dec are part of the *next* FY """
         next_calendar_year_months = [10, 11, 12]
         if self.start_date.month in next_calendar_year_months:
             fiscal_year = self.start_date.year + 1
@@ -41,10 +42,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
             return self.start_date.year
 
     def get_projects(self):
-        """
-        Return the valid projects that exist during this reporting period.
-        """
-
+        """Return the valid projects that exist during this reporting period."""
         rps = self.start_date
 
         return Project.objects.filter(
@@ -84,7 +82,7 @@ class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard)
     project = models.ForeignKey(Project)
     hours_spent = models.DecimalField(decimal_places=2,
-                                      max_digits=4,
+                                      max_digits=5,
                                       blank=True,
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
