@@ -164,6 +164,10 @@
 
 
 $( document ).ready(function() {
+    var chosenOptions = {
+      search_contains: true
+    };
+
     $("#save-timecard").on("click", function() {
       var form = $('form'),
           save_input = '<input type="hidden" name="save_only" value="1"/>';
@@ -205,26 +209,27 @@ $( document ).ready(function() {
           });
 
         }).appendTo('.entries');
-        $(".entry-project select").chosen();
+        
+        $(".entry-project select")
+          .chosen(chosenOptions)
+          .on('change', function(e) {
+              toggleNotesField(this);
+              displayAlerts(this);
+          });
 
         // Increment the TOTAL_FORMS
         $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1);
-
-        // Rebind events.
-        $('.entry-project select').chosen().on('change', function(e) {
-            toggleNotesField(this);
-            displayAlerts(this);
-        });
-    });
-
-    $('.entry-project select').chosen().on('change', function(e) {
-        toggleNotesField(this);
-        displayAlerts(this);
     });
 
     // Run on initial load
     populateHourTotals();
-    $('.entry-project select').chosen();
+
+    $('.entry-project select')
+      .chosen(chosenOptions)
+      .on('change', function(e) {
+          toggleNotesField(this);
+          displayAlerts(this);
+      });
 
     // Force an update to each project selection menu in case a notes field
     // needs to be re-displayed.
