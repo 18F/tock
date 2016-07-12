@@ -28,7 +28,7 @@
 	ul.entries-header {
 		font-weight: 900;
 		font-size: 0.8em;
-		padding-bottom: 25px;
+		padding: 10px 10px 25px 10px;
 		height: auto;
 		li {
 			display: inline;
@@ -47,6 +47,16 @@
 
 .entry {
 	@include outer-container;
+    border-radius: 0.5em;
+    padding: 10px;
+
+    &.even {
+        background-color: #fff;
+    }
+
+    &.odd {
+        background-color: #ddd;
+    }
 }
 
 .entry-project {

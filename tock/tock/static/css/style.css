@@ -249,7 +249,7 @@ picture {
 .entries ul.entries-header {
   font-weight: 900;
   font-size: 0.8em;
-  padding-bottom: 25px;
+  padding: 10px 10px 25px 10px;
   height: auto; }
   .entries ul.entries-header li {
     display: inline; }
@@ -278,11 +278,17 @@ picture {
 .entry {
   max-width: 68em;
   margin-left: auto;
-  margin-right: auto; }
+  margin-right: auto;
+  border-radius: 0.5em;
+  padding: 10px; }
   .entry::after {
     clear: both;
     content: "";
     display: table; }
+  .entry.even {
+    background-color: #fff; }
+  .entry.odd {
+    background-color: #ddd; }
 
 .entry-project {
   float: left;
