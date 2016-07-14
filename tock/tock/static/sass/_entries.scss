@@ -92,13 +92,18 @@
     border-radius: 0.5em;
     padding: 10px;
 
+
     &.even {
         background-color: #fff;
+				@include column-span(5);
+
     }
 
     &.odd {
-        background-color: #777;
+        background-color: #B8B8B8;
         color: #fff;
+				@include column-span(10);
+
 
         .entry-alerts {
             .warning {

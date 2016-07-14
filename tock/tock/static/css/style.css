@@ -313,10 +313,16 @@ picture {
     content: "";
     display: table; }
   .entry.even {
-    background-color: #fff; }
+    background-color: #fff;
+    -webkit-column-span: 5;
+    -moz-column-span: 5;
+    column-span: 5; }
   .entry.odd {
-    background-color: #777;
-    color: #fff; }
+    background-color: #B8B8B8;
+    color: #fff;
+    -webkit-column-span: 10;
+    -moz-column-span: 10;
+    column-span: 10; }
     .entry.odd .entry-alerts .warning {
       color: #500; }
     .entry.odd .entry-alerts .important {
