@@ -6,7 +6,10 @@
 <div class="clear-fix">
   <div class="alert-grey">
     <p class="alert-body">
-      <b>Reminder!</b> Please log 8 hours <b>'Out of Office - Administrative/Holiday Leave'</b> for the time period July 3rd - July 9th for Independence Day. Note that this leave <b> does not </b> need to be entered into <b><a href="https://aloha.gsa.gov/"> ALOHA </a></b> (GSA's official leave processing system).
+      <b>Reminder!</b> Please complete your Tock time card for the prior week no later than end of the day on Monday (or the first business day of the following week).
+    </p>
+    <p class="alert-body">
+       <b> What's this <i> Float </i> </b> thing I keep hearing about? Float is a tool 18F uses to schedule employee availability across our many projects. For now, Float is focused on projects that are "billable" (i.e. where we have a signed reimbursable agreement with a partner). Want to see your Float assignments? Click the <b><a href="https://login.float.com/?people={{ user.first_name}}+{{user.last_name}}" target="_blank">View Float assigments</a></b> link in the left sidebar! Have a question about your Float assignment? Please check in with your project lead, your supervisor, or head over to #admins-float on Slack.
     </p>
   </div>
 </div>
@@ -209,7 +212,7 @@ $( document ).ready(function() {
           });
 
         }).appendTo('.entries');
-        
+
         $(".entry-project select")
           .chosen(chosenOptions)
           .on('change', function(e) {
