@@ -62,19 +62,15 @@ class UserSerializer(serializers.ModelSerializer):
             'email'
         )
 
-class UserDataSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserData
-        fields = (
-            'user',
-            'start_date',
-            'end_date',
-            'current_employee',
-            'is_18f_employee',
-            'is_billable',
-            'unit',
-        )
+class UserDataSerializer(serializers.Serializer):
+    user = serializers.StringRelatedField()
+    current_employee = serializers.BooleanField()
+    is_18f_employee = serializers.BooleanField()
+    is_billable = serializers.BooleanField()
+    unit = serializers.SerializerMethodField()
 
+    def get_unit(self,obj):
+        return obj.get_unit_display()
 
 class ReportingPeriodSerializer(serializers.ModelSerializer):
     class Meta:
