@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='auto_deactivate_date',
-            field=models.DateField(null=True, blank=True),
+            field=models.DateField(default=datetime.date(2020, 12, 17)),
         ),
         migrations.AddField(
             model_name='project',
@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='project',
             name='end_date',
-            field=models.DateField(default=datetime.date(2020, 12, 31), verbose_name='Project End Date'),
+            field=models.DateField(default=datetime.date(2020, 12, 31), verbose_name='Project End Date', null=True),
         ),
     ]

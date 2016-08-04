@@ -132,7 +132,13 @@ class Project(models.Model):
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True, verbose_name='Project Start Date')
-    end_date = models.DateField(default=date(2020, 12, 31), verbose_name='Project End Date')
+    """
+    Model attribute end_date includes both default value (2020-12-17) for new projects created
+    (whether automatically via tests or in production by user) and null=True
+    for projects that already exist in the production DB that do not have
+    end_dates.
+    """
+    end_date = models.DateField(default=date(2020, 12, 31), verbose_name='Project End Date', null=True)
     auto_deactivate_date = models.DateField(default=date(2020, 12, 17))
     auto_deactivate_days = models.IntegerField(default=14)
     active = models.BooleanField(default=True)
