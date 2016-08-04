@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date, timedelta
 
 
 class Agency(models.Model):
@@ -131,7 +132,9 @@ class Project(models.Model):
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True, verbose_name='Project Start Date')
-    end_date = models.DateField(blank=True, null=True, verbose_name='Project End Date')
+    end_date = models.DateField(default=date(2020, 12, 31), verbose_name='Project End Date')
+    auto_deactivate_date = models.DateField(default=date(2020, 12, 17))
+    auto_deactivate_days = models.IntegerField(default=14)
     active = models.BooleanField(default=True)
     notes_required = models.BooleanField(
         default=False,
@@ -162,4 +165,10 @@ class Project(models.Model):
         if self.notes_required:
             self.notes_displayed = True
 
-        super(Project, self).save(*args, **kwargs)
+        self.auto_deactivate_date = self.end_date - timedelta(days=self.auto_deactivate_days)
+
+        if date.today() >= self.auto_deactivate_date:
+            self.active = False
+            super(Project, self).save(*args, **kwargs)
+        else:
+            super(Project, self).save(*args, **kwargs)
