@@ -13,21 +13,25 @@ class AccountingCodeAdmin(admin.ModelAdmin):
 
 class ProjectAdmin(admin.ModelAdmin):
     search_fields = ['name',]
-    readonly_fields = ('auto_deactivate_date',)
+    readonly_fields = ('auto_deactivate_date','active','aggregate_hours_logged',)
     fields = (
         'name',
+        'active',
         'mbnumber',
         'accounting_code',
         'description',
         'start_date',
         'end_date',
-        'active',
         'auto_deactivate_days',
         'auto_deactivate_date',
+        'max_hours_restriction',
+        'max_hours',
+        'aggregate_hours_logged',
         'notes_required',
         'notes_displayed',
         'alerts',
         )
+        
 class ProjectAlertAdmin(admin.ModelAdmin):
     search_fields = ['title',]
 

@@ -30,6 +30,9 @@ class ProjectsTest(WebTest):
             accounting_code=accounting_code,
             name='Test Project',
             start_date='2016-01-01',
+            active=True,
+            auto_deactivate_date='2016-01-19',
+            auto_deactivate_days=14,
         )
         self.project.save()
 

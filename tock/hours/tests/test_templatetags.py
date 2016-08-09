@@ -28,10 +28,12 @@ class TemplateTagTests(TestCase):
             name="Peace Corps")
         self.timecard_object_1 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project_1)
+            project=self.project_1,
+            hours_spent=10)
         self.timecard_object_2 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project_2)
+            project=self.project_2,
+            hours_spent=30)
 
     def test_has_submitted_timesheet(self):
         self.assertTrue(

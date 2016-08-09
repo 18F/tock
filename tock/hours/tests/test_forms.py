@@ -45,7 +45,8 @@ class TimecardFormTests(TestCase):
         (2) look for that project inside projects_as_choices;
         (3) test should fail if it finds the project"""
         data_before_inactive_change = projects_as_choices()
-        project_test = projects.models.Project.objects.first() #get the first project in the db
+        project_test = projects.models.Project.objects.first()  #get the first project in the db
+        project_test.end_date = datetime.date(2016, 1, 1) #set project end_date in violation of reporting period biz rule
         project_test.active = False #set active field to to false
         project_test.save() #save change to DB
         data_after_inactive_change = projects_as_choices()
