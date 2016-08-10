@@ -15,7 +15,7 @@ from projects.models import Agency, Project, ProjectAlert, AccountingCode
 
 class ProjectsTest(WebTest):
     def setUp(self):
-        agency = Agency(name='General Services Administration')
+        agency = Agency(agency_name='General Services Administration')
         agency.save()
 
         accounting_code = AccountingCode(

@@ -1,33 +1,93 @@
 from django.db import models
 from datetime import date, timedelta
+import uuid
+
 
 
 class Agency(models.Model):
-    """ Stores Agency name """
-    name = models.CharField(
-        max_length=200,
-        verbose_name="Name",
-        help_text="Don't make crappy names!")
+    """ Stores client information from any source. """
+    agency_name = models.CharField(max_length=200, verbose_name="Client agency name",
+        help_text="Use full agency name, not acronyms.",
+        default='Agency name is required.')
+    office_name = models.CharField(max_length=200, verbose_name="Client office name",
+        help_text="Don't use crappy names!", default='Office name is required.')
 
     class Meta:
-        verbose_name = "Agency"
-        verbose_name_plural = "Agencies"
+        verbose_name = "Client"
+        verbose_name_plural = "Clients"
 
     def __str__(self):
-        return '%s' % (self.name)
+        return '%s - %s' % (self.agency_name, self.office_name)
+
+class EngagementInformation(models.Model):
+    """
+    Engagement information (typically from a 7600A) related upwards to an Agency
+    ('client') and downwards to an AccountingCode ('order information') and a
+    Project.
+    """
+    engagement_uuid = models.UUIDField(primary_key=False, default=uuid.uuid4)
+    client = models.ForeignKey(Agency)
+    iaa_number = models.CharField(max_length=200, blank=False, null=False,
+        verbose_name='IAA number', help_text='Enter 7600A, header information,'
+        '"GT&C #" value.', default='IAA number is required')
+    agmt_start_date = models.DateField(
+        default=date(1999, 12, 31), verbose_name='Agreement period start date',
+        blank=False, null=False, help_text='Enter 7600A, Block 5, "Start Date"'
+        ' value.')
+    agmt_end_date = models.DateField(
+        default=date(1999, 12, 31), verbose_name='Agreement period start date',
+        blank=False, null=False, help_text='Enter 7600A, Block 5, "End Date"'
+        ' value.')
+    agmt_estimated_amt = models.PositiveSmallIntegerField(default=0, null=True,
+        blank=True, verbose_name='Estimated agreement amount',
+            help_text='Enter 7600A, Block 9, "Total Estimated Amount" value.')
+    executed = models.BooleanField(default=False, verbose_name='Agreement exectued',
+        help_text='Whether the inter-agency agreement or other agreement has or'
+        'has not been executed by both parties.')
+    notes = models.TextField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Engagement information'
+        verbose_name_plural = 'Engagement information'
+
+    def __str__(self):
+        return '%s (%s - %s)' % (self.client.agency_name,
+            self.agmt_start_date, self.agmt_end_date)
+
+    def save(self, *args, **kwargs):
+        super(EngagementInformation, self).save(*args, **kwargs)
 
 
 class AccountingCode(models.Model):
-    """ Account code for each project """
+    """
+    Order information (typically from a 7600B) related downwards to a Project
+    and upwards to an EngagementInformation
+    """
     code = models.CharField(max_length=200, blank=True)
-    agency = models.ForeignKey(Agency)
+    agency = models.ForeignKey(Agency, default=1)
+    egmt_agency = models.CharField(max_length=200, blank=True, null=True,
+        verbose_name='Client agency')
+    egmt_office = models.CharField(max_length=200, blank=True, null=True,
+        verbose_name='Client office')
+    engagement_uuid = models.CharField(max_length=200, blank=True, null=True,
+        verbose_name='Engagement unique ID')
     office = models.CharField(max_length=200, blank=True)
     billable = models.BooleanField(default=False)
     flat_rate = models.BooleanField(default=False)
+    pp_start_date = models.DateField(
+        default=date(1999, 12, 31), verbose_name='Period of'
+        'performance start date', blank=False, null=False)
+    pp_end_date = models.DateField(
+        default=date(2020, 1, 1), verbose_name='Period of'
+        'performance end date', blank=False, null=False)
+    amount = models.PositiveSmallIntegerField(
+        verbose_name='Order amount($)',default=0, blank=False, null=False)
+    engagement = models.ForeignKey(EngagementInformation, null=True, blank=True)
+    notes = models.TextField(max_length=200, null=True, blank=True)
 
     class Meta:
-        verbose_name = "Accounting Code"
-        verbose_name_plural = "Accounting Codes"
+        verbose_name = "Order Information"
+        verbose_name_plural = "Order information"
         ordering = ('agency', 'office')
 
     def __str__(self):
@@ -41,6 +101,13 @@ class AccountingCode(models.Model):
                 return "%s (%s)" % (self.agency, self.code)
             else:
                 return "%s" % (self.agency)
+
+    def save(self, *args, **kwargs):
+        self.egmt_agency = self.engagement.client.agency_name
+        self.egmt_office = self.engagement.client.office_name
+        self.engagement_uuid = self.engagement.engagement_uuid
+        super(AccountingCode, self).save(*args, **kwargs)
+
 
 
 class ProjectAlert(models.Model):
@@ -100,8 +167,8 @@ class ProjectAlert(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Project Alert'
-        verbose_name_plural = 'Project Alerts'
+        verbose_name = 'Project alert'
+        verbose_name_plural = 'Project alerts'
 
     @property
     def full_alert_text(self):
@@ -148,7 +215,7 @@ class Project(models.Model):
     mbnumber = models.CharField(max_length=200, blank=True, verbose_name="MB Number")
 
     accounting_code = models.ForeignKey(AccountingCode,
-        verbose_name="Accounting Code")
+        verbose_name="Related order information")
 
     description = models.TextField(default='If your reading this, a description'
     ' for this project is missing and should be added.')
@@ -237,6 +304,7 @@ class Project(models.Model):
         blank=True,
         help_text='Attach one or more alerts to be displayed with this project if need be.'
     )
+    engagement = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
         verbose_name = "Project"
@@ -250,6 +318,7 @@ class Project(models.Model):
         return self.accounting_code.billable
 
     def save(self, *args, **kwargs):
+        self.engagement = self.accounting_code.engagement.client.agency_name + '\n' + self.accounting_code.engagement.client.office_name
         if self.notes_required:
             self.notes_displayed = True
 
@@ -263,6 +332,7 @@ class Project(models.Model):
                 self.active = False
             else:
                 self.active = True
+
         else:
             self.active = True
-            super(Project, self).save(*args, **kwargs)
+        super(Project, self).save(*args, **kwargs)

@@ -25,8 +25,8 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         return str(self.start_date)
 
     class Meta:
-        verbose_name = "Reporting Period"
-        verbose_name_plural = "Reporting Periods"
+        verbose_name = "Reporting period"
+        verbose_name_plural = "Reporting periods"
         get_latest_by = "start_date"
         unique_together = ("start_date", "end_date")
         ordering = ['-start_date']
@@ -145,4 +145,4 @@ class TimecardObject(models.Model):
             if project_queryset.max_hours_restriction == True:
                 if project_queryset.aggregate_hours_logged >= project_queryset.max_hours:
                         Project.objects.select_related().filter(
-                            name=timecard_object_project_name).update(active=False)
+                            name=self.project).update(active=False)
