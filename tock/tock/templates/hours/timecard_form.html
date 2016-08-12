@@ -132,6 +132,8 @@
         all_alerts = $selected.data('alerts'),
         alert_text;
 
+    $alerts.empty();
+
     if (all_alerts !== undefined) {
       all_alerts = JSON.parse(JSON.parse('"' + all_alerts + '"'));
 
