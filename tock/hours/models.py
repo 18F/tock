@@ -98,9 +98,9 @@ class TimecardObject(models.Model):
     )
     timecard_object_submitted = models.BooleanField(default=False)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         self.timecard_object_submitted = self.timecard.submitted
-        super(TimecardObject, self).save()
+        super(TimecardObject, self).save(*args, **kwargs)
 
     def project_alerts(self):
         return self.project.alerts.all()
