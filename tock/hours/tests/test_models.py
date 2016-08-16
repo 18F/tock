@@ -64,7 +64,7 @@ class TimecardTests(TestCase):
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
-            reporting_period=self.reporting_period)
+            reporting_period=self.reporting_period, submitted=True)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")
@@ -85,6 +85,15 @@ class TimecardTests(TestCase):
         self.assertEqual(timecard.created.day, datetime.date.today().day)
         self.assertEqual(timecard.modified.day, datetime.date.today().day)
         self.assertEqual(len(timecard.time_spent.all()), 2)
+
+    def test_timecardobject_save(self):
+        """
+        Test that TimecardObject submitted status is correctly inherited from
+        its related Timecard.
+        """
+        timecardobject = hours.models.TimecardObject.objects.first()
+        self.assertTrue(timecardobject.timecard_object_submitted)
+        self.assertEqual(timecardobject.hours_spent, 12.00)
 
     def test_time_card_unique_constraint(self):
         """ Test that the time card model is constrained by user and reporting
