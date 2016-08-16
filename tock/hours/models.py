@@ -101,6 +101,14 @@ class TimecardObject(models.Model):
     def save(self, *args, **kwargs):
         self.timecard_object_submitted = self.timecard.submitted
         super(TimecardObject, self).save(*args, **kwargs)
+        if self.timecard_object_submitted == True:
+            related_all_hours_logged = Project.objects.get(
+                name=self.project).all_hours_logged
+            if related_all_hours_logged == None:
+                    related_all_hours_logged = 0
+            related_all_hours_logged = related_all_hours_logged + self.hours_spent
+            Project.objects.filter(name=self.project).update(
+                all_hours_logged=related_all_hours_logged)
 
     def project_alerts(self):
         return self.project.alerts.all()
