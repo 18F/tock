@@ -138,7 +138,7 @@ class Project(models.Model):
         'maximum hours that may be logged to this project.')
     max_hours_restriction = models.BooleanField(default=False,
         verbose_name='Restrict to max hours', help_text='Check this to restrict'
-        'the number of hours logged to the max hours ceiling.')
+        ' the number of hours logged to the max hours ceiling.')
     all_hours_logged = models.DecimalField(max_digits=12, decimal_places=2,
         blank=True, null=True, help_text='All hours logged to this project '
         'during all reporting periods by all users.')
