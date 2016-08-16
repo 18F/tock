@@ -7,3 +7,5 @@ applications:
   path: .
   stack: cflinuxfs2
   timeout: 180
+  services:
+    - tock-staging-2
