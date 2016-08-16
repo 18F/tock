@@ -96,6 +96,11 @@ class TimecardObject(models.Model):
         default='',
         help_text='Please provide details about how you spent your time.'
     )
+    timecard_object_submitted = models.BooleanField(default=False)
+
+    def save(self):
+        self.timecard_object_submitted = self.timecard.submitted
+        super(TimecardObject, self).save()
 
     def project_alerts(self):
         return self.project.alerts.all()
