@@ -35,6 +35,48 @@ class ProjectsTest(WebTest):
         )
         self.project.save()
 
+        self.project_1 = Project.objects.create(
+            accounting_code=accounting_code,
+            name='Men in Black',
+            active=True,
+            max_hours_restriction=True,
+            max_hours=38,
+            all_hours_logged=37)
+
+    def test_deactivation_when_max_hours_is_lt_all_hours(self):
+        """
+        Test to confirm that a project with all_hours_logged that is less
+        than max_hours when max_hours_restriction is True is not deactivated
+        on save().
+        """
+        current_active_state = self.project_1.active
+        self.project_1.save()
+        new_active_state = self.project_1.active
+        self.assertEqual(current_active_state, new_active_state)
+
+    def test_deactivation_when_max_hours_is_gt_all_hours(self):
+        """
+        Test to confirm that a project with all_hours_logged that is greater
+        than max_hours when max_hours_restriction is True is deactivated on
+        save().
+        """
+        current_active_state = self.project_1.active
+        self.project_1.all_hours_logged=39
+        self.project_1.save()
+        new_active_state = self.project_1.active
+        self.assertNotEqual(current_active_state, new_active_state)
+
+    def test_deactivation_when_max_hours_is_et_all_hours(self):
+        """
+        Test to confirm that a project with all_hours_logged that is equal to
+        max_hours when max_hours_restriction is True is deactivated on save().
+        """
+        current_active_state = self.project_1.active
+        self.project_1.all_hours_logged=38
+        self.project_1.save()
+        new_active_state = self.project_1.active
+        self.assertNotEqual(current_active_state, new_active_state)
+
     def test_model(self):
         """
         Check that the project model stores data correctly and links to
