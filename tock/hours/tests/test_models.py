@@ -3,6 +3,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 
 import datetime
 import hours.models
@@ -114,3 +115,106 @@ class TimecardTests(TestCase):
     def test_timecardobject_hours(self):
         """ Test the TimeCardObject hours method """
         self.assertEqual(self.timecard_object_1.hours(), 12)
+
+class MoreTimecardTests(TestCase):
+    def setUp(self):
+        self.agency = projects.models.Agency.objects.create(
+            name='20th Century Fox',
+        )
+        self.accounting_code = projects.models.AccountingCode.objects.create(
+            agency=self.agency,
+        )
+        self.project_1 = projects.models.Project.objects.create(
+            name='Independence Day',
+            accounting_code=self.accounting_code,
+            active=True,
+            all_hours_logged=13,
+        )
+        self.project_2 = projects.models.Project.objects.create(
+            name='Independence Day: Resurgence',
+            accounting_code=self.accounting_code,
+            active=True,
+            all_hours_logged=None,
+        )
+        self.project_3 = projects.models.Project.objects.create(
+            name='Armageddon',
+            accounting_code=self.accounting_code,
+            active=True,
+            all_hours_logged=22,
+        )
+        self.user = User.objects.create(
+            pk=1,
+            username='david.levinson',
+        )
+        self.reporting_period = hours.models.ReportingPeriod(
+            start_date=datetime.date(1996, 7, 2),
+            end_date=datetime.date(1996, 7, 4),
+        )
+        self.reporting_period.save()
+        self.timecard = hours.models.Timecard.objects.create(
+            reporting_period=self.reporting_period,
+            user=self.user,
+            submitted=True,
+        )
+        self.timecard_object_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project_1,
+            hours_spent=10,
+        )
+
+    def test_hours_increment_on_submit_for_project_with_prior_hours(self):
+        """
+        Test that hours correctly add to
+        projects.models.Project.all_hours_logged correctly on submit for a
+        project that has a value other than None.
+        """
+        current_hours = projects.models.Project.objects.get(
+            name='Independence Day').all_hours_logged
+        self.timecard_object_1.save()
+        new_hours = projects.models.Project.objects.get(
+            name='Independence Day').all_hours_logged
+        self.assertNotEqual(current_hours, new_hours)
+
+    def test_hours_increment_on_submit_for_project_without_prior_hours(self):
+        """
+        Test that hours correctly add to
+        projects.models.Project.all_hours_logged correctly on submit for a
+        project that has a value of None.
+        """
+        current_hours = projects.models.Project.objects.get(
+            name='Independence Day: Resurgence').all_hours_logged
+        self.timecard_object_2 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project_2,
+            hours_spent=12,
+        )
+        new_hours = projects.models.Project.objects.get(
+            name='Independence Day: Resurgence').all_hours_logged
+        self.assertNotEqual(current_hours, new_hours)
+
+    def test_hours_increment_when_timecard_is_not_submitted(self):
+        """
+        Test to confirm that hours_spent on TimecardObjects related to
+        unsubmitted Timecards are not added to Project.all_hours_logged.
+        """
+
+        self.reporting_period_new = hours.models.ReportingPeriod(
+            start_date=datetime.date(1998, 7, 1),
+            end_date=datetime.date(1998, 7, 2),
+        )
+        self.reporting_period_new.save()
+        self.timecard_new = hours.models.Timecard.objects.create(
+            reporting_period=self.reporting_period_new,
+            user=self.user,
+            submitted=False,
+        )
+        current_hours = projects.models.Project.objects.get(
+            name='Armageddon').all_hours_logged
+        self.timecard_object_3 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project_2,
+            hours_spent=12,
+        )
+        new_hours = projects.models.Project.objects.get(
+            name='Armageddon').all_hours_logged
+        self.assertEqual(current_hours, new_hours)
