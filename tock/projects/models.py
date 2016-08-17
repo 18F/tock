@@ -135,7 +135,8 @@ class Project(models.Model):
     active = models.BooleanField(default=True)
     max_hours = models.DecimalField(max_digits=12, decimal_places=2, null=True,
         blank=True, verbose_name='Max hours ceiling', help_text='Enter the '
-        'maximum hours that may be logged to this project.')
+        'maximum hours that may be logged to this project. PLEASE NOTE this '
+        'amount will be discounted by 40.0 hours as a buffer.')
     max_hours_restriction = models.BooleanField(default=False,
         verbose_name='Restrict to max hours', help_text='Check this to restrict'
         ' the number of hours logged to the max hours ceiling.')
@@ -171,9 +172,10 @@ class Project(models.Model):
         if self.notes_required:
             self.notes_displayed = True
 
+        hours_buffer = 40
         if self.max_hours_restriction is True:
             if self.all_hours_logged is not None:
-                if self.all_hours_logged >= self.max_hours:
+                if self.all_hours_logged >= self.max_hours - hours_buffer:
                     self.active = False
-            
+
         super(Project, self).save(*args, **kwargs)
