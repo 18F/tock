@@ -171,4 +171,9 @@ class Project(models.Model):
         if self.notes_required:
             self.notes_displayed = True
 
+        if self.max_hours_restriction is True:
+            if self.all_hours_logged is not None:
+                if self.all_hours_logged >= self.max_hours:
+                    self.active = False
+            
         super(Project, self).save(*args, **kwargs)
