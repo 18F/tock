@@ -86,15 +86,6 @@ class TimecardTests(TestCase):
         self.assertEqual(timecard.modified.day, datetime.date.today().day)
         self.assertEqual(len(timecard.time_spent.all()), 2)
 
-    def test_timecardobject_save(self):
-        """
-        Test that TimecardObject submitted status is correctly inherited from
-        its related Timecard.
-        """
-        timecardobject = hours.models.TimecardObject.objects.first()
-        self.assertTrue(timecardobject.timecard_object_submitted)
-        self.assertEqual(timecardobject.hours_spent, 12.00)
-
     def test_time_card_unique_constraint(self):
         """ Test that the time card model is constrained by user and reporting
         period """
