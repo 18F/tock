@@ -46,6 +46,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+/tock/nonlabor
 
 # Sphinx documentation
 docs/_build/

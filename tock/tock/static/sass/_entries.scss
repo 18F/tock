@@ -28,7 +28,7 @@
 	ul.entries-header {
 		font-weight: 900;
 		font-size: 0.8em;
-		padding-bottom: 25px;
+		padding: 10px 10px 25px 10px;
 		height: auto;
 		li {
 			display: inline;
@@ -45,32 +45,12 @@
 	}
 }
 
-.entry {
-	@include outer-container;
-}
-
-.entry-project {
-	@include span-columns(6);
-}
-
-.entry-billable {
-	@include span-columns(1);
-}
-
-.entry-notes {
-    @include span-columns(8);
-
-    textarea {
-        height: 100px;
-    }
-}
-
 .entry-alerts {
     @include span-columns(8);
     margin-bottom: 10px;
 
     .warning {
-        color: red;
+        color: crimson;
 
         &.bold {
             font-weight: bold;
@@ -82,7 +62,7 @@
     }
 
     .important {
-        color: orange;
+        color: #bb6100;
 
 
         &.bold {
@@ -104,6 +84,56 @@
         &.italic {
             font-style: italic;
         }
+    }
+}
+
+.entry {
+	@include outer-container;
+    border-radius: 0.5em;
+    padding: 10px;
+
+
+    &.even {
+        background-color: #fff;
+				@include column-span(5);
+
+    }
+
+    &.odd {
+        background-color: #B8B8B8;
+        color: #fff;
+				@include column-span(10);
+
+
+        .entry-alerts {
+            .warning {
+                color: #500;
+            }
+
+            .important {
+                color: #ffdf00;
+            }
+
+            .info {
+                color: #0f0;
+            }
+        }
+    }
+}
+
+.entry-project {
+	@include span-columns(6);
+}
+
+.entry-billable {
+	@include span-columns(1);
+}
+
+.entry-notes {
+    @include span-columns(8);
+
+    textarea {
+        height: 100px;
     }
 }
 

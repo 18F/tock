@@ -249,7 +249,7 @@ picture {
 .entries ul.entries-header {
   font-weight: 900;
   font-size: 0.8em;
-  padding-bottom: 25px;
+  padding: 10px 10px 25px 10px;
   height: auto; }
   .entries ul.entries-header li {
     display: inline; }
@@ -275,14 +275,60 @@ picture {
       .entries ul.entries-header li:nth-child(3):last-child {
         margin-right: 0; }
 
+.entry-alerts {
+  float: left;
+  display: block;
+  margin-right: 2.35765%;
+  width: 65.88078%;
+  margin-bottom: 10px; }
+  .entry-alerts:last-child {
+    margin-right: 0; }
+  .entry-alerts .warning {
+    color: crimson; }
+    .entry-alerts .warning.bold {
+      font-weight: bold; }
+    .entry-alerts .warning.italic {
+      font-style: italic; }
+  .entry-alerts .important {
+    color: #bb6100; }
+    .entry-alerts .important.bold {
+      font-weight: bold; }
+    .entry-alerts .important.italic {
+      font-style: italic; }
+  .entry-alerts .info {
+    color: green; }
+    .entry-alerts .info.bold {
+      font-weight: bold; }
+    .entry-alerts .info.italic {
+      font-style: italic; }
+
 .entry {
   max-width: 68em;
   margin-left: auto;
-  margin-right: auto; }
+  margin-right: auto;
+  border-radius: 0.5em;
+  padding: 10px; }
   .entry::after {
     clear: both;
     content: "";
     display: table; }
+  .entry.even {
+    background-color: #fff;
+    -webkit-column-span: 5;
+    -moz-column-span: 5;
+    column-span: 5; }
+  .entry.odd {
+    background-color: #B8B8B8;
+    color: #fff;
+    -webkit-column-span: 10;
+    -moz-column-span: 10;
+    column-span: 10; }
+    .entry.odd .entry-alerts .warning {
+      color: #500; }
+    .entry.odd .entry-alerts .important {
+      color: #ffdf00; }
+    .entry.odd .entry-alerts .info {
+      color: #0f0; }
 
 .entry-project {
   float: left;
@@ -309,33 +355,6 @@ picture {
     margin-right: 0; }
   .entry-notes textarea {
     height: 100px; }
-
-.entry-alerts {
-  float: left;
-  display: block;
-  margin-right: 2.35765%;
-  width: 65.88078%;
-  margin-bottom: 10px; }
-  .entry-alerts:last-child {
-    margin-right: 0; }
-  .entry-alerts .warning {
-    color: red; }
-    .entry-alerts .warning.bold {
-      font-weight: bold; }
-    .entry-alerts .warning.italic {
-      font-style: italic; }
-  .entry-alerts .important {
-    color: orange; }
-    .entry-alerts .important.bold {
-      font-weight: bold; }
-    .entry-alerts .important.italic {
-      font-style: italic; }
-  .entry-alerts .info {
-    color: green; }
-    .entry-alerts .info.bold {
-      font-weight: bold; }
-    .entry-alerts .info.italic {
-      font-style: italic; }
 
 .entry-billable-icon {
   text-align: center;
