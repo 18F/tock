@@ -130,7 +130,7 @@ class MoreTimecardTests(TestCase):
             active=True,
             all_hours_logged=13,
             max_hours_restriction=True,
-            max_hours=25,
+            max_hours=65,
         )
         self.project_2 = projects.models.Project.objects.create(
             name='Independence Day: Resurgence',

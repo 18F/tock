@@ -40,7 +40,7 @@ class ProjectsTest(WebTest):
             name='Men in Black',
             active=True,
             max_hours_restriction=True,
-            max_hours=38,
+            max_hours=78,
             all_hours_logged=37)
 
     def test_deactivation_when_max_hours_is_lt_all_hours(self):
