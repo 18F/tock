@@ -23,7 +23,7 @@
       {% if unsubmitted %}<li>DELETE?</li>{% endif %}
     </ul>
     {% for project_entry in formset %}
-      <div class="entry" id="entry-{{ forloop.counter0 }}">
+      <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
         <div class="entry-project">
           <label for="project">Project:</label>
           {{ project_entry.project }}
@@ -132,6 +132,8 @@
         all_alerts = $selected.data('alerts'),
         alert_text;
 
+    $alerts.empty();
+
     if (all_alerts !== undefined) {
       all_alerts = JSON.parse(JSON.parse('"' + all_alerts + '"'));
 
@@ -196,7 +198,9 @@ $( document ).ready(function() {
           var previousNumber = parseInt(entry.attr('id').split('-')[1]);
           var nextNumber = previousNumber + 1;
 
-          entry.attr("id", "entry-" + nextNumber);
+          entry.attr('id', 'entry-' + nextNumber);
+          nextNumber % 2 == 0 ? entry.addClass('even').removeClass('odd') :
+            entry.addClass('odd').removeClass('even');
 
           entry.find('input, select, textarea').each(function(i) {
             var formItem = $(this);
@@ -207,17 +211,14 @@ $( document ).ready(function() {
             var formerName = formItem.attr('name');
             var nextName = formerName.replace(previousNumber, nextNumber);
             formItem.attr('name', nextName);
-
-
           });
-
         }).appendTo('.entries');
 
-        $(".entry-project select")
+        $('div.entry:last').find('.entry-project select')
           .chosen(chosenOptions)
           .on('change', function(e) {
-              toggleNotesField(this);
-              displayAlerts(this);
+            toggleNotesField(this);
+            displayAlerts(this);
           });
 
         // Increment the TOTAL_FORMS
