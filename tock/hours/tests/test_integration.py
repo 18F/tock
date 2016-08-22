@@ -26,7 +26,7 @@ class TestOptions(WebTest):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40,
+            exact_working_hours=40,
         )
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,

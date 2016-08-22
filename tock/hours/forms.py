@@ -15,10 +15,11 @@ from django.db.models import Q
 from datetime import datetime, timedelta, time
 
 class ReportingPeriodForm(forms.ModelForm):
+    """Form for creating new reporting periods"""
 
     class Meta:
         model = ReportingPeriod
-        fields = ['start_date', 'end_date', 'working_hours', 'message']
+        fields = ['start_date', 'end_date', 'min_working_hours', 'max_working_hours',]
         widgets = {
             'start_date': forms.TextInput(attrs={'class': "datepicker"}),
             'end_date': forms.TextInput(attrs={'class': "datepicker"})
@@ -26,6 +27,8 @@ class ReportingPeriodForm(forms.ModelForm):
 
 
 class ReportingPeriodImportForm(forms.Form):
+    """Form for importing reporting period data"""
+
     reporting_period = forms.ModelChoiceField(
         queryset=ReportingPeriod.objects.all(), label="Reporting Period")
     line_items = forms.FileField(label="CSV of Objects in Reporting Period")
@@ -153,6 +156,13 @@ class TimecardObjectForm(forms.ModelForm):
         choices=projects_as_choices
     )
 
+# For another day :-). Changes step increment in Hours Spent field.
+#    )
+#    hours_spent = forms.IntegerField(
+#        widget=forms.NumberInput(attrs={'step': '0.25'})
+#    )
+
+
     class Meta:
         model = TimecardObject
         fields = ['project', 'hours_spent', 'notes']
@@ -198,13 +208,33 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         super(TimecardInlineFormSet, self).__init__(*args, **kwargs)
         self.save_only = False
 
-    def set_working_hours(self, working_hours):
+    def set_exact_working_hours(self, exact_working_hours):
         """ Set the number of hours employees should work """
-        self.working_hours = working_hours
+        self.exact_working_hours = exact_working_hours
 
-    def get_working_hours(self):
-        """ Return working hours if it exists otherwise assumes 40 """
-        return getattr(self, 'working_hours', 40)
+    def get_exact_working_hours(self):
+        """ Return exact working hours required if it exists
+        otherwise assumes 40 """
+        return getattr(self, 'exact_working_hours', 40)
+
+    def set_max_working_hours(self, max_working_hours):
+        """ Set the maximum number of hours an employee may work in a period """
+        self.max_working_hours = max_working_hours
+
+    def get_max_working_hours(self):
+        """ Return maximum number of hours an employee may work in a period
+        if it exists, otherwise assumes 60 """
+        return getattr(self, 'max_working_hours', 60)
+
+    def set_min_working_hours(self, min_working_hours):
+        """ Set the minimum number of hours an employee may work in a period """
+        self.min_working_hours = min_working_hours
+
+    def get_min_working_hours(self):
+        """ Return minimum number of hours an employee may work in a period
+        if it exists, otherwise assumes 40 """
+        return getattr(self, 'min_working_hours', 40)
+
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
@@ -217,13 +247,21 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 if form.cleaned_data.get('hours_spent') is None:
                     raise forms.ValidationError(
                         'If you have a project listed, the number of hours '
-                        'cannot be blank'
+                        'cannot be blank.'
                     )
                 total_hrs += form.cleaned_data.get('hours_spent')
 
-        if not self.save_only and total_hrs != self.get_working_hours():
-            raise forms.ValidationError(
-                'You must report exactly %s hours.' % self.get_working_hours())
+        if not self.save_only:
+
+            if total_hrs > self.get_max_working_hours():
+                raise forms.ValidationError('You may not submit more than %s '
+                    'hours for this period. To report additional hours'
+                    ', please contact your supervisor.' % self.get_max_working_hours())
+
+            if total_hrs < self.get_min_working_hours():
+                raise forms.ValidationError('You must report at least %s hours '
+                    'for this period.' % self.get_min_working_hours())
+
 
         return getattr(self, 'cleaned_data', None)
 
