@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import FloatTasks, FloatPeople
+from .models import FloatTasks
 
-# Register your models here.
+class FloatTasksAdmin(admin.ModelAdmin):
+    readonly_fields = ('tock_pk',)
 
-admin.site.register(FloatTasks)
-admin.site.register(FloatPeople)
+admin.site.register(FloatTasks, FloatTasksAdmin)

@@ -3,12 +3,13 @@ import os
 import json
 from datetime import datetime, timedelta
 
-print('\nResults of operation:')
-print('========================')
+message = '\nResults of operation:'
+print(message)
+print(len(message) * '=')
+
 """
 Set up API request.
 """
-
 url = 'https://api.floatschedule.com/api/v1/'
 headers = {'Authorization': 'Bearer ' + os.environ.get('FLOAT_API_KEY')}
 
@@ -56,6 +57,9 @@ task_list = list()
 for people in task_data['people']:
     for tasks in people['tasks']:
         task_list.append(dict(tasks))
+
+for i in task_list:
+    i.update({'tock_pk': None, 'im': None})
 print('\nCleaned Float task data.')
 
 """

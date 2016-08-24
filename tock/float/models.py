@@ -1,7 +1,8 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class FloatTasks(models.Model):
+    tock_pk = models.ForeignKey(User, null=True, blank=True)
     people_id = models.CharField(max_length=200, null=True)
     hours_pd = models.CharField(max_length=200, null=True)
     repeat_end = models.CharField(max_length=200, null=True)
@@ -24,26 +25,11 @@ class FloatTasks(models.Model):
     creator_id = models.CharField(max_length=200, null=True)
     task_name = models.CharField(max_length=200, null=True)
     start_yr = models.CharField(max_length=200, null=True)
+    im = models.CharField(max_length=200, null=True)
 
     class Meta:
         verbose_name = "Float Task Data"
         verbose_name_plural = "Float Task Data"
 
     def __str__(self):
-        return '%s - %s' % (self.person_name, self.task_id)
-
-class FloatPeople(models.Model):
-    people_id = models.CharField(max_length=200, blank=True)
-    name = models.CharField(max_length=500, blank=True)
-    job_title = models.CharField(max_length=500, blank=True)
-    email = models.CharField(max_length=500, blank=True)
-    description = models.TextField(blank=True)
-    im = models.CharField(max_length=500, blank=True)
-    active = models.BooleanField(default=True)
-
-    class Meta:
-        verbose_name = "Float People Data"
-        verbose_name_plural = "Float People Data"
-
-        def __str__(self):
-            return '%s (%s)' % (self.name, self.job_title)
+        return '%s - %s' % (self.tock_pk, self.task_id)
