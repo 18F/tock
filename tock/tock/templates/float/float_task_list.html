@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Float Assignments for {{ username }}</h2>
+
+<div>
+    {% for task in float_tasks %}
+    <table class="table-minimal report_table">
+      <tr><td colspan="2" align=center><b>{{ task.project_name }}</b></td></tr>
+	    <tr><td>Client name:</td><td>{{ task.client_name }}</td></tr>
+      <tr><td>Hours scheduled per week:</td><td>{{ task.hours_pd }}</td></tr>
+      <tr><td>Assignment start date:</td><td>{{ task.start_date }}</td></tr>
+      <tr><td>Assignment end date:</td><td>{{ task.end_date }}</td></tr>
+      <tr><td>Created by:</td><td>{{ task.created_by }}</td></tr>
+      <tr><td>Last modified by:</td><td>{{ task.modified_by }}</td></tr>
+      <br>
+    </table>
+    {% endfor %}
+
+</div>
+
+<p>
+<br>
+<br>
+<i>For questions, suggestions, or bug reports, please
+<a href="https://github.com/18f/tock/issues">file an issue</a>.</i>
+</p>
+
+
+{% endblock %}
+
+
+tock_pk = models.ForeignKey(User, null=True, blank=True)
+people_id = models.CharField(max_length=200, null=True)
+hours_pd = models.CharField(max_length=200, null=True)
+repeat_end = models.CharField(max_length=200, null=True)
+modified_by = models.CharField(max_length=200, null=True)
+task_cal_days = models.CharField(max_length=200, null=True)
+tentative = models.CharField(max_length=200, null=True)
+client_name = models.CharField(max_length=200, null=True)
+created_by = models.CharField(max_length=200, null=True)
+priority = models.CharField(max_length=200, null=True)
+project_id = models.CharField(max_length=200, null=True)
+start_date = models.DateField(null=True)
+project_name = models.CharField(max_length=200, null=True)
+person_name = models.CharField(max_length=200, null=True)
+end_date = models.DateField(null=True)
+repeat_state = models.CharField(max_length=200, null=True)
+task_notes = models.CharField(max_length=200, null=True)
+task_days = models.CharField(max_length=200, null=True)
+task_id = models.CharField(max_length=200, null=True)
+total_hours = models.CharField(max_length=200, null=True)
+creator_id = models.CharField(max_length=200, null=True)
+task_name = models.CharField(max_length=200, null=True)
+start_yr = models.CharField(max_length=200, null=True)
+im = models.CharField(max_length=200, null=True)
