@@ -8,7 +8,7 @@ import employees.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('employees', '0006_userdata_current_employee'),
+        ('employees', '0010_merge'),
     ]
 
     operations = [
