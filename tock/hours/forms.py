@@ -99,6 +99,8 @@ def projects_as_choices(queryset=None):
 
     accounting_codes = []
 
+# TODO: What effect does this code have in relation to the Q logic in hours.models?
+
     if queryset is None:
         queryset = Project.objects.filter(active=True)
 
@@ -183,6 +185,8 @@ class TimecardObjectForm(forms.ModelForm):
     def clean(self):
         super(TimecardObjectForm, self).clean()
 
+        project = self.cleaned_data['project']
+
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
@@ -190,16 +194,30 @@ class TimecardObjectForm(forms.ModelForm):
                 strip=True
             )
 
-            if self.cleaned_data['project'].notes_required and self.cleaned_data['notes'] == '':
+            if project.notes_required and self.cleaned_data['notes'] == '':
                 self.add_error(
                     'notes',
-                    forms.ValidationError('Please enter a snippet for this item.')
+                    forms.ValidationError(
+                        'Please enter a snippet for this item.'
+                        )
                 )
-            elif not self.cleaned_data['project'].notes_displayed:
+            elif not project.notes_displayed:
                 del self.cleaned_data['notes']
 
-        return self.cleaned_data
+        if project.max_hours_restriction:
+            if project.all_hours_logged + self.cleaned_data.get(
+                'hours_spent') > project.max_hours:
+                self.add_error(
+                'project', forms.ValidationError(
+                    'Submission would exceed the aggregate number of hours that'
+                    ' may be logged to this project (%s). There are already %s '
+                    'hours logged to this project. Please revise your entry or '
+                    'contact your project lead.' %
+                        (project.max_hours, project.all_hours_logged)
+                    )
+                )
 
+        return self.cleaned_data
 
 class TimecardInlineFormSet(BaseInlineFormSet):
     """This FormSet is used for submissions of timecard entries."""

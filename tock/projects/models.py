@@ -172,13 +172,9 @@ class Project(models.Model):
         if self.notes_required:
             self.notes_displayed = True
 
-# TODO: Remove this buffer value and replace it with form validation to ensure
-# that the max_hours value cannot be breached.
-
-        hours_buffer = 40
-        if self.max_hours_restriction is True:
-            if self.all_hours_logged is not None:
-                if self.all_hours_logged >= self.max_hours - hours_buffer:
+        if self.max_hours_restriction:
+            if self.all_hours_logged is not None and self.max_hours is not None:
+                if self.all_hours_logged >= self.max_hours:
                     self.active = False
 
         super(Project, self).save(*args, **kwargs)
