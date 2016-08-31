@@ -233,7 +233,7 @@ class MoreTimecardTests(TestCase):
         self.timecard_object_3 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.project_1,
-            hours_spent=5,
+            hours_spent=42,
         )
         new_active_state = projects.models.Project.objects.get(
             name='Independence Day').active
