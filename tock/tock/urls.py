@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 
 # Enable the Django admin.
 from django.contrib import admin
@@ -9,8 +9,7 @@ import hours.views
 import api.urls
 import projects.urls
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$',
         hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'
@@ -34,16 +33,16 @@ urlpatterns = patterns(
 
     # Enable the Django admin.
     url(r'^admin/', include(admin.site.urls)),
-)
+]
 
 
 # Enable Django Debug Toolbar only if in DEBUG mode.
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns += patterns(
-        '', url(r'^__debug__/', include(debug_toolbar.urls)),
-    )
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
 
 
 # Uncomment the next line to serve media files in dev.
