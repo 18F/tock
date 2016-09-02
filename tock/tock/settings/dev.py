@@ -1,7 +1,7 @@
 import os
 import sys
 import dj_database_url
-import json 
+import json
 
 from .base import *  # noqa
 
@@ -10,10 +10,6 @@ DEBUG = True
 for t in TEMPLATES:
     t.setdefault('OPTIONS', {})
     t['OPTIONS']['debug'] = True
-
-
-
-print(TEMPLATES)
 
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 

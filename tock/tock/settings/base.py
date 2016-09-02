@@ -33,21 +33,22 @@ INSTALLED_APPS = (
     'api',
 )
 
-TEMPLATES = [
+TEMPLATES =  [
     {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': ['/templates/'
             ],
-        'APPS_DIRS': True,
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',
-                'django.core.context_processors.debug',
-                'django.core.context_processors.i18n',
-                'django.core.context_processors.media',
-                'django.core.context_processors.static',
-                'django.core.context_processors.tz',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
-                'django.core.context_processors.request',
+                'django.template.context_processors.request',
             ],
         },
     },
