@@ -3,10 +3,10 @@ language: python
 sudo: false
 
 python:
-  - "3.4"
+  - "3.5.2"
 
 addons:
-  postgresql: "9.4"
+  postgresql: "9.5.4"
 
 cache: pip
 
@@ -20,7 +20,7 @@ install:
 
 script:
   - cd tock
-  - python manage.py syncdb --noinput --settings=tock.settings.test
+  - python manage.py migrate --noinput --settings=tock.settings.test
   - python manage.py test --noinput --settings=tock.settings.test
 
 after_success:
