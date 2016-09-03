@@ -3,10 +3,10 @@ language: python
 sudo: false
 
 python:
-  - "3.5.2"
+  - "3.5"
 
 addons:
-  postgresql: "9.5.4"
+  postgresql: "9.5"
 
 cache: pip
 
