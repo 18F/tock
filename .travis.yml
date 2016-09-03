@@ -4,10 +4,10 @@ dist: trusty
 language: python
 
 python:
-  - "3.5"
+  - "3.5.2"
 
 addons:
-  postgresql: "9.5"
+  postgresql: "9.5.4"
 
 before_script:
   - psql -c 'create database "tock-test";' -U postgres
