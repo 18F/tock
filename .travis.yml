@@ -1,6 +1,7 @@
-language: python
+sudo: required
+dist: trusty
 
-sudo: false
+language: python
 
 python:
   - "3.5"
@@ -8,9 +9,7 @@ python:
 addons:
   postgresql: "9.5"
 
-cache: pip
-
-before_install:
+before_script:
   - psql -c 'create database "tock-test";' -U postgres
 
 install:
