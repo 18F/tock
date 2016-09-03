@@ -13,12 +13,12 @@ app:
     - DJANGO_SETTINGS_MODULE=tock.settings.dev
   command: "python manage.py runserver 0.0.0.0:1234"
 db:
-  image: postgres:9.4
+  image: postgres:9.5.4
   environment:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
 web:
-  image: nginx:1.11
+  image: nginx:1.11.3
   volumes:
     - ./provision/dev/nginx_site_docker.template:/etc/nginx/conf.d/nginx_site_docker.template
   command: /bin/bash -c "envsubst '$$EXTERNAL_PORT $$DJANGO_SERVER $$USER_EMAIL' < /etc/nginx/conf.d/nginx_site_docker.template > /etc/nginx/conf.d/nginx_site_docker.conf && exec nginx -g 'daemon off;'"

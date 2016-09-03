@@ -1,11 +1,11 @@
 from collections import defaultdict
+
+from django.db.models import Sum
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
-from django.db.models import Sum
 
-
-from .models import Project
 from hours.models import TimecardObject
+from .models import Project
 
 
 class ProjectListView(ListView):
@@ -28,7 +28,7 @@ class ProjectView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectView, self).get_context_data(**kwargs)
         context['table'] = project_timeline(kwargs['object'])
-        context['total_hours'] = hours.TimecardObject.objects.filter(
+        context['total_hours'] = TimecardObject.objects.filter(
             project=kwargs['object'].id
         ).aggregate(Sum('hours_spent'))['hours_spent__sum']
         return context
@@ -43,7 +43,7 @@ def project_timeline(project, period_limit=5):
     groups, periods = defaultdict(dict), []
 
     # fetch timecard objs, sorted by report period date
-    timecards = get_model('hours.TimecardObject').objects.filter(
+    timecards = TimecardObject.objects.filter(
         project=project
     ).order_by(
         '-timecard__reporting_period__start_date'
