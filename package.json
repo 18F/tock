@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "prestart": "npm install",
+    "start": "cd tock/tock/static && node-sass --source-map true --watch sass -o css"
+  },
+  "dependencies": {
+    "node-sass": "^3.9.3"
+  }
+}
