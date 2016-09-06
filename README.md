@@ -10,37 +10,39 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 ## Getting Started
 
-**First**, install [Docker][] and [Docker Compose][]. (If you're on OS X or
+1. Install [Docker][] and [Docker Compose][]. (If you're on OS X or
 Windows, you'll also have to explicitly start the Docker Quickstart Terminal,
 at least until [Docker goes native][].)
 
-**Second**, move a level down from your root `~\tock` directory (the one with the `manage.py` file):
-```
-$ cd tock
-```
-This is where the `env.sample` file is held.
+1. Move into the `tock` directory at the repository root:
 
-**Third**, run:
+  ```
+  $ cd tock
+  ```
 
-```shell
-$ cp .env.sample .env
-$ docker-compose build
-$ docker-compose run app python manage.py migrate
-$ docker-compose run app python manage.py loaddata test_data/data-update.json
-```
+  This is where the `env.sample` file is held.
 
-**Fourth**, once the above commands are successful, run:
+1. Run:
 
-```
-docker-compose up
-```
+  ```shell
+  $ cp .env.sample .env
+  $ docker-compose build
+  $ docker-compose run app python manage.py migrate
+  $ docker-compose run app python manage.py loaddata test_data/data-update.json
+  ```
 
-This will start up all required servers in containers and output their
-log information to stdout. If you're on Linux, you should be able
-to visit http://localhost:8000/ directly to access the site. If you're on
-OS X or Windows, you'll likely have to visit port 8000 on the IP
-address given to you by `docker-machine ip default`. (Note that this 
-hassle will go away once [Docker goes native][] for OS X/Windows.)
+1. Once the above commands are successful, run:
+
+  ```
+  docker-compose up
+  ```
+  
+  This will start up all required servers in containers and output their
+  log information to stdout. If you're on Linux, you should be able
+  to visit http://localhost:8000/ directly to access the site. If you're on
+  OS X or Windows, you'll likely have to visit port 8000 on the IP
+  address given to you by `docker-machine ip default`. (Note that this 
+  hassle will go away once [Docker goes native][] for OS X/Windows.)
 
 You can access the admin panel at `/admin`.
 
