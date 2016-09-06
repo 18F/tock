@@ -69,26 +69,30 @@ can just run `python manage.py` directly from outside the container--the
 `manage.py` script has been modified to run itself in a Docker container
 if it detects that Django isn't installed.
 
-### Making SASS changes
+### Making Sass changes
 
-`docker-compose up` will also launch SASS and automatically compile
-SASS files into CSS as you change them.
+`docker-compose up` will also launch [Sass] and automatically compile
+SCSS (`.scss`) files into CSS as you change them.
 
 All of the files you should be editing are located in
 `tock/tock/static/sass/` and are labeled according to their purpose,
 e.g. `base/_typography.scss` focuses on website type stylings.
 
-**NOTE: Be sure to ONLY change files ending in  `.scss` extension and NOT `.css`**
+**:warning: Only change files ending in  `.scss` directly; NOT `.css`!**
 
 ## API
 
-Tock has an API, you can get the full dataset with:  https://tock.18f.gov/api/timecards_bulk.csv
-or page thru results with: https://tock.18f.gov/api/timecards.json
-you can choose a different page or page size: https://tock.18f.gov/api/timecards.json?page=2&page_size=100
+Tock has an API! You can get the full dataset at
+[/api/timecards_bulk.csv](https://tock.18f.gov/api/timecards_bulk.csv),
+page through results at [/api/timecards.json](https://tock.18f.gov/api/timecards.json),
+or choose a different page or page size, e.g.
+[/api/timecards.json?page=2&page_size=100](https://tock.18f.gov/api/timecards.json?page=2&page_size=100)
 
-You can also get a list of projects with:  https://tock.18f.gov/api/projects.json
-or as a spreadsheet with: https://tock.18f.gov/api/projects.json
+You can also get a list of projects at
+[/api/projects.json](https://tock.18f.gov/api/projects.json),
+or as a spreadsheet at [/api/projects.csv](https://tock.18f.gov/api/projects.csv).
 
 [Docker]: https://www.docker.com/
 [Docker Compose]: https://docs.docker.com/compose/
 [Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
+[Sass]: 
