@@ -1,5 +1,4 @@
-tock
-===============
+# tock
 
 We use Tock to track our time. You can read more about Tock in this [blog post](https://18f.gsa.gov/2015/05/21/tockingtime/) about its features.
 
@@ -95,4 +94,4 @@ or as a spreadsheet at [/api/projects.csv](https://tock.18f.gov/api/projects.csv
 [Docker]: https://www.docker.com/
 [Docker Compose]: https://docs.docker.com/compose/
 [Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
-[Sass]: 
+[Sass]: http://sass-lang.com/
