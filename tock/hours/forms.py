@@ -157,8 +157,6 @@ class TimecardObjectForm(forms.ModelForm):
     )
 
     hours_spent = forms.DecimalField(
-        min_value=0,
-        max_value=40,
         widget=forms.NumberInput(attrs={
             'min': 0,
             'max': 40,
