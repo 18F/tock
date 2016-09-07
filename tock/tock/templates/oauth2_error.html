@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container">
+  <h1>Login Error</h1>
+  {% if error_code == 'invalid_code_or_nonexistent_user' %}
+    <p>
+      Either you don't have permission to log in to this system, or
+      an error occurred when trying to log you in.
+    </p>
+  {% else %}
+    <p>Unfortunately, an error occurred when trying to log you in.</p>
+    <p>Error code: <code>{{ error_code }}</code></p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -8,12 +8,25 @@ admin.autodiscover()
 import hours.views
 import api.urls
 import projects.urls
+from . import views
 
 urlpatterns = patterns(
     '',
     url(r'^$',
         hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'
+    ),
+    url(r'^callback$',
+        views.oauth2_callback,
+        name='callback'
+    ),
+    url(r'^login$',
+        views.login,
+        name='login'
+    ),
+    url(r'^logout$',
+        views.logout,
+        name='logout'
     ),
     url(r'^reporting_period/', include(
         'hours.urls.timesheets',
