@@ -8,9 +8,13 @@ admin.autodiscover()
 import hours.views
 import api.urls
 import projects.urls
+import float.urls
+import float.views
 
 urlpatterns = patterns(
     '',
+    url(r'^float/', float.views.FloatTaskList.as_view(), name='FloatData'),
+
     url(r'^$',
         hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'
@@ -34,6 +38,7 @@ urlpatterns = patterns(
 
     # Enable the Django admin.
     url(r'^admin/', include(admin.site.urls)),
+
 )
 
 

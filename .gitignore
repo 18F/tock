@@ -68,3 +68,5 @@ local_settings.py
 .env
 .vagrant
 tock.sql
+.python-version
+json_task_data.json
