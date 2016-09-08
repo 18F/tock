@@ -156,11 +156,11 @@ class TimecardObjectForm(forms.ModelForm):
         choices=projects_as_choices
     )
 
-    hours_spent = forms.FloatField(
+    hours_spent = forms.IntegerField(
         widget=forms.NumberInput(attrs={
             'min': 0,
             'step': '0.25'
-        })
+        }), required=False 
     )
 
 
