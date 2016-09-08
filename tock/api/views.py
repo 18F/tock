@@ -189,7 +189,7 @@ class TimecardList(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        return get_timecards(self.queryset, self.request.QUERY_PARAMS)
+        return get_timecards(self.queryset, self.request.query_params)
 
 def timeline_view(request, value_fields=(), **field_alias):
     """ CSV endpoint for the project timeline viz """

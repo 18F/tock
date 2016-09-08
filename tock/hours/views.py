@@ -309,7 +309,6 @@ def ReportingPeriodCSVView(request, reporting_period):
         'timecard__reporting_period__start_date'
     ).select_related(
         'timecard__user',
-        'timecard__submitted',
         'timecard__reporting_period',
         'project',
     )
