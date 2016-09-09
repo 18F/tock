@@ -18,7 +18,7 @@ class PaginatedCSVRenderer(CSVRenderer):
         # the data elements' keys and sorts them ascending. Assuming that the
         # data is a list of dicts, this should produce a sensible list of
         # column headers
-        if not self.header and len(data) > 0:
+        if not hasattr(self, 'header') and len(data) > 0:
             self.header = data[0].keys()
         return super(PaginatedCSVRenderer, self).render(data, media_type, renderer_context)
 
