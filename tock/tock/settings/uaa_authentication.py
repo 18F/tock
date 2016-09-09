@@ -25,10 +25,24 @@ def exchange_code_for_access_token(request, code):
 
 
 def get_user_by_email(email):
-    try:
-        return User.objects.get(email=email)
-    except User.DoesNotExist:
-        return None
+
+    email_list = email.lower().split('@')
+    names = email_list[0].split('.')
+
+
+    if settings.ALLOWED_EMAIL_DOMAINS:
+        if email_list[1] in settings.ALLOWED_EMAIL_DOMAINS:
+            try:
+                return User.objects.get(username=email_list[0])
+            except User.DoesNotExist:
+                return User.objects.create(
+                    username=email_list[0],
+                    email=email,
+                    first_name=names[0],
+                    last_name=names[1]
+                )
+        else:
+            raise ValidationError('Email domain not allowed.')
 
 class UaaBackend:
 
