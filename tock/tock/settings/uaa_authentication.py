@@ -2,6 +2,8 @@ import requests
 import jwt
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.exceptions import ValidationError
+
 
 def exchange_code_for_access_token(request, code):
     payload = {
@@ -28,7 +30,6 @@ def get_user_by_email(email):
 
     email_list = email.lower().split('@')
     names = email_list[0].split('.')
-
 
     if settings.ALLOWED_EMAIL_DOMAINS:
         if email_list[1] in settings.ALLOWED_EMAIL_DOMAINS:

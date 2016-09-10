@@ -68,7 +68,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 AUTHENTICATION_BACKENDS = (
-#    'tock.remote_user_auth.TockUserBackend',
     'tock.settings.uaa_authentication.UaaBackend',
 )
 
@@ -87,9 +86,9 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-ALLOWED_EMAIL_DOMAINS = {
+ALLOWED_EMAIL_DOMAINS = [
     'gsa.gov',
-}
+]
 
 REST_FRAMEWORK = {
     'UNICODE_JSON': False,

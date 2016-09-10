@@ -15,15 +15,15 @@ urlpatterns = [
         hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'
     ),
-    url(r'^callback$',
+    url(r'^callback/$',
         views.oauth2_callback,
         name='callback'
     ),
-    url(r'^login$',
+    url(r'^login/$',
         views.login,
         name='login'
     ),
-    url(r'^logout$',
+    url(r'^logout/$',
         views.logout,
         name='logout'
     ),
