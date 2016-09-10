@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 
 from django_webtest import WebTest
 
-from tock.settings.uaa_authentication import get_user_by_email
+from tock.settings.uaa_authentication import *
 from tock import settings
 
 class AuthTests(WebTest):
@@ -25,3 +25,11 @@ class AuthTests(WebTest):
         self.assertIsNotNone(get_user_by_email(good_email))
         with self.assertRaises(ValidationError):
             get_user_by_email(bad_email)
+
+#TODO:
+
+    def test_exchange_code_for_access_token(self):
+        pass
+
+    def test_authenticate(self):
+        pass
