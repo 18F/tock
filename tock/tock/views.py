@@ -11,10 +11,6 @@ def login_error(request, error_code):
         'error_code': error_code
     })
 
-def logout(request):
-    django.contrib.auth.logout(request)
-    return render(request, 'logged_out.html')
-
 def login(request):
     request.session['oauth2_next_url'] = request.GET.get('next', '')
     request.session['oauth2_state'] = get_random_string(length=32)

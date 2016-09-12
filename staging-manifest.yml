@@ -8,4 +8,4 @@ applications:
   stack: cflinuxfs2
   timeout: 180
   services:
-    - tock-staging-2
+    - staging-db

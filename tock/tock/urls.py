@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include, url
+from django.contrib.auth.decorators import login_required
+
 
 # Enable the Django admin.
 from django.contrib import admin
@@ -22,10 +24,6 @@ urlpatterns = [
     url(r'^login/$',
         views.login,
         name='login'
-    ),
-    url(r'^logout/$',
-        views.logout,
-        name='logout'
     ),
     url(r'^reporting_period/', include(
         'hours.urls.timesheets',

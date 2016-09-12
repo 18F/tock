@@ -36,12 +36,13 @@ def get_user_by_email(email):
             try:
                 return User.objects.get(username=email_list[0])
             except User.DoesNotExist:
-                return User.objects.create(
-                    username=email_list[0],
-                    email=email,
-                    first_name=names[0],
-                    last_name=names[1]
-                )
+                raise ValidationError('User does not exist.')
+#                return User.objects.create(
+#                    username=email_list[0],
+#                    email=email,
+#                    first_name=names[0],
+#                    last_name=names[1]
+#                )
         else:
             raise ValidationError('Email domain not allowed.')
 
@@ -59,8 +60,8 @@ class UaaBackend:
 
         return get_user_by_email(user_info['email'])
 
-#    def get_user(self, user_id):
-#        try:
-#            return User.objects.get(pk=user_id)
-#        except User.DoesNotExist:
-#            return None
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
