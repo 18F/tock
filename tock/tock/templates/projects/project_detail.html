@@ -22,8 +22,18 @@
 {% endif %}
 </li>
 </ul>
-
 <br />
+<b>User Hours Summary:</b>
+<br />
+Total hours submitted: <span id="totalHoursSubmitted">{{ total_hours_submitted }} </span>
+<br />
+Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_saved }}</span>
+<br />
+<b>Total hours, combined:<span id="totalHoursAll"> {{ total_hours_all }}</span></b>
+<br />
+
+
+<br/>
 
 <figure class="chart chart--utilization">
   <h3 class="chart__title">User Hours Over Time</h3>
@@ -38,11 +48,8 @@
   </utilization-chart>
 </figure>
 
-<br />
+<br/>
 
-<div>
-  Total hours billed: <span id="totalHours">{{ total_hours }}</span>
-</div>
 
 <table id="dataTable" class="striped">
   <thead>
