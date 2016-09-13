@@ -1,0 +1,23 @@
+/*
+Errno::ENOENT: No such file or directory @ rb_sysopen - tock/tock/static/sass/core.scss
+
+Backtrace:
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:482:in `read'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:482:in `update_stylesheet'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:209:in `each'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/plugin/compiler.rb:293:in `watch'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/plugin.rb:108:in `method_missing'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/exec/sass_scss.rb:381:in `watch_or_update'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/exec/sass_scss.rb:51:in `process_result'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/exec/base.rb:52:in `parse'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/lib/sass/exec/base.rb:19:in `parse!'
+/Users/patrickbateman/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/sass-3.4.19/bin/sass:13:in `<top (required)>'
+/Users/patrickbateman/.rbenv/versions/2.2.3/bin/sass:23:in `load'
+/Users/patrickbateman/.rbenv/versions/2.2.3/bin/sass:23:in `<main>'
+*/
+body:before {
+  white-space: pre;
+  font-family: monospace;
+  content: "Errno::ENOENT: No such file or directory @ rb_sysopen - tock/tock/static/sass/core.scss"; }
