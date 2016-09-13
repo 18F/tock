@@ -121,7 +121,6 @@ ol {
   list-style-type: none;
   margin: 0;
   padding: 0; }
-
 dl {
   margin-bottom: 0.75em; }
   dl dt {
@@ -235,11 +234,9 @@ picture {
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
   transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
   margin-bottom: 0; }
-
 .entries input[type="number"] {
   width: 65%;
   display: inline; }
-
 .entries label {
   border: 0;
   clip: rect(0 0 0 0);
@@ -249,7 +246,6 @@ picture {
   padding: 0;
   position: absolute;
   width: 1px; }
-
 .entries ul.entries-header {
   font-weight: 900;
   font-size: 0.8em;
@@ -397,7 +393,6 @@ picture {
   width: 23.23176%; }
   .entries-total .entries-add-more:last-child {
     margin-right: 0; }
-
 .entries-total .entries-total-reported {
   float: left;
   display: block;
@@ -407,13 +402,10 @@ picture {
   text-align: left; }
   .entries-total .entries-total-reported:last-child {
     margin-right: 0; }
-
 .entries-total .entries-total-billable-amount {
   color: green; }
-
 .entries-total .entries-total-non-billable-amount {
   color: #1188ff; }
-
 .entries-total .entries-total-reported-wrapper {
   font-weight: bold; }
 
@@ -524,14 +516,11 @@ utilization-chart {
   fill-opacity: .8;
   stroke: #fff;
   stroke-width: .5; }
-
 .chart--utilization .timeline .layer:hover path {
   fill-opacity: 1; }
-
 .chart--utilization .timeline .axis text {
   fill: #666;
   font-size: .7em; }
-
 .chart--utilization .timeline .axis path,
 .chart--utilization .timeline .axis line {
   stroke: #999;
@@ -547,4 +536,4 @@ utilization-chart {
     content: "";
     display: table; }
 
-/*# sourceMappingURL=main.css.map */
+/*# sourceMappingURL=style.css.map */

@@ -12,13 +12,11 @@ app:
     - RUNNING_IN_DOCKER=yup
     - DJANGO_SETTINGS_MODULE=tock.settings.dev
   command: "python manage.py runserver 0.0.0.0:1234"
-
 db:
   image: postgres:9.5.4
   environment:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
-
 web:
   image: nginx:1.11.3
   volumes:
@@ -32,11 +30,10 @@ web:
     - app
   ports:
     - "${EXTERNAL_PORT}:${EXTERNAL_PORT}"
-
 sass:
-  image: node:6.5
+  build: .
   volumes:
-    - .:/tock
-    - /tock/node_modules
+    - ./tock:/tock
   working_dir: /tock
-  entrypoint: npm start
+  entrypoint: python /tock/docker_entrypoint.py
+  command: sass --watch tock/static/sass/core.scss:tock/static/css/style.css
