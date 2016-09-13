@@ -7,7 +7,7 @@
     "start": "npm run watch-sass"
   },
   "engines": {
-    "node": ">=6.5"
+    "node": "6.3.1"
   },
   "dependencies": {
     "node-sass": "^3.9.3"
