@@ -57,7 +57,8 @@ target/
 # Application
 local_settings.py
 
-*.swp
+# vim swapfiles
+*.sw?
 
 # Database
 *.sqlite3
@@ -68,3 +69,7 @@ local_settings.py
 .env
 .vagrant
 tock.sql
+
+# Node and npm artifacts
+node_modules
+npm-debug.log
