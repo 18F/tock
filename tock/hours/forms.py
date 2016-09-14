@@ -209,7 +209,7 @@ class TimecardObjectForm(forms.ModelForm):
                 'hours_spent') > project.max_hours:
                 self.add_error(
                 'project', forms.ValidationError(
-                    'Submission would exceed the aggregate number of hours that'
+                    'This entry would exceed the aggregate number of hours that'
                     ' may be logged to this project (%s). There are already %s '
                     'hours logged to this project. Please revise your entry or '
                     'contact your project lead.' %
