@@ -220,21 +220,3 @@ class MoreTimecardTests(TestCase):
         new_hours = projects.models.Project.objects.get(
             name='Armageddon').all_hours_logged
         self.assertEqual(current_hours, new_hours)
-
-    def test_project_deactive_on_submission(self):
-        """
-        Test to confirm that when a TimecardObject is saved that pushes
-        the Project.all_hours_logged greater than or equal to
-        Project.max_hours and Project.max_hours_restriction is True
-        Project.active is changed to False.
-        """
-        current_active_state = projects.models.Project.objects.get(
-            name='Independence Day').active
-        self.timecard_object_3 = hours.models.TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project_1,
-            hours_spent=42,
-        )
-        new_active_state = projects.models.Project.objects.get(
-            name='Independence Day').active
-        self.assertNotEqual(current_active_state, new_active_state)

@@ -45,3 +45,10 @@ class UserDataTests(TestCase):
         """ Check that the user data is initalized with the current
         employee value being true """
         self.assertTrue(self.regular_user.user_data.current_employee)
+
+    def test_name_string(self):
+        """
+        Check string override works correctly.
+        """
+        userdata = UserData.objects.first()
+        self.assertEqual(str(userdata), 'aaron.snow')
