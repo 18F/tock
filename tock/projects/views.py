@@ -26,7 +26,7 @@ class ProjectView(DetailView):
     template_name = 'projects/project_detail.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['table'] = project_timeline(kwargs['object'])
         context['total_hours_submitted'] = TimecardObject.objects.filter(
             project=kwargs['object'].id, submitted=True
