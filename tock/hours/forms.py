@@ -185,7 +185,10 @@ class TimecardObjectForm(forms.ModelForm):
     def clean(self):
         super(TimecardObjectForm, self).clean()
 
-        project = self.cleaned_data['project']
+        try:
+            project = self.cleaned_data['project']
+        except:
+            raise forms.ValidationError('Selected project does not exist.')
 
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
@@ -203,6 +206,18 @@ class TimecardObjectForm(forms.ModelForm):
                 )
             elif not project.notes_displayed:
                 del self.cleaned_data['notes']
+
+        if project.all_hours_logged:
+            pass
+        else:
+            all_hours = 0
+            for to in TimecardObject.objects.filter(
+                project=self.cleaned_data['project']
+            ):
+                all_hours += to.hours_spent
+
+            project.all_hours_logged = all_hours
+            project.save()
 
         if project.max_hours_restriction:
             if project.all_hours_logged + self.cleaned_data.get(

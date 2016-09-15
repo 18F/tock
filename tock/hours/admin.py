@@ -52,6 +52,7 @@ class TimecardObjectFormset(BaseInlineFormSet):
             )
 
 
+
 class ReportingPeriodAdmin(admin.ModelAdmin):
     list_display = ('start_date', 'end_date',)
 
@@ -60,6 +61,19 @@ class TimecardObjectInline(admin.TabularInline):
     formset = TimecardObjectFormset
     model = TimecardObject
 
+    def clean(self):
+
+        super(TimecardObjectInline, self).clean()
+
+        if self.instance.project.max_hours_restriction:
+            prior_hours = self.instance.project.all_hours_logged
+            if prior_hours:
+                total_hours = prior_hours + self.cleaned_data['hours_spent']
+                max_hours = self.instance.project.max_hours
+                try:
+                    max_hours <= total_hours
+                except:
+                    raise ValidationError('Value would exceed max hours limit.')
 
 class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
