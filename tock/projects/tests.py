@@ -339,22 +339,26 @@ class ProjectViewTests(WebTest):
 
     def test_total_hours_billed(self):
         """
-        For a given project, ensure that the view displays the correct total.
-
-        (Note that this project is the only test project for which timecards have been saved.)
-
-        :return:
+        For a given project, ensure that the view displays the correct totals.
         """
-        project = Project.objects.get(id__exact=1)
-        timecard_objects = TimecardObject.objects.filter(
-            project=project.id
+        TimecardObject.objects.filter().delete()
+        Timecard.objects.get(pk=1).submitted=True
+        timecard_object_submitted = TimecardObject.objects.create(
+            timecard = Timecard.objects.get(pk=1),
+            project=Project.objects.get(pk=1),
+            submitted = True,
+            hours_spent= 10
+        )
+        timecard_object_saved = TimecardObject.objects.create(
+            timecard = Timecard.objects.get(pk=1),
+            project=Project.objects.get(pk=1),
+            submitted = False,
+            hours_spent= 5
         )
 
-        total = timecard_objects.aggregate(Sum('hours_spent'))['hours_spent__sum']
-
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': project.id}),
+            reverse('ProjectView', kwargs={'pk': '1'}),
             headers={'X-FORWARDED-EMAIL': 'aaron.snow@gsa.gov'}
         )
 
-        self.assertEqual(float(response.html.select('#totalHours')[0].string), total)
+        self.assertEqual(float(response.html.select('#totalHoursAll')[0].string), 15)
