@@ -35,7 +35,7 @@ class TockUserBackend(RemoteUserBackend):
 
 
 class EmailHeaderMiddleware(RemoteUserMiddleware):
-    header = 'HTTP_X_FORWARDED_EMAIL'
+    header = 'HTTP_X_AUTH_USER'
 
 
 class UserDataMiddleware(object):
