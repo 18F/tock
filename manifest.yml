@@ -1,8 +1,10 @@
 ---
 # all applications use these settings and services
-memory: 1G
+memory: 512M
 instances: 1
 applications:
 - name: tock
-  path: .
   timeout: 180
+  buildpack: python_buildpack
+  services:
+  - tockdb

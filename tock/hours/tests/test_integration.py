@@ -45,7 +45,7 @@ class TestOptions(WebTest):
             'reportingperiod:UpdateTimesheet',
             kwargs={'reporting_period': date},
         )
-        res = self.app.get(url, headers={'X_FORWARDED_EMAIL': self.user.email})
+        res = self.app.get(url, headers={'X_AUTH_USER': self.user.email})
         select = res.forms[0].fields['timecardobject_set-0-project'][0]
         options = [each[-1] for each in select.options]
         for each in (positive or []):
@@ -69,7 +69,7 @@ class TestOptions(WebTest):
         """ Check that admin page reportingperiod works"""
         res = self.app.get(
             reverse('admin:hours_reportingperiod_changelist'),
-            headers={'X_FORWARDED_EMAIL': self.user.email})
+            headers={'X_AUTH_USER': self.user.email})
         self.assertEqual(200, res.status_code)
 
     def test_admin_page_timecards(self):
@@ -80,6 +80,6 @@ class TestOptions(WebTest):
                 'admin:hours_timecard_change',
                 args=[timecard.id],
             ),
-            headers={'X_FORWARDED_EMAIL': self.user.email},
+            headers={'X_AUTH_USER': self.user.email},
         )
         self.assertEqual(200, res.status_code)
