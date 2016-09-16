@@ -14,6 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -27,9 +28,10 @@ from .forms import (
 )
 
 
-class ReportingPeriodListView(PermissionMixin, ListView):
+class ReportingPeriodListView(LoginRequiredMixin, ListView):
     """ Currently the home view that lists the completed and missing time
     periods """
+    login_url = '/login/'
     context_object_name = "incomplete_reporting_periods"
     queryset = ReportingPeriod.objects.all()
     template_name = "hours/reporting_period_list.html"
@@ -64,7 +66,8 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         return context
 
 
-class ReportingPeriodCreateView(PermissionMixin, CreateView):
+class ReportingPeriodCreateView(LoginRequiredMixin, PermissionMixin, CreateView):
+    login_url = '/login/'
     form_class = ReportingPeriodForm
     template_name = 'hours/reporting_period_form.html'
     permission_classes = (IsSuperUserOrSelf, )
@@ -73,7 +76,8 @@ class ReportingPeriodCreateView(PermissionMixin, CreateView):
         return reverse("ListReportingPeriods")
 
 
-class ReportingPeriodBulkImportView(PermissionMixin, FormView):
+class ReportingPeriodBulkImportView(LoginRequiredMixin, PermissionMixin, FormView):
+    login_url = '/login/'
     template_name = 'hours/reporting_period_import.html'
     form_class = ReportingPeriodImportForm
     permission_classes = (IsSuperUserOrSelf, )
@@ -121,7 +125,8 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
         return reverse("ListReportingPeriods")
 
 
-class TimecardView(UpdateView):
+class TimecardView(LoginRequiredMixin, UpdateView):
+    login_url = '/login/'
     form_class = TimecardForm
     template_name = 'hours/timecard_form.html'
 
@@ -239,10 +244,11 @@ class TimecardView(UpdateView):
             )
 
 
-class ReportsList(ListView):
+class ReportsList(LoginRequiredMixin, ListView):
 
     """Show a list of all Reporting Periods to navigate to various reports"""
     template_name = "hours/reports_list.html"
+    login_url = '/login/'
 
     def get_queryset(self, queryset=None):
         query = ReportingPeriod.objects.all()
@@ -260,7 +266,8 @@ class ReportsList(ListView):
         return sorted_fiscal_years
 
 
-class ReportingPeriodDetailView(ListView):
+class ReportingPeriodDetailView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
     template_name = "hours/reporting_period_detail.html"
     context_object_name = "timecard_list"
 
@@ -331,7 +338,8 @@ def ReportingPeriodCSVView(request, reporting_period):
     return response
 
 
-class ReportingPeriodUserDetailView(DetailView):
+class ReportingPeriodUserDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/login/'
     model = Timecard
     template_name = "hours/reporting_period_user_detail.html"
 

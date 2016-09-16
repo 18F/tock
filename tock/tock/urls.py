@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include, url
+from django.contrib.auth.decorators import login_required
+
 
 # Enable the Django admin.
 from django.contrib import admin
@@ -8,11 +10,20 @@ admin.autodiscover()
 import hours.views
 import api.urls
 import projects.urls
+from . import views
 
 urlpatterns = [
     url(r'^$',
         hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'
+    ),
+    url(r'^callback/$',
+        views.oauth2_callback,
+        name='callback'
+    ),
+    url(r'^login/$',
+        views.login,
+        name='login'
     ),
     url(r'^reporting_period/', include(
         'hours.urls.timesheets',

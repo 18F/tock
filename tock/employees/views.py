@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView
 from django.views.generic.edit import FormView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
@@ -18,7 +19,8 @@ def parse_date(date):
         return datetime.datetime.strptime(date, '%m/%d/%Y')
 
 
-class UserListView(ListView):
+class UserListView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
     template_name = 'employees/user_list.html'
 
     def get_queryset(self):
@@ -29,7 +31,8 @@ class UserListView(ListView):
         return context
 
 
-class UserFormView(PermissionMixin, FormView):
+class UserFormView(LoginRequiredMixin, PermissionMixin, FormView):
+    login_url = '/login/'
     template_name = 'employees/user_form.html'
     form_class = UserForm
     permission_classes = (IsSuperUserOrSelf, )

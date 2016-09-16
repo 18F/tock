@@ -68,8 +68,15 @@ MIDDLEWARE_CLASSES = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'tock.remote_user_auth.TockUserBackend',
+    'tock.settings.uaa_authentication.UaaBackend',
 )
+
+UAA_CLIENT_ID = os.environ.get('UAA_CLIENT_ID', 'tock')
+UAA_CLIENT_SECRET = os.environ.get('UAA_CLIENT_SECRET')
+UAA_AUTH_URL = 'https://login.cloud.gov/oauth/authorize'
+UAA_TOKEN_URL = 'https://uaa.cloud.gov/oauth/token'
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -80,9 +87,9 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-ALLOWED_EMAIL_DOMAINS = {
+ALLOWED_EMAIL_DOMAINS = [
     'gsa.gov',
-}
+]
 
 REST_FRAMEWORK = {
     'UNICODE_JSON': False,
