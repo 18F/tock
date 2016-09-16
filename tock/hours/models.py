@@ -4,9 +4,10 @@ from .utils import ValidateOnSaveMixin
 from projects.models import Project
 
 from django.contrib.auth.models import User
+from employees.models import EmployeeGrade
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Max
 
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
@@ -87,6 +88,7 @@ class TimecardObject(models.Model):
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    grade = models.ForeignKey(EmployeeGrade, blank=True, null=True)
 
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
@@ -105,3 +107,12 @@ class TimecardObject(models.Model):
 
     def notes_list(self):
         return self.notes.split('\n')
+
+    def save(self, *args, **kwargs):
+        emp_grd_objects = EmployeeGrade.objects.filter(
+            employee=self.timecard.user).all().aggregate(Max('g_start_date'))
+        self.grade = EmployeeGrade.objects.filter(
+            employee=self.timecard.user,
+            g_start_date=emp_grd_objects['g_start_date__max'])[0]
+
+        super(TimecardObject, self).save(*args, **kwargs)
