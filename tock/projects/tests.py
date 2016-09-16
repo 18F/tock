@@ -12,6 +12,45 @@ from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
 from projects.models import Agency, Project, ProjectAlert, AccountingCode
 
+class  AgencyTest(WebTest):
+    def setUp(self):
+        self.agency = Agency.objects.create(name='General Services Administration')
+
+    def test_string_formatting(self):
+        """
+        Check string override works correctly.
+        """
+        self.assertEqual(str(self.agency), 'General Services Administration')
+
+class AccountingCodeTest(WebTest):
+    def setUp(self):
+        self.agency = Agency.objects.create(name='General Services Administration')
+        self.accounting_code = AccountingCode.objects.create(
+            code='Code',
+            agency=self.agency,
+            office='Office',
+            billable=True,
+            flat_rate=False,
+            )
+        self.accounting_code_1 = AccountingCode.objects.create(
+            code='Code',
+            agency=self.agency,
+            billable=True,
+            flat_rate=False,
+            )
+        self.accounting_code_2 = AccountingCode.objects.create(
+            agency=self.agency,
+            billable=True,
+            flat_rate=False,
+            )
+    def test_string_formatting(self):
+        """
+        Check string override works correctly.
+        """
+        self.assertEqual(str(self.accounting_code), 'General Services Administration - Office (Code)')
+        self.assertEqual(str(self.accounting_code_1), 'General Services Administration (Code)')
+        self.assertEqual(str(self.accounting_code_2), 'General Services Administration')
+
 
 class ProjectsTest(WebTest):
     def setUp(self):
@@ -30,9 +69,29 @@ class ProjectsTest(WebTest):
             accounting_code=accounting_code,
             name='Test Project',
             start_date='2016-01-01',
-            end_date='2016-02-01'
+            end_date='2016-02-01',
+            all_hours_logged = 100.00,
         )
         self.project.save()
+
+        self.project_1 = Project.objects.create(
+            accounting_code=accounting_code,
+            name='Men in Black',
+            active=True,
+            max_hours_restriction=True,
+            max_hours=78,
+            all_hours_logged=37)
+
+    def test_deactivation_when_max_hours_is_lt_all_hours(self):
+        """
+        Test to confirm that a project with all_hours_logged that is less
+        than max_hours when max_hours_restriction is True is not deactivated
+        on save().
+        """
+        current_active_state = self.project_1.active
+        self.project_1.save()
+        new_active_state = self.project_1.active
+        self.assertEqual(current_active_state, new_active_state)
 
     def test_model(self):
         """
@@ -49,6 +108,7 @@ class ProjectsTest(WebTest):
         self.assertEqual(retrieved.start_date, datetime.date(2016, 1, 1))
         self.assertEqual(retrieved.end_date, datetime.date(2016, 2, 1))
         self.assertTrue(retrieved.accounting_code.billable)
+        self.assertNotEqual(retrieved.all_hours_logged, 101.00)
 
     def test_is_billable(self):
         """

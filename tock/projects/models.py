@@ -133,6 +133,15 @@ class Project(models.Model):
     start_date = models.DateField(blank=True, null=True, verbose_name='Project Start Date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Project End Date')
     active = models.BooleanField(default=True)
+    max_hours = models.DecimalField(max_digits=12, decimal_places=2, null=True,
+        blank=True, verbose_name='Max hours ceiling', help_text='Enter the '
+        'maximum hours that may be logged to this project.')
+    max_hours_restriction = models.BooleanField(default=False,
+        verbose_name='Restrict to max hours', help_text='Check this to restrict'
+        ' the number of hours logged to the max hours ceiling.')
+    all_hours_logged = models.DecimalField(max_digits=12, decimal_places=2,
+        blank=True, null=True, help_text='All hours logged to this project '
+        'during all reporting periods by all users.')
     notes_required = models.BooleanField(
         default=False,
         help_text='Check this if notes should be required for time entries against this project.  Note:  Checking this will enable notes to be displayed as well.'

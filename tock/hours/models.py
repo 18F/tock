@@ -98,6 +98,16 @@ class TimecardObject(models.Model):
     )
     submitted = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        related_project = Project.objects.get(name=self.project)
+        if self.timecard.submitted is True:
+            if related_project.all_hours_logged is None:
+                related_project.all_hours_logged = self.hours_spent
+            else:
+                related_project.all_hours_logged += self.hours_spent
+            related_project.save()
+        super(TimecardObject, self).save(*args, **kwargs)
+
     def project_alerts(self):
         return self.project.alerts.all()
 

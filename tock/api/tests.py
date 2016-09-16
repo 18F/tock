@@ -16,6 +16,7 @@ from hours.factories import (
 
 from django.contrib.auth import get_user_model
 from employees.models import UserData
+import projects
 
 
 # common fixtures for all API tests
@@ -195,10 +196,16 @@ class TestAggregates(WebTest):
         self.user = UserFactory()
         self.billable_code = AccountingCodeFactory(billable=True)
         self.nonbillable_code = AccountingCodeFactory(billable=False)
-        self.billable_project = ProjectFactory(accounting_code=self.billable_code)
-        self.nonbillable_project = ProjectFactory(accounting_code=self.nonbillable_code)
+        self.billable_project = projects.models.Project.objects.create(
+            name='Billable Project',
+            accounting_code=self.billable_code,
+            )
+        self.nonbillable_project = projects.models.Project.objects.create(
+            name='Non-Billable Project',
+            accounting_code=self.nonbillable_code,
+            )
         self.period = ReportingPeriodFactory(start_date=datetime.datetime(2015, 11, 1))
-        self.timecard = TimecardFactory(user=self.user, reporting_period=self.period)
+        self.timecard = TimecardFactory(user=self.user, reporting_period=self.period, submitted=True)
         self.timecard_objects = [
             TimecardObjectFactory(
                 timecard=self.timecard,

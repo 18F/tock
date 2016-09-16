@@ -23,7 +23,7 @@
       {% if unsubmitted %}<li>DELETE?</li>{% endif %}
     </ul>
     {% for project_entry in formset %}
-      <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
+      <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }} entry-project">
         <div class="entry-project">
           <label for="project">Project:</label>
           {{ project_entry.project }}
@@ -42,6 +42,11 @@
           {{ project_entry.timecard }}
           {{ project_entry.id }}
         </div>
+        {% if project_entry.project.errors %}
+          <div class="entry-alerts alert-red">
+            <b>Your entry was not saved or submitted!</b>{{ project_entry.project.errors }}
+          </div>
+        {% endif %}
         <div class="entry-alerts" id="entry-alerts">
         </div>
         <div class="entry-hidden" id="entry-notes">
@@ -57,12 +62,14 @@
       </div>
     {% endfor %}
   </div>
-  {% if formset.errors %}
+  {% if formset.non_form_errors %}
+  <br>
     <div class="alert-red"><b>{{ formset.non_form_errors }}</b></div>
   {% endif %}
   {% if messages %}
   <ul class="messages">
     {% for message in messages %}
+    <br>
       <b><li{% if message.tags %} class="alert-{{ message.tags }}"{% endif %}>{{ message }}</li></b>
     {% endfor %}
   </ul>

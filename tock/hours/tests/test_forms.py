@@ -66,12 +66,23 @@ class TimecardObjectFormTests(TestCase):
             )
         self.user = get_user_model().objects.get(id=1)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
+
         self.project_2 = projects.models.Project.objects.get(
             name="Peace Corps")
         self.project_3 = projects.models.Project.objects.get(name='General')
         self.project_3.notes_displayed = True
         self.project_3.notes_required = True
         self.project_3.save()
+        self.project_4 = projects.models.Project.objects.get(id=10)
+        self.project_4.max_hours_restriction = True
+        self.project_4.hours_spent = None
+        self.project_4.max_hours = 10
+        self.project_4.save()
+        self.project_5 = projects.models.Project.objects.get(id=11)
+        self.project_5.max_hours_restriction = True
+        self.project_5.all_hours_logged = None
+        self.project_5.max_hours = 10
+        self.project_5.save()
 
     def test_add_project(self):
         """ Test that existing projects can be added without errors """
@@ -115,6 +126,16 @@ class TimecardObjectFormTests(TestCase):
         form = TimecardObjectForm(form_data)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['notes'], 'This is a test!')
+
+    def test_sum_hours_if_none(self):
+        form_data = {'project': '10', 'hours_spent': '10'}
+        form = TimecardObjectForm(form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_if_submission_violates_max_hours(self):
+        form_data = {'project': '11', 'hours_spent': '11'}
+        form = TimecardObjectForm(form_data)
+        self.assertFalse(form.is_valid())
 
 class TimecardInlineFormSetTests(TestCase):
     fixtures = [
