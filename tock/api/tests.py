@@ -15,7 +15,7 @@ from hours.factories import (
 )
 
 from django.contrib.auth import get_user_model
-from employees.models import UserData
+from employees.models import UserData, EmployeeGrade
 
 
 # common fixtures for all API tests

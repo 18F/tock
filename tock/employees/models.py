@@ -35,7 +35,7 @@ class EmployeeGrade(models.Model):
     )
 
     def __str__(self):
-        return '%s - %s (Starting: %s)' % self.employee, self.grade, self.g_start_date
+        return '{0} - {1} (Starting: {2})'.format(self.employee, self.grade, self.g_start_date)
 
 class UserData(models.Model):
 
@@ -72,4 +72,4 @@ class UserData(models.Model):
         verbose_name_plural='Employees'
 
     def __str__(self):
-        return '%s' % (self.user)
+        return '{0}'.format(self.user)
