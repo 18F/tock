@@ -111,9 +111,11 @@ class TimecardObject(models.Model):
     def save(self, *args, **kwargs):
         emp_grd_objects = EmployeeGrade.objects.filter(
             employee=self.timecard.user).all().aggregate(Max('g_start_date'))
-        if emp_grd_objects['g_start_date__max']:
-            self.grade = EmployeeGrade.objects.filter(
-                employee=self.timecard.user,
-                g_start_date=emp_grd_objects['g_start_date__max'])[0]
+        emp_grd_objects = emp_grd_objects['g_start_date__max']
+        if emp_grd_objects:
+            if emp_grd_objects <= datetime.date.today():
+                self.grade = EmployeeGrade.objects.filter(
+                    employee=self.timecard.user,
+                    g_start_date=emp_grd_objects)[0]
 
         super(TimecardObject, self).save(*args, **kwargs)
