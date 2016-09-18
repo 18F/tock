@@ -109,9 +109,13 @@ class TimecardObject(models.Model):
         return self.notes.split('\n')
 
     def save(self, *args, **kwargs):
+        """Custom save() method to append employee grade info to each
+        TimecardObject."""
+
         emp_grd_objects = EmployeeGrade.objects.filter(
-            employee=self.timecard.user).all().aggregate(Max('g_start_date'))
-        emp_grd_objects = emp_grd_objects['g_start_date__max']
+            employee=self.timecard.user).all().aggregate(
+            Max('g_start_date'))['g_start_date__max']
+
         if emp_grd_objects:
             if emp_grd_objects <= datetime.date.today():
                 self.grade = EmployeeGrade.objects.filter(

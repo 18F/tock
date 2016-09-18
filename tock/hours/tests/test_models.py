@@ -151,7 +151,6 @@ class TimecardObjectTests(TestCase):
         )
 
         self.assertEqual(tco.grade, self.grade)
-        Timecard.objects.filter().delete()
 
     def test_correct_grade(self):
         """Checks that latest grade is appended to the timecard object on
@@ -168,11 +167,27 @@ class TimecardObjectTests(TestCase):
         )
 
         self.assertEqual(new_grade, tco.grade)
-        Timecard.objects.filter().delete()
 
     def test_if_grade_is_none(self):
         """Checks that no grade is appended if no grade exists."""
         EmployeeGrade.objects.filter(employee=self.user[0]).delete()
+        tco = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project[0],
+            hours_spent=self.hours_spent
+        )
+
+        self.assertFalse(tco.grade)
+
+    def test_future_grade_only(self):
+        """Checks that no grade is appended if the only EmployeeGrade object has
+         a g_start_date that is after today."""
+        EmployeeGrade.objects.filter(employee=self.user[0]).delete()
+        newer_grade = EmployeeGrade.objects.create(
+            employee=self.user[0],
+            grade=13,
+            g_start_date=datetime.date.today() + datetime.timedelta(days=1)
+        )
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.project[0],
