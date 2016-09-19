@@ -32,19 +32,19 @@ class AuthTests(WebTest):
         )
 
     def test_login_creates_user_and_user_data(self):
-        email = 'tock@gsa.gov'
+        email = 'tock.tock@gsa.gov'
         self._login(email)
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
         self.assertIsNotNone(user)
         self.assertTrue(hasattr(user, 'user_data'))
 
     def test_login_ensures_user_data(self):
-        email = 'tock@gsa.gov'
+        email = 'tock.tock@gsa.gov'
         self._login(email)
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
         user.user_data.delete()
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
         self.assertFalse(hasattr(user, 'user_data'))
         self._login(email)
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
         self.assertTrue(hasattr(user, 'user_data'))

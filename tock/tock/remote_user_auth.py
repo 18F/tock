@@ -4,6 +4,7 @@ from django.contrib.auth.backends import RemoteUserBackend
 from django.contrib.auth.middleware import RemoteUserMiddleware
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from employees.models import UserData
 
@@ -53,3 +54,9 @@ class UserDataMiddleware(object):
                     user=request.user,
                     start_date=datetime.date.today(),
                 )
+                new_obj = User.objects.get(username=request.user)
+                first_name = str(request.user).split('.')[0].title()
+                last_name = str(request.user).split('.')[1].title()
+                new_obj.first_name=first_name
+                new_obj.last_name=last_name
+                new_obj.save()
