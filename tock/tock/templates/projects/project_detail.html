@@ -8,7 +8,7 @@
   <li>
     <b> Project Lead: </b>
 {% if project.project_lead %}
-    <a href="mailto:{{ object.project_lead.email }}">{{ object.project_lead.email }} </a>
+    <a href="mailto:{{ object.project_lead.email }}">{{ object.project_lead.first_name }} {{ object.project_lead.last_name }} </a>
 {% else %}
     Not available
 {% endif %}
