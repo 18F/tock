@@ -1,6 +1,42 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class EmployeeGrade(models.Model):
+    GRADE_CHOICES = (
+        (1, '1'),
+        (2, '2'),
+        (3, '3'),
+        (4, '4'),
+        (5, '5'),
+        (6, '6'),
+        (7, '7'),
+        (8, '8'),
+        (9, '9'),
+        (10, '10'),
+        (11, '11'),
+        (12, '12'),
+        (13, '13'),
+        (14, '14'),
+        (15, '15'),
+        (16, 'SES')
+    )
+    employee = models.ForeignKey(
+        User,
+        help_text='Please select from existing employees.'
+    )
+    grade = models.IntegerField(
+        choices=GRADE_CHOICES,
+        help_text='Please select a GS grade level.',
+        unique_for_date='g_start_date'
+    )
+    g_start_date = models.DateField(
+        help_text='Please select a start date for this grade.',
+        verbose_name='Grade start date'
+    )
+
+    def __str__(self):
+        return '{0} - {1} (Starting: {2})'.format(self.employee, self.grade, self.g_start_date)
+
 class UserData(models.Model):
 
     UNIT_CHOICES = (
@@ -31,10 +67,9 @@ class UserData(models.Model):
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
 
-
     class Meta:
         verbose_name='Employee'
         verbose_name_plural='Employees'
 
     def __str__(self):
-        return '%s' % (self.user)
+        return '{0}'.format(self.user)

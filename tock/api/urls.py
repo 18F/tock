@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'^hours/by_quarter_by_user.json$', views.hours_by_quarter_by_user, name='HoursByQuarterByUser'),
     url(r'^slim_timecard_bulk.csv$', views.slim_bulk_timecard_list, name='SlimBulkTimecardList'),
     url(r'^user_data.(?P<format>csv|json)$', views.UserDataView.as_view(), name='UserDataView'),
+    url(r'^admin_timecard_bulk.csv$', views.admin_bulk_timecard_list, name='AdminBulkTimecardList'),
 
 ]
