@@ -1,9 +1,10 @@
 from collections import defaultdict
+
+from django.db.models import Sum
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
-from django.db.models import Sum
-from django.db.models.loading import get_model
 
+from hours.models import TimecardObject
 from .models import Project
 
 
@@ -25,11 +26,15 @@ class ProjectView(DetailView):
     template_name = 'projects/project_detail.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['table'] = project_timeline(kwargs['object'])
-        context['total_hours'] = get_model('hours.TimecardObject').objects.filter(
-            project=kwargs['object'].id
-        ).aggregate(Sum('hours_spent'))['hours_spent__sum']
+        context['total_hours_submitted'] = TimecardObject.objects.filter(
+            project=kwargs['object'].id, submitted=True
+        ).aggregate(Sum('hours_spent'))['hours_spent__sum'] or 0
+        context['total_hours_saved'] = TimecardObject.objects.filter(
+            project=kwargs['object'].id, submitted=False
+        ).aggregate(Sum('hours_spent'))['hours_spent__sum'] or 0
+        context['total_hours_all'] = context['total_hours_submitted'] + context['total_hours_saved']
         return context
 
 
@@ -42,7 +47,7 @@ def project_timeline(project, period_limit=5):
     groups, periods = defaultdict(dict), []
 
     # fetch timecard objs, sorted by report period date
-    timecards = get_model('hours.TimecardObject').objects.filter(
+    timecards = TimecardObject.objects.filter(
         project=project
     ).order_by(
         '-timecard__reporting_period__start_date'

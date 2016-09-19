@@ -21,7 +21,9 @@ class TimecardFormTests(TestCase):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60)
         self.user = get_user_model().objects.get(id=1)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
@@ -58,7 +60,10 @@ class TimecardObjectFormTests(TestCase):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60
+            )
         self.user = get_user_model().objects.get(id=1)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
@@ -119,7 +124,10 @@ class TimecardInlineFormSetTests(TestCase):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60
+            )
         self.user = get_user_model().objects.get(id=1)
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(
@@ -140,7 +148,7 @@ class TimecardInlineFormSetTests(TestCase):
             'timecardobject_set-MIN_NUM_FORMS': '',
             'timecardobject_set-MAX_NUM_FORMS': '',
             'timecardobject_set-0-project': '4',
-            'timecardobject_set-0-hours_spent': '20',
+            'timecardobject_set-0-hours_spent': '22',
             'timecardobject_set-1-project': '5',
             'timecardobject_set-1-hours_spent': '20'
         }
@@ -164,13 +172,22 @@ class TimecardInlineFormSetTests(TestCase):
         formset.save_only = True
         self.assertTrue(formset.save_only)
 
-    def test_timecard_is_not_100(self):
-        """ Test timecard form data that doesn't total the set working
-        hours """
+    def test_timecard_is_too_big(self):
+        """ Test timecard form data that exceeds the maximum hours allowed """
         form_data = self.form_data()
         form_data['timecardobject_set-2-project'] = '6'
-        form_data['timecardobject_set-2-hours_spent'] = '20'
+        form_data['timecardobject_set-2-hours_spent'] = '50'
         form_data['timecardobject_set-TOTAL_FORMS'] = '3'
+        formset = TimecardFormSet(form_data)
+        self.assertFalse(formset.is_valid())
+
+    def test_timecard_is_too_small(self):
+        """ Test timecard form data that is smaller than the minimum
+        allowable hours """
+        form_data = self.form_data()
+        form_data['timecardobject_set-1-project'] = '6'
+        form_data['timecardobject_set-1-hours_spent'] = '10'
+        form_data['timecardobject_set-TOTAL_FORMS'] = '2'
         formset = TimecardFormSet(form_data)
         self.assertFalse(formset.is_valid())
 
@@ -194,34 +211,55 @@ class TimecardInlineFormSetTests(TestCase):
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())
 
-    def test_reporting_period_with_less_than_40_hours_success(self):
-        """ Test the timecard form when the reporting period is less than
-        40 hours a week and the hours entered match the working hours """
+    def test_reporting_period_with_less_than_min_hours_success(self):
+        """ Test the timecard form when the reporting period requires at least
+        16 hours to be reported and the hours entered are less than 16"""
         form_data = self.form_data()
         form_data['timecardobject_set-0-hours_spent'] = '8'
-        form_data['timecardobject_set-1-hours_spent'] = '8'
+        form_data['timecardobject_set-1-hours_spent'] = '10'
         formset = TimecardFormSet(form_data)
-        formset.set_working_hours(16)
+        formset.set_min_working_hours(16)
         self.assertTrue(formset.is_valid())
 
-    def test_reporting_period_with_less_than_40_hours_failure(self):
-        """ Test the timecard form when the reporting period is less than
-        40 hours a week and the hours entered do not match the working hours"""
+    def test_reporting_period_with_less_than_min_hours_failure(self):
+        """ Test the timecard form when the reporting period requires at least
+        16 hours to be reported and the hours entered are less than 16"""
         form_data = self.form_data()
         form_data['timecardobject_set-0-hours_spent'] = '5'
         form_data['timecardobject_set-1-hours_spent'] = '5'
         formset = TimecardFormSet(form_data)
-        formset.set_working_hours(16)
+        formset.set_min_working_hours(16)
         self.assertFalse(formset.is_valid())
 
-    def test_reporting_period_with_less_than_40_hours_success_save_mode(self):
+    def test_reporting_period_with_more_than_max_hours_success(self):
+        """ Test the timecard form when the reporting period requires no more
+        than 60 hours to be reported and the hours entered are less than 60"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-0-hours_spent'] = '50'
+        form_data['timecardobject_set-1-hours_spent'] = '2'
+        formset = TimecardFormSet(form_data)
+        formset.set_max_working_hours(60)
+        self.assertTrue(formset.is_valid())
+
+    def test_reporting_period_with_more_than_max_hours_failure(self):
+        """ Test the timecard form when the reporting period requires no more
+        than 60 hours to be reported and the hours entered are more than 60"""
+        form_data = self.form_data()
+        form_data['timecardobject_set-0-hours_spent'] = '50'
+        form_data['timecardobject_set-1-hours_spent'] = '20'
+        formset = TimecardFormSet(form_data)
+        formset.set_max_working_hours(60)
+        self.assertFalse(formset.is_valid())
+
+
+    def test_reporting_period_with_less_than_min_hours_success_save_mode(self):
         """ Test the timecard form when the reporting period is less than
-        40 hours a week and you save (not submit) """
+        minimum required hours a period and you save (not submit) """
         form_data = self.form_data()
         form_data['timecardobject_set-0-hours_spent'] = '5'
         form_data['timecardobject_set-1-hours_spent'] = '5'
         formset = TimecardFormSet(form_data)
-        formset.set_working_hours(16)
+        formset.set_min_working_hours(16)
         formset.save_only = True
         self.assertTrue(formset.is_valid())
 

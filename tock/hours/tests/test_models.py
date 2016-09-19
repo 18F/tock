@@ -14,26 +14,22 @@ class ReportingPeriodTests(TestCase):
         self.reporting_period = hours.models.ReportingPeriod(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=32,
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60,
             message='This is not a vacation')
         self.reporting_period.save()
 
     def test_reporting_period_save(self):
         """Ensure that data was saved properly """
         reporting_period = hours.models.ReportingPeriod.objects.first()
-        self.assertEqual(32, reporting_period.working_hours)
+        self.assertEqual(40, reporting_period.exact_working_hours)
         self.assertEqual(
             datetime.date(2015, 1, 1), reporting_period.start_date)
         self.assertEqual(datetime.date(2015, 1, 7), reporting_period.end_date)
         self.assertEqual('This is not a vacation', reporting_period.message)
-
-    def test_max_reporting_period_length(self):
-        """Check to ensure a reporting period cannot be longer than 80 hours"""
-        with self.assertRaises(ValidationError):
-            hours.models.ReportingPeriod(
-                start_date=datetime.date(2015, 1, 7),
-                end_date=datetime.date(2015, 1, 14),
-                working_hours=85).save()
+        self.assertEqual(40, reporting_period.min_working_hours)
+        self.assertEqual(60, reporting_period.max_working_hours)
 
     def test_unique_constraint(self):
         """ Check that unique constrains work for reporting period """
@@ -41,7 +37,7 @@ class ReportingPeriodTests(TestCase):
             hours.models.ReportingPeriod(
                 start_date=datetime.date(2015, 1, 1),
                 end_date=datetime.date(2015, 1, 7),
-                working_hours=40).save()
+                exact_working_hours=40).save()
 
     def test_get_fiscal_year(self):
         """Check to ensure the proper fiscal year is returned"""
@@ -49,7 +45,7 @@ class ReportingPeriodTests(TestCase):
         reporting_period_2 = hours.models.ReportingPeriod(
             start_date=datetime.date(2015, 10, 31),
             end_date=datetime.date(2015, 11, 7),
-            working_hours=32)
+            exact_working_hours=32)
         self.assertEqual(2016, reporting_period_2.get_fiscal_year())
 
 
@@ -63,7 +59,7 @@ class TimecardTests(TestCase):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
+            exact_working_hours=40)
         self.reporting_period.save()
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
@@ -85,7 +81,7 @@ class TimecardTests(TestCase):
         """ Test that the time card was saved correctly """
         timecard = hours.models.Timecard.objects.first()
         self.assertEqual(timecard.user.pk, 1)
-        self.assertEqual(timecard.reporting_period.working_hours, 40)
+        self.assertEqual(timecard.reporting_period.exact_working_hours, 40)
         self.assertEqual(timecard.created.day, datetime.date.today().day)
         self.assertEqual(timecard.modified.day, datetime.date.today().day)
         self.assertEqual(len(timecard.time_spent.all()), 2)

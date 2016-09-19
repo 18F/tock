@@ -32,7 +32,7 @@ class ReportTests(WebTest):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            working_hours=40)
+            exact_working_hours=40)
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
@@ -77,7 +77,7 @@ class ReportTests(WebTest):
         hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2016, 1, 1),
             end_date=datetime.date(2016, 1, 7),
-            working_hours=40)
+            exact_working_hours=40)
         response = self.app.get(reverse('reports:ListReports'))
         response = response.content.decode('utf-8')
         self.assertTrue(response.index('2016') < response.index('2015'))
@@ -87,7 +87,7 @@ class ReportTests(WebTest):
         user with with userdata """
         response = self.app.get(
             reverse('ListReportingPeriods'),
-            headers={'X_FORWARDED_EMAIL': self.regular_user.email},
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
         self.assertEqual(response.status_code, 200)
 
@@ -101,7 +101,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_FORWARDED_EMAIL': self.regular_user.email},
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
         self.assertEqual(response.status_code, 200)
 
@@ -121,7 +121,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_FORWARDED_EMAIL': self.user.email},
+            headers={'X_AUTH_USER': self.user.email},
         )
 
         # projects prefilled in the html
@@ -186,7 +186,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_FORWARDED_EMAIL': self.user.email},
+            headers={'X_AUTH_USER': self.user.email},
         )
         first_hour_val = response.html \
             .find('div', {'class': 'entry-amount'}) \
@@ -212,7 +212,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_FORWARDED_EMAIL': self.user.email},
+            headers={'X_AUTH_USER': self.user.email},
         )
         delete_divs = response.html.find_all('div', {'class': 'entry-delete'})
 
@@ -230,7 +230,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_FORWARDED_EMAIL': self.user.email},
+            headers={'X_AUTH_USER': self.user.email},
         )
         delete_divs = response.html.find_all('div', {'class': 'entry-delete'})
 
@@ -256,7 +256,7 @@ class ReportTests(WebTest):
                 'timecardobject_set-0-project': '4',
                 'timecardobject_set-0-hours_spent': None,
             },
-            headers={'X_FORWARDED_EMAIL': self.regular_user.email},
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
         formset = response.context['formset']
         self.assertTrue(formset.save_only)
@@ -270,21 +270,21 @@ class ReportTests(WebTest):
         periods = list(hours.models.ReportingPeriod.objects.all())
         get_res = self.app.get(
             reverse('reportingperiod:ReportingPeriodCreateView'),
-            headers={'X_FORWARDED_EMAIL': self.user.email},
+            headers={'X_AUTH_USER': self.user.email},
         )
         form = get_res.forms[0]
         form['start_date'] = '07/04/2015'
         form['end_date'] = '07/11/2015'
-        form['working_hours'] = '40'
-        form['message'] = 'always be coding'
-        form.submit(headers={'X_FORWARDED_EMAIL': self.user.email})
+        form['min_working_hours'] = '40'
+        form['max_working_hours'] = '60'
+        form.submit(headers={'X_AUTH_USER': self.user.email})
         updated_periods = list(hours.models.ReportingPeriod.objects.all())
         self.assertTrue(len(updated_periods) == len(periods) + 1)
 
     def test_create_reporting_period_not_superuser(self):
         response = self.app.get(
             reverse('reportingperiod:ReportingPeriodCreateView'),
-            headers={'X_FORWARDED_EMAIL': self.regular_user.email},
+            headers={'X_AUTH_USER': self.regular_user.email},
             expect_errors=True,
         )
         self.assertEqual(response.status_code, 403)

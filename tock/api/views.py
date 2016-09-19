@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 
 from projects.models import Project
 from hours.models import TimecardObject, Timecard, ReportingPeriod
+from employees.models import UserData
 
 from rest_framework import serializers, generics, pagination
 
@@ -61,13 +62,25 @@ class UserSerializer(serializers.ModelSerializer):
             'email'
         )
 
+class UserDataSerializer(serializers.Serializer):
+    user = serializers.StringRelatedField()
+    current_employee = serializers.BooleanField()
+    is_18f_employee = serializers.BooleanField()
+    is_billable = serializers.BooleanField()
+    unit = serializers.SerializerMethodField()
+
+    def get_unit(self,obj):
+        return obj.get_unit_display()
+
 class ReportingPeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReportingPeriod
         fields = (
             'start_date',
             'end_date',
-            'working_hours',
+            'exact_working_hours',
+            'min_working_hours',
+            'max_working_hours',
         )
 
 class TimecardSerializer(serializers.Serializer):
@@ -107,6 +120,11 @@ class SlimBulkTimecardSerializer(serializers.Serializer):
     mbnumber = serializers.CharField(source='project.mbnumber')
 
 # API Views
+
+class UserDataView(generics.ListAPIView):
+    queryset = UserData.objects.all()
+    serializer_class = UserDataSerializer
+    pagination_class = JumboResultsSetPagination
 
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
@@ -171,7 +189,7 @@ class TimecardList(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        return get_timecards(self.queryset, self.request.QUERY_PARAMS)
+        return get_timecards(self.queryset, self.request.query_params)
 
 def timeline_view(request, value_fields=(), **field_alias):
     """ CSV endpoint for the project timeline viz """

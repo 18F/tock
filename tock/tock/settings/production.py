@@ -4,8 +4,6 @@ import dj_database_url
 
 from .base import *  # noqa
 
-DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
 USE_X_FORWARDED_HOST = True
 

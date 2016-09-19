@@ -41,9 +41,15 @@
         <li><a href="{% url 'ProjectListView' %}">Projects</a></li>
         <li><a href="{% url 'reports:ListReports' %}">Reports</a></li>
         <li><a href="{% url 'employees:UserListView' %}">Users</a></li>
+        <br>
+        <li><b>Beta:</b></li>
+        <li><a href="https://login.float.com/?people={{ user.first_name}}+{{user.last_name}}" target="_blank">View Float assigments</a></li>
         {% if request.user.is_superuser %}
         <br>
-        <li><a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">New Reporting Period</a></li>
+        <li><b>Admin:</b></li>
+        <li><a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Add reporting period</a></li>
+        <li><a href="/admin">Admin panel</a>
+        <li><a href="/api/timecards_bulk.csv">Bulk timecard CSV</a>
         {% endif %}
         <hr>
       </ul>

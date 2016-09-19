@@ -28,7 +28,7 @@ class AuthTests(WebTest):
     def _login(self, email):
         self.app.get(
             '/',
-            headers={'X_FORWARDED_EMAIL': email},
+            headers={'X_AUTH_USER': email},
         )
 
     def test_login_creates_user_and_user_data(self):

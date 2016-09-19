@@ -54,7 +54,15 @@
   </li>
 
 </ul>
-
+<br />
+<b>User Hours Summary:</b>
+<br />
+Total hours submitted: <span id="totalHoursSubmitted">{{ total_hours_submitted }} </span>
+<br />
+Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_saved }}</span>
+<br />
+<b>Total hours, combined:<span id="totalHoursAll"> {{ total_hours_all }}</span></b>
+<br />
 <br />
 
 <h3 class="chart__title">Lifetime Hours Logged:</h3>
@@ -71,6 +79,7 @@
 </figure>
 <br>
 <h3 class="chart__title">Latest Periods with Hours Logged:</h3>
+<br />
 <table id="dataTable" class="striped">
   <thead>
     {% for period in table.periods %}

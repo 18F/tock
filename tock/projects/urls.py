@@ -1,9 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from . import views
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(
         regex=r'^$',
         view=views.ProjectListView.as_view(),
@@ -14,4 +13,4 @@ urlpatterns = patterns(
         view=views.ProjectView.as_view(),
         name='ProjectView'
     ),
-)
+]
