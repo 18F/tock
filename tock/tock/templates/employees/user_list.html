@@ -5,19 +5,18 @@
 
 <table class="table-minimal report_table">
 	<tr class="report_table__header-row">
-		<th>Email Address</th>
-		<th>First Name</th>
-		<th>Last Name</th>
+		<th>Name</th>
+		<th>Unit</th>
 		<th>Start Date</th>
 		<th>End Date</th>
 	</tr>
 	{% for user in object_list %}
 	<tr class="report_table__row">
 		<td>
-			<a href="/employees/{{ user.username }}">{{ user.username }}</a>
+			<a href="/employees/{{ user.username}}">{{ user.first_name }}</a>
+			<a href="/employees/{{ user.username}}"> {{ user.last_name}}</a>
 		</td>
-		<td>{{ user.first_name }}</td>
-		<td>{{ user.last_name }}</td>
+		<td>{{ user.user_data.unit }}
 		<td>{{ user.user_data.start_date }}</td>
 		<td>{{ user.user_data.end_date }}</td>
 	</tr>

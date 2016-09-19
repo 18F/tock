@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
+<h2>{{ object.user.first_name }} {{ object.user.last_name}}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
 
 <table class="table-minimal report_table">
 	<tr class="report_table__header-row">
