@@ -13,6 +13,8 @@
 // chart-specific styles
 @import "charts";
 
+@import "travel_form";
+
 .container {
 	@include outer-container;
 	margin-top: 3em;
