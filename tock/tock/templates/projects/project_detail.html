@@ -31,10 +31,6 @@
   Not available
 {% endif %}
   </li>
-  <li>
-    <b> Total hours billed: </b>
-      {{ total_hours }}
-  </li>
   <li> <b> Alerts: </b>
 {% if object.alerts.exists %}
     {% for alert in object.alerts.all %}
@@ -55,7 +51,7 @@
 
 </ul>
 <br />
-<b>User Hours Summary:</b>
+<b>User Hours Summary</b>
 <br />
 Total hours submitted: <span id="totalHoursSubmitted">{{ total_hours_submitted }} </span>
 <br />
@@ -65,7 +61,7 @@ Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_
 <br />
 <br />
 
-<h3 class="chart__title">Lifetime Hours Logged:</h3>
+<h3 class="chart__title">Lifetime Hours Logged</h3>
 <figure class="chart chart--utilization">
   <utilization-chart
     class="timeline timeline--project"
@@ -78,10 +74,11 @@ Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_
   </utilization-chart>
 </figure>
 <br>
-<h3 class="chart__title">Latest Periods with Hours Logged:</h3>
+<h3 class="chart__title">Latest Periods with Hours Logged</h3>
 <br />
 <table id="dataTable" class="striped">
   <thead>
+    <th>Name</th>
     {% for period in table.periods %}
       <th>{{ period }}</th>
     {% endfor %}
