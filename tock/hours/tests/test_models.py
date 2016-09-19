@@ -134,10 +134,13 @@ class TimecardObjectTests(TestCase):
             grade=15,
             g_start_date=datetime.date(2016, 1, 1)
         )
-        self.reporting_period = ReportingPeriod.objects.get_or_create(pk=1)
+        self.reporting_period = ReportingPeriod.objects.create(
+            start_date=datetime.date.today() - datetime.timedelta(days=7),
+            end_date=datetime.date.today()
+        )
         self.timecard = Timecard.objects.create(
             user=self.user[0],
-            reporting_period=self.reporting_period[0]
+            reporting_period=self.reporting_period
         )
         self.project = Project.objects.get_or_create(pk=1)
         self.hours_spent = 10
@@ -181,12 +184,12 @@ class TimecardObjectTests(TestCase):
 
     def test_future_grade_only(self):
         """Checks that no grade is appended if the only EmployeeGrade object has
-         a g_start_date that is after today."""
+         a g_start_date that is after the end date of the reporting period."""
         EmployeeGrade.objects.filter(employee=self.user[0]).delete()
         newer_grade = EmployeeGrade.objects.create(
             employee=self.user[0],
             grade=13,
-            g_start_date=datetime.date.today() + datetime.timedelta(days=1)
+            g_start_date=self.reporting_period.end_date + datetime.timedelta(days=1)
         )
         tco = TimecardObject.objects.create(
             timecard=self.timecard,

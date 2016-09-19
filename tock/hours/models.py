@@ -110,16 +110,17 @@ class TimecardObject(models.Model):
 
     def save(self, *args, **kwargs):
         """Custom save() method to append employee grade info to each
-        TimecardObject."""
-
+        TimecardObject. Grades are only appended if they are in force prior to
+        the end of the reporting period for which the timecard object is being
+        filed."""
         emp_grd_objects = EmployeeGrade.objects.filter(
-            employee=self.timecard.user).all().aggregate(
-            Max('g_start_date'))['g_start_date__max']
+                Q(employee = self.timecard.user)
+                & Q(g_start_date__lte = self.timecard.reporting_period.end_date)
+                ).all().aggregate(Max('g_start_date'))['g_start_date__max']
 
         if emp_grd_objects:
-            if emp_grd_objects <= datetime.date.today():
-                self.grade = EmployeeGrade.objects.filter(
-                    employee=self.timecard.user,
-                    g_start_date=emp_grd_objects)[0]
+            self.grade = EmployeeGrade.objects.filter(
+                employee=self.timecard.user,
+                g_start_date=emp_grd_objects)[0]
 
         super(TimecardObject, self).save(*args, **kwargs)
