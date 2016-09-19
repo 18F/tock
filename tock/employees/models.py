@@ -38,3 +38,7 @@ class UserData(models.Model):
 
     def __str__(self):
         return '%s' % (self.user)
+
+    def full_name(self):
+        full_name = '{0} {1}'.format(self.user.first_name, self.user.last_name)
+        return full_name
