@@ -43,23 +43,25 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
     def get_projects(self):
         """Return the valid projects that exist during this reporting period."""
-        rps = self.start_date
+        rps = self.start_date # Reporting period start date
 
         return Project.objects.filter(
-            Q(active=True)
-            & Q(
-                Q(start_date__lte=rps)
-                | Q(
-                    Q(start_date__gte=rps)
-                    & Q(start_date__lte=datetime.datetime.now().date())
+            Q(active=True) # Projects that are active;
+            & Q( # and
+                Q(start_date__lte=rps) # projects that have a start date LTE the reporting period start date;
+                | Q( # or
+                    Q(start_date__gte=rps) # projects that have a start date that is GTE the reporting period start date;
+                    & Q(start_date__lte=datetime.datetime.now().date()) # and the projects have a start date that is LTE today;
                 )
-                | Q(start_date__isnull=True)
+                | Q(start_date__isnull=True) # or projects do not have start dates;
             )
-            & Q(
-                Q(end_date__gte=rps)
-                | Q(end_date__isnull=True)
+            & Q( # and
+                Q(end_date__gte=rps) # projects that have an end date that is greater than the start date of the reporting period;
+                & Q(auto_deactivate_date__gte=rps) # and projects that have an auto deactivate end date that is greater than the reporting period start date;
+                )
+                | Q(end_date__isnull=True) # or projects that do not have an end date.
             )
-        )
+
 
 
 class Timecard(models.Model):

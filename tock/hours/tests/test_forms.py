@@ -51,6 +51,17 @@ class TimecardFormTests(TestCase):
         data_after_inactive_change = projects_as_choices()
         self.assertNotEqual(data_before_inactive_change, data_after_inactive_change)
 
+    def test_auto_deactivate_days_and_dates(self):
+        """
+        Tests auto deactivate functionality based on value specified in
+        auto_deactivate_days.
+        """
+        data_before_end_date_is_set = projects_as_choices() #get projects
+        project_test = projects.models.Project.objects.first() #get the first project in the db
+        project_test.end_date = datetime.date.today() + datetime.timedelta(10) #set end date to 10 days into the future
+        project_test.auto_deactivate_days = 12 #set number of days prior to end date for deactivation
+        project_test.save() #save change to DB
+        self.assertFalse(project_test.active)
 
 class TimecardObjectFormTests(TestCase):
     fixtures = [

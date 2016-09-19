@@ -43,7 +43,7 @@ class ProjectInstanceAPITests(WebTest):
         res = self.app.get(reverse('ProjectInstanceView', kwargs={'pk': '29'}))
         self.assertEqual(res.json['name'], "Consulting - Agile BPA")
         self.assertEqual(res.json['start_date'], "2016-01-01")
-        self.assertEqual(res.json['end_date'], None)
+        self.assertEqual(res.json['end_date'], '2020-12-31')
 
 class UsersAPITests(TestCase):
     fixtures = FIXTURES

@@ -30,7 +30,6 @@ class ProjectsTest(WebTest):
             accounting_code=accounting_code,
             name='Test Project',
             start_date='2016-01-01',
-            end_date='2016-02-01'
         )
         self.project.save()
 
@@ -47,8 +46,17 @@ class ProjectsTest(WebTest):
         )
         self.assertEqual(retrieved.accounting_code.office, '18F')
         self.assertEqual(retrieved.start_date, datetime.date(2016, 1, 1))
-        self.assertEqual(retrieved.end_date, datetime.date(2016, 2, 1))
+        """
+        Check that default end_date (2020-12-31) does not equal given value.
+        """
+        self.assertNotEqual(retrieved.end_date, datetime.date(1999, 12, 31))
         self.assertTrue(retrieved.accounting_code.billable)
+        """
+        Check that default auto_deactivate_days value (14) is used to correctly
+        calculate auto_deactivate_date.
+        """
+        self.assertNotEqual(retrieved.auto_deactivate_date, datetime.date(2020, 11, 17))
+        self.assertTrue(retrieved.active)
 
     def test_is_billable(self):
         """
