@@ -326,7 +326,7 @@ def slim_bulk_timecard_list(request):
     serializer = SlimBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
-#@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser)
 def admin_bulk_timecard_list(request):
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = AdminBulkTimecardSerializer()
