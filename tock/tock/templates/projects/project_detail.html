@@ -10,7 +10,7 @@
 {% if project.project_lead %}
     <a href="mailto:{{ object.project_lead.email }}">{{ object.project_lead.first_name }} {{ object.project_lead.last_name }} </a>
 {% else %}
-    Not available
+    No project lead available
 {% endif %}
   </li>
   <li>
@@ -24,11 +24,11 @@
       Non-Billable
     {% endif %}
   </li>
-    <b> Agreement: </b>
+    <b> Agreement URL: </b>
 {% if project.agreement_URL %}
   <a href="{{ object.agreement_URL }}"> Google Drive folder </a>
 {% else %}
-  Not available
+  No agreement URL available
 {% endif %}
   </li>
   <li> <b> Alerts: </b>
