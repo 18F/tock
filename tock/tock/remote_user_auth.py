@@ -1,6 +1,8 @@
+import datetime
+
 from django.contrib.auth.backends import RemoteUserBackend
 from django.contrib.auth.middleware import RemoteUserMiddleware
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.conf import settings
 
 from employees.models import UserData
@@ -44,4 +46,10 @@ class UserDataMiddleware(object):
         """Ensure that authenticated users have associated `UserData` records.
         """
         if request.user.is_authenticated():
-            UserData.objects.get_or_create(user=request.user)
+            try:
+                user = UserData.objects.get(user=request.user)
+            except UserData.DoesNotExist:
+                UserData.objects.create(
+                    user=request.user,
+                    start_date=datetime.date.today(),
+                )
