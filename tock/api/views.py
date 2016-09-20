@@ -46,7 +46,8 @@ class ProjectSerializer(serializers.ModelSerializer):
             'description',
             'billable',
             'start_date',
-            'end_date'
+            'end_date',
+            'active',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
     client = serializers.StringRelatedField(source='accounting_code')
