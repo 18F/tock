@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 class UserData(models.Model):
 
@@ -38,3 +39,16 @@ class UserData(models.Model):
 
     def __str__(self):
         return '%s' % (self.user)
+
+    def save(self, *args, **kwargs):
+        """Aligns User model and UserData model attributes on save."""
+        user = User.objects.get(username=self.user)
+        if self.current_employee:
+            user.is_active = True
+        else:
+            user.is_active = False
+            user.is_superuser = False
+            user.is_staff = False
+        user.save()
+
+        super(UserData, self).save(*args, **kwargs)
