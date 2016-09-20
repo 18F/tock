@@ -93,6 +93,10 @@ You can also get a list of projects at
 [/api/projects.json](https://tock.18f.gov/api/projects.json),
 or as a spreadsheet at [/api/projects.csv](https://tock.18f.gov/api/projects.csv).
 
+## Authentication
+
+18F's current deployment of Tock relies on a [cloud.gov](https://cloud.gov) route service called [`uaa-auth`](https://github.com/dlapiduz/cf-uaa-guard-service).
+
 [Docker]: https://www.docker.com/
 [Docker Compose]: https://docs.docker.com/compose/
 [Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
