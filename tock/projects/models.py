@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Agency(models.Model):
@@ -146,6 +147,8 @@ class Project(models.Model):
         blank=True,
         help_text='Attach one or more alerts to be displayed with this project if need be.'
     )
+    agreement_URL = models.URLField(blank=True, max_length=1000, verbose_name="Link to Agreement Folder")
+    project_lead = models.ForeignKey(User, null=True)
 
     class Meta:
         verbose_name = "Project"
