@@ -45,7 +45,7 @@ class UserData(models.Model):
             try:
                 token = Token.objects.get(user=self.user)
                 token.delete()
-            except:
+            except Token.DoesNotExist:
                 pass
 
         super(UserData, self).save(*args, **kwargs)
