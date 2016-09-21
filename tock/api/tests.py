@@ -23,7 +23,14 @@ from rest_framework.authtoken.models import Token
 from django.test.client import Client
 from rest_framework.test import APIClient
 
+# common client for all API tests
 
+def client(self):
+    self.user = User.objects.get(username='aaron.snow')
+    self.token = Token.objects.get_or_create(user=self.user)[0].key
+    self.client = APIClient()
+    self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+    return self.client
 
 # common fixtures for all API tests
 FIXTURES = [
@@ -46,14 +53,8 @@ class ProjectsAPITests(TestCase):
 class ProjectInstanceAPITests(WebTest):
     fixtures = FIXTURES
 
-    def setUp(self):
-        self.user = User.objects.get(username='aaron.snow')
-        self.token = Token.objects.get_or_create(user=self.user)[0].key
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-
     def test_projects_json(self):
-        res = self.client.get(reverse('ProjectInstanceView', kwargs={'pk': '29'})).data
+        res = client(self).get(reverse('ProjectInstanceView', kwargs={'pk': '29'})).data
         self.assertEqual(res['name'], "Consulting - Agile BPA")
         self.assertEqual(res['start_date'], "2016-01-01")
         self.assertEqual(res['end_date'], None)
@@ -71,21 +72,15 @@ class UsersAPITests(TestCase):
 class TimecardsAPITests(WebTest):
     fixtures = FIXTURES
 
-    def setUp(self):
-        self.user = User.objects.get(username='aaron.snow')
-        self.token = Token.objects.get_or_create(user=self.user)[0].key
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-
     def test_timecards_json(self):
         """ Check that the timecards are rendered in json format correctly """
-        res = self.client.get(reverse('TimecardList', kwargs={'format': 'json'})).content
+        res = client(self).get(reverse('TimecardList', kwargs={'format': 'json'})).content
         clean_res = json.loads(res.decode())
         self.assertEqual(clean_res['count'], 2)
 
     def test_timecards_csv(self):
         """ Check that the timecards are rendered in csv format correctly """
-        res = self.client.get(reverse('TimecardList', kwargs={'format': 'csv'})).content
+        res = client(self).get(reverse('TimecardList', kwargs={'format': 'csv'})).content
         target_fields = len(TimecardSerializer.__dict__['_declared_fields'])
         output_fields = len(str(res).split('\\r')[0].split(','))
         self.assertEqual(target_fields, output_fields)
@@ -148,14 +143,8 @@ class TimecardsAPITests(WebTest):
 class ProjectTimelineTests(WebTest):
     fixtures = FIXTURES
 
-    def setUp(self):
-        self.user = User.objects.get(username='aaron.snow')
-        self.token = Token.objects.get_or_create(user=self.user)[0].key
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-
     def test_project_timeline(self):
-        res = self.client.get(reverse('UserTimelineView'))
+        res = client(self).get(reverse('UserTimelineView'))
         self.assertIn(
             'aaron.snow,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
@@ -163,14 +152,8 @@ class ProjectTimelineTests(WebTest):
 class BulkTimecardsTests(TestCase):
     fixtures = FIXTURES
 
-    def setUp(self):
-        self.user = User.objects.get(username='aaron.snow')
-        self.token = Token.objects.get_or_create(user=self.user)[0].key
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-
     def test_bulk_timecards(self):
-        response = self.client.get(reverse('BulkTimecardList'))
+        response = client(self).get(reverse('BulkTimecardList'))
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
@@ -196,14 +179,8 @@ class BulkTimecardsTests(TestCase):
 class BulkTimecardsTests(TestCase):
     fixtures = FIXTURES
 
-    def setUp(self):
-        self.user = User.objects.get(username='aaron.snow')
-        self.token = Token.objects.get_or_create(user=self.user)[0].key
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-
     def test_slim_bulk_timecards(self):
-        response = self.client.get(reverse('SlimBulkTimecardList'))
+        response = client(self).get(reverse('SlimBulkTimecardList'))
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
@@ -343,23 +320,17 @@ class TestAggregates(WebTest):
 class ReportingPeriodList(WebTest):
     fixtures = FIXTURES
 
-    def setUp(self):
-        self.user = User.objects.get(username='aaron.snow')
-        self.token = Token.objects.get_or_create(user=self.user)[0].key
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-
     def test_ReportingPeriodList_json(self):
         """ Check that the reporting periods are listed """
-        res = self.client.get(reverse('ReportingPeriodList')).data
+        res = client(self).get(reverse('ReportingPeriodList')).data
         self.assertEqual(res.json['count'], 1)
 
     def test_ReportingPeriodList_json(self):
         """ Check that the ReportingPeriodList is empty when all users
         have filled out thier time cards"""
-        reporting_periods = self.client.get(reverse('ReportingPeriodList')).data
+        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
         start_date = reporting_periods['results'][0]['start_date']
-        res = self.client.get(reverse(
+        res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
@@ -375,9 +346,9 @@ class ReportingPeriodList(WebTest):
         userdata = UserData(user=self.regular_user)
         userdata.save()
 
-        reporting_periods = self.client.get(reverse('ReportingPeriodList')).data
+        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
         start_date = reporting_periods['results'][0]['start_date']
-        res = self.client.get(reverse(
+        res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
@@ -395,9 +366,9 @@ class ReportingPeriodList(WebTest):
         userdata.current_employee = False
         userdata.save()
 
-        reporting_periods = self.client.get(reverse('ReportingPeriodList')).data
+        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
         start_date = reporting_periods['results'][0]['start_date']
-        res = self.client.get(reverse(
+        res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
