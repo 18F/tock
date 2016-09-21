@@ -1,6 +1,8 @@
 import collections
 import datetime
 
+
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.db import connection
 from django.db.models import Sum
@@ -295,6 +297,7 @@ def get_timecards(queryset, params=None):
 
     return queryset
 
+@login_required
 def bulk_timecard_list(request):
     """
     Stream all the timecards as CSV.
@@ -303,6 +306,7 @@ def bulk_timecard_list(request):
     serializer = BulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
+@login_required
 def slim_bulk_timecard_list(request):
     """
     Stream a slimmed down version of all the timecards as CSV.
