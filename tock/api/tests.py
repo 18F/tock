@@ -26,8 +26,8 @@ from rest_framework.test import APIClient
 # common client for all API tests
 
 def client(self):
-    self.user = User.objects.get(username='aaron.snow')
-    self.token = Token.objects.get_or_create(user=self.user)[0].key
+    self.request_user = User.objects.get_or_create(username='aaron.snow')[0]
+    self.token = Token.objects.get_or_create(user=self.request_user)[0].key
     self.client = APIClient()
     self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
     return self.client
@@ -228,13 +228,9 @@ class TestAggregates(WebTest):
                 hours_spent=5,
             ),
         ]
-        self.request_user = User.objects.get_or_create(username='aaron.snow')[0]
-        self.token = Token.objects.get_or_create(user=self.request_user)[0].key
-        self.client = APIClient()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
 
     def test_hours_by_quarter(self):
-        response = self.client.get(reverse('HoursByQuarter')).data
+        response = client(self).get(reverse('HoursByQuarter')).data
         self.assertEqual(len(response), 1)
         row = response[0]
         self.assertEqual(row['billable'], 15)
@@ -260,12 +256,12 @@ class TestAggregates(WebTest):
             ),
         ])
 
-        response = self.client.get(reverse('HoursByQuarter')).data
+        response = client(self).get(reverse('HoursByQuarter')).data
         self.assertEqual(len(self.timecard_objects), 3)
         self.assertEqual(response[0]['total'], 20)
 
     def test_hours_by_quarter_by_user(self):
-        response = self.client.get(reverse('HoursByQuarterByUser')).data
+        response = client(self).get(reverse('HoursByQuarterByUser')).data
         self.assertEqual(len(response), 1)
         row = response[0]
         self.assertEqual(row['username'], str(self.user))
@@ -310,7 +306,7 @@ class TestAggregates(WebTest):
             ),
         ])
 
-        response = self.client.get(reverse('HoursByQuarterByUser')).data
+        response = client(self).get(reverse('HoursByQuarterByUser')).data
         row = response[0]
 
         self.assertEqual(len(self.timecard_objects), 4)
