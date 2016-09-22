@@ -2,21 +2,35 @@
 
 import csv
 import datetime
+import json
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
 from django_webtest import WebTest
 
-from api.views import get_timecards, TimecardList
+from api.views import get_timecards, TimecardList, ProjectList, TimecardSerializer
 from projects.factories import AccountingCodeFactory, ProjectFactory
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
 )
 
+from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from employees.models import UserData, EmployeeGrade
 
+from rest_framework.authtoken.models import Token
+
+from django.test.client import Client
+from rest_framework.test import APIClient
+
+# common client for all API tests
+def client(self):
+    self.request_user = User.objects.get_or_create(username='aaron.snow')[0]
+    self.token = Token.objects.get_or_create(user=self.request_user)[0].key
+    self.client = APIClient()
+    self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+    return self.client
 
 # common fixtures for all API tests
 FIXTURES = [
@@ -25,25 +39,20 @@ FIXTURES = [
     'hours/fixtures/timecards.json'
 ]
 
-
 class ProjectsAPITests(TestCase):
     fixtures = FIXTURES
 
     def test_projects_json(self):
         pass
 
-    def test_projects_csv(self):
-        pass
-
-
 class ProjectInstanceAPITests(WebTest):
     fixtures = FIXTURES
 
     def test_projects_json(self):
-        res = self.app.get(reverse('ProjectInstanceView', kwargs={'pk': '29'}))
-        self.assertEqual(res.json['name'], "Consulting - Agile BPA")
-        self.assertEqual(res.json['start_date'], "2016-01-01")
-        self.assertEqual(res.json['end_date'], None)
+        res = client(self).get(reverse('ProjectInstanceView', kwargs={'pk': '29'})).data
+        self.assertEqual(res['name'], "Consulting - Agile BPA")
+        self.assertEqual(res['start_date'], "2016-01-01")
+        self.assertEqual(res['end_date'], None)
 
 class UsersAPITests(TestCase):
     fixtures = FIXTURES
@@ -54,19 +63,14 @@ class UsersAPITests(TestCase):
     def test_users_csv(self):
         pass
 
-
 class TimecardsAPITests(WebTest):
     fixtures = FIXTURES
 
     def test_timecards_json(self):
         """ Check that the timecards are rendered in json format correctly """
-        res = self.app.get(reverse('TimecardList', kwargs={'format': 'json'}))
-        self.assertEqual(res.json['count'], 2)
-
-    def test_timecards_csv(self):
-        """ Check that the timecards are rendered in csv format correctly """
-        res = self.app.get(reverse('TimecardList', kwargs={'format': 'csv'}))
-        self.assertEqual(len(res.text.strip().split('\n')), 3)
+        res = client(self).get(reverse('TimecardList')).content
+        clean_res = json.loads(res.decode())
+        self.assertEqual(clean_res['count'], 2)
 
     # TODO: test with more diverse data
     def test_get_timecards(self):
@@ -122,72 +126,6 @@ class TimecardsAPITests(WebTest):
         )
         self.assertEqual(len(queryset), 2)
 
-
-class ProjectTimelineTests(WebTest):
-    fixtures = FIXTURES
-
-    def test_project_timeline(self):
-        res = self.app.get(reverse('UserTimelineView'))
-        self.assertIn(
-            'aaron.snow,2015-06-01,2015-06-08,False,20.00', str(res.content))
-
-
-class BulkTimecardsTests(TestCase):
-    fixtures = FIXTURES
-
-    def test_bulk_timecards(self):
-        response = self.client.get(reverse('BulkTimecardList'))
-        rows = decode_streaming_csv(response)
-        expected_fields = set((
-            'project_name',
-            'project_id',
-            'billable',
-            'employee',
-            'start_date',
-            'end_date',
-            'hours_spent',
-            'agency',
-            'flat_rate',
-            'active',
-            'mbnumber',
-            'notes',
-        ))
-        rows_read = 0
-        for row in rows:
-            self.assertEqual(set(row.keys()), expected_fields)
-            self.assertEqual(row['project_id'], '1')
-            rows_read += 1
-        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
-
-class BulkTimecardsTests(TestCase):
-    fixtures = FIXTURES
-
-    def test_slim_bulk_timecards(self):
-        response = self.client.get(reverse('SlimBulkTimecardList'))
-        rows = decode_streaming_csv(response)
-        expected_fields = set((
-            'project_name',
-            'billable',
-            'employee',
-            'start_date',
-            'end_date',
-            'hours_spent',
-            'mbnumber',
-        ))
-        rows_read = 0
-        for row in rows:
-            self.assertEqual(set(row.keys()), expected_fields)
-            self.assertEqual(row['project_name'], 'Out Of Office')
-            self.assertEqual(row['billable'], 'False')
-            rows_read += 1
-        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
-
-
-def decode_streaming_csv(response, **reader_options):
-    lines = [line.decode('utf-8') for line in response.streaming_content]
-    return csv.DictReader(lines, **reader_options)
-
-
 class TestAggregates(WebTest):
 
     def setUp(self):
@@ -216,9 +154,9 @@ class TestAggregates(WebTest):
         ]
 
     def test_hours_by_quarter(self):
-        response = self.app.get(reverse('HoursByQuarter'))
-        self.assertEqual(len(response.json), 1)
-        row = response.json[0]
+        response = client(self).get(reverse('HoursByQuarter')).data
+        self.assertEqual(len(response), 1)
+        row = response[0]
         self.assertEqual(row['billable'], 15)
         self.assertEqual(row['nonbillable'], 5)
         self.assertEqual(row['total'], 20)
@@ -242,14 +180,14 @@ class TestAggregates(WebTest):
             ),
         ])
 
-        response = self.app.get(reverse('HoursByQuarter'))
+        response = client(self).get(reverse('HoursByQuarter')).data
         self.assertEqual(len(self.timecard_objects), 3)
-        self.assertEqual(response.json[0]['total'], 20)
+        self.assertEqual(response[0]['total'], 20)
 
     def test_hours_by_quarter_by_user(self):
-        response = self.app.get(reverse('HoursByQuarterByUser'))
-        self.assertEqual(len(response.json), 1)
-        row = response.json[0]
+        response = client(self).get(reverse('HoursByQuarterByUser')).data
+        self.assertEqual(len(response), 1)
+        row = response[0]
         self.assertEqual(row['username'], str(self.user))
         self.assertEqual(row['billable'], 15)
         self.assertEqual(row['nonbillable'], 5)
@@ -259,9 +197,7 @@ class TestAggregates(WebTest):
 
     def test_hours_by_quarter_by_user_with_unsubmitted_timecards(self):
         """ Check that unsubmitted timecards are not counted  """
-
         # add one unsubmitted timecard + one additional submitted one
-
         timecard_unsubmit = TimecardFactory(
             user=self.user,
             reporting_period=ReportingPeriodFactory(
@@ -292,32 +228,31 @@ class TestAggregates(WebTest):
             ),
         ])
 
-        response = self.app.get(reverse('HoursByQuarterByUser'))
-        row = response.json[0]
+        response = client(self).get(reverse('HoursByQuarterByUser')).data
+        row = response[0]
 
         self.assertEqual(len(self.timecard_objects), 4)
         self.assertEqual(row['total'], 60)
-
 
 class ReportingPeriodList(WebTest):
     fixtures = FIXTURES
 
     def test_ReportingPeriodList_json(self):
         """ Check that the reporting periods are listed """
-        res = self.app.get(reverse('ReportingPeriodList'))
+        res = client(self).get(reverse('ReportingPeriodList')).data
         self.assertEqual(res.json['count'], 1)
 
     def test_ReportingPeriodList_json(self):
         """ Check that the ReportingPeriodList is empty when all users
         have filled out thier time cards"""
-        reporting_periods = self.app.get(reverse('ReportingPeriodList'))
-        start_date = reporting_periods.json['results'][0]['start_date']
-        res = self.app.get(reverse(
+        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        start_date = reporting_periods['results'][0]['start_date']
+        res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
-        )
-        self.assertEqual(res.json['count'], 0)
+        ).data
+        self.assertEqual(res['count'], 0)
 
     def test_ReportingPeriodList_json_missing_timesheet(self):
         """ Check that the ReportingPeriodList shows users that have missing
@@ -328,15 +263,14 @@ class ReportingPeriodList(WebTest):
         userdata = UserData(user=self.regular_user)
         userdata.save()
 
-        reporting_periods = self.app.get(reverse('ReportingPeriodList'))
-        start_date = reporting_periods.json['results'][0]['start_date']
-        res = self.app.get(reverse(
+        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        start_date = reporting_periods['results'][0]['start_date']
+        res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
-        )
-        self.assertEqual(res.json['count'], 1)
-
+        ).data
+        self.assertEqual(res['count'], 1)
 
     def test_ReportingPeriodList_json_no_longer_employed(self):
         """ Check that the ReportingPeriodList shows users that have missing
@@ -348,11 +282,11 @@ class ReportingPeriodList(WebTest):
         userdata.current_employee = False
         userdata.save()
 
-        reporting_periods = self.app.get(reverse('ReportingPeriodList'))
-        start_date = reporting_periods.json['results'][0]['start_date']
-        res = self.app.get(reverse(
+        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        start_date = reporting_periods['results'][0]['start_date']
+        res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
-        )
-        self.assertEqual(res.json['count'], 0)
+        ).data
+        self.assertEqual(res['count'], 0)

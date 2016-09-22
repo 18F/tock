@@ -3,6 +3,8 @@ import datetime
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from employees.models import UserData
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
 
 
 class UserDataTests(TestCase):
@@ -16,6 +18,7 @@ class UserDataTests(TestCase):
         userdata.unit = 1
         userdata.is_18f_employee = True
         userdata.save()
+        self.token = Token.objects.create(user=self.regular_user)
 
     def test_user_data_is_stored(self):
         """ Check that user data was stored correctly """
@@ -45,3 +48,16 @@ class UserDataTests(TestCase):
         """ Check that the user data is initalized with the current
         employee value being true """
         self.assertTrue(self.regular_user.user_data.current_employee)
+
+    def test_token_is_delete_on_active_is_false(self):
+        """ Verify that any tokens associated with a user are deleted when that
+        user is marked as not active. """
+        token_before_save = self.token
+        userdata = UserData.objects.first()
+        userdata.current_employee = False
+        userdata.save()
+        try:
+            token_after_save = Token.objects.get(user=self.regular_user)
+        except Token.DoesNotExist:
+            token_after_save = None
+        self.assertNotEqual(token_before_save, token_after_save)
