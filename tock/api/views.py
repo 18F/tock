@@ -293,6 +293,13 @@ def get_timecards(queryset, params=None):
         else:
             queryset = queryset.filter(project__name=project)
 
+    if 'after' in params:
+        # get everything after a specified date
+        after_date = params.get('after')
+        queryset = queryset.filter(
+            timecard__reporting_period__end_date__gte=after_date
+        )
+
     return queryset
 
 def bulk_timecard_list(request):
