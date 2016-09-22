@@ -1,10 +1,12 @@
 import datetime
+import csv
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from django_webtest import WebTest
+
 from hours.utils import number_of_hours
 
 from employees.models import UserData
@@ -12,7 +14,74 @@ from hours.forms import choice_label_for_project
 import hours.models
 import projects.models
 import hours.views
+from api.tests import client
 
+
+FIXTURES = [
+    'tock/fixtures/prod_user.json',
+    'projects/fixtures/projects.json',
+    'hours/fixtures/timecards.json',
+]
+
+class BulkTimecardsTests(TestCase):
+    fixtures = FIXTURES
+
+    def test_bulk_timecards(self):
+        response = client(self).get(reverse('reports:BulkTimecardList'))
+        rows = decode_streaming_csv(response)
+        expected_fields = set((
+            'project_name',
+            'project_id',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'agency',
+            'flat_rate',
+            'active',
+            'mbnumber',
+            'notes',
+        ))
+        rows_read = 0
+        for row in rows:
+            self.assertEqual(set(row.keys()), expected_fields)
+            self.assertEqual(row['project_id'], '1')
+            rows_read += 1
+        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
+
+    def test_slim_bulk_timecards(self):
+        response = client(self).get(reverse('reports:SlimBulkTimecardList'))
+        rows = decode_streaming_csv(response)
+        expected_fields = set((
+            'project_name',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'mbnumber',
+        ))
+        rows_read = 0
+        for row in rows:
+            self.assertEqual(set(row.keys()), expected_fields)
+            self.assertEqual(row['project_name'], 'Out Of Office')
+            self.assertEqual(row['billable'], 'False')
+            rows_read += 1
+        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
+
+
+def decode_streaming_csv(response, **reader_options):
+    lines = [line.decode('utf-8') for line in response.streaming_content]
+    return csv.DictReader(lines, **reader_options)
+
+class ProjectTimelineTests(WebTest):
+    fixtures = FIXTURES
+
+    def test_project_timeline(self):
+        res = client(self).get(reverse('reports:UserTimelineView'))
+        self.assertIn(
+            'aaron.snow,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
 class UtilTests(TestCase):
 

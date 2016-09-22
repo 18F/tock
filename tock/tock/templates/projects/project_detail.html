@@ -65,7 +65,7 @@ Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_
 <figure class="chart chart--utilization">
   <utilization-chart
     class="timeline timeline--project"
-    data-url="{% url 'UserTimelineView' %}?project={{ object.id }}"
+    data-url="{% url 'reports:UserTimelineView' %}?project={{ object.id }}"
     href="/employees/{% verbatim %}{{ user }} {% endverbatim %}"
     layer="user"
     color="user"
