@@ -95,31 +95,7 @@ class TimecardSerializer(serializers.Serializer):
     agency = serializers.CharField(source='project.accounting_code.agency.name')
     flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
     notes = serializers.CharField()
-
-
-class BulkTimecardSerializer(serializers.Serializer):
-    project_name = serializers.CharField(source='project.name')
-    project_id = serializers.CharField(source='project.id')
-    employee = serializers.StringRelatedField(source='timecard.user')
-    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
-    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
-    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
-    billable = serializers.BooleanField(source='project.accounting_code.billable')
-    agency = serializers.CharField(source='project.accounting_code.agency.name')
-    flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
-    active = serializers.BooleanField(source='project.active')
-    mbnumber = serializers.CharField(source='project.mbnumber')
-    notes = serializers.CharField()
-
-class SlimBulkTimecardSerializer(serializers.Serializer):
-    project_name = serializers.CharField(source='project.name')
-    employee = serializers.StringRelatedField(source='timecard.user')
-    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
-    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
-    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
-    billable = serializers.BooleanField(source='project.accounting_code.billable')
-    mbnumber = serializers.CharField(source='project.mbnumber')
-
+    
 # API Views
 
 class UserDataView(generics.ListAPIView):
