@@ -13,9 +13,10 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch, Q, Sum
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import serializers
 
 from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
@@ -25,6 +26,101 @@ from .forms import (
     ReportingPeriodForm, ReportingPeriodImportForm, projects_as_choices,
     TimecardForm, TimecardFormSet, timecard_formset_factory
 )
+from api.views import get_timecards, TimecardList
+from api.renderers import stream_csv
+
+
+class BulkTimecardSerializer(serializers.Serializer):
+    project_name = serializers.CharField(source='project.name')
+    project_id = serializers.CharField(source='project.id')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    billable = serializers.BooleanField(source='project.accounting_code.billable')
+    agency = serializers.CharField(source='project.accounting_code.agency.name')
+    flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
+    active = serializers.BooleanField(source='project.active')
+    mbnumber = serializers.CharField(source='project.mbnumber')
+    notes = serializers.CharField()
+
+class SlimBulkTimecardSerializer(serializers.Serializer):
+    project_name = serializers.CharField(source='project.name')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    billable = serializers.BooleanField(source='project.accounting_code.billable')
+    mbnumber = serializers.CharField(source='project.mbnumber')
+
+def bulk_timecard_list(request):
+    """
+    Stream all the timecards as CSV.
+    """
+    queryset = get_timecards(TimecardList.queryset, request.GET)
+    serializer = BulkTimecardSerializer()
+    return stream_csv(queryset, serializer)
+
+def slim_bulk_timecard_list(request):
+    """
+    Stream a slimmed down version of all the timecards as CSV.
+    """
+    queryset = get_timecards(TimecardList.queryset, request.GET)
+    serializer = SlimBulkTimecardSerializer()
+    return stream_csv(queryset, serializer)
+
+def timeline_view(request, value_fields=(), **field_alias):
+    """ CSV endpoint for the project timeline viz """
+    queryset = get_timecards(TimecardList.queryset, request.GET)
+
+    fields = list(value_fields) + [
+        'timecard__reporting_period__start_date',
+        'timecard__reporting_period__end_date',
+        'project__accounting_code__billable'
+    ]
+
+    field_map = {
+        'timecard__reporting_period__start_date': 'start_date',
+        'timecard__reporting_period__end_date': 'end_date',
+        'project__accounting_code__billable': 'billable',
+    }
+    field_map.update(field_alias)
+
+    data = queryset.values(*fields).annotate(hours_spent=Sum('hours_spent'))
+
+    fields.append('hours_spent')
+
+    data = [
+        {
+            field_map.get(field, field): row.get(field)
+            for field in fields
+        }
+        for row in data
+    ]
+
+    response = HttpResponse(content_type='text/csv')
+
+    fieldnames = [field_map.get(field, field) for field in fields]
+    writer = csv.DictWriter(response, fieldnames=fieldnames)
+    writer.writeheader()
+    for row in data:
+        writer.writerow(row)
+    return response
+
+def project_timeline_view(request):
+    return timeline_view(
+        request,
+        value_fields=['project__id', 'project__name'],
+        project__id='project_id',
+        project__name='project_name',
+    )
+
+def user_timeline_view(request):
+    return timeline_view(
+        request,
+        value_fields=['timecard__user__username'],
+        timecard__user__username='user',
+    )
 
 from api.views import get_timecards, TimecardList, ProjectSerializer, UserDataSerializer
 from api.renderers import stream_csv
