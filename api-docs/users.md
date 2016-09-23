@@ -1,6 +1,6 @@
 **Project Info**
 ----
-To fetch information about a specific project.
+To fetch a list of all users and their related information.
 
 * **URL**
 
