@@ -12,6 +12,8 @@ deploy()
 	current_deployment=$1
 	next_deployment=$2
 
+	echo "building CSS..."
+	npm run predeploy
 
 	echo "$current_deployment is currently deployed, pushing $next_deployment"
 	cf push $next_deployment --no-start -n $app_name-$timestamp
