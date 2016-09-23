@@ -6,7 +6,7 @@ To fetch information about a specific project.
 
   /projects/[integer].json
   
-  *[integer] is the project's `id` or `pk` value. To get a list of these values, see [/projects.json documentation](https://github.com/18F/blob/master/tock/api-docs/projects.md).*
+  *[integer] is the project's `id` or `pk` value. To get a list of these values, see [/projects.json documentation](https://github.com/18F/tock/blob/master/api-docs/projects.md).*
 
 * **Method:**
 
