@@ -83,15 +83,27 @@ e.g. `base/_typography.scss` focuses on website type stylings.
 
 ## API
 
-Tock has an API! You can get the full dataset at
-[/api/timecards_bulk.csv](https://tock.18f.gov/api/timecards_bulk.csv),
-page through results at [/api/timecards.json](https://tock.18f.gov/api/timecards.json),
-or choose a different page or page size, e.g.
-[/api/timecards.json?page=2&page_size=100](https://tock.18f.gov/api/timecards.json?page=2&page_size=100)
+Tock has an API! You may issue requests to various endpoints (listed below) via /api/... with results returned as JSON objects. We use Django REST framework's TokenAuthentication library which requires all requests to include a token value in your request header using the following format (a cURL command line based request is used for this example for getting project data from our Tock deployment):
+```
+$ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
+```
+To obtain your own Tock API authorization token, please visit [#tock-dev](https://18f.slack.com/tock-dev) on Slack!
+### Endpoints
+  - **/projects.json** - A list of all projects.
+  - **projects/**_value_**.json** - Data about a specific project, where *[value]* equals the database `pk` interger value for the project.
+  - **/users.json** - A list of all Tock users.
+  - **/reporting_period_audit.json** - A list of all existing reporting periods.
+  - **/reporting_period_audit/**_YYYY-MM-DD_**.json** - A list of all users who have not submitted a timecard for the reporting period specified in _YYYY-MM-DD_ format.
+  - **/timecards.json** - All submitted timecards. This endpoint takes the following parameters to limit the number of objects returned:
+   - `date=YYYY-MM-DD` - Returns timecard data for the reporting period in which the *YYYY-MM-DD* value falls.
+   - `user=firstname.lastname` - Returns timecard data for the specified user.
+   - `project=id` or `project=name` - Returns timecard data for the specifed project by either the project's database `pk` value or the name of the `name` value of the project.
 
-You can also get a list of projects at
-[/api/projects.json](https://tock.18f.gov/api/projects.json),
-or as a spreadsheet at [/api/projects.csv](https://tock.18f.gov/api/projects.csv).
+-  **/by_quarter.json** - Returns aggregate hour data in quarterly increments.
+-  **/by_quarter_by_user.json** - Returns aggregrate hour data in quarterly increments by user.
+-  **/user_data.json** - Returns extended Tock user data.
+
+To access similar data in CSV format from within Tock, please visit the [/reports](https://tock.18f.gov/reports) page.
 
 ## Authentication
 
