@@ -1,6 +1,6 @@
 **Project Info**
 ----
-To fetch a list of all available reporting periods and related information.
+To fetch a list of all available reporting periods and their related information.
 
 * **URL**
 
