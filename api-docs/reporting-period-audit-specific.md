@@ -6,7 +6,7 @@ To fetch a list of all users who have not submitted a timecard for the specified
 
   /reporting_period_audit/[YYYY-MM-DD].json
   
-  *The value [YYYY-MM-DD] is the `start_date` attribute of the reporting period sought. For a list of reporting periods, please see the [/reporting_period_audit.json documentation](https://github.com/18f/tock/api-docs/reporting-period-audit.md).*
+  *The value [YYYY-MM-DD] is the `start_date` attribute of the reporting period sought. For a list of reporting periods, please see the [/reporting_period_audit.json documentation](https://github.com/18F/tock/blob/master/api-docs/reporting-period-audit.md).*
 
 * **Method:**
 
