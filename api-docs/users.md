@@ -1,4 +1,4 @@
-**Project Info**
+**User Info**
 ----
 To fetch a list of all users and their related information.
 
