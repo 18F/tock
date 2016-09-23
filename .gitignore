@@ -57,14 +57,18 @@ target/
 # Application
 local_settings.py
 
-*.swp
+# vim swapfiles
+.*.sw?
 
 # Database
 *.sqlite3
 
 .DS_Store
 
-.sass-cache
+# environment stuff
 .env
-.vagrant
 tock.sql
+
+# node stuff
+node_modules
+!tock/tock/static/css/dist
