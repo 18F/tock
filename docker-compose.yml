@@ -31,9 +31,9 @@ web:
   ports:
     - "${EXTERNAL_PORT}:${EXTERNAL_PORT}"
 sass:
-  build: .
+  image: node:6.5
   volumes:
-    - ./tock:/tock
+    - .:/tock
+    - /tock/node_modules
   working_dir: /tock
-  entrypoint: python /tock/docker_entrypoint.py
-  command: sass --watch tock/static/sass/core.scss:tock/static/css/style.css
+  entrypoint: npm start
