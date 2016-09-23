@@ -18,14 +18,14 @@ deploy()
 	cf push $next_deployment -n $app_name-$timestamp
 	echo "Mapping $next_deployment to the Main Domain"
 	cf map-route $next_deployment 18f.gov -n $app_name
- 	cf map-route $next_deployment 18f.gov -n $app_name --path api
+	cf map-route $next_deployment 18f.gov -n $app_name --path api
 	echo "Removing $current_deployment From the Main Domain"
 	cf unmap-route $current_deployment 18f.gov -n $app_name
-  cf unmap-route $current_deployment 18f.gov -n $app_name --path api
+	cf unmap-route $current_deployment 18f.gov -n $app_name --path api
 	read -p "Check your app. Is it functioning properly? (y/n)" -n 1 -r
 	echo    # (optional) move to a new line
 	if [[ $REPLY =~ ^[Yy]$ ]]; then
-    	cf delete $current_deployment -f
+		cf delete $current_deployment -f
 	else
 		deploy $next_deployment $current_deployment
 	fi
