@@ -1,6 +1,6 @@
-**Timecards by Quarter**
+**Hours by Quarter**
 ----
-To fetch a summary of all submitted timecards, by year and quarter.
+To fetch an hourly summary of all submitted timecards, by year and quarter.
 
 * **URL**
 
