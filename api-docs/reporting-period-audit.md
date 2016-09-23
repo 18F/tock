@@ -1,4 +1,4 @@
-**Project Info**
+**Reporting Period Info**
 ----
 To fetch a list of all available reporting periods and their related information.
 
