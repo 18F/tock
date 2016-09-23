@@ -70,16 +70,33 @@ can just run `python manage.py` directly from outside the container--the
 `manage.py` script has been modified to run itself in a Docker container
 if it detects that Django isn't installed.
 
-### Making Sass changes
+### Making CSS changes
 
-`docker-compose up` will also launch [Sass] and automatically compile
-SCSS (`.scss`) files into CSS as you change them.
+`docker-compose up` will also launch a [Node] machine that compiles the [Sass]
+files in `tock/tock/static/sass` into corresponding CSS files in
+`tock/tock/static/css/dist`. **The generated CSS files are not checked into
+git, and should not be modified by hand.**
 
-All of the files you should be editing are located in
-`tock/tock/static/sass/` and are labeled according to their purpose,
-e.g. `base/_typography.scss` focuses on website type stylings.
+You can also run the CSS build and watch scripts outside of the Docker
+container. Just install [Node], then install the dependencies with:
 
-**:warning: Only change files ending in  `.scss` directly; NOT `.css`!**
+```sh
+npm install
+```
+
+Assuming that goes off without a hitch, you can then either build the CSS in
+one go with:
+
+```
+npm run build-css
+```
+
+or start the watch process, which builds new CSS whenever the source Sass files
+are changed:
+
+```
+npm run watch-css
+```
 
 ## API
 
