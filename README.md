@@ -78,7 +78,8 @@ files in `tock/tock/static/sass` into corresponding CSS files in
 git, and should not be modified by hand.**
 
 You can also run the CSS build and watch scripts outside of the Docker
-container. Just install [Node], then install the dependencies with:
+container. Just install [Node][] (e.g. with `brew install node` on OS X), then
+install the dependencies with:
 
 ```sh
 npm install
@@ -116,3 +117,4 @@ To access similar data in CSV format from within Tock, please visit the [/report
 [Docker Compose]: https://docs.docker.com/compose/
 [Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
 [Sass]: http://sass-lang.com/
+[Node]: https://nodejs.org/en/
