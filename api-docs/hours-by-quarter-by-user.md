@@ -1,6 +1,6 @@
 **Hours by Quarter and User Info**
 ----
-To fetch a summary of hours by quarter, by year, by each user.
+To fetch an hourly summary of all submitted timecards, by year, by quarter, and by user.
 
 * **URL**
 
