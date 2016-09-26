@@ -69,7 +69,7 @@ class TimecardsAPITests(WebTest):
         """ Check that the timecards are rendered in json format correctly """
         res = client(self).get(reverse('TimecardList')).content
         clean_res = json.loads(res.decode())
-        self.assertEqual(clean_res['count'], 2)
+        self.assertEqual(len(clean_res), 2)
 
     # TODO: test with more diverse data
     def test_get_timecards(self):
@@ -242,13 +242,13 @@ class ReportingPeriodList(WebTest):
         """ Check that the ReportingPeriodList is empty when all users
         have filled out thier time cards"""
         reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
-        start_date = reporting_periods['results'][0]['start_date']
+        start_date = reporting_periods[0]['start_date']
         res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
         ).data
-        self.assertEqual(res['count'], 0)
+        self.assertEqual(len(res), 0)
 
     def test_ReportingPeriodList_json_missing_timesheet(self):
         """ Check that the ReportingPeriodList shows users that have missing
@@ -260,13 +260,13 @@ class ReportingPeriodList(WebTest):
         userdata.save()
 
         reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
-        start_date = reporting_periods['results'][0]['start_date']
+        start_date = reporting_periods[0]['start_date']
         res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
         ).data
-        self.assertEqual(res['count'], 1)
+        self.assertEqual(len(res), 1)
 
     def test_ReportingPeriodList_json_no_longer_employed(self):
         """ Check that the ReportingPeriodList shows users that have missing
@@ -279,10 +279,10 @@ class ReportingPeriodList(WebTest):
         userdata.save()
 
         reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
-        start_date = reporting_periods['results'][0]['start_date']
+        start_date = reporting_periods[0]['start_date']
         res = client(self).get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
         ).data
-        self.assertEqual(res['count'], 0)
+        self.assertEqual(len(res), 0)

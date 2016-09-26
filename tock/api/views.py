@@ -12,27 +12,10 @@ from projects.models import Project
 from hours.models import TimecardObject, Timecard, ReportingPeriod
 from employees.models import UserData
 
-from rest_framework import serializers, generics, pagination
+from rest_framework import serializers, generics
 
 import csv
 from .renderers import stream_csv
-
-class StandardResultsSetPagination(pagination.PageNumberPagination):
-    """
-    This is a standard results set paginator for all API view classes
-    that need pagination.
-    """
-    page_size = 100
-    page_size_query_param = 'page_size'
-    max_page_size = 2000
-
-class JumboResultsSetPagination(pagination.PageNumberPagination):
-    """
-    For bigger results!
-    """
-    page_size = 500
-    page_size_query_param = 'page_size'
-    max_page_size = 2000
 
 # Serializers for different models
 
@@ -101,12 +84,10 @@ class TimecardSerializer(serializers.Serializer):
 class UserDataView(generics.ListAPIView):
     queryset = UserData.objects.all()
     serializer_class = UserDataSerializer
-    pagination_class = JumboResultsSetPagination
 
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    pagination_class = JumboResultsSetPagination
 
 class ProjectInstanceView(generics.RetrieveAPIView):
     """ Return the details of a specific project """
@@ -117,12 +98,10 @@ class ProjectInstanceView(generics.RetrieveAPIView):
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    pagination_class = StandardResultsSetPagination
 
 class ReportingPeriodList(generics.ListAPIView):
     queryset = ReportingPeriod.objects.all()
     serializer_class = ReportingPeriodSerializer
-    pagination_class = StandardResultsSetPagination
 
 class ReportingPeriodAudit(generics.ListAPIView):
     """ This endpoint retrieves a list of users who have not filled out
@@ -130,7 +109,6 @@ class ReportingPeriodAudit(generics.ListAPIView):
 
     queryset = ReportingPeriod.objects.all()
     serializer_class = UserSerializer
-    pagination_class = JumboResultsSetPagination
     lookup_field = 'start_date'
 
     def get_queryset(self):
@@ -163,7 +141,6 @@ class TimecardList(generics.ListAPIView):
     )
 
     serializer_class = TimecardSerializer
-    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.query_params)
