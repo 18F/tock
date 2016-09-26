@@ -15,6 +15,6 @@ urlpatterns = [
         view=views.ReportingPeriodUserDetailView.as_view(), name='ReportingPeriodUserDetailView'),
     url(r'^project_timeline.csv$', views.project_timeline_view, name='ProjectTimelineView'),
     url(r'^user_timeline.csv$', views.user_timeline_view, name='UserTimelineView'),
-#    url(r'^projects.csv$', ProjectList.as_view(), name='ProjectList'),
-
+    url(r'^projects.csv$', views.projects_csv, name='ProjectList'),
+    url(r'^user_data.csv$', views.user_data_csv, name='UserDataView'),
 ]

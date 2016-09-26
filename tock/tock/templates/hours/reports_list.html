@@ -9,6 +9,10 @@
 <ul>
 	<li><a href="{% url 'reports:BulkTimecardList' %}">Complete timecard data</a></li>
 	<li><a href="{% url 'reports:SlimBulkTimecardList' %}">Complete timecard data with fewer fields</a></li>
+	<li><a href="{% url 'reports:ProjectTimelineView' %}">Aggregate hourly data by project and reporting period</a></li>
+	<li><a href="{% url 'reports:UserTimelineView' %}">Aggregate hourly data by user, reporting period, and project billable status</a></li>
+	<li><a href="{% url 'reports:ProjectList' %}">List of all projects</a></li>
+	<li><a href="{% url 'reports:UserDataView' %}">List of all users</a></li>
 
 <div class="reporting-periods">
 	<h3>Reports by weekly reporting period</h3>
