@@ -83,15 +83,13 @@ e.g. `base/_typography.scss` focuses on website type stylings.
 
 ## API
 
-Tock has an API! You can get the full dataset at
-[/api/timecards_bulk.csv](https://tock.18f.gov/api/timecards_bulk.csv),
-page through results at [/api/timecards.json](https://tock.18f.gov/api/timecards.json),
-or choose a different page or page size, e.g.
-[/api/timecards.json?page=2&page_size=100](https://tock.18f.gov/api/timecards.json?page=2&page_size=100)
+Tock has an API! You may issue GET requests to various [endpoints](https://github.com/18F/tock/tree/master/api-docs) via the /api/ path with results returned as JSON objects. We use Django REST framework's TokenAuthentication library which requires all requests to include a token value in your request header using the following format (a cURL command line based request is used for this example for getting project data from our Tock deployment):
+```
+$ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
+```
+To obtain your own Tock API authorization token, please visit [#tock-dev](https://18f.slack.com/tock-dev) on Slack!
 
-You can also get a list of projects at
-[/api/projects.json](https://tock.18f.gov/api/projects.json),
-or as a spreadsheet at [/api/projects.csv](https://tock.18f.gov/api/projects.csv).
+To access similar data in CSV format from within Tock, please visit the [/reports](https://tock.18f.gov/reports) page.
 
 ## Authentication
 
