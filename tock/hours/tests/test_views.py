@@ -4,24 +4,59 @@ import csv
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-
 from django_webtest import WebTest
 
-from hours.utils import number_of_hours
+from api.renderers import stream_csv
 
+from rest_framework.test import APIClient
+from rest_framework.authtoken.models import Token
+
+from api.tests import client
+from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData
+from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
 import hours.models
-import projects.models
 import hours.views
-from api.tests import client
-
+import projects.models
 
 FIXTURES = [
     'tock/fixtures/prod_user.json',
     'projects/fixtures/projects.json',
     'hours/fixtures/timecards.json',
+    'employees/fixtures/user_data.json',
 ]
+
+def decode_streaming_csv(response, **reader_options):
+    lines = [line.decode('utf-8') for line in response.streaming_content]
+    return csv.DictReader(lines, **reader_options)
+
+class CSVTests(TestCase):
+    fixtures = FIXTURES
+
+    def test_user_data_csv(self):
+        """Test that correct fields are returned for user data CSV request."""
+        response = client(self).get(reverse('reports:UserDataView'))
+        rows = decode_streaming_csv(response)
+        for row in rows:
+            num_of_fields = len(row)
+        num_of_expected_fields = len(
+            UserDataSerializer.__dict__['_declared_fields']
+        )
+
+        self.assertEqual(num_of_expected_fields, num_of_fields)
+
+    def test_project_csv(self):
+        """Test that correct fields are returned for project data CSV
+        request."""
+        response = client(self).get(reverse('reports:ProjectList'))
+        rows = decode_streaming_csv(response)
+        for row in rows:
+            num_of_fields = len(row)
+        num_of_expected_fields = len(
+            ProjectSerializer.__dict__['Meta'].__dict__['fields']
+        )
+        self.assertEqual(num_of_expected_fields, num_of_fields)
 
 class BulkTimecardsTests(TestCase):
     fixtures = FIXTURES
@@ -69,11 +104,6 @@ class BulkTimecardsTests(TestCase):
             self.assertEqual(row['billable'], 'False')
             rows_read += 1
         self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
-
-
-def decode_streaming_csv(response, **reader_options):
-    lines = [line.decode('utf-8') for line in response.streaming_content]
-    return csv.DictReader(lines, **reader_options)
 
 class ProjectTimelineTests(WebTest):
     fixtures = FIXTURES
