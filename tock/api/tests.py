@@ -77,6 +77,11 @@ class TimecardsAPITests(WebTest):
         # Check with no params
         queryset = get_timecards(TimecardList.queryset)
         self.assertEqual(len(queryset), 2)
+        # Check with after param
+        queryset = get_timecards(TimecardList.queryset,
+            params={'after': '2020-12-31'})
+        self.assertEqual(len(queryset), 0)
+
         # Check with date param
         queryset = get_timecards(TimecardList.queryset,
                                  params={'date': '2000-01-01'})
