@@ -14,6 +14,6 @@
 @import "charts";
 
 .container {
-	@include outer-container;
-	margin-top: 3em;
+  @include outer-container;
+  margin-top: 3em;
 }
