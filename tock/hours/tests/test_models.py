@@ -17,7 +17,8 @@ class ReportingPeriodTests(TestCase):
             exact_working_hours=40,
             min_working_hours=40,
             max_working_hours=60,
-            message='This is not a vacation')
+            message='This is not a vacation',
+            target_billable_hours=100)
         self.reporting_period.save()
 
     def test_reporting_period_save(self):
@@ -30,6 +31,7 @@ class ReportingPeriodTests(TestCase):
         self.assertEqual('This is not a vacation', reporting_period.message)
         self.assertEqual(40, reporting_period.min_working_hours)
         self.assertEqual(60, reporting_period.max_working_hours)
+        self.assertEqual(100, reporting_period.target_billable_hours)
 
     def test_unique_constraint(self):
         """ Check that unique constrains work for reporting period """

@@ -20,6 +20,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
+    target_billable_hours = models.PositiveIntegerField(blank=True, null=True)
 
     def __str__(self):
         return str(self.start_date)
@@ -61,6 +62,30 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
             )
         )
 
+    def recent_performance(self):
+        date_range = 600
+        perf_rps = ReportingPeriod.objects.filter(
+            Q(start_date__gte=datetime.date.today() - datetime.timedelta(days=date_range))
+            & Q(end_date__lte=datetime.date.today()))
+        performance = 0
+        plan = 0
+        for rp in perf_rps:
+            timecards = Timecard.objects.filter(reporting_period=rp)
+            if rp.target_billable_hours:
+                plan += rp.target_billable_hours
+            for t in timecards:
+                timecard_objects = TimecardObject.objects.filter(timecard=t)
+                for to in timecard_objects:
+                    if to.project.accounting_code.billable:
+                        performance += to.hours_spent
+
+        return 'During the prior {} reporting periods, we logged {} ' \
+        'billable hours. This is {} of our target, {} hours.'.format(
+            len(perf_rps),
+            performance,
+            performance / plan,
+            plan
+        )
 
 class Timecard(models.Model):
     user = models.ForeignKey(User)

@@ -101,7 +101,8 @@ class ReportTests(WebTest):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            exact_working_hours=40)
+            exact_working_hours=40,
+            target_billable_hours=100)
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
