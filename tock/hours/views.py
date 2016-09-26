@@ -18,16 +18,22 @@ from django.db.models import Prefetch, Q, Sum
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
+from api.views import get_timecards, TimecardList, ProjectSerializer, UserDataSerializer
+from api.renderers import stream_csv
+from employees.models import UserData
+from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
+
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
-from projects.models import AccountingCode
 from .forms import (
-    ReportingPeriodForm, ReportingPeriodImportForm, projects_as_choices,
-    TimecardForm, TimecardFormSet, timecard_formset_factory
+    ReportingPeriodForm,
+    ReportingPeriodImportForm,
+    projects_as_choices,
+    TimecardForm,
+    TimecardFormSet,
+    timecard_formset_factory
 )
-from api.views import get_timecards, TimecardList
-from api.renderers import stream_csv
 
 
 class BulkTimecardSerializer(serializers.Serializer):
@@ -53,6 +59,22 @@ class SlimBulkTimecardSerializer(serializers.Serializer):
     billable = serializers.BooleanField(source='project.accounting_code.billable')
     mbnumber = serializers.CharField(source='project.mbnumber')
 
+def user_data_csv(request):
+    """
+    Stream all user data as CSV.
+    """
+    queryset = UserData.objects.all()
+    serializer = UserDataSerializer()
+    return stream_csv(queryset, serializer)
+
+def projects_csv(request):
+    """
+    Stream all of the projects as CSV.
+    """
+    queryset = Project.objects.all()
+    serializer = ProjectSerializer()
+    return stream_csv(queryset, serializer)
+
 def bulk_timecard_list(request):
     """
     Stream all the timecards as CSV.
@@ -70,7 +92,7 @@ def slim_bulk_timecard_list(request):
     return stream_csv(queryset, serializer)
 
 def timeline_view(request, value_fields=(), **field_alias):
-    """ CSV endpoint for the project timeline viz """
+    """ CSV endpoint for the project timeline viz. """
     queryset = get_timecards(TimecardList.queryset, request.GET)
 
     fields = list(value_fields) + [
@@ -121,7 +143,6 @@ def user_timeline_view(request):
         value_fields=['timecard__user__username'],
         timecard__user__username='user',
     )
-
 
 class ReportingPeriodListView(PermissionMixin, ListView):
     """ Currently the home view that lists the completed and missing time
