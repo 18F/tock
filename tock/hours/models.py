@@ -6,7 +6,7 @@ from projects.models import Project
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
@@ -63,29 +63,39 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         )
 
     def recent_performance(self):
-        date_range = 600
-        perf_rps = ReportingPeriod.objects.filter(
-            Q(start_date__gte=datetime.date.today() - datetime.timedelta(days=date_range))
-            & Q(end_date__lte=datetime.date.today()))
-        performance = 0
-        plan = 0
-        for rp in perf_rps:
-            timecards = Timecard.objects.filter(reporting_period=rp)
-            if rp.target_billable_hours:
-                plan += rp.target_billable_hours
-            for t in timecards:
-                timecard_objects = TimecardObject.objects.filter(timecard=t)
-                for to in timecard_objects:
-                    if to.project.accounting_code.billable:
-                        performance += to.hours_spent
+        date_range = 45
+        end_date = datetime.date.today()
+        start_date = end_date - datetime.timedelta(days=date_range)
 
-        return 'During the prior {} reporting periods, we logged {} ' \
-        'billable hours. This is {} of our target, {} hours.'.format(
-            len(perf_rps),
-            performance,
-            performance / plan,
-            plan
+        perf_rps = ReportingPeriod.objects.filter(
+            start_date__gte=start_date,
+            end_date__lte=end_date
         )
+
+        plan = perf_rps.aggregate(Sum('target_billable_hours'
+            )
+        )['target_billable_hours__sum']
+
+        if plan:
+            performance = TimecardObject.objects.filter(
+                timecard__reporting_period__start_date__gte=start_date,
+                timecard__reporting_period__end_date__lte=end_date,
+            ).aggregate(Sum('hours_spent'))['hours_spent__sum']
+
+            try:
+                percentage = '{:.0%}'.format(performance / plan)
+            except TypeError:
+                return None
+
+            return 'During the prior {} reporting periods, we logged {} ' \
+            'billable hours. This is {} of our target, {} hours.'.format(
+                len(perf_rps),
+                int(performance),
+                percentage,
+                plan
+            )
+        else:
+            return None
 
 class Timecard(models.Model):
     user = models.ForeignKey(User)

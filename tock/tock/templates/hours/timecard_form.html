@@ -12,11 +12,15 @@
        <b> What's this <i> Float </i> </b> thing I keep hearing about? Float is a tool 18F uses to schedule employee availability across our many projects. For now, Float is focused on projects that are "billable" (i.e. where we have a signed reimbursable agreement with a partner). Want to see your Float assignments? Click the <b><a href="https://login.float.com/?people={{ user.first_name}}+{{user.last_name}}" target="_blank">View Float assigments</a></b> link in the left sidebar! Have a question about your Float assignment? Please check in with your project lead, your supervisor, or head over to #admins-float on Slack.
     </p>
   </div>
+  {% if object.reporting_period.recent_performance %}
   <div class="alert-red">
     <p class="alert-body">
+      <b> How is 18F doing? </b>
+      <br />
         {{ object.reporting_period.recent_performance }}
   </p>
 </div>
+{% endif %}
 </div>
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
