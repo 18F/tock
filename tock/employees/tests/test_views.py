@@ -40,6 +40,22 @@ class UserViewTests(WebTest):
             status_code=200
         )
 
+    def test_access_to_user_form_for_self(self):
+        response = self.app.get(
+            reverse('employees:UserListView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'},
+        )
+        self.assertContains(
+            response,
+            '<a href="/employees/e/aaron.snow">aaron.snow</a>',
+            status_code=200
+        )
+        self.assertNotContains(
+            response,
+            '<a href="/employees/aaron.snow">aaron.snow</a>',
+            status_code=200
+        )
+
     def test_parse_date(self):
         """ Test that the parse date function returns datetime obj when
         input is not NA """
