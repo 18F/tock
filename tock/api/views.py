@@ -78,7 +78,7 @@ class TimecardSerializer(serializers.Serializer):
     agency = serializers.CharField(source='project.accounting_code.agency.name')
     flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
     notes = serializers.CharField()
-    
+
 # API Views
 
 class UserDataView(generics.ListAPIView):
@@ -202,21 +202,6 @@ def get_timecards(queryset, params=None):
 
     return queryset
 
-def bulk_timecard_list(request):
-    """
-    Stream all the timecards as CSV.
-    """
-    queryset = get_timecards(TimecardList.queryset, request.GET)
-    serializer = BulkTimecardSerializer()
-    return stream_csv(queryset, serializer)
-
-def slim_bulk_timecard_list(request):
-    """
-    Stream a slimmed down version of all the timecards as CSV.
-    """
-    queryset = get_timecards(TimecardList.queryset, request.GET)
-    serializer = SlimBulkTimecardSerializer()
-    return stream_csv(queryset, serializer)
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
