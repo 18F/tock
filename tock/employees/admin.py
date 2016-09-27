@@ -9,8 +9,7 @@ class UserDataAdmin(admin.ModelAdmin):
 
 
 class EmployeeGradeAdmin(admin.ModelAdmin):
-    pass
-
+    search_fields = ('employee__username',)
 
 admin.site.register(UserData, UserDataAdmin)
 admin.site.register(EmployeeGrade, EmployeeGradeAdmin)
