@@ -31,7 +31,8 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
-
+    supervisor = models.ForeignKey(User, limit_choices_to={'user_data__is_supervisor': True}, null=True, blank=True)
+    is_supervisor = models.BooleanField(default=False, verbose_name="Has supervisory responsibility")
 
     class Meta:
         verbose_name='Employee'

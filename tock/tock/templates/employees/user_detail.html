@@ -35,6 +35,13 @@
     <td>{{ object.end_date }}</td>
   </tr>
   {% endif %}
+  <tr>
+    <td><b>Supervisor:</b></td>
+    {% if object.supervisor %}
+      <td>{{ object.supervisor }}</td>
+    {% else %}
+      <td>Not specified</td>
+    {% endif %}
 </table>
 {% endblock %}
 
