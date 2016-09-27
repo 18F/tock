@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Let's Tock about {{ object.user.first_name }} {{ object.user.last_name }}!</h2>
+
+<figure class="chart chart--utilization">
+  <h3 class="chart__title">Project Hours Over Time</h3>
+  <utilization-chart
+    class="timeline timeline--project"
+    data-url="/reports/project_timeline.csv?user={{ username }}"
+    href="/projects/{% verbatim %}{{ project_id }}{% endverbatim %}"
+    layer="project_name"
+    color="project"
+    x="start_date"
+    y="hours_spent">
+  </utilization-chart>
+</figure>
+
+<table id="dataTable" class="striped">
+  <tr>
+    <td><b>First Name:</b></td>
+    <td>{{ object.user.first_name }}</td>
+  </tr>
+  <tr>
+    <td><b>Last Name:</b></td>
+    <td>{{ object.user.last_name }}</td>
+  </tr>
+  <tr>
+    <td><b>Employment Start Date:</b></td>
+    <td>{{ object.start_date }}</td>
+  </tr>
+  {% if object.end_date %}
+  <tr>
+    <td><b>Employment End Date:</b></td>
+    <td>{{ object.start_date }}</td>
+  </tr>
+  {% endif %}
+</table>
+{% endblock %}
+
+{% block js %}
+<script>
+$(function() {
+	$( ".datepicker" ).datepicker();
+});
+</script>
+{% endblock %}
