@@ -13,8 +13,15 @@
 	{% for user in object_list %}
 	<tr class="report_table__row">
 		<td>
-			<a href="/employees/{{ user.username}}">{{ user.first_name }}</a>
-			<a href="/employees/{{ user.username}}"> {{ user.last_name}}</a>
+			<a href="/employees/{{ user.username }}">{{ user.first_name }}</a>
+			<a href="/employees/{{ user.username }}">{{ user.last_name }}</a>
+			{% if request.user.is_superuser %}
+		 		<a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
+			{% elif request.user.username == user.username %}
+				<a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
+			{% else %}
+				<a href="/employees/{{ user.username }}">{{ user.username }}</a>
+			{% endif %}
 		</td>
 		<td>{{ user.user_data.unit }}
 		<td>{{ user.user_data.start_date }}</td>
