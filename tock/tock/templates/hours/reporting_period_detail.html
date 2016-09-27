@@ -11,11 +11,13 @@
 <table>
 <tr>
 	<th>Name</th>
+	<th>Unit</th>
 	<th>Email</th>
 </tr>
 {% for user in users_without_filed_timecards %}
 <tr class='user'>
-	<td>{{ user.first_name }} {{user.last_name}}</td>
+	<td>{{ user.user_data.full_name }}</td>
+	<td>{{ user.user_data.unit }}</td>
 	<td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
 </tr>
 {% endfor %}
@@ -25,11 +27,13 @@
 <table>
 <tr>
 	<th>Name</th>
+	<th>Unit</th>
 	<th>View Timecard</th>
 </tr>
 {% for timecard in timecard_list %}
 <tr class='user'>
-	<td>{{ timecard.user.first_name }} {{ timecard.user.last_name }}</td>
+	<td>{{ timecard.user.user_data.full_name }}</td>
+	<td>{{ user.user_data.unit }}</td>
 	<td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
 </tr>
 {% endfor %}
