@@ -16,8 +16,11 @@ install:
   - travis_retry pip install codecov
   - travis_retry pip install -r requirements.txt
   - travis_retry pip install -r requirements-dev.txt
+  # build stylesheets
+  - travis_retry npm install --quiet
 
 script:
+  - npm run build-css
   - cd tock
   - python manage.py migrate --noinput --settings=tock.settings.test
   - python manage.py test --noinput --settings=tock.settings.test

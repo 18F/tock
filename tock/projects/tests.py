@@ -11,13 +11,18 @@ from django_webtest import WebTest
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
 from projects.models import Agency, Project, ProjectAlert, AccountingCode
+from employees.models import UserData
 
 
 class ProjectsTest(WebTest):
     def setUp(self):
         agency = Agency(name='General Services Administration')
         agency.save()
-
+        user = User.objects.create(
+            username='aaron.snow',
+            first_name='aaron',
+            last_name='snow'
+        )
         accounting_code = AccountingCode(
             code='abc',
             agency=agency,
@@ -30,9 +35,31 @@ class ProjectsTest(WebTest):
             accounting_code=accounting_code,
             name='Test Project',
             start_date='2016-01-01',
-            end_date='2016-02-01'
+            end_date='2016-02-01',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = user
         )
         self.project.save()
+
+        self.project_no_url = Project(
+            accounting_code=accounting_code,
+            name='Test_no_url Project',
+            start_date='2016-02-01',
+            end_date='2016-02-02',
+            agreement_URL = '',
+            project_lead = user
+        )
+        self.project_no_url.save()
+
+        self.project_no_lead = Project(
+            accounting_code=accounting_code,
+            name='Test_no_url Project',
+            start_date='2016-02-01',
+            end_date='2016-02-02',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = None
+        )
+        self.project_no_lead.save()
 
     def test_model(self):
         """
@@ -179,6 +206,28 @@ class ProjectsTest(WebTest):
         project.notes_required = True
         project.save()
         self.assertTrue(project.notes_displayed)
+
+    def test_agreement_url_displays_correctly(self):
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project.id})
+        )
+
+        url = response.html.find('a', href=self.project.agreement_URL)
+        self.assertEqual(str(url), '<a href="{0}"> Google Drive folder </a>'.format(self.project.agreement_URL))
+
+    def test_no_agreement_url(self):
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project_no_url.id})
+        )
+        test_string = 'No agreement URL available'
+        self.assertContains(response, test_string)
+
+    def test_no_project_lead(self):
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project_no_lead.id})
+        )
+        test_string = 'No project lead available'
+        self.assertContains(response, test_string)
 
 
 class ProjectAlertTests(WebTest):
