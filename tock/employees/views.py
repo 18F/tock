@@ -2,8 +2,10 @@ import datetime
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
+from django.shortcuts import get_object_or_404
+
 
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
@@ -28,6 +30,14 @@ class UserListView(ListView):
         context = super(UserListView, self).get_context_data(**kwargs)
         return context
 
+class UserDetailView(DetailView):
+    template_name = 'employees/user_detail.html'
+
+    def get_object(self, **kwargs):
+        kwargs['username'] = self.kwargs['username']
+        target_user = UserData.objects.get(
+            user__username=self.kwargs['username'])
+        return target_user
 
 class UserFormView(PermissionMixin, FormView):
     template_name = 'employees/user_form.html'

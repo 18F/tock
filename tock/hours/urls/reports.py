@@ -17,5 +17,6 @@ urlpatterns = [
     url(r'^user_timeline.csv$', views.user_timeline_view, name='UserTimelineView'),
     url(r'^projects.csv$', ProjectList.as_view(), name='ProjectList'),
     url(r'^admin_timecard_bulk.csv$', views.admin_bulk_timecard_list, name='AdminBulkTimecardList'),
-
+    url(r'^projects.csv$', views.projects_csv, name='ProjectList'),
+    url(r'^user_data.csv$', views.user_data_csv, name='UserDataView'),
 ]

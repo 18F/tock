@@ -20,6 +20,12 @@ class UserDataTests(TestCase):
         userdata.save()
         self.token = Token.objects.create(user=self.regular_user)
 
+    def test_string_method(self):
+        """Check that string method override works correctly."""
+        userdata = UserData.objects.get(user=self.regular_user)
+        expected_string = str(userdata.user.username)
+        self.assertEqual(expected_string, str(userdata))
+
     def test_user_data_is_stored(self):
         """ Check that user data was stored correctly """
         userdata = UserData.objects.first()
