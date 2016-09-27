@@ -44,18 +44,14 @@ class EmployeeGrade(models.Model):
         """Gets grade information based on a date and user. Original use of
         function is to append correct grade information to each
         TimecardObject."""
-        emp_grd_objects = EmployeeGrade.objects.filter(
+        queryset = EmployeeGrade.objects.filter(
                 Q(employee = user)
                 & Q(g_start_date__lte = end_date)
-                ).all().aggregate(Max('g_start_date'))['g_start_date__max']
-
-        if emp_grd_objects:
-            grade = EmployeeGrade.objects.filter(
-                employee=user,
-                g_start_date=emp_grd_objects)[0]
+                ).all()
+        if queryset:
+            return queryset.latest('g_start_date')
         else:
-            grade = None
-        return grade
+            return None
 
 class UserData(models.Model):
 
