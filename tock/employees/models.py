@@ -41,7 +41,17 @@ class UserData(models.Model):
         return '%s' % (self.user)
 
     def full_name(self):
-        full_name = '{0} {1}'.format(self.user.first_name, self.user.last_name)
+        first_name = str(
+            self.user.first_name
+        )[:1].upper() + str(
+            self.user.first_name
+        )[1:]
+        last_name = str(
+            self.user.last_name
+        )[:1].upper() + str(
+            self.user.last_name
+        )[1:]
+        full_name = '{0} {1}'.format(first_name, last_name)
         return full_name
 
     def save(self, *args, **kwargs):
