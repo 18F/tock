@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from django.db.models import Q, Max
+
 
 class EmployeeGrade(models.Model):
     GRADE_CHOICES = (
@@ -38,6 +40,23 @@ class EmployeeGrade(models.Model):
     def __str__(self):
         return '{0} - {1} (Starting: {2})'.format(self.employee, self.grade, self.g_start_date)
 
+    def get_grade(end_date, user):
+        """Gets grade information based on a date and user. Original use of
+        function is to append correct grade information to each
+        TimecardObject."""
+        emp_grd_objects = EmployeeGrade.objects.filter(
+                Q(employee = user)
+                & Q(g_start_date__lte = end_date)
+                ).all().aggregate(Max('g_start_date'))['g_start_date__max']
+
+        if emp_grd_objects:
+            grade = EmployeeGrade.objects.filter(
+                employee=user,
+                g_start_date=emp_grd_objects)[0]
+        else:
+            grade = None
+        return grade
+
 class UserData(models.Model):
 
     UNIT_CHOICES = (
@@ -74,6 +93,7 @@ class UserData(models.Model):
 
     def __str__(self):
         return '{0}'.format(self.user)
+
 
     def save(self, *args, **kwargs):
         if self.current_employee is False:
