@@ -30,7 +30,7 @@ To fetch a list of all users and their related information.
         "first_name": "John",
         "last_name": "Smith",
         "email": "john.smith@abc"
-    },
+    },...
 ```
  
 * **Error Response:**
