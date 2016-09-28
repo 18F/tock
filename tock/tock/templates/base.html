@@ -6,29 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tock</title>
 
-{% load staticfiles %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" charset="utf-8">
-<link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}" type="text/css" charset="utf-8">
-<link rel="stylesheet" href="{% static 'js/chosen/chosen.min.css' %}" type="text/css" charset="utf-8">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
-<script src="{% static 'js/jquery-ui.min.js' %}"></script>
-<script src="{% static 'js/chosen/chosen.jquery.min.js' %}"></script>
+    {% load staticfiles %}
+    <link rel="stylesheet" href="{% static 'css/dist/core.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'js/chosen/chosen.min.css' %}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
+    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'js/chosen/chosen.jquery.min.js' %}"></script>
 
-<!-- charting dependencies -->
-<script src="{% static 'js/vendor/d3.min.js' %}"></script>
-<script src="{% static 'js/vendor/datalib.min.js' %}"></script>
-<script src="{% static 'js/vendor/document-register-element.js' %}"></script>
-<script src="{% static 'js/components/utilization-chart.js' %}"></script>
+    <!-- charting dependencies -->
+    <script src="{% static 'js/vendor/d3.min.js' %}"></script>
+    <script src="{% static 'js/vendor/datalib.min.js' %}"></script>
+    <script src="{% static 'js/vendor/document-register-element.js' %}"></script>
+    <script src="{% static 'js/components/utilization-chart.js' %}"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js" ></script>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
   </head>
   <body>
   <div class="container">
@@ -49,7 +43,7 @@
         <li><b>Admin:</b></li>
         <li><a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Add reporting period</a></li>
         <li><a href="/admin">Admin panel</a>
-        <li><a href="/api/timecards_bulk.csv">Bulk timecard CSV</a>
+        <li><a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
         {% endif %}
         <hr>
       </ul>

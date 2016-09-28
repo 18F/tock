@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 class UserData(models.Model):
 
@@ -38,3 +39,13 @@ class UserData(models.Model):
 
     def __str__(self):
         return '%s' % (self.user)
+
+    def save(self, *args, **kwargs):
+        if self.current_employee is False:
+            try:
+                token = Token.objects.get(user=self.user)
+                token.delete()
+            except Token.DoesNotExist:
+                pass
+
+        super(UserData, self).save(*args, **kwargs)

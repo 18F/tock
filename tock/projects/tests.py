@@ -11,13 +11,18 @@ from django_webtest import WebTest
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
 from projects.models import Agency, Project, ProjectAlert, AccountingCode
+from employees.models import UserData
 
 
 class ProjectsTest(WebTest):
     def setUp(self):
         agency = Agency(name='General Services Administration')
         agency.save()
-
+        user = User.objects.create(
+            username='aaron.snow',
+            first_name='aaron',
+            last_name='snow'
+        )
         accounting_code = AccountingCode(
             code='abc',
             agency=agency,
@@ -30,9 +35,31 @@ class ProjectsTest(WebTest):
             accounting_code=accounting_code,
             name='Test Project',
             start_date='2016-01-01',
-            end_date='2016-02-01'
+            end_date='2016-02-01',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = user
         )
         self.project.save()
+
+        self.project_no_url = Project(
+            accounting_code=accounting_code,
+            name='Test_no_url Project',
+            start_date='2016-02-01',
+            end_date='2016-02-02',
+            agreement_URL = '',
+            project_lead = user
+        )
+        self.project_no_url.save()
+
+        self.project_no_lead = Project(
+            accounting_code=accounting_code,
+            name='Test_no_url Project',
+            start_date='2016-02-01',
+            end_date='2016-02-02',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = None
+        )
+        self.project_no_lead.save()
 
     def test_model(self):
         """
@@ -179,6 +206,28 @@ class ProjectsTest(WebTest):
         project.notes_required = True
         project.save()
         self.assertTrue(project.notes_displayed)
+
+    def test_agreement_url_displays_correctly(self):
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project.id})
+        )
+
+        url = response.html.find('a', href=self.project.agreement_URL)
+        self.assertEqual(str(url), '<a href="{0}"> Google Drive folder </a>'.format(self.project.agreement_URL))
+
+    def test_no_agreement_url(self):
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project_no_url.id})
+        )
+        test_string = 'No agreement URL available'
+        self.assertContains(response, test_string)
+
+    def test_no_project_lead(self):
+        response = self.app.get(
+            reverse('ProjectView', kwargs={'pk': self.project_no_lead.id})
+        )
+        test_string = 'No project lead available'
+        self.assertContains(response, test_string)
 
 
 class ProjectAlertTests(WebTest):
@@ -339,22 +388,26 @@ class ProjectViewTests(WebTest):
 
     def test_total_hours_billed(self):
         """
-        For a given project, ensure that the view displays the correct total.
-
-        (Note that this project is the only test project for which timecards have been saved.)
-
-        :return:
+        For a given project, ensure that the view displays the correct totals.
         """
-        project = Project.objects.get(id__exact=1)
-        timecard_objects = TimecardObject.objects.filter(
-            project=project.id
+        TimecardObject.objects.filter().delete()
+        Timecard.objects.get(pk=1).submitted=True
+        timecard_object_submitted = TimecardObject.objects.create(
+            timecard = Timecard.objects.get(pk=1),
+            project=Project.objects.get(pk=1),
+            submitted = True,
+            hours_spent= 10
+        )
+        timecard_object_saved = TimecardObject.objects.create(
+            timecard = Timecard.objects.get(pk=1),
+            project=Project.objects.get(pk=1),
+            submitted = False,
+            hours_spent= 5
         )
 
-        total = timecard_objects.aggregate(Sum('hours_spent'))['hours_spent__sum']
-
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': project.id}),
+            reverse('ProjectView', kwargs={'pk': '1'}),
             headers={'X-FORWARDED-EMAIL': 'aaron.snow@gsa.gov'}
         )
 
-        self.assertEqual(float(response.html.select('#totalHours')[0].string), total)
+        self.assertEqual(float(response.html.select('#totalHoursAll')[0].string), 15)

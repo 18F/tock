@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "scripts": {
+    "build-css": "node-sass --source-map true tock/tock/static/sass -o tock/tock/static/css/dist",
+    "watch-css": "npm run build-css -- --watch",
+    "prestart": "npm install --quiet",
+    "start": "npm run build-css && npm run watch-css",
+    "predeploy": "npm install --silent && npm run build-css"
+  },
+  "engines": {
+    "node": "6.3.1"
+  },
+  "devDependencies": {
+    "node-sass": "^3.9.3"
+  }
+}

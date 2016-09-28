@@ -11,6 +11,7 @@ env/
 build/
 develop-eggs/
 dist/
+!tock/tock/static/css/dist
 downloads/
 eggs/
 lib/*
