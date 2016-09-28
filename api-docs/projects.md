@@ -33,7 +33,7 @@ To fetch a list of projects  information.
         "start_date": null,
         "end_date": null,
         "active": true
-    },
+    },...
 
 ```
  
