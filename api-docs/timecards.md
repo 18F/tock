@@ -27,16 +27,16 @@ To fetch a list of all submitted timecards and their related information.
 ```
 [
     {
-            "user": "brackish.okun",
-            "project_id": "30",
-            "project_name": "Big Project",
-            "hours_spent": "16.80",
-            "start_date": "2014-10-01",
-            "end_date": "2014-10-04",
-            "billable": true,
-            "agency": "Ministry of Coin",
-            "flat_rate": false,
-            "notes": ""
+        "user": "brackish.okun",
+        "project_id": "30",
+        "project_name": "Big Project",
+        "hours_spent": "16.80",
+        "start_date": "2014-10-01",
+        "end_date": "2014-10-04",
+        "billable": true,
+        "agency": "Ministry of Coin",
+        "flat_rate": false,
+        "notes": ""
     },...
 ```
  
