@@ -37,8 +37,6 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
-    supervisor = models.ForeignKey(User, limit_choices_to={'user_data__is_supervisor': True}, null=True, blank=True)
-    is_supervisor = models.BooleanField(default=False, verbose_name="Has supervisory responsibility")
 
     class Meta:
         verbose_name='Employee'
@@ -46,9 +44,6 @@ class UserData(models.Model):
 
     def __str__(self):
         return '%s' % (self.user)
-
-    def get_supervisees(self):
-        return UserData.objects.filter(supervisor=self.user)
 
     def get_timecard_objects(self):
         tos = TimecardObject.objects.filter(timecard__user=self.user, timecard__submitted=True)
@@ -91,10 +86,5 @@ class UserData(models.Model):
                 token = Token.objects.get(user=self.user)
                 token.delete()
             except Token.DoesNotExist:
-                pass
-        if self.is_supervisor is False:
-            try:
-                UserData.objects.filter(supervisor=self.user).update(supervisor=None)
-            except UserData.DoesNotExist:
                 pass
         super(UserData, self).save(*args, **kwargs)

@@ -37,24 +37,6 @@
   </tr>
   {% endif %}
   <tr>
-    <td><b>Supervisor:</b></td>
-    {% if object.supervisor %}
-      <td>{{ object.supervisor }}</td>
-    {% else %}
-      <td>Not specified</td>
-  </tr>
-    {% endif %}
-  {% if object.is_supervisor %}
-  <tr>
-    <td><b>Supervisees:</b></td>
-    <td>
-    {% for supervisee in object.get_supervisees %}
-      {{ supervisee }} |
-    {% endfor %}
-    </td>
-  </tr>
-  {% endif %}
-  <tr>
     <td><b>Lifetime Utilization:</b></td>
    <td>{{ object.get_lifetime_utilization }}</td>
  </tr>
