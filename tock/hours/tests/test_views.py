@@ -131,7 +131,8 @@ class ReportTests(WebTest):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            exact_working_hours=40)
+            exact_working_hours=40,
+            target_billable_hours=100)
         self.user = get_user_model().objects.get(id=1)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
@@ -176,7 +177,8 @@ class ReportTests(WebTest):
         hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2016, 1, 1),
             end_date=datetime.date(2016, 1, 7),
-            exact_working_hours=40)
+            exact_working_hours=40,
+            target_billable_hours=100)
         response = self.app.get(reverse('reports:ListReports'))
         response = response.content.decode('utf-8')
         self.assertTrue(response.index('2016') < response.index('2015'))
