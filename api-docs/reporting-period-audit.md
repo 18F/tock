@@ -23,18 +23,14 @@ To fetch a list of all available reporting periods and their related information
   * **Code:** `200` <br />
     **Content:** 
 ```
-{
-    "count": 105,
-    "next": "http://tock.18f.gov/api/reporting_period_audit.json?page=2",
-    "previous": null,
-    "results": [
-        {
-            "start_date": "2016-09-18",
-            "end_date": "2016-09-24",
-            "exact_working_hours": 40,
-            "min_working_hours": 40,
-            "max_working_hours": 40
-        },...
+[
+    {
+        "start_date": "2016-09-25",
+        "end_date": "2016-10-01",
+        "exact_working_hours": 40,
+        "min_working_hours": 40,
+        "max_working_hours": 40
+    },...
 ```
  
 * **Error Response:**
