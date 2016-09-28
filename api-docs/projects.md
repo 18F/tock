@@ -23,21 +23,18 @@ To fetch a list of projects  information.
   * **Code:** `200` <br />
     **Content:** 
 ```
-{
-    "count": 280,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": 120,
-            "client": "Ministry of Coin",
-            "name": "Big Project",
-            "description": "Updating Ministry of Coin website to U.S. Web Design Standards.",
-            "billable": True,
-            "start_date": "2016-01-01",
-            "end_date": "2016-09-30",
-            "active": true
-        },...
+[
+    {
+        "id": 120,
+        "client": "General Services Administration - 18F (Non-Billable)",
+        "name": "18F Branding",
+        "description": "Working on branding for 18F\u2014internal branding",
+        "billable": false,
+        "start_date": null,
+        "end_date": null,
+        "active": true
+    },
+
 ```
  
 * **Error Response:**
