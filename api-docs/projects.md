@@ -26,10 +26,10 @@ To fetch a list of projects  information.
 [
     {
         "id": 120,
-        "client": "General Services Administration - 18F (Non-Billable)",
-        "name": "18F Branding",
-        "description": "Working on branding for 18F\u2014internal branding",
-        "billable": false,
+        "client": "Ministry of Coin",
+        "name": "Branding",
+        "description": "Working on branding.",
+        "billable": true,
         "start_date": null,
         "end_date": null,
         "active": true
