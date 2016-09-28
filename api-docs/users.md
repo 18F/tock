@@ -23,18 +23,14 @@ To fetch a list of all users and their related information.
   * **Code:** `200` <br />
     **Content:** 
 ```
-{
-    "count": 308,
-    "next": "http://tock.18f.gov/api/users.json?page=2",
-    "previous": null,
-    "results": [
-        {
-            "id": 42,
-            "username": "sarah.allen",
-            "first_name": "Sarah",
-            "last_name": "Allen",
-            "email": "sarah.allen@gsa.gov"
-        },...
+[
+    {
+        "id": 42,
+        "username": "john.smith",
+        "first_name": "John",
+        "last_name": "Smith",
+        "email": "john.smith@abc"
+    },
 ```
  
 * **Error Response:**
