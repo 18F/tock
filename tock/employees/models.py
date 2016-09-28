@@ -97,9 +97,6 @@ class UserData(models.Model):
         return '{0}'.format(self.user)
 
 
-    def get_supervisees(self):
-        return UserData.objects.filter(supervisor=self.user)
-
     def get_timecard_objects(self):
         tos = TimecardObject.objects.filter(timecard__user=self.user, timecard__submitted=True)
         return tos
@@ -141,10 +138,5 @@ class UserData(models.Model):
                 token = Token.objects.get(user=self.user)
                 token.delete()
             except Token.DoesNotExist:
-                pass
-        if self.is_supervisor is False:
-            try:
-                UserData.objects.filter(supervisor=self.user).update(supervisor=None)
-            except UserData.DoesNotExist:
                 pass
         super(UserData, self).save(*args, **kwargs)
