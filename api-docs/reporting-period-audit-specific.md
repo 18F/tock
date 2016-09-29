@@ -25,18 +25,14 @@ To fetch a list of all users who have not submitted a timecard for the specified
   * **Code:** `200` <br />
     **Content:** 
 ```
-{
-    "count": 187,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "id": 588,
-            "username": "steven.hiller",
-            "first_name": "steven",
-            "last_name": "hiller",
-            "email": "steven.p.hiller@gsa.gov"
-        },...
+[
+    {
+        "id": 77,
+        "username": "john.smith",
+        "first_name": "John",
+        "last_name": "Smith",
+        "email": "john.scott@abc"
+    },...
 ```
  
 * **Error Response:**

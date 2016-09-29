@@ -25,24 +25,19 @@ To fetch a list of all submitted timecards and their related information.
   * **Code:** `200` <br />
     **Content:** 
 ```
-{
-    "count": 64318,
-    "next": "http://tock.18f.gov/api/timecards.json?page=2",
-    "previous": null,
-    "results": [
-        {
-            "user": "brackish.okun",
-            "project_id": "30",
-            "project_name": "Big Project",
-            "hours_spent": "16.80",
-            "start_date": "2014-10-01",
-            "end_date": "2014-10-04",
-            "billable": true,
-            "agency": "Ministry of Coin",
-            "flat_rate": false,
-            "notes": ""
-        },...
-
+[
+    {
+        "user": "brackish.okun",
+        "project_id": "30",
+        "project_name": "Big Project",
+        "hours_spent": "16.80",
+        "start_date": "2014-10-01",
+        "end_date": "2014-10-04",
+        "billable": true,
+        "agency": "Ministry of Coin",
+        "flat_rate": false,
+        "notes": ""
+    },...
 ```
  
 * **Error Response:**

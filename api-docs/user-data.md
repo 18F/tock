@@ -23,18 +23,14 @@ To fetch a list of all users with organizational information for each.
   * **Code:** `200` <br />
     **Content:** 
 ```
-{
-    "count": 306,
-    "next": null,
-    "previous": null,
-    "results": [
-        {
-            "user": "david.levinson",
-            "current_employee": true,
-            "is_18f_employee": true,
-            "is_billable": true,
-            "unit": "Chapters-SETI"
-        },...
+[
+    {
+        "user": "david.levinson",
+        "current_employee": true,
+        "is_18f_employee": true,
+        "is_billable": true,
+        "unit": "Chapters-SETI"
+    },...
 ```
  
 * **Error Response:**

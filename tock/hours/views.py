@@ -19,6 +19,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
+from django.contrib.auth.decorators import user_passes_test
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
@@ -70,6 +71,21 @@ class SlimBulkTimecardSerializer(serializers.Serializer):
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     billable = serializers.BooleanField(source='project.accounting_code.billable')
     mbnumber = serializers.CharField(source='project.mbnumber')
+
+class AdminBulkTimecardSerializer(serializers.Serializer):
+    project_name = serializers.CharField(source='project.name')
+    project_id = serializers.CharField(source='project.id')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    billable = serializers.BooleanField(source='project.accounting_code.billable')
+    agency = serializers.CharField(source='project.accounting_code.agency.name')
+    flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
+    active = serializers.BooleanField(source='project.active')
+    mbnumber = serializers.CharField(source='project.mbnumber')
+    notes = serializers.CharField()
+    grade = serializers.CharField(source='grade.grade')
 
 def user_data_csv(request):
     """
@@ -155,6 +171,12 @@ def user_timeline_view(request):
         value_fields=['timecard__user__username'],
         timecard__user__username='user',
     )
+
+@user_passes_test(lambda u: u.is_superuser)
+def admin_bulk_timecard_list(request):
+    queryset = get_timecards(TimecardList.queryset, request.GET)
+    serializer = AdminBulkTimecardSerializer()
+    return stream_csv(queryset, serializer)
 
 class ReportingPeriodListView(PermissionMixin, ListView):
     """ Currently the home view that lists the completed and missing time
