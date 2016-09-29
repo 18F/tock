@@ -14,6 +14,10 @@ urlpatterns = [
         hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'
     ),
+    url(r'^float/$',
+        hours.views.get_float_data,
+        name='FloatData'
+    ),
     url(r'^reporting_period/', include(
         'hours.urls.timesheets',
         namespace='reportingperiod'

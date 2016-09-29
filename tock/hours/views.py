@@ -1,17 +1,22 @@
 import csv
 import datetime
 import io
+import requests
+import json
+import os
+
 from itertools import chain
 from operator import attrgetter
 
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, View
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
 
@@ -35,6 +40,13 @@ from .forms import (
     timecard_formset_factory
 )
 
+def get_float_data(request):
+    float_data = get_task_data(get_people_data())
+    float_task_list = list()
+    for i in float_data:
+        if i['tock_username'] == request.user.username:
+            float_task_list.append(i)
+    return HttpResponse(float_task_list)
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -458,3 +470,57 @@ class ReportingPeriodUserDetailView(DetailView):
             reporting_period__start_date=self.kwargs['reporting_period'],
             user__username=self.kwargs['username']
         )
+
+
+
+def get_people_data():
+    url = 'https://api.floatschedule.com/api/v1/'
+    headers = {'Authorization': 'Bearer ' + os.environ.get('FLOAT_API_KEY')}
+    endpoint = 'people'
+    r = requests.get(url + endpoint, headers=headers)
+    people_data = json.loads(r.content.decode().lower().strip())
+
+    people_list = list()
+    for i in people_data['people']:
+        people_list.append(
+            {
+            'im': i['im'],
+            'people_id': i['people_id']
+            }
+        )
+
+    return people_list
+
+def get_task_data(people_list):
+    import requests
+    import os
+    import json
+    from datetime import datetime, timedelta
+    url = 'https://api.floatschedule.com/api/v1/'
+    headers = {'Authorization': 'Bearer ' + os.environ.get('FLOAT_API_KEY')}
+    endpoint = 'tasks'
+    r = requests.get(url + endpoint, headers=headers)
+    task_data = json.loads(r.content.decode().lower().strip())
+
+    task_list = list()
+    for people in task_data['people']:
+        for people_tasks in people['tasks']:
+            task_list.append(
+                {
+                'people_id': people_tasks['people_id'],
+                'person_name': people_tasks['person_name'],
+                'project_name': people_tasks['project_name'],
+                'hours_pd': people_tasks['hours_pd'],
+                'task_cal_days': people_tasks['task_cal_days'],
+                'start_date': people_tasks['start_date'],
+                'end_date': people_tasks['end_date'],
+                'tock_username': None,
+                }
+            )
+    for t in task_list:
+        for p in people_list:
+            if p['people_id'] == t['people_id']:
+                if User.objects.filter(username=p['im']):
+                    t.update({'tock_username': p['im']})
+
+    return task_list
