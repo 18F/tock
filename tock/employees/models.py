@@ -1,3 +1,7 @@
+import os
+import json
+import requests
+
 from django.db import models
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -91,6 +95,37 @@ class UserData(models.Model):
     def __str__(self):
         return '{0}'.format(self.user)
 
+    def get_people_id(request):
+        req_user = UserData.objects.get(user=request.user)
+
+        if req_user.float_people_id is None:
+            url = 'https://api.floatschedule.com/api/v1/'
+            headers = {'Authorization': 'Bearer ' + os.environ.get('FLOAT_API_KEY')}
+            endpoint = 'people'
+            r = requests.get(url + endpoint, headers=headers)
+            people_data = json.loads(r.content.decode().lower().strip())
+
+            for i in people_data['people']:
+                if i['im'] == req_user.user.username:
+                    req_user.float_people_id = i['people_id']
+                    req_user.save()
+
+        return req_user.float_people_id
+
+    def get_task_data(float_people_id):
+        url = 'https://api.floatschedule.com/api/v1/'
+        headers = {'Authorization': 'Bearer ' + os.environ.get('FLOAT_API_KEY')}
+        endpoint = 'tasks'
+        params = {'weeks': 1}
+        r = requests.get(url + endpoint, headers=headers, params=params)
+        task_data = json.loads(r.content.decode().lower().strip())
+
+
+        for person_tasks in task_data['people']:
+            if person_tasks['people_id'] == float_people_id:
+                return person_tasks
+            else:
+                return None
 
     def save(self, *args, **kwargs):
         if self.current_employee is False:

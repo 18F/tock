@@ -1,9 +1,6 @@
 import csv
 import datetime
 import io
-import requests
-import json
-import os
 
 from itertools import chain
 from operator import attrgetter
@@ -41,8 +38,17 @@ from .forms import (
     timecard_formset_factory
 )
 
-def get_float_data():
-    return get_task_data(get_people_data())
+from employees.models import UserData
+
+class FloatDataView(View):
+
+    def get(self, request):
+        data = UserData.get_task_data(UserData.get_people_id(request))
+        if data:
+            return HttpResponse(str(data))
+        else:
+
+            return HttpResponse('No Float data found for {}'.format(request.user.username))
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -487,36 +493,3 @@ class ReportingPeriodUserDetailView(DetailView):
             reporting_period__start_date=self.kwargs['reporting_period'],
             user__username=self.kwargs['username']
         )
-
-def get_people_data():
-    test_user = User.objects.get(username='eric.ronne')
-    req_user = UserData.objects.get(user=test_user)
-
-    if req_user.float_people_id is None:
-        url = 'https://api.floatschedule.com/api/v1/'
-        headers = {'Authorization': 'Bearer ' + os.environ.get('FLOAT_API_KEY')}
-        endpoint = 'people'
-        r = requests.get(url + endpoint, headers=headers)
-        people_data = json.loads(r.content.decode().lower().strip())
-
-        for i in people_data['people']:
-            if i['im'] == req_user.user.username:
-                req_user.float_people_id = i['people_id']
-                req_user.save()
-
-    return req_user.float_people_id
-
-def get_task_data(float_people_id):
-    url = 'https://api.floatschedule.com/api/v1/'
-    headers = {'Authorization': 'Bearer ' + os.environ.get('FLOAT_API_KEY')}
-    endpoint = 'tasks'
-    params = {'weeks': 1}
-    r = requests.get(url + endpoint, headers=headers, params=params)
-    task_data = json.loads(r.content.decode().lower().strip())
-
-
-    for person_tasks in task_data['people']:
-        if person_tasks['people_id'] == float_people_id:
-            return person_tasks
-        else:
-            return None
