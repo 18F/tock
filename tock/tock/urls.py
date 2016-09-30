@@ -15,7 +15,7 @@ urlpatterns = [
         name='ListReportingPeriods'
     ),
     url(r'^float/$',
-        hours.views.get_float_data,
+        hours.views.FloatDataView.as_view(),
         name='FloatData'
     ),
     url(r'^reporting_period/', include(

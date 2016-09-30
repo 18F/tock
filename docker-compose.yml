@@ -11,6 +11,8 @@ app:
     - DATABASE_URL=postgres://tock_user@db/tock
     - RUNNING_IN_DOCKER=yup
     - DJANGO_SETTINGS_MODULE=tock.settings.dev
+    - FLOAT_API_KEY=FORTESTING
+
   command: "python manage.py runserver 0.0.0.0:1234"
 db:
   image: postgres:9.5.4
