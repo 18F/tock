@@ -297,45 +297,52 @@ class TimecardView(UpdateView):
                 headers={'Authorization': 'Bearer ' + base.FLOAT_API_KEY},
                 params={'weeks': weeks, 'start_day': start_day}
             )
-            raw = json.loads(r.content.decode())
+            if r.status_code != 200:
 
-            """From JSON response, derive meta data about period."""
-            f_start_date = datetime.date(
-                int(raw['start_yr']), 1, 1) + datetime.timedelta(
-                days=int(raw['start_doy']
-                )-1)
-            f_end_date = f_start_date + datetime.timedelta(
-                days=(weeks * 6))
-            f_days = f_end_date - f_start_date
-            wrkdy_week = 5
-
-            """Clean and prepare response for context. """
-            clean = list()
-            for i in raw['people']:
-                for ii in i['tasks']:
-                    clean.append(ii)
-
-            response = {'tasks':[]}
-            for i in clean:
-                if i['people_id'] == float_people_id:
-                    response['tasks'].append(i)
-
-            for i in response['tasks']:
-                hours_wk = float(i['hours_pd']) * wrkdy_week
-                i.update({'hours_wk': hours_wk})
-
-            response.update(
-                {'metadata':
-                    {
-                    'float_period_start':f_start_date,
-                    'float_period_end':f_end_date,
-                    'days_in_float_period': f_days,
-                    'holidays_in_float_period':'',
-                    }
+                return {'hard_fail':'Error connecting to Float. Please check ' \
+                'with #tock-dev for updates. Status code: {}'.format(
+                    r.status_code
+                    )
                 }
-            )
+            else:
+                raw = json.loads(r.content.decode())
+                """From JSON response, derive meta data about period."""
+                f_start_date = datetime.date(
+                    int(raw['start_yr']), 1, 1) + datetime.timedelta(
+                    days=int(raw['start_doy']
+                    )-1)
+                f_end_date = f_start_date + datetime.timedelta(
+                    days=(weeks * 6))
+                f_days = f_end_date - f_start_date
+                wrkdy_week = 5
 
-            return response
+                """Clean and prepare response for context. """
+                clean = list()
+                for i in raw['people']:
+                    for ii in i['tasks']:
+                        clean.append(ii)
+
+                response = {'tasks':[]}
+                for i in clean:
+                    if i['people_id'] == float_people_id:
+                        response['tasks'].append(i)
+
+                for i in response['tasks']:
+                    hours_wk = float(i['hours_pd']) * wrkdy_week
+                    i.update({'hours_wk': hours_wk})
+
+                response.update(
+                    {'metadata':
+                        {
+                        'float_period_start':f_start_date,
+                        'float_period_end':f_end_date,
+                        'days_in_float_period': f_days,
+                        'holidays_in_float_period':'',
+                        }
+                    }
+                )
+
+                return response
 
     def get_float_data(self):
         user = self.request.user

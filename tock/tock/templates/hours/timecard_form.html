@@ -14,28 +14,32 @@
   </div>
   {% if is_billable %}
   <div class="alert-red">
-    {% if float_data.error %}
-      <b>{{ float_data.error }}</b>
+    {% if float_data.hard_fail %}
+      <b>{{ float_data.hard_fail }}</b>
     {% else %}
-      {% if float_data.tasks %}
-      <p><b> For {{ float_data.metadata.float_period_start }} to
-        {{ float_data.metadata.float_period_end }} you were scheduled in Float
-        for:
-      </b></p>
-      <ul>
-        {% for i in float_data.tasks %}
-         <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
-            {% if i.task_name %}
-            assigned to {{ i.task_name }}
-            {% endif %}
-        {% endfor %}
-      {% else %}
-        <b>Tock was able to locate you in Float, but could not task data for you
-           during the period of {{ float_data.metadata.float_period_start }} to
-          {{ float_data.metadata.float_period_end }}. If you believe this is
-          incorrect, please contact your project lead or supervisor.</b>
+        {% if float_data.error %}
+          <b>{{ float_data.error }}</b>
+        {% else %}
+          {% if float_data.tasks %}
+          <p><b> For {{ float_data.metadata.float_period_start }} to
+            {{ float_data.metadata.float_period_end }} you were scheduled in Float
+            for:
+          </b></p>
+          <ul>
+            {% for i in float_data.tasks %}
+             <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
+                {% if i.task_name %}
+                assigned to {{ i.task_name }}
+                {% endif %}
+            {% endfor %}
+          {% else %}
+            <b>Tock was able to locate you in Float, but could not task data for you
+               during the period of {{ float_data.metadata.float_period_start }} to
+              {{ float_data.metadata.float_period_end }}. If you believe this is
+              incorrect, please contact your project lead or supervisor.</b>
+          {% endif %}
+        {% endif %}
       {% endif %}
-    {% endif %}
   </div>
   {% endif %}
 </div>
