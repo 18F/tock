@@ -1,6 +1,8 @@
 import csv
 import datetime
 import io
+import requests
+import json
 
 from itertools import chain
 from operator import attrgetter
@@ -39,16 +41,7 @@ from .forms import (
 )
 
 from employees.models import UserData
-
-class FloatDataView(View):
-
-    def get(self, request):
-        data = UserData.get_task_data(UserData.get_people_id(request))
-        if data:
-            return HttpResponse(str(data))
-        else:
-
-            return HttpResponse('No Float data found for {}'.format(request.user.username))
+from tock.settings import base
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -287,6 +280,73 @@ class TimecardView(UpdateView):
             user_id=self.request.user.id)
         return obj
 
+    def get_task_data(self, float_people_id):
+        if float_people_id is ('' or None):
+            return {'error':'Cannot find matching Float account! Please check '\
+                'with the #admins-float channel on Slack or contact your '\
+                'supervisor.'}
+        else:
+            """Fetch Float data for the reporting period associated with the
+            request."""
+            start_day = datetime.datetime.strptime(
+                self.kwargs['reporting_period'], "%Y-%m-%d"
+            ).date()
+            weeks = 1
+            r = requests.get(
+                url='https://api.floatschedule.com/api/v1/tasks',
+                headers={'Authorization': 'Bearer ' + base.FLOAT_API_KEY},
+                params={'weeks': weeks, 'start_day': start_day}
+            )
+            raw = json.loads(r.content.decode())
+
+            """From JSON response, derive meta data about period."""
+            f_start_date = datetime.date(
+                int(raw['start_yr']), 1, 1) + datetime.timedelta(
+                days=int(raw['start_doy']
+                )-1)
+            f_end_date = f_start_date + datetime.timedelta(
+                days=(weeks * 6))
+            f_days = f_end_date - f_start_date
+            wrkdy_week = 5
+
+            """Clean and prepare response for context. """
+            clean = list()
+            for i in raw['people']:
+                for ii in i['tasks']:
+                    clean.append(ii)
+
+            response = {'tasks':[]}
+            for i in clean:
+                if i['people_id'] == float_people_id:
+                    response['tasks'].append(i)
+
+            for i in response['tasks']:
+                hours_wk = float(i['hours_pd']) * wrkdy_week
+                i.update({'hours_wk': hours_wk})
+
+            response.update(
+                {'metadata':
+                    {
+                    'float_period_start':f_start_date,
+                    'float_period_end':f_end_date,
+                    'days_in_float_period': f_days,
+                    'holidays_in_float_period':'',
+                    }
+                }
+            )
+
+            return response
+
+    def get_float_data(self):
+        user = self.request.user
+        userdata = UserData.objects.get(user=user)
+
+        if userdata.float_people_id:
+            return TimecardView.get_task_data(self, userdata.float_people_id)
+        else:
+            float_people_id = userdata.get_people_id(self.request.user)
+            return TimecardView.get_task_data(self, float_people_id)
+
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
 
@@ -321,6 +381,8 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
+            'float_data': self.get_float_data(),
+            'is_billable': UserData.objects.get(user=self.request.user).is_billable,
         })
 
         return context
