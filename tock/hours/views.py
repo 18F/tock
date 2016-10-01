@@ -298,9 +298,9 @@ class TimecardView(UpdateView):
                 params={'weeks': weeks, 'start_day': start_day}
             )
             if r.status_code != 200:
-
-                return {'hard_fail':'Error connecting to Float. Please check ' \
-                'with #tock-dev for updates. Status code: {}'.format(
+                return {'hard_fail':'Error connecting to Float. Please check '\
+                'with #tock-dev for updates. Operation: get_task_data(). '\
+                'Status code: {}'.format(
                     r.status_code
                     )
                 }
@@ -351,8 +351,12 @@ class TimecardView(UpdateView):
         if userdata.float_people_id:
             return TimecardView.get_task_data(self, userdata.float_people_id)
         else:
-            float_people_id = userdata.get_people_id(self.request.user)
-            return TimecardView.get_task_data(self, float_people_id)
+            result = userdata.get_people_id(self.request.user)
+            print(type(result))
+            if type(result) == type(dict()):
+                return result
+            else:
+                return TimecardView.get_task_data(self, result)
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
