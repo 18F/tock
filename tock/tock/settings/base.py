@@ -18,6 +18,7 @@ DATABASES = {}
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_string(50))
+FLOAT_API_KEY = os.environ.get('FLOAT_API_KEY')
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
