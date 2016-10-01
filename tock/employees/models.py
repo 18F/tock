@@ -101,14 +101,22 @@ class UserData(models.Model):
             url='https://api.floatschedule.com/api/v1/people',
             headers={'Authorization': 'Bearer ' + base.FLOAT_API_KEY}
         )
-        people_data = json.loads(r.content.decode().lower().strip())
-        for i in people_data['people']:
-            if i['im'] == user.username:
-                float_people_id = i['people_id']
-                userdata.float_people_id = float_people_id
-                userdata.save()
+        if r.status_code != 200:
+            return dict({'hard_fail':'Error connecting to Float. Please check '\
+            'with #tock-dev for updates. Operation:get_people_id(). Status '\
+            'code: {}'.format(
+                r.status_code
+                )
+            })
+        else:
+            people_data = json.loads(r.content.decode().lower().strip())
+            for i in people_data['people']:
+                if i['im'] == user.username:
+                    float_people_id = i['people_id']
+                    userdata.float_people_id = float_people_id
+                    userdata.save()
 
-        return float_people_id
+            return float_people_id
 
     def save(self, *args, **kwargs):
         if self.current_employee is False:
