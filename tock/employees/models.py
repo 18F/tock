@@ -115,8 +115,9 @@ class UserData(models.Model):
                     float_people_id = i['people_id']
                     userdata.float_people_id = float_people_id
                     userdata.save()
-
-            return float_people_id
+                    return float_people_id
+                else:
+                    return
 
     def save(self, *args, **kwargs):
         if self.current_employee is False:
