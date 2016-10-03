@@ -86,3 +86,26 @@ class UserDataTests(TestCase):
         except Token.DoesNotExist:
             token_after_save = None
         self.assertNotEqual(token_before_save, token_after_save)
+
+class TestFloatIntegration(TestCase):
+
+    def test_float_api_key_present(self):
+        """Checks that method can access Float API key."""
+        pass
+
+    def test_status_code_checkt(self):
+        """Checks error is handled if response status code is not 200."""
+        pass
+
+    def test_task_data_structure(self):
+        """Checks that Float /people response data is parsed correctly."""
+        pass
+
+    def test_valid_float_user(self):
+        """Checks that a valid Float user is correctly matched with valid
+        Tock user."""
+        pass
+
+    def test_invalid_float_user(self):
+        """Checks that an invalid Float user is correctly handled."""
+        pass

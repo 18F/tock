@@ -567,3 +567,38 @@ class ReportTests(WebTest):
             len(response.html.find_all('tr', {'class': 'user'})), 3
         )
         self.former_employee
+
+class TestFloatViewIntegration(TestCase):
+
+    def test_missing_float_id(self):
+        """Checks that a user with a missing Fload people_id is handled."""
+        pass
+
+    def test_time_period(self):
+        """Checks that correct time period for Float API call is derived from
+        Tock reporting period."""
+        pass
+
+    def test_bad_response(self):
+        """Checks that error is handled properly if response code does not equal
+        200."""
+        pass
+
+    def test_task_data_structure(self):
+        """Checks that Float /task response data is parsed correctly."""
+        pass
+
+    def test_get_float_data(self):
+        """Checks that users with and and without Float people_id information
+        are handled correctly."""
+        pass
+
+    def test_context_data(self):
+        """Checks that Float data is correctly parsed and appended to context
+        data."""
+        pass
+
+    def test_timecard_form_response(self):
+        """Checks that data is correctly displayed via timecard_form.html
+        template."""
+        pass
