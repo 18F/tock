@@ -10,21 +10,29 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import json
 
 from django.utils.crypto import get_random_string
+
+def get_float_key(keyname):
+    if os.environ.get('VCAP_SERVICES'):
+        key = str(json.loads(os.environ.get(
+            'VCAP_SERVICES'))['user-provided'][0]['credentials'][keyname])
+        return key
+    else:
+        return ''
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 DATABASES = {}
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_string(50))
-FLOAT_API_KEY = str(
-    json.loads(
-        os.environ.get(
-            'VCAP_SERVICES'
-        )
-    )['user-provided'][0]['credentials']['float-key']
-)
+
+FLOAT_API_KEY = get_float_key('float-key')
+FLOAT_API_URL_BASE = 'https://api.floatschedule.com/api/v1/'
+FLOAT_API_HEADER = {'Authorization': 'Bearer ' + FLOAT_API_KEY}
+FLOAT_API_TASK_WEEKS = 1
+FLOAT_API_WEEKDAYS = 5
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
