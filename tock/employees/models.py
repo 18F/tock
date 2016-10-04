@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import Token
 from django.db.models import Q, Max
 
 from tock.settings import base
+from tock.utils import get_float_data
 
 class EmployeeGrade(models.Model):
     GRADE_CHOICES = (
@@ -95,27 +96,22 @@ class UserData(models.Model):
     def __str__(self):
         return '{0}'.format(self.user)
 
-    def get_people_id(self, user):
-        userdata = UserData.objects.get(user=user)
-        r = requests.get(
-            url='https://api.floatschedule.com/api/v1/people',
-            headers={'Authorization': 'Bearer ' + base.FLOAT_API_KEY}
+    def get_people_float_data(self):
+        result = get_float_data(
+            endpoint='people',
+            params=None
         )
-        if r.status_code != 200:
-            return dict({'hard_fail':'Error connecting to Float. Please check '\
-            'with #tock-dev for updates. Operation:get_people_id(). Status '\
-            'code: {}'.format(
-                r.status_code
-                )
-            })
-        else:
-            people_data = json.loads(r.content.decode().lower().strip())
-            for i in people_data['people']:
-                if i['im'] == user.username:
-                    float_people_id = i['people_id']
-                    userdata.float_people_id = float_people_id
-                    userdata.save()
-                    return float_people_id
+        return result
+
+    def get_people_id(self, user, json):
+        userdata = UserData.objects.get(user=user)
+        people_data = json
+        for i in people_data['people']:
+            if i['im'] == user.username:
+                float_people_id = i['people_id']
+                userdata.float_people_id = float_people_id
+                userdata.save()
+                return float_people_id
 
     def save(self, *args, **kwargs):
         if self.current_employee is False:
@@ -124,5 +120,8 @@ class UserData(models.Model):
                 token.delete()
             except Token.DoesNotExist:
                 pass
+
+        if self.float_people_id is '':
+            self.float_people_id = None
 
         super(UserData, self).save(*args, **kwargs)
