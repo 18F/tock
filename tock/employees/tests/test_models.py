@@ -1,10 +1,18 @@
 import datetime
+import json
+import requests
+import socket
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from employees.models import EmployeeGrade, UserData
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
+
+from tock.settings import base, dev
+from employees.models import UserData
+from tock.utils import check_status_code, get_free_port
+from tock.mock_api_server import TestMockServer
 
 class EmployeeGradeTests(TestCase):
     fixtures = ['tock/fixtures/prod_user.json']
@@ -88,24 +96,55 @@ class UserDataTests(TestCase):
         self.assertNotEqual(token_before_save, token_after_save)
 
 class TestFloatIntegration(TestCase):
+    fixtures = [
+        'employees/fixtures/user_data.json',
+        'tock/fixtures/prod_user.json'
+    ]
 
-    def test_float_api_key_present(self):
-        """Checks that method can access Float API key."""
-        pass
+    def setUp(self):
+        self.float_username = 'jrortt.zh1maf'
+        self.float_people_id = '318575'
+        self.user = User.objects.create(username=self.float_username)
+        self.userdata = UserData.objects.create(
+            user=self.user,
+            float_people_id=self.float_people_id,
+            start_date=datetime.date.today(),
+            end_date=datetime.date.today() + datetime.timedelta(days=365),
+            current_employee=False,
+            is_18f_employee=True,
+            is_billable=True,
+            unit=1
+        )
 
-    def test_status_code_checkt(self):
-        """Checks error is handled if response status code is not 200."""
-        pass
-
-    def test_task_data_structure(self):
+    def test_get_people_id_valid_user(self):
         """Checks that Float /people response data is parsed correctly."""
-        pass
+        port = get_free_port()
+        TestMockServer.run_server(port)
+        endpoint = 'people'
+        r = requests.get(
+            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
+        )
 
-    def test_valid_float_user(self):
-        """Checks that a valid Float user is correctly matched with valid
-        Tock user."""
-        pass
+        result = UserData.get_people_id(self, self.user, r.json())
 
-    def test_invalid_float_user(self):
+        self.assertEqual(result, self.userdata.float_people_id)
+
+    def test_get_people_id_invalid_user(self):
         """Checks that an invalid Float user is correctly handled."""
-        pass
+        port = get_free_port()
+        TestMockServer.run_server(port)
+        endpoint = 'people'
+        r = requests.get(
+            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
+        )
+
+        user = User.objects.get(username='aaron.snow')
+        result = UserData.get_people_id(self, user, r.json())
+
+        self.assertIsNone(result)
+
+    def test_save_method(self):
+        """Checks that a blank Float people_id is always saved as None."""
+        self.userdata.float_people_id = ''
+        self.userdata.save()
+        self.assertFalse(self.userdata.float_people_id)
