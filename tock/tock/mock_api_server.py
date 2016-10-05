@@ -1,14 +1,11 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 
-import requests
-
-from tock.settings import test
-
-
 class MockServerRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        # Process an HTTP GET request and return a response with an HTTP 200 status.
+        """Process an HTTP GET request in various ways dependant on path
+        requested."""
+
         if self.path == '/people':
             f = open('employees/fixtures/float_people_fixture.json').read()
             self.send_response(200)
@@ -22,7 +19,7 @@ class MockServerRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(bytes(f, 'UTF-8'))
         else:
-            self.send_response(100)
+            self.send_response(400)
             self.send_header("Content-type", "application/json")
             self.end_headers()
 

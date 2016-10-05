@@ -6,7 +6,7 @@ import sys
 from django.core.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 
-from tock import settings
+from tock.settings import base, dev
 from tock.mock_api_server import TestMockServer
 
 class PermissionMixin(object):
@@ -41,23 +41,23 @@ class IsSuperUserOrSelf(BasePermission):
 
 def get_float_data(endpoint, params):
     """Fetch Float data from given endpoint with given params. Different request
-     variables used for testing / shell work with the fake Float API
+      variables used for testing / shell work with the fake Float API
      (see tock.mock_api_server) versus all other uses."""
 
     testing = 'test' in sys.argv
     shell = 'shell' in sys.argv
 
     if testing or shell:
-        headers = settings.dev.FLOAT_API_HEADER
+        headers = dev.FLOAT_API_HEADER
         port = get_free_port()
         TestMockServer.run_server(port)
         r = requests.get(
-            url='{}:{}/{}'.format(settings.dev.FLOAT_API_URL_BASE, port, endpoint)
+            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
         )
 
     else:
-        url_base = settings.base.FLOAT_API_URL_BASE
-        headers = settings.base.FLOAT_API_HEADER
+        url_base = base.FLOAT_API_URL_BASE
+        headers = base.FLOAT_API_HEADER
         r = requests.get(
             url='{}{}'.format(url_base, endpoint),
             headers=headers,

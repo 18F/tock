@@ -1,6 +1,5 @@
 import datetime
 import csv
-import json
 import requests
 
 from django.core.urlresolvers import reverse
@@ -25,7 +24,6 @@ from tock.utils import get_free_port
 import hours.models
 import hours.views
 import projects.models
-import employees.models
 
 FIXTURES = [
     'tock/fixtures/prod_user.json',
@@ -246,7 +244,6 @@ class ReportTests(WebTest):
         new_reporting_period.start_date = datetime.date(2016, 5, 1)
         new_reporting_period.end_date = datetime.date(2016, 5, 8)
         new_reporting_period.save()
-
         date = self.reporting_period.start_date.strftime('%Y-%m-%d')
         response = self.app.get(
             reverse(
@@ -255,6 +252,7 @@ class ReportTests(WebTest):
             ),
             headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
         )
+
         self.assertIn('7.5 hours on pSOvkvbGYL', response)
 
     def test_prefilled_timecard(self):
@@ -593,11 +591,10 @@ class ReportTests(WebTest):
         self.former_employee
 
 class TestFloatViewIntegration(TestCase):
-
     fixtures = FIXTURES
 
     def setUp(self):
-        self.userdata = employees.models.UserData.objects.get(pk=1)
+        self.userdata = UserData.objects.get(pk=1)
 
     def test_time_period(self):
         """Checks that correct time period for Float API call is derived from
@@ -612,7 +609,6 @@ class TestFloatViewIntegration(TestCase):
         r = requests.get(
             url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
         )
-
         result = hours.views.TimecardView.clean_task_data(self, self.userdata.float_people_id, r.json())
 
         self.assertIn('tasks', str(result.keys()))
@@ -631,7 +627,6 @@ class TestFloatViewIntegration(TestCase):
         r = requests.get(
             url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
         )
-
         float_people_id = '755802'
         result = hours.views.TimecardView.clean_task_data(self, float_people_id, r.json())
 
@@ -642,14 +637,3 @@ class TestFloatViewIntegration(TestCase):
             result['tasks'][0]['hours_wk'],
             float(result['tasks'][0]['hours_pd']) * base.FLOAT_API_WEEKDAYS
         )
-
-    def test_timecard_form(self):
-        """Checks that data is correctly displayed via timecard_form.html
-        template."""
-        port = get_free_port()
-        TestMockServer.run_server(port)
-        endpoint = 'tasks'
-        r = requests.get(
-            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
-        )
-        pass

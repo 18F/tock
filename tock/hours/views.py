@@ -1,9 +1,6 @@
 import csv
 import datetime
 import io
-import requests
-import json
-
 from itertools import chain
 from operator import attrgetter
 
@@ -15,7 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView, View
+from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
 from django.contrib.auth.decorators import user_passes_test
@@ -29,6 +26,8 @@ from employees.models import UserData
 from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from tock.settings import base
+from tock.utils import check_status_code, get_float_data
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 from .forms import (
@@ -39,10 +38,6 @@ from .forms import (
     TimecardFormSet,
     timecard_formset_factory
 )
-
-from employees.models import UserData
-from tock.settings import base
-from tock.utils import check_status_code, get_float_data
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -285,11 +280,11 @@ class TimecardView(UpdateView):
         start_day = datetime.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
-        result = get_float_data(
+        response = get_float_data(
             endpoint='tasks',
             params={'weeks': base.FLOAT_API_TASK_WEEKS, 'start_day': start_day}
         )
-        return result
+        return response
 
     def clean_task_data(self, float_people_id, json):
         """From response, derive meta data about period."""
@@ -302,21 +297,21 @@ class TimecardView(UpdateView):
         f_days = f_end_date - f_start_date
 
         """Clean and prepare response for context. """
-        clean = list()
+        tasks = list()
         for i in json['people']:
             for ii in i['tasks']:
-                clean.append(ii)
+                tasks.append(ii)
 
-        response = {'tasks':[]}
-        for i in clean:
-            if i['people_id'] == float_people_id:
-                response['tasks'].append(i)
+        clean_data = {'tasks':[]}
+        for t in tasks:
+            if t['people_id'] == float_people_id:
+                clean_data['tasks'].append(t)
 
-        for i in response['tasks']:
+        for i in clean_data['tasks']:
             hours_wk = float(i['hours_pd']) * base.FLOAT_API_WEEKDAYS
             i.update({'hours_wk': hours_wk})
 
-        response.update(
+        clean_data.update(
             {'metadata':
                 {
                 'float_period_start':f_start_date,
@@ -327,7 +322,7 @@ class TimecardView(UpdateView):
             }
         )
 
-        return response
+        return clean_data
 
     def get_float_data_for_context(self):
         user = self.request.user
@@ -338,7 +333,7 @@ class TimecardView(UpdateView):
             """If a user's Float people_id is None or blank, attempt to get the
             user's Float people_id via the /people endpoint."""
 
-            result = userdata.get_people_id(
+            float_people_id = userdata.get_people_id(
                 self.request.user,
                 check_status_code(
                     userdata.get_people_float_data(
@@ -346,7 +341,6 @@ class TimecardView(UpdateView):
                     )
                 )
             )
-            float_people_id = result
 
         if float_people_id is None:
             """If a user's Float people_id is still None or blank, return error
@@ -358,13 +352,13 @@ class TimecardView(UpdateView):
         else:
             """With Float people_id, fetch and clean associated /task data."""
 
-            result = self.clean_task_data(
+            context_data = self.clean_task_data(
                 float_people_id,
                 check_status_code(
                     self.get_task_float_data()
                 )
             )
-            return result
+            return context_data
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)

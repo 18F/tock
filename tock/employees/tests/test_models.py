@@ -1,7 +1,5 @@
 import datetime
-import json
 import requests
-import socket
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -11,7 +9,7 @@ from django.contrib.auth.models import User
 
 from tock.settings import base, dev
 from employees.models import UserData
-from tock.utils import check_status_code, get_free_port
+from tock.utils import get_free_port
 from tock.mock_api_server import TestMockServer
 
 class EmployeeGradeTests(TestCase):
@@ -122,9 +120,10 @@ class TestFloatIntegration(TestCase):
         TestMockServer.run_server(port)
         endpoint = 'people'
         r = requests.get(
-            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
+            url='{}:{}/{}'.format(
+                dev.FLOAT_API_URL_BASE, port, endpoint
+            )
         )
-
         result = UserData.get_people_id(self, self.user, r.json())
 
         self.assertEqual(result, self.userdata.float_people_id)
@@ -135,9 +134,10 @@ class TestFloatIntegration(TestCase):
         TestMockServer.run_server(port)
         endpoint = 'people'
         r = requests.get(
-            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
+            url='{}:{}/{}'.format(
+                dev.FLOAT_API_URL_BASE, port, endpoint
+            )
         )
-
         user = User.objects.get(username='aaron.snow')
         result = UserData.get_people_id(self, user, r.json())
 
