@@ -30,6 +30,14 @@ class UserListView(ListView):
         context = super(UserListView, self).get_context_data(**kwargs)
         return context
 
+class GroupUtilizationView(ListView):
+    def get_list(self):
+        pass
+
+class UserUtilizationView(DetailView):
+    def get_user(self):
+        pass
+
 class UserDetailView(DetailView):
     template_name = 'employees/user_detail.html'
 
