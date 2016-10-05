@@ -1,3 +1,4 @@
+@import "base/variables";
 @import "all";
 @import "base/base";
 
@@ -14,5 +15,6 @@
 
 .container {
   @include outer-container;
-  margin-top: 3em;
+  margin-top: 6rem;
+  max-width: 108.8rem;
 }

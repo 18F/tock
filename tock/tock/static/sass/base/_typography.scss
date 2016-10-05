@@ -1,10 +1,8 @@
+// Typography
+// ==========================
+
 body {
-  @include font-feature-settings("kern", "liga", "pnum");
-  -webkit-font-smoothing: antialiased;
-  color: $base-font-color;
-  font-family: $base-font-family;
-  font-size: $base-font-size;
-  line-height: $base-line-height;
+  overflow-x: hidden;
 }
 
 h1,
@@ -13,47 +11,13 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: $heading-font-family;
-  font-size: $base-font-size;
-  line-height: $heading-line-height;
-  margin: 0 0 $small-spacing;
-}
-
-h2 {
- font-size: $base-font-size * 1.5;
-}
-
-p {
-  margin: 0 0 $small-spacing;
+  font-family: $font-sans;
 }
 
 a {
-  color: $action-color;
-  text-decoration: none;
-  transition: color 0.1s linear;
+  color: $color-medium;
 
-  &:active,
-  &:focus,
   &:hover {
-    color: darken($action-color, 15%);
+    color: $color-medium-hover;
   }
-
-  &:active,
-  &:focus {
-    outline: none;
-  }
-}
-
-hr {
-  border-bottom: $base-border;
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  margin: $base-spacing 0;
-}
-
-img,
-picture {
-  margin: 0;
-  max-width: 100%;
 }
