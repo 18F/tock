@@ -200,6 +200,13 @@ def get_timecards(queryset, params=None):
             timecard__reporting_period__end_date__gte=after_date
         )
 
+    if 'billable' in params:
+        # only pull records for billable projects
+        billable = params.get('billable')
+        queryset = queryset.filter(
+            project__accounting_code__billable=billable
+        )
+        
     return queryset
 
 
