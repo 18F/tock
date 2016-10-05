@@ -2,8 +2,9 @@ import datetime
 import csv
 
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django_webtest import WebTest
 
 from api.renderers import stream_csv
@@ -104,6 +105,34 @@ class BulkTimecardsTests(TestCase):
             self.assertEqual(row['billable'], 'False')
             rows_read += 1
         self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
+
+class TestAdminBulkTimecards(TestCase):
+    fixtures = FIXTURES
+
+    def test_admin_bulk_timecards(self):
+        factory = RequestFactory()
+        user = User.objects.get(username='aaron.snow')
+        request = factory.get(reverse('reports:AdminBulkTimecardList'))
+        request.user = user
+        response = hours.views.admin_bulk_timecard_list(request)
+        rows = decode_streaming_csv(response)
+        expected_fields = set((
+            'project_name',
+            'project_id',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'agency',
+            'flat_rate',
+            'active',
+            'mbnumber',
+            'notes',
+            'grade',
+        ))
+        for row in rows:
+            self.assertEqual(set(row.keys()), expected_fields)
 
 class ProjectTimelineTests(WebTest):
     fixtures = FIXTURES

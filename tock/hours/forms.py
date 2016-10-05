@@ -156,11 +156,13 @@ class TimecardObjectForm(forms.ModelForm):
         choices=projects_as_choices
     )
 
-# For another day :-). Changes step increment in Hours Spent field.
-#    )
-#    hours_spent = forms.IntegerField(
-#        widget=forms.NumberInput(attrs={'step': '0.25'})
-#    )
+    hours_spent = forms.DecimalField(
+        min_value=0,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'step': '0.25'
+        })
+    )
 
 
     class Meta:

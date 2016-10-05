@@ -7,6 +7,12 @@
 
 <h3> Raw data in .csv </h3>
 <ul>
+	{% if user.is_superuser %}
+	<i>Superuser Reports</i>
+	<li><a href="{% url 'reports:AdminBulkTimecardList' %}">Complete timecard data with grade info</a></li>
+	<br />
+	<i>Regular Reports</i>
+	{% endif %}
 	<li><a href="{% url 'reports:BulkTimecardList' %}">Complete timecard data</a></li>
 	<li><a href="{% url 'reports:SlimBulkTimecardList' %}">Complete timecard data with fewer fields</a></li>
 	<li><a href="{% url 'reports:ProjectTimelineView' %}">Aggregate hourly data by project and reporting period</a></li>
