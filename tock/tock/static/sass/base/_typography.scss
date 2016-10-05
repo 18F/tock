@@ -21,3 +21,10 @@ a {
     color: $color-medium-hover;
   }
 }
+
+hr {
+  background: $color-gray-lighter;
+  border: 0;
+  height: 1px;
+  margin: $site-margins 0;
+}
