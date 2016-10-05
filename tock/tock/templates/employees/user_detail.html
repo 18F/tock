@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Let's Tock about {{ object.user.first_name }} {{ object.user.last_name }}!</h2>
+<h2>Let's Tock about {{ object.user.user_data.full_name }}!</h2>
 
 <figure class="chart chart--utilization">
   <h3 class="chart__title">Project Hours Over Time</h3>

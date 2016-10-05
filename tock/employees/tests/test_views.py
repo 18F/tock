@@ -47,12 +47,12 @@ class UserViewTests(WebTest):
         )
         self.assertContains(
             response,
-            '<a href="/employees/e/aaron.snow">aaron.snow</a>',
+            '<a href="/employees/e/aaron.snow">',
             status_code=200
         )
         self.assertNotContains(
             response,
-            '<a href="/employees/aaron.snow">aaron.snow</a>',
+            '<a href="/employees/aaron.snow">',
             status_code=200
         )
 

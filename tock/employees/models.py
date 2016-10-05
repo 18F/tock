@@ -91,6 +91,20 @@ class UserData(models.Model):
         return '{0}'.format(self.user)
 
 
+    def full_name(self):
+        first_name = str(
+            self.user.first_name
+        )[:1].upper() + str(
+            self.user.first_name
+        )[1:]
+        last_name = str(
+            self.user.last_name
+        )[:1].upper() + str(
+            self.user.last_name
+        )[1:]
+        full_name = '{0} {1}'.format(first_name, last_name)
+        return full_name
+
     def save(self, *args, **kwargs):
         if self.current_employee is False:
             try:

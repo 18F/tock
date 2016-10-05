@@ -45,7 +45,8 @@ class UserFormView(PermissionMixin, FormView):
     permission_classes = (IsSuperUserOrSelf, )
 
     def get_context_data(self, **kwargs):
-        kwargs['username'] = self.kwargs['username']
+        current_user = User.objects.get(username=self.kwargs['username'])
+        kwargs['name'] = UserData.objects.get(user=current_user.id).full_name()
         return super(UserFormView, self).get_context_data(**kwargs)
 
     def get_initial(self):
