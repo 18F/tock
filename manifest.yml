@@ -8,3 +8,4 @@ applications:
   buildpack: python_buildpack
   services:
   - tockdb
+  - float-key
