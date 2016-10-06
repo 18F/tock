@@ -4,7 +4,7 @@ To fetch a list of all users with organizational information for each.
 
 * **URL**
 
-  /users_data.json
+  /user_data.json
 
 * **Method:**
 
