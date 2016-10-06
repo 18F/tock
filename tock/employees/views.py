@@ -31,10 +31,14 @@ class UserListView(ListView):
         return context
 
 class GroupUtilizationView(ListView):
+    template_name = 'employees/group_utilization.html'
+
     def get_list(self):
         pass
 
 class UserUtilizationView(DetailView):
+    template_name = 'employees/user_utilization.html'
+
     def get_user(self):
         pass
 

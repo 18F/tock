@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if request.user.is_staff %}
+
+{% else %}
+
+{% endif %}
+
+Group utilization.
+
+{% endblock %}
