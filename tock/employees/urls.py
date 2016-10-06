@@ -10,12 +10,12 @@ urlpatterns = [
         view=views.UserFormView.as_view(), name='UserFormView'),
 
     url(
-        regex=r'^/utilization$',
+        regex=r'^utilization$',
         view=views.GroupUtilizationView.as_view(),
         name='GroupUtilizationView'
-    )
+    ),
     url(
-        regex=r'^/utilization/(?P<username>[A-Za-z0-9._%+-]*)',
+        regex=r'^utilization/(?P<username>[A-Za-z0-9._%+-]*)',
         view=views.UserUtilizationView.as_view(),
         name='UserUtilizationView'
     )
