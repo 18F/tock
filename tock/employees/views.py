@@ -8,9 +8,12 @@ from django.shortcuts import get_object_or_404
 
 
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from .utils import calculate_utilization, utilization_by_rp
 
 from .forms import UserForm
 from .models import UserData
+
+from hours.models import ReportingPeriod
 
 
 def parse_date(date):
@@ -33,8 +36,55 @@ class UserListView(ListView):
 class GroupUtilizationView(ListView):
     template_name = 'employees/group_utilization.html'
 
-    def get_list(self):
-        pass
+    def get_queryset(self):
+        queryset = UserData.objects.filter(
+            is_billable=True,
+            current_employee=True
+            )
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupUtilizationView, self).get_context_data(**kwargs)
+        queryset = self.get_queryset()
+
+        def get_last_n_rp(n, date):
+            rp_queryset = ReportingPeriod.objects.filter(
+                end_date__lte=date).order_by('-start_date')
+            return rp_queryset[:n]
+
+        def get_weeks_in_fy(date):
+            if date.month <= 9:
+                year = date.year - datetime.timedelta(weeks=52)
+            else:
+                year = date.year
+            target = datetime.date(year, 10, 1)
+            n = len(ReportingPeriod.objects.filter(start_date__gt=target))
+            return n
+
+        today = datetime.date.today()
+        last_rp = get_last_n_rp(1, today)
+        last_four_rp = get_last_n_rp(4, today)
+        last_eight_rp = get_last_n_rp(8, today)
+        fytd_rp = get_last_n_rp(get_weeks_in_fy(today), today)
+
+        context.update(
+            {
+                'unit_choices': queryset[0].UNIT_CHOICES,
+                'last_start_date': last_rp[0].start_date,
+                'last_end_date': last_rp[0].end_date,
+                'last_four_start_date': last_four_rp[len(last_four_rp)-1].start_date,
+                'last_four_end_date': last_four_rp[0].end_date,
+                'last_eight_start_date': last_eight_rp[len(last_eight_rp)-1].start_date,
+                'last_eight_end_date': last_eight_rp[0].end_date,
+                'fytd_end_date': fytd_rp[0].end_date,
+                'last': '',
+                'last_four': '',
+                'last_eight': '',
+                'fytd': ''
+            }
+        )
+
+        return context
 
 class UserUtilizationView(DetailView):
     template_name = 'employees/user_utilization.html'

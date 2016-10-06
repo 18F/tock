@@ -13,10 +13,10 @@
 <table class="table-minimal report_table">
 	<tr class="report_table__header-row">
 		<th>Name</th>
-		<th>Last Week <br /> ({{ userdata.last_start_date }} - {{ userdata.last_end_date }})</th>
-		<th>Last Four Weeks <br /> ({{ userdata.last_four_start_date }} - {{ userdata.last_four_end_date }})</th>
-    <th>Last Eight Weeks <br /> ({{ userdata.last_eight_start_date }} - {{ userdata.last_eight_end_date }})</th>
-    <th>Fiscal Year to Date <br /> {{ userdata.fytd_end_date }}</th>
+		<th>Last Week <br /> ({{ last_start_date }} - {{ last_end_date }})</th>
+		<th>Last Four Weeks <br /> ({{ last_four_start_date }} - {{ last_four_end_date }})</th>
+    <th>Last Eight Weeks <br /> ({{ last_eight_start_date }} - {{ last_eight_end_date }})</th>
+    <th>Fiscal Year to Date <br /> {{ fytd_end_date }}</th>
 	</tr>
 
 	{% for userdata in object_list %}
@@ -26,10 +26,10 @@
       <td>
         <a href="/employees/utilization/{{ user.username }}">{{ userdata.user.first_name }} {{ userdata.user.last_name }}</a>
       </td>
-      <td>{{ userdata.last }}</td>
-      <td>{{ userdata.last_four }}</td>
-      <td>{{ userdata.last_eight }}</td>
-      <td>{{ userdata.fytd }}</td>
+      <td>{{ last }}</td>
+      <td>{{ last_four }}</td>
+      <td>{{ last_eight }}</td>
+      <td>{{ fytd }}</td>
     </tr>
     {% endif %}
 	{% endfor %}
