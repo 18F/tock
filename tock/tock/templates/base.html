@@ -45,6 +45,12 @@
         <li><a href="/admin">Admin panel</a>
         <li><a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
         {% endif %}
+        {% if request.user.is_staff %}
+        <br />
+        <br />
+        <li><b>Supervisor:</b></li>
+        <li><a href="{% url 'employees:GroupUtilizationView' %}">Utilization reports</a></li>
+        {% endif %}
         <hr>
       </ul>
     </header>
