@@ -1,6 +1,7 @@
 import datetime
 
 from django.test import TestCase
+from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from employees.models import EmployeeGrade, UserData
 from rest_framework.authtoken.models import Token
@@ -13,6 +14,15 @@ class EmployeeGradeTests(TestCase):
         self.employeegrade = EmployeeGrade.objects.create(
             employee=User.objects.get(pk=1),
             grade=8,
+            g_start_date=datetime.date.today()
+        )
+    def test_unique_with_g_start_date(self):
+        """Check that multiple EmployeeGrade objects with the same g_start_date
+        cannot be saved for the same employee."""
+        with self.assertRaises(IntegrityError):
+            another_employeegrade = EmployeeGrade.objects.create(
+            employee=User.objects.get(pk=1),
+            grade=9,
             g_start_date=datetime.date.today()
         )
 
