@@ -37,23 +37,27 @@ class UserListView(ListView):
 
 class GroupUtilizationView(ListView):
     template_name = 'employees/group_utilization.html'
-
+    start_tem = datetime.datetime.now()
     today = datetime.date.today()
-    last_rp = get_last_n_rp(1, today)
+    fy_first_day = get_fy_first_day(today)
+
     last_four_rp = get_last_n_rp(4, today)
-    last_eight_rp = get_last_n_rp(8, today)
-    fytd_rp = get_last_n_rp(get_rps_in_fy(get_fy_first_day(today)), today)
-    last_start_date = last_rp[0].start_date
-    last_end_date = last_rp[0].end_date
-
-    last_four_start_date = last_four_rp[len(last_four_rp)-1].start_date,
+    last_rp = last_four_rp[0]
+    last_four_start_date = last_four_rp[3].start_date,
     last_four_end_date = last_four_rp[0].end_date,
-    last_eight_start_date = last_eight_rp[len(last_eight_rp)-1].start_date,
-    last_eight_end_date = last_eight_rp[0].end_date,
-    fytd_end_date = fytd_rp[0].end_date
 
-    tos = TimecardObject.objects.filter()
+    if last_four_end_date[0] <= fy_first_day:
+        earliest_date = last_four_start_date[0]
+    else:
+        earliest_date = fy_first_day
 
+    tos = TimecardObject.objects.filter(
+        timecard__user__user_data__is_billable=True,
+        timecard__submitted=True,
+        timecard__reporting_period__start_date__gte=earliest_date.strftime(
+            '%Y-%m-%d'
+        )
+    )
 
     def get_queryset(self):
         queryset = UserData.objects.filter(
@@ -65,60 +69,41 @@ class GroupUtilizationView(ListView):
             start = datetime.datetime.now()
             user_tos = self.tos.filter(timecard__user=userdata.user)
 
-            last_user_tos = user_tos.filter(
-                timecard__reporting_period__pk=self.last_rp[0].pk
-            )
-            last = calculate_utilization(last_user_tos)
-
             last_four_user_tos = user_tos.filter(
                 timecard__reporting_period__end_date=self.last_four_end_date[0].strftime('%Y-%m-%d')
             )
             last_four = calculate_utilization(last_four_user_tos)
 
-            last_eight_user_tos = user_tos.filter(
-                timecard__reporting_period__end_date=self.last_eight_end_date[0].strftime('%Y-%m-%d')
+            last_user_tos = last_four_user_tos.filter(
+                timecard__reporting_period__pk=self.last_rp.pk
             )
-            last_eight = calculate_utilization(last_eight_user_tos)
-
+            last = calculate_utilization(last_user_tos)
 
             fytd_user_tos = user_tos.filter(
-                timecard__reporting_period__start_date__gte=get_fy_first_day(self.today)
+                timecard__reporting_period__start_date__gte=self.fy_first_day
             )
             fytd = calculate_utilization(fytd_user_tos)
 
             userdata.last = last
             userdata.last_four = last_four
-            userdata.last_eight = last_eight
             userdata.fytd = fytd
 
-            end = datetime.datetime.now()
-            diff = end - start
-            print(diff)
-
-        print('queryset_returned')
         return queryset
-
 
     def get_context_data(self, **kwargs):
         context = super(GroupUtilizationView, self).get_context_data(**kwargs)
-        userdata_obj = UserData.objects.first()
 
         context.update(
             {
-                'unit_choices': userdata_obj.UNIT_CHOICES,
-                'last_start_date': self.last_rp[0].start_date,
-                'last_end_date': self.last_rp[0].end_date,
+                'unit_choices': UserData.objects.first().UNIT_CHOICES,
+                'through_date': self.last_four_rp[0].end_date,
                 'last_four_start_date': self.last_four_rp[len(self.last_four_rp)-1].start_date,
-                'last_four_end_date': self.last_four_rp[0].end_date,
-                'last_eight_start_date': self.last_eight_rp[len(self.last_eight_rp)-1].start_date,
-                'last_eight_end_date': self.last_eight_rp[0].end_date,
-                'fytd_end_date': self.fytd_rp[0].end_date
             }
         )
 
-        print('context returned')
+        end_tem = datetime.datetime.now()
+        diff_tem = end_tem - self.start_tem
         return context
-
 
 class UserUtilizationView(DetailView):
     template_name = 'employees/user_utilization.html'

@@ -49,7 +49,7 @@ def calculate_utilization(queryset):
 
 def get_fy_first_day(date):
     if date.month <= 9:
-        year = date.year - datetime.datetimedelta(weeks=52)
+        year = (date - datetime.timedelta(weeks=52)).year
     else:
         year = date.year
     target = datetime.date(year, 10, 1)

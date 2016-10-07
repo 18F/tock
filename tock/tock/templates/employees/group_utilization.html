@@ -13,10 +13,9 @@
 <table class="table-minimal report_table">
 	<tr class="report_table__header-row">
 		<th>Name</th>
-		<th>Last Week <br /> ({{ last_start_date }} - {{ last_end_date }})</th>
-		<th>Last Four Weeks <br /> ({{ last_four_start_date }} - {{ last_four_end_date }})</th>
-    <th>Last Eight Weeks <br /> ({{ last_eight_start_date }} - {{ last_eight_end_date }})</th>
-    <th>Fiscal Year to Date <br /> {{ fytd_end_date }}</th>
+		<th>Last Week <br /> (Ending {{ through_date }})</th>
+		<th>Last Four Weeks <br /> ({{ last_four_start_date }} - {{ through_date }})</th>
+    <th>Fiscal Year to Date <br /> (Through {{ through_date }})</th>
 	</tr>
 
 	{% for userdata in object_list %}
@@ -28,7 +27,6 @@
       </td>
       <td>{{ userdata.last }}</td>
       <td>{{ userdata.last_four }}</td>
-      <td>{{ userdata.last_eight }}</td>
       <td>{{ userdata.fytd }}</td>
     </tr>
     {% endif %}
