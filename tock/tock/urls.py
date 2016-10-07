@@ -8,8 +8,14 @@ admin.autodiscover()
 import hours.views
 import api.urls
 import projects.urls
+import employees.views
 
 urlpatterns = [
+    url(
+        regex=r'^utilization/$',
+        view=employees.views.GroupUtilizationView.as_view(),
+        name='GroupUtilizationView'
+    ),
     url(r'^$',
         hours.views.ReportingPeriodListView.as_view(),
         name='ListReportingPeriods'
