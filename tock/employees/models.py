@@ -89,6 +89,7 @@ class UserData(models.Model):
     class Meta:
         verbose_name='Employee'
         verbose_name_plural='Employees'
+        ordering = ['user__last_name',]
 
     def __str__(self):
         return '{0}'.format(self.user)

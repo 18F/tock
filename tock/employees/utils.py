@@ -42,10 +42,12 @@ def calculate_utilization(queryset):
             Sum('hours_spent'))['hours_spent__sum']
         if billable_hours is None:
             billable_hours = 0
-        utilization = '{:.3}%'.format((billable_hours / all_hours)*100)
+            utilization = '0%'
+        else:
+            utilization = '{:.3}%'.format((billable_hours / all_hours)*100)
         return utilization
     else:
-        return 'No hours recorded.'
+        return 'No hours submitted.'
 
 def get_fy_first_day(date):
     if date.month <= 9:

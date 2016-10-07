@@ -43,11 +43,11 @@ class GroupUtilizationView(ListView):
 
     last_four_rp = get_last_n_rp(4, today)
     last_rp = last_four_rp[0]
-    last_four_start_date = last_four_rp[3].start_date,
-    last_four_end_date = last_four_rp[0].end_date,
+    last_four_start_date = last_four_rp[3].start_date
+    last_four_end_date = last_four_rp[0].end_date
 
-    if last_four_end_date[0] <= fy_first_day:
-        earliest_date = last_four_start_date[0]
+    if last_four_end_date <= fy_first_day:
+        earliest_date = last_four_start_date
     else:
         earliest_date = fy_first_day
 
@@ -70,7 +70,7 @@ class GroupUtilizationView(ListView):
             user_tos = self.tos.filter(timecard__user=userdata.user)
 
             last_four_user_tos = user_tos.filter(
-                timecard__reporting_period__end_date=self.last_four_end_date[0].strftime('%Y-%m-%d')
+                timecard__reporting_period__start_date__gte=self.last_four_start_date.strftime('%Y-%m-%d')
             )
             last_four = calculate_utilization(last_four_user_tos)
 
