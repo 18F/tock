@@ -24,12 +24,12 @@
     {% if userdata.unit is i.0 %}
     <tr class="report_table__row">
       <td>
-        <a href="/employees/utilization/{{ user.username }}">{{ userdata.user.first_name }} {{ userdata.user.last_name }}</a>
+        {{ userdata.user.first_name }} {{ userdata.user.last_name }}
       </td>
-      <td>{{ last }}</td>
-      <td>{{ last_four }}</td>
-      <td>{{ last_eight }}</td>
-      <td>{{ fytd }}</td>
+      <td>{{ userdata.last }}</td>
+      <td>{{ userdata.last_four }}</td>
+      <td>{{ userdata.last_eight }}</td>
+      <td>{{ userdata.fytd }}</td>
     </tr>
     {% endif %}
 	{% endfor %}
