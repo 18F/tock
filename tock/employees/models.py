@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, IntegrityError
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db.models import Q, Max
@@ -25,12 +25,12 @@ class EmployeeGrade(models.Model):
     )
     employee = models.ForeignKey(
         User,
-        help_text='Please select from existing employees.'
+        help_text='Please select from existing employees.',
+        unique_for_date='g_start_date',
     )
     grade = models.IntegerField(
         choices=GRADE_CHOICES,
-        help_text='Please select a GS grade level.',
-        unique_for_date='g_start_date'
+        help_text='Please select a GS grade level.'
     )
     g_start_date = models.DateField(
         help_text='Please select a start date for this grade.',
@@ -52,6 +52,19 @@ class EmployeeGrade(models.Model):
             return queryset.latest('g_start_date')
         else:
             return None
+
+    def save(self, *args, **kwargs):
+        queryset = EmployeeGrade.objects.filter(
+            employee=self.employee,
+            g_start_date=self.g_start_date
+        )
+        if queryset:
+            raise IntegrityError(
+                'Employee cannot have multiple EmployeeGrade objects with the '\
+                'same g_start_date.'
+            )
+        super(EmployeeGrade, self).save(*args, **kwargs)
+
 
 class UserData(models.Model):
 
