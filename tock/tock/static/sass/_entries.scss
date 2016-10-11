@@ -171,6 +171,15 @@
 		@include span-columns(3);
 		@include shift(3);
 		text-align:left;
+
+    .usa-button-outline {
+      float: left;
+    }
+
+    [type="submit"] {
+      @include padding(null 2rem);
+      margin-top: 0.5em;
+    }
 	}
 	.entries-total-billable-amount {
 		color: green;
