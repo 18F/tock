@@ -44,12 +44,6 @@ textarea {
   &:hover {
     border-color: darken($base-border-color, 10%);
   }
-
-  &:focus {
-    border-color: $action-color;
-    box-shadow: $form-box-shadow-focus;
-    outline: none;
-  }
 }
 
 textarea {
