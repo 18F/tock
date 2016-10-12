@@ -24,6 +24,18 @@ button,
       background-color: $color-bright-hover;
     }
   }
+
+  &.usa-button-outline {
+    background-color: $color-white;
+    box-shadow: $button-stroke $color-medium;
+    color: $color-medium;
+
+    &:hover,
+    &.usa-button-hover {
+      box-shadow: $button-stroke $color-medium-hover;
+      color: $color-medium-hover;
+    }
+  }
 }
 
 %link-arrow {
