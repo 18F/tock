@@ -23,8 +23,8 @@ script:
   - npm run build-css
   - cd tock
   - python manage.py migrate --noinput --settings=tock.settings.test
+  - python manage.py loaddata test_data/data-update.json --settings=tock.settings.test
   - python manage.py test --noinput --settings=tock.settings.test
-  - python manage.py loaddata test_data/data-update.json
 
 after_success:
   - codecov
