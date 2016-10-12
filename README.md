@@ -10,9 +10,7 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 ## Getting Started
 
-1. Install [Docker][] and [Docker Compose][]. (If you're on OS X or
-Windows, you'll also have to explicitly start the Docker Quickstart Terminal,
-at least until [Docker goes native][].)
+1. Install [Docker][]. If you're on OS X, install Docker for Mac. If you're on Windows, install Docker for Windows.
 
 1. Move into the `tock` directory at the repository root:
 
@@ -38,19 +36,17 @@ at least until [Docker goes native][].)
   ```
   
   This will start up all required servers in containers and output their
-  log information to stdout. If you're on Linux, you should be able
-  to visit http://localhost:8000/ directly to access the site. If you're on
-  OS X or Windows, you'll likely have to visit port 8000 on the IP
-  address given to you by `docker-machine ip default`. (Note that this 
-  hassle will go away once [Docker goes native][] for OS X/Windows.)
+  log information to stdout.
+
+1. Visit [http://localhost:8000/][] directly to access the site.
+
+  If you see this message in the console, you can disregard it:
+  ```
+  app_1   | Starting development server at http://0.0.0.0:1234/
+  ```
+  It's still running at http://localhost:8000
 
 You can access the admin panel at `/admin`.
-
-If you receive an `ERROR: Couldn't connect to Docker daemon - you might need to run...` error and you have confirmed that the Docker machine is running, you may need to run:
-
-```
-$ eval "$(docker-machine env default)"
-```
 
 ### Accessing the app container
 
@@ -114,7 +110,6 @@ To access similar data in CSV format from within Tock, please visit the [/report
 18F's current deployment of Tock relies on a [cloud.gov](https://cloud.gov) route service called [`uaa-auth`](https://github.com/dlapiduz/cf-uaa-guard-service).
 
 [Docker]: https://www.docker.com/
-[Docker Compose]: https://docs.docker.com/compose/
-[Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
+[http://localhost:8000/]: http://localhost:8000/
 [Sass]: http://sass-lang.com/
 [Node]: https://nodejs.org/en/
