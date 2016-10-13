@@ -15,7 +15,7 @@ from .utils import get_last_n_rp, get_rps_in_fy, calculate_utilization, utilizat
 from .forms import UserForm
 from .models import UserData
 
-from hours.models import ReportingPeriod, TimecardObject
+from hours.models import TimecardObject
 
 
 def parse_date(date):
