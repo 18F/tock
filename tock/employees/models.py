@@ -1,12 +1,9 @@
 import datetime
 
-from django.db import models
-from django.db.models import Sum
-
 from django.db import models, IntegrityError
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from django.db.models import Q, Max
+from django.db.models import Q, Max, Sum
 
 
 class EmployeeGrade(models.Model):
