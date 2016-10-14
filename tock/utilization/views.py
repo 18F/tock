@@ -42,16 +42,18 @@ class GroupUtilizationView(ListView):
     fy_first_day = get_fy_first_day(today)
 
     #pull the four most recent reporting periods
-    recent_rps = ReportingPeriod.objects.filter(
-        end_date__lte=today).order_by('-start_date')[:4]
-    most_recent_rp = recent_rps[0]
-    recent_rps_start_date = recent_rps[len(recent_rps)-1].start_date
-    recent_rps_end_date = most_recent_rp.end_date
+    def get_recent_rps():
+        recent_rps = ReportingPeriod.objects.filter(
+            end_date__lte=today).order_by('-start_date')[:4]
+        most_recent_rp = recent_rps[0]
+        recent_rps_start_date = recent_rps[len(recent_rps)-1].start_date
+        recent_rps_end_date = most_recent_rp.end_date
 
-    if recent_rps_end_date <= fy_first_day:
-        earliest_date = recent_rps_start_date
-    else:
-        earliest_date = fy_first_day
+        if recent_rps_end_date <= fy_first_day:
+            earliest_date = recent_rps_start_date
+        else:
+            earliest_date = fy_first_day
+        return recent_rps, recent_rps_start_date, recent_rps_end_date, fy_first_day
 
 
     def get_queryset():
@@ -76,18 +78,19 @@ class GroupUtilizationView(ListView):
             # calculating utilization for the four most recent reporting periods
             tos_recent = tos.filter(
                 reporting_period__start_date__gte= \
-                self.recent_rps_start_date.strftime('%Y-%m-%d'))
+                get_recent_rps()[1].strftime('%Y-%m-%d'))
 
             staffer.last_four = calculate_utilization(tos_recent)
 
             # filter timecard objects by most recent reporting period only
+            most_recent_rp = get_recent_rps()[0][0]
             tos_most_recent = tos.filter(
-                reporting_period=self.most_recent_rp)
+                reporting_period=most_recent_rp)
             staffer.last = calculate_utilization(tos_most_recent)
 
             # filter timecard objects by fiscal year to date
             tos_fytd = tos.filter(
-                timecard__reporting_period__start_date__gte=self.fy_first_day)
+                timecard__reporting_period__start_date__gte=get_recent_rps()[3])
             staffer.fytd = calculate_utilization(tos_fytd)
 
         return billable_staff
