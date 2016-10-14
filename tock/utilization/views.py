@@ -38,11 +38,13 @@ class GroupUtilizationView(ListView):
 
         return target
 
-    today = datetime.date.today()
-    fy_first_day = get_fy_first_day(today)
 
     #pull the four most recent reporting periods
     def get_recent_rps():
+
+        today = datetime.date.today()
+        fy_first_day = get_fy_first_day(today)
+
         recent_rps = ReportingPeriod.objects.filter(
             end_date__lte=today).order_by('-start_date')[:4]
         most_recent_rp = recent_rps[0]
