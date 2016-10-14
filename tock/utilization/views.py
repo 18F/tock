@@ -13,20 +13,23 @@ from employees.models import UserData
 class GroupUtilizationView(ListView):
     template_name = 'utilization/group_utilization.html'
 
-    def calculate_utilization(timecardobjects):
+    def calculate_utilization(self, timecardobjects):
         all_hours = timecardobjects.aggregate(Sum('hours_spent'))
-        if all_hours:
+
+        if all_hours['hours_spent__sum']:
             billable_hours = timecardobjects.filter(
                 project__accounting_code__billable=True
-                ).aggregate(Sum('hours_spent'))
-            if billable_hours is None:
+                ).prefetch_related('project').aggregate(Sum('hours_spent'))
+            if billable_hours['hours_spent__sum'] is None:
                 billable_hours = 0
                 utilization = '0%'
             else:
-                utilization = '{:.3}%'.format((billable_hours / all_hours)*100)
+                utilization = '{:.3}%'.format(
+                    (billable_hours['hours_spent__sum'] / all_hours['hours_spent__sum']) * 100
+                )
             return utilization
         else:
-           return 'No hours submitted.' 
+           return 'No hours submitted.'
 
     # Determine the earliest date from which we want time cards.
 
@@ -68,36 +71,40 @@ class GroupUtilizationView(ListView):
         billable_staff = UserData.objects.filter(
             is_billable=True,
             current_employee=True
-            ).prefetch_related(
-                Prefetch('user__timecards',
-                          queryset=submitted_timecards,
-                          to_attr='submitted_timecards'),
-                "submitted_timecards__timecardobjects",
+        ).prefetch_related(
+            Prefetch(
+                'user__timecards',
+                queryset=submitted_timecards,
+                to_attr='submitted_timecards'
             )
+        )
 
         for staffer in billable_staff:
-
-            tos = staffer.timecardobjects
+            tos = TimecardObject.objects.filter(
+                timecard__in=staffer.user.submitted_timecards
+            )
 
             # calculating utilization for the four most recent reporting periods
             tos_recent = tos.filter(
-                reporting_period__start_date__gte= \
-                recent_rps[1].strftime('%Y-%m-%d'))
+                timecard__reporting_period__start_date__gte=recent_rps[1].strftime('%Y-%m-%d')
+            ).prefetch_related('timecard')
 
-            staffer.last_four = calculate_utilization(tos_recent)
+            staffer.last_four = self.calculate_utilization(tos_recent)
 
             # filter timecard objects by most recent reporting period only
             most_recent_rp = recent_rps[0][0]
             tos_most_recent = tos.filter(
-                reporting_period=most_recent_rp)
-            staffer.last = calculate_utilization(tos_most_recent)
+                timecard__reporting_period=most_recent_rp
+            ).prefetch_related('timecard')
+            staffer.last = self.calculate_utilization(tos_most_recent)
 
             # filter timecard objects by fiscal year to date
             tos_fytd = tos.filter(
-                timecard__reporting_period__start_date__gte=recent_rps[3])
-            staffer.fytd = calculate_utilization(tos_fytd)
+                timecard__reporting_period__start_date__gte=recent_rps[3]
+            ).prefetch_related('timecard')
+            staffer.fytd = self.calculate_utilization(tos_fytd)
 
-        return billable_staff       
+        return billable_staff
 
 
     def get_context_data(self, **kwargs):
@@ -118,5 +125,5 @@ class GroupUtilizationView(ListView):
                 'last_four_start_date': self.last_four_rp[len(self.last_four_rp)-1].start_date,
             }
         )
-        
+
     """
