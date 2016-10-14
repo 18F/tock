@@ -1,9 +1,10 @@
 import datetime
 
-from django.db.models import Sum
+from django.db.models import Sum, Prefetch
 from django.views.generic import ListView
 
-from hours.models import TimecardObject, ReportingPeriod
+from hours.models import Timecard, TimecardObject, ReportingPeriod
+from employees.models import UserData
 
 # from django.contrib.auth.models import User
 # from django.core.urlresolvers import reverse
@@ -29,7 +30,7 @@ class GroupUtilizationView(ListView):
 
     # Determine the earliest date from which we want time cards.
 
-    def get_fy_first_day(date):
+    def get_fy_first_day(self, date):
         if date.month <= 9:
             year = (date - datetime.timedelta(weeks=52)).year
         else:
@@ -40,10 +41,10 @@ class GroupUtilizationView(ListView):
 
 
     #pull the four most recent reporting periods
-    def get_recent_rps():
+    def get_recent_rps(self):
 
         today = datetime.date.today()
-        fy_first_day = get_fy_first_day(today)
+        fy_first_day = self.get_fy_first_day(today)
 
         recent_rps = ReportingPeriod.objects.filter(
             end_date__lte=today).order_by('-start_date')[:4]
@@ -58,9 +59,9 @@ class GroupUtilizationView(ListView):
         return recent_rps, recent_rps_start_date, recent_rps_end_date, fy_first_day
 
 
-    def get_queryset():
+    def get_queryset(self):
 
-        recent_rps = get_recent_rps()
+        recent_rps = self.get_recent_rps()
 
         submitted_timecards = Timecard.objects.filter(submitted=True)
 
@@ -70,9 +71,8 @@ class GroupUtilizationView(ListView):
             ).prefetch_related(
                 Prefetch('user__timecards',
                           queryset=submitted_timecards,
-                          to_attr='timecards'),
-                Prefetch("timecards__timecardobjects",
-                          to_attr="timecardobjects")
+                          to_attr='submitted_timecards'),
+                "submitted_timecards__timecardobjects",
             )
 
         for staffer in billable_staff:
@@ -97,11 +97,7 @@ class GroupUtilizationView(ListView):
                 timecard__reporting_period__start_date__gte=recent_rps[3])
             staffer.fytd = calculate_utilization(tos_fytd)
 
-        return billable_staff
-
-
-
-            
+        return billable_staff       
 
 
     def get_context_data(self, **kwargs):
