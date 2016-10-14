@@ -64,7 +64,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 
 class Timecard(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name="timecards")
     reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
@@ -80,7 +80,7 @@ class Timecard(models.Model):
 
 
 class TimecardObject(models.Model):
-    timecard = models.ForeignKey(Timecard)
+    timecard = models.ForeignKey(Timecard, related_name="timecardobjects")
     project = models.ForeignKey(Project)
     hours_spent = models.DecimalField(decimal_places=2,
                                       max_digits=5,
