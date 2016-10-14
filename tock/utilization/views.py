@@ -43,9 +43,9 @@ class GroupUtilizationView(ListView):
 
     #pull the four most recent reporting periods
     recent_rps = ReportingPeriod.objects.filter(
-                 end_date__lte=today).order_by('-start_date')[:4]
+        end_date__lte=today).order_by('-start_date')[:4]
     most_recent_rp = recent_rps[0]
-    recent_rps_start_date = recent_rps[3].start_date
+    recent_rps_start_date = recent_rps[len(recent_rps)-1].start_date
     recent_rps_end_date = most_recent_rp.end_date
 
     if recent_rps_end_date <= fy_first_day:

@@ -269,7 +269,7 @@ class ReportTests(WebTest):
         # projects based on last submitted timecard
         last_timecard_projects = set(
             choice_label_for_project(tco.project) for tco
-            in self.timecard.timecardobject_set.all()
+            in self.timecard.timecardobjects.all()
         )
         scrubbed_projects_names = []
         for n in last_timecard_projects:
@@ -323,7 +323,7 @@ class ReportTests(WebTest):
         self.assertEqual(first_hour_val, str(new_tco.hours_spent))
         self.assertEqual(
             len(response.html.find_all('div', {'class': 'entry'})),
-            new_timecard.timecardobject_set.count() + 1
+            new_timecard.timecardobjects.count() + 1
         )
 
     def test_can_delete_unsubmitted_timecard_entries(self):
@@ -377,12 +377,12 @@ class ReportTests(WebTest):
             ),
             {
                 'save_only': '1',
-                'timecardobject_set-TOTAL_FORMS': '1',
-                'timecardobject_set-INITIAL_FORMS': '0',
-                'timecardobject_set-MIN_NUM_FORMS': '0',
-                'timecardobject_set-MAX_NUM_FORMS': '1000',
-                'timecardobject_set-0-project': '4',
-                'timecardobject_set-0-hours_spent': None,
+                'timecardobjects-TOTAL_FORMS': '1',
+                'timecardobjects-INITIAL_FORMS': '0',
+                'timecardobjects-MIN_NUM_FORMS': '0',
+                'timecardobjects-MAX_NUM_FORMS': '1000',
+                'timecardobjects-0-project': '4',
+                'timecardobjects-0-hours_spent': None,
             },
             headers={'X_AUTH_USER': self.regular_user.email},
         )
