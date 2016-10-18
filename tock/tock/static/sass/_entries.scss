@@ -157,6 +157,17 @@
 
 .entry-delete {
 	@include span-columns(1);
+
+  input {
+    height: initial;
+    margin-left: 0;
+    opacity: 1;
+    width: auto;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
 }
 
 .entry-hidden {
