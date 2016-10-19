@@ -101,7 +101,7 @@ Tock has an API! You may issue GET requests to various [endpoints](https://githu
 ```
 $ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
 ```
-To obtain your own Tock API authorization token, please visit [#tock-dev](https://18f.slack.com/tock-dev) on Slack!
+To obtain your own Tock API authorization token, please visit [#tock-dev](https://gsa-tts.slack.com/messages/tock-dev/) on Slack!
 
 To access similar data in CSV format from within Tock, please visit the [/reports](https://tock.18f.gov/reports) page.
 
