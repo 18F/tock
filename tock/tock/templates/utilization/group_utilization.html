@@ -40,7 +40,7 @@ hours submitted on all projects for the given period.
     <tr class="report_table__header-row">
         <th>Name</th>
         <th>Last Week <br /> (Ending {{ through_date }})</th>
-        <th>Last Four Weeks <br /> ({{ last_four_start_date }} - {{ through_date }})</th>
+        <th>Last Four Weeks <br /> ({{ recent_start_date }} - {{ through_date }})</th>
     <th>Fiscal Year to Date <br /> (Ending {{ through_date }})</th>
     </tr>
 
@@ -52,7 +52,7 @@ hours submitted on all projects for the given period.
         {{ userdata.user.first_name }} {{ userdata.user.last_name }}
       </td>
       <td>{{ userdata.last }}</td>
-      <td>{{ userdata.last_four }}</td>
+      <td>{{ userdata.recent }}</td>
       <td>{{ userdata.fytd }}</td>
     </tr>
     {% endif %}
