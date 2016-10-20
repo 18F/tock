@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Utilization by Unit</h2>
+{% if request.user.is_staff %}
+<br />
+<h3>Notes:</h3>
+<p>
+The following report contains users who are marked as billable in Tock,
+organized by their unit as listed in Tock. Both attributes may be easily
+updated via the <b>Employees</b> page of the Tock <a href="/admin"> admin </a>
+interface. Within each unit, employees are ordered alphabetically by last name.
+</p>
+<p>
+The contents of this page may only be viewed by Tock users who are marked as
+"staff" users. This attribute may be updated via the Tock
+<a href="/admin"> admin </a> interface, as well, via the <b>Users</b> page.
+</p>
+<p>
+Utilization is calculated by dividing the total number of hours submitted on
+projects that are marked "billable" in Tock, divided by the total number of
+hours submitted on all projects for the given period.
+</p>
+<br />
+<h3>Jump to:</h3>
+<ul>
+{% for i in unit_choices%}
+  <li><a href="#{{i.1}}">{{i.1}}</a></li>
+{% endfor %}
+</ul>
+<br />
+<br />
+
+ {% for i in unit_choices %}
+
+<h3><a name="{{i.1}}">{{i.1}}</a></h3>
+
+<table class="table-minimal report_table">
+	<tr class="report_table__header-row">
+		<th>Name</th>
+		<th>Last Week <br /> (Ending {{ through_date }})</th>
+		<th>Last Four Weeks <br /> ({{ last_four_start_date }} - {{ through_date }})</th>
+    <th>Fiscal Year to Date <br /> (Ending {{ through_date }})</th>
+	</tr>
+
+	{% for userdata in object_list %}
+
+    {% if userdata.unit is i.0 %}
+    <tr class="report_table__row">
+      <td>
+        {{ userdata.user.first_name }} {{ userdata.user.last_name }}
+      </td>
+      <td>{{ userdata.last }}</td>
+      <td>{{ userdata.last_four }}</td>
+      <td>{{ userdata.fytd }}</td>
+    </tr>
+    {% endif %}
+	{% endfor %}
+</table>
+<br />
+
+{% endfor %}
+
+{% else %}
+
+<h3>This page is viewable by Tock users with an `is_staff` status of True.</h3>
+<p>If you need access, please contact your supervisor.</p>
+
+{% endif %}
+
+{% endblock %}

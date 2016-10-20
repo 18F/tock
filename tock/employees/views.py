@@ -1,6 +1,8 @@
 import datetime
+import json
 
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
@@ -8,9 +10,12 @@ from django.shortcuts import get_object_or_404
 
 
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from .utils import get_last_n_rp, get_rps_in_fy, calculate_utilization, utilization_by_range, get_fy_first_day
 
 from .forms import UserForm
 from .models import UserData
+
+from hours.models import TimecardObject
 
 
 def parse_date(date):
@@ -29,6 +34,82 @@ class UserListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
         return context
+
+class GroupUtilizationView(ListView):
+    template_name = 'employees/group_utilization.html'
+    start_tem = datetime.datetime.now()
+    today = datetime.date.today()
+    fy_first_day = get_fy_first_day(today)
+
+    last_four_rp = get_last_n_rp(4, today)
+    last_rp = last_four_rp[0]
+    last_four_start_date = last_four_rp[3].start_date
+    last_four_end_date = last_four_rp[0].end_date
+
+    if last_four_end_date <= fy_first_day:
+        earliest_date = last_four_start_date
+    else:
+        earliest_date = fy_first_day
+
+    tos = TimecardObject.objects.filter(
+        timecard__user__user_data__is_billable=True,
+        timecard__submitted=True,
+        timecard__reporting_period__start_date__gte=earliest_date.strftime(
+            '%Y-%m-%d'
+        )
+    )
+
+    def get_queryset(self):
+        queryset = UserData.objects.filter(
+            is_billable=True,
+            current_employee=True
+            )
+
+        for userdata in queryset:
+            start = datetime.datetime.now()
+            user_tos = self.tos.filter(timecard__user=userdata.user)
+
+            last_four_user_tos = user_tos.filter(
+                timecard__reporting_period__start_date__gte=self.last_four_start_date.strftime('%Y-%m-%d')
+            )
+            last_four = calculate_utilization(last_four_user_tos)
+
+            last_user_tos = last_four_user_tos.filter(
+                timecard__reporting_period__pk=self.last_rp.pk
+            )
+            last = calculate_utilization(last_user_tos)
+
+            fytd_user_tos = user_tos.filter(
+                timecard__reporting_period__start_date__gte=self.fy_first_day
+            )
+            fytd = calculate_utilization(fytd_user_tos)
+
+            userdata.last = last
+            userdata.last_four = last_four
+            userdata.fytd = fytd
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupUtilizationView, self).get_context_data(**kwargs)
+
+        context.update(
+            {
+                'unit_choices': UserData.objects.first().UNIT_CHOICES,
+                'through_date': self.last_four_rp[0].end_date,
+                'last_four_start_date': self.last_four_rp[len(self.last_four_rp)-1].start_date,
+            }
+        )
+
+        end_tem = datetime.datetime.now()
+        diff_tem = end_tem - self.start_tem
+        return context
+
+class UserUtilizationView(DetailView):
+    template_name = 'employees/user_utilization.html'
+
+    def get_user(self):
+        pass
 
 class UserDetailView(DetailView):
     template_name = 'employees/user_detail.html'

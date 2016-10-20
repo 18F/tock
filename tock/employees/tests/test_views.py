@@ -146,7 +146,7 @@ class UserViewTests(WebTest):
         self.assertEqual(response.status_code, 200)
         # Check if data was changed
         # Check that data was changed
-        user_data = UserData.objects.first()
+        user_data = UserData.objects.get(user__first_name='Regular')
         self.assertEqual(user_data.start_date, datetime.date(2013, 1, 1))
         self.assertEqual(user_data.end_date, datetime.date(2014, 1, 1))
         self.assertFalse(user_data.current_employee)

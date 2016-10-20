@@ -1,7 +1,9 @@
+import datetime
+
 from django.db import models, IntegrityError
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from django.db.models import Q, Max
+from django.db.models import Q, Max, Sum
 
 
 class EmployeeGrade(models.Model):
@@ -99,10 +101,10 @@ class UserData(models.Model):
     class Meta:
         verbose_name='Employee'
         verbose_name_plural='Employees'
+        ordering = ['user__last_name',]
 
     def __str__(self):
         return '{0}'.format(self.user)
-
 
     def save(self, *args, **kwargs):
         if self.current_employee is False:
@@ -111,5 +113,4 @@ class UserData(models.Model):
                 token.delete()
             except Token.DoesNotExist:
                 pass
-
         super(UserData, self).save(*args, **kwargs)
