@@ -46,10 +46,10 @@ hours submitted on all projects for the given period.
 
     {% for userdata in object_list %}
 
-    {% if userdata.unit is i.0 %}
+    {% if userdata.user_data.unit is i.0 %}
     <tr class="report_table__row">
       <td>
-        {{ userdata.user.first_name }} {{ userdata.user.last_name }}
+        {{ userdata.user_data }}
       </td>
       <td>{{ userdata.last }}</td>
       <td>{{ userdata.recent }}</td>

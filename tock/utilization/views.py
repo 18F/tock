@@ -2,6 +2,7 @@ import datetime
 
 from django.db.models import Sum, Prefetch
 from django.views.generic import ListView
+from django.contrib.auth.models import User
 
 from hours.models import Timecard, TimecardObject, ReportingPeriod
 from employees.models import UserData
@@ -45,70 +46,81 @@ class GroupUtilizationView(ListView):
 
     """Calculates utilization as hours billed divided by hours worked."""
     def calculate_utilization(self, timecardobjects):
-        all_hours = timecardobjects.aggregate(Sum('hours_spent'))
-
-        if all_hours['hours_spent__sum']:
-            billable_hours = timecardobjects.filter(
-                project__accounting_code__billable=True
-                ).prefetch_related('project').aggregate(Sum('hours_spent'))
-            if billable_hours['hours_spent__sum'] is None or 0:
-                utilization = '0.00%'
-            else:
-                utilization = '{:.3}%'.format(
-                    (billable_hours['hours_spent__sum'] / \
-                        all_hours['hours_spent__sum']) * 100
-                )
-            return utilization
+        all_hours = 0
+        for i in timecardobjects:
+            all_hours += i.hours_spent
+        if all_hours is (False or 0):
+            return 'No hours submitted.'
         else:
-           return 'No hours submitted.'
+            billable_hours = 0
+            for i in timecardobjects:
+                if i.project.accounting_code.billable:
+                    billable_hours += i.hours_spent
+                else:
+                    pass
+            if billable_hours is (None or 0):
+                return '0.00%'
+            else:
+                return '{:.3}%'.format((billable_hours / all_hours * 100))
 
     def get_queryset(self):
         """Gets submitted timecards limited to the reporting periods in
         question."""
-        submitted_timecards = Timecard.objects.filter(
+        tos_fytd = TimecardObject.objects.filter(
             submitted=True,
-            reporting_period__start_date__gte=recent_rps[4]
-        )
-        billable_staff = UserData.objects.filter(
-            is_billable=True,
-            current_employee=True
+            timecard__reporting_period__start_date__gte=recent_rps[4],
+            timecard__user__user_data__is_billable=True,
+            timecard__user__user_data__current_employee=True
         ).prefetch_related(
-            Prefetch(
-                'user__timecards',
-                queryset=submitted_timecards,
-                to_attr='submitted_timecards'
-            )
+            'timecard__user'
+        ).prefetch_related(
+            'timecard__reporting_period'
+        ).prefetch_related(
+            'project__accounting_code'
         )
 
-        for staffer in billable_staff:
-            tos = TimecardObject.objects.filter(
-                timecard__in=staffer.user.submitted_timecards
-            )
+        print(tos_fytd[0].__dict__)
 
-            """Calculate utilization for recent reporting periods."""
-            tos_recent = tos.filter(
-                timecard__reporting_period__start_date__gte= \
-                    recent_rps[1].strftime('%Y-%m-%d')).prefetch_related(
-                        'timecard'
-                    )
-            staffer.recent = self.calculate_utilization(tos_recent)
+        tos_recent = tos_fytd.filter(
+            timecard__reporting_period__start_date__gte=recent_rps[1])
 
-            """Calculate utilization for last reporting period."""
-            most_recent_rp = recent_rps[0][0]
-            tos_most_recent = tos.filter(
-                timecard__reporting_period=most_recent_rp
-            ).prefetch_related('timecard')
-            staffer.last = self.calculate_utilization(tos_most_recent)
+        tos_last = tos_recent.filter(
+            timecard__reporting_period__start_date__gte=recent_rps[0][0].start_date)
+
+        billable_staff_set = User.objects.filter(
+            user_data__is_billable=True
+        ).select_related('user_data')
+
+        for staffer in billable_staff_set:
 
             """Calculate utilization for fiscal year to lastest reporting
             period."""
-            tos_fytd = tos.filter(
-                timecard__reporting_period__start_date__gte=recent_rps[3]
-            ).prefetch_related('timecard')
-            staffer.fytd = self.calculate_utilization(tos_fytd)
+            tos_fytd_staffer = list()
+            for i in tos_fytd:
+                if i.timecard.user == staffer:
+                    tos_fytd_staffer.append(i)
+                else:
+                    pass
+            staffer.fytd = self.calculate_utilization(tos_fytd_staffer)
 
-        return billable_staff
+            """Calc for recent rps."""
+            tos_recent_staffer = list()
+            for i in tos_recent:
+                if i.timecard.user == staffer:
+                    tos_recent_staffer.append(i)
+                else:
+                    pass
+            staffer.recent = self.calculate_utilization(tos_recent_staffer)
 
+            """Calc for last rps."""
+            tos_last_staffer = list()
+            for i in tos_last:
+                if i.timecard.user == staffer:
+                    tos_last_staffer.append(i)
+                else:
+                    pass
+            staffer.last = self.calculate_utilization(tos_last_staffer)
+        return billable_staff_set
 
     def get_context_data(self, **kwargs):
         context = super(GroupUtilizationView, self).get_context_data(**kwargs)
