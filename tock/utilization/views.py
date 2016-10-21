@@ -12,14 +12,14 @@ from .utils import get_fy_first_day, get_dates, calculate_utilization
 class GroupUtilizationView(ListView):
     template_name = 'utilization/group_utilization.html'
 
-    """Currently set to last four reporting periods, could accept a form
-    response that allows the user or app to dynamically customize number of
-    periods."""
-    recent_rps = get_dates(4)
-
     def get_queryset(self):
         """Gets submitted timecards limited to the reporting periods in
         question."""
+
+        """Although recent_rps is set to last four reporting periods, could
+        accept a form response that allows the user or app to dynamically
+        customize number of periods to include in the queryset."""
+        recent_rps = get_dates(4)
 
         billable_staff = User.objects.filter(
             user_data__is_billable=True,
@@ -134,11 +134,12 @@ class GroupUtilizationView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(GroupUtilizationView, self).get_context_data(**kwargs)
+        recent_rps = get_dates(4)
         context.update(
             {
                 'unit_choices': UserData.UNIT_CHOICES,
-                'through_date': self.recent_rps[0],
-                'recent_start_date': self.recent_rps[1],
+                'through_date': recent_rps[0],
+                'recent_start_date': recent_rps[1],
             }
         )
         return context
