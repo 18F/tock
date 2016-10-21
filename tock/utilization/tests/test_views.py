@@ -9,6 +9,7 @@ from django_webtest import WebTest
 
 
 from ..views import get_fy_first_day, get_dates
+from ..utils import get_fy_first_day, get_dates, calculate_utilization
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.models import Project, AccountingCode, Agency
 from employees.models import UserData
@@ -35,6 +36,7 @@ class TestUtils(TestCase):
         self.assertEqual(len(result), 4)
         self.assertTrue(result[1] <= result[2])
         self.assertFalse(result[2] == result[3])
+        print('this is a test')
 
 class TestGroupUtilizationView(WebTest):
     fixtures = [
