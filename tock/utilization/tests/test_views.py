@@ -3,8 +3,10 @@ import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.test.client import Client
 
 from django_webtest import WebTest
+
 
 from ..views import get_fy_first_day, get_dates
 from hours.models import ReportingPeriod, Timecard, TimecardObject
@@ -29,9 +31,7 @@ class TestUtils(TestCase):
 
     def test_get_dates(self):
         periods = len(ReportingPeriod.objects.all())-1
-        print(periods)
         result = get_dates(periods)
-        print(result)
         self.assertEqual(len(result), 4)
         self.assertTrue(result[1] <= result[2])
         self.assertFalse(result[2] == result[3])
@@ -60,6 +60,15 @@ class TestGroupUtilizationView(WebTest):
         b_project.accounting_code = b_acct
         b_project.save()
 
+        req_user = User.objects.get_or_create(username='aaron.snow')[0]
+        req_user.is_staff = True
+        req_user.save()
+
+        req_user_data = UserData.objects.get_or_create(user=req_user)[0]
+        req_user_data.unit = 0
+        req_user_data.is_billable = True
+        req_user_data.save()
+
         self.user = User.objects.create(
             username='regular.user'
         )
@@ -71,7 +80,6 @@ class TestGroupUtilizationView(WebTest):
             start_date=datetime.date(2015, 10, 1),
             end_date=datetime.date(2015, 10, 7)
         )
-        print(ReportingPeriod.objects.all())
         self.timecard = Timecard.objects.create(
             reporting_period=self.reporting_period,
             user=self.user,
@@ -93,19 +101,25 @@ class TestGroupUtilizationView(WebTest):
         )
 
     def test_utilization(self):
-        req_user = User.objects.get_or_create(username='aaron.snow')
-        print(req_user)
-        print(User.objects.all())
-        req_user[0].is_staff = True
-        req_user[0].save()
-
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
             headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
-        print(response.content)
 
         self.assertEqual(len(
             response.context['unit_choices']), len(UserData.UNIT_CHOICES)
         )
-        self.assertContains(response, 'regular.user', )
+        self.assertContains(response, 'regular.user')
+        self.assertContains(response, 'aaron.snow')
+        self.assertTrue(response.context['through_date'])
+        self.assertTrue(response.context['recent_start_date'])
+        self.assertEqual(len(response.context['user_list']), 2)
+        self.assertTrue(response.context['user_list'][0].__dict__['last'])
+        self.assertTrue(response.context['user_list'][0].__dict__['fytd'])
+        self.assertTrue(response.context['user_list'][0].__dict__['recent'])
+        self.assertTrue(
+            response.context['user_list'][0].__dict__['_user_data_cache']
+        )
+        self.assertEqual(
+            response.context['user_list'][0].__dict__['_user_data_cache'].__dict__['unit'], 0)
+        #print(response.content)

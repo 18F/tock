@@ -71,7 +71,6 @@ class GroupUtilizationView(ListView):
 
         for staffer in billable_staff:
             staffer.unit = staffer.user_data.unit
-            print(staffer)
 
             """Create smallest possible TimecardObject queryset based on the
             earliest_date value returned by get_dates(). Also prefetches the
@@ -100,14 +99,14 @@ class GroupUtilizationView(ListView):
                 Sum('hours_spent'
                 )
             )
-            print('ytd bill  {}'.format(fytd_billable_hours))
+            #print('ytd bill  {}'.format(fytd_billable_hours))
 
             """Calcuates the all hours decimal value in the queryset."""
             fytd_all_hours = fytd_tos.aggregate(
                 Sum('hours_spent'
                 )
             )
-            print('ytd all  {}'.format(fytd_all_hours))
+            #print('ytd all  {}'.format(fytd_all_hours))
 
             """Filters the fytd_tos queryset to only look for TimecardObjects
             that are related to reporting periods within the last n reporting
@@ -125,14 +124,14 @@ class GroupUtilizationView(ListView):
                 Sum('hours_spent'
                 )
             )
-            print('recent bill  {}'.format(recent_billable_hours))
+            #print('recent bill  {}'.format(recent_billable_hours))
 
             """Calcuates the all hours decimal value in the queryset."""
             recent_all_hours = recent_tos.aggregate(
                 Sum('hours_spent'
                 )
             )
-            print('recent all  {}'.format(recent_all_hours))
+            #print('recent all  {}'.format(recent_all_hours))
 
             """Filters the recent_tos queryset to only look for TimecardObjects
             that are related to reporting periods within the last 1 reporting
@@ -149,14 +148,14 @@ class GroupUtilizationView(ListView):
                 Sum('hours_spent'
                 )
             )
-            print('last bill  {}'.format(last_billable_hours))
+            #print('last bill  {}'.format(last_billable_hours))
 
             """Calcuates the all hours decimal value in the queryset."""
             last_all_hours = last_tos.aggregate(
                 Sum('hours_spent'
                 )
             )
-            print('last all  {}'.format(last_all_hours))
+            #print('last all  {}'.format(last_all_hours))
 
 
             staffer.fytd = self.calculate_utilization(
