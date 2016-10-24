@@ -31,12 +31,11 @@ class TestUtils(TestCase):
         self.assertEqual(get_fy_first_day(date), datetime.date(2013, 10, 1))
 
     def test_get_dates(self):
-        periods = len(ReportingPeriod.objects.all())-1
+        periods = ReportingPeriod.objects.count() -1
         result = get_dates(periods)
         self.assertEqual(len(result), 4)
         self.assertTrue(result[1] <= result[2])
         self.assertFalse(result[2] == result[3])
-        print('this is a test')
 
 class TestGroupUtilizationView(WebTest):
     fixtures = [

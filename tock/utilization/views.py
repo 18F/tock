@@ -20,7 +20,7 @@ class GroupUtilizationView(ListView):
         accept a form response that allows the user or app to dynamically
         customize number of periods to include in the queryset."""
 
-        available_periods = len(ReportingPeriod.objects.all())
+        available_periods = ReportingPeriod.objects.count()
         requested_periods = 4
 
         if available_periods >= requested_periods:
@@ -44,8 +44,7 @@ class GroupUtilizationView(ListView):
                 submitted=True,
                 timecard__reporting_period__start_date__gte=recent_rps[3]
             ).prefetch_related(
-                'timecard__user'
-            ).prefetch_related(
+                'timecard__user',
                 'project__accounting_code'
             )
 
@@ -142,7 +141,7 @@ class GroupUtilizationView(ListView):
     def get_context_data(self, **kwargs):
         context = super(GroupUtilizationView, self).get_context_data(**kwargs)
 
-        available_periods = len(ReportingPeriod.objects.all())
+        available_periods = ReportingPeriod.objects.count()
         requested_periods = 4
 
         if available_periods >= requested_periods:
