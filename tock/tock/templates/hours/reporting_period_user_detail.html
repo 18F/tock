@@ -10,7 +10,7 @@
 		<th>Billable</th>
 		<th>Number of Hours</th>
 	</tr>
-	{% for entry in object.timecardobject_set.all %}
+	{% for entry in object.timecardobjects.all %}
 	<tr class="report_table__row">
 		<td>{{ entry.project }}</td>
 		<td>

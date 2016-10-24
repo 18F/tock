@@ -318,7 +318,7 @@ class TimecardView(UpdateView):
         if post:
             return TimecardFormSet(post, instance=self.object)
 
-        if self.object.timecardobject_set.count() == 0:
+        if self.object.timecardobjects.count() == 0:
             last_tc = self.last_timecard()
             if last_tc:
                 return self.prefilled_formset(last_tc)
@@ -337,7 +337,7 @@ class TimecardView(UpdateView):
     def prefilled_formset(self, timecard):
         project_ids = set(
             tco.project_id for tco in
-            timecard.timecardobject_set.all()
+            timecard.timecardobjects.all()
         )
         extra = len(project_ids) + 1
         formset = timecard_formset_factory(extra=extra)
