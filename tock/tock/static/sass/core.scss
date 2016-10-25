@@ -15,6 +15,7 @@
 
 .container {
   @include outer-container;
+  @include padding(null $site-margins-mobile);
   margin-top: 6rem;
   max-width: 108.8rem;
 }
