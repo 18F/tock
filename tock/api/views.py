@@ -31,8 +31,10 @@ class ProjectSerializer(serializers.ModelSerializer):
             'start_date',
             'end_date',
             'active',
+            'profit_loss_account',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
+    profit_loss_account = serializers.CharField(source='profit_loss_account.name')
     client = serializers.StringRelatedField(source='accounting_code')
 
 class UserSerializer(serializers.ModelSerializer):
@@ -71,6 +73,7 @@ class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
     project_id = serializers.CharField(source='project.id')
     project_name = serializers.CharField(source='project.name')
+    profit_loss_account = serializers.CharField(source='project.profit_loss_account.name')
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
@@ -206,7 +209,7 @@ def get_timecards(queryset, params=None):
         queryset = queryset.filter(
             project__accounting_code__billable=billable
         )
-        
+
     return queryset
 
 

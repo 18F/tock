@@ -10,7 +10,7 @@ from django_webtest import WebTest
 
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
-from projects.models import Agency, Project, ProjectAlert, AccountingCode
+from projects.models import AccountingCode, Agency, ProfitLossAccount, Project, ProjectAlert
 from employees.models import UserData
 
 
@@ -31,8 +31,12 @@ class ProjectsTest(WebTest):
         )
         accounting_code.save()
 
+        profit_loss_account = ProfitLossAccount(name='PIF')
+        profit_loss_account.save()
+
         self.project = Project(
             accounting_code=accounting_code,
+            profit_loss_account=profit_loss_account,
             name='Test Project',
             start_date='2016-01-01',
             end_date='2016-02-01',
@@ -76,6 +80,8 @@ class ProjectsTest(WebTest):
         self.assertEqual(retrieved.start_date, datetime.date(2016, 1, 1))
         self.assertEqual(retrieved.end_date, datetime.date(2016, 2, 1))
         self.assertTrue(retrieved.accounting_code.billable)
+        self.assertEqual(retrieved.profit_loss_account.name, 'PIF')
+        self.assertEqual(str(retrieved.profit_loss_account), 'PIF')
 
     def test_is_billable(self):
         """
@@ -87,6 +93,17 @@ class ProjectsTest(WebTest):
         retrieved.accounting_code.billable = False
         retrieved.accounting_code.save()
         self.assertFalse(retrieved.is_billable())
+
+    def test_get_profit_and_loss(self):
+        """
+        Check that the profit_loss_account method works.
+        """
+
+        retrieved = Project.objects.get(name='Test Project')
+        self.assertEqual(retrieved.get_profit_loss_account(), 'PIF')
+        retrieved.profit_loss_account.name = "Acq"
+        retrieved.profit_loss_account.save()
+        self.assertEqual(retrieved.get_profit_loss_account(), 'Acq')
 
     def test_projects_list_view(self):
         """
