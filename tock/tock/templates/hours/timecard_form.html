@@ -98,6 +98,18 @@
   }
 
   function populateHourTotals(){
+    // Save hours to localStorage, if available
+    i(window.localStorage) {
+      var hoursAsEntered = { };
+      $('.entries .entry').each(function(i, entry) {
+        entry = $(entry);
+        var project = $('.entry-project select', entry).val();
+        var hours = $('.entry-amount input', entry).val();
+        hoursAsEntered[project] = hours;
+      });
+      window.localStorage.setItem('tock-entered-hours', JSON.stringify(hoursAsEntered));
+    }
+
     // Populate The Bottom Addon Items with Totals
     var totals = getHourTotals();
     $('.entries-total-reported-amount').html();
@@ -174,6 +186,12 @@ $( document ).ready(function() {
     };
 
     $("#save-timecard").on("click", function() {
+      // Clear anything saved locally.  The server is the
+      // source of truth.
+      if(window.localStorage) {
+        window.localStorage.removeItem('tock-entered-hours');
+      }
+
       var form = $('form'),
           save_input = '<input type="hidden" name="save_only" value="1"/>';
 
@@ -224,6 +242,22 @@ $( document ).ready(function() {
         // Increment the TOTAL_FORMS
         $('#id_timecardobjects-TOTAL_FORMS').val(parseInt($('#id_timecardobjects-TOTAL_FORMS').val()) + 1);
     });
+
+    // If there's localStorage, get hours from it and
+    // populate the form
+    if(window.localStorage) {
+      var entered = window.localStorage.getItem('tock-entered-hours');
+      if(entered) {
+        entered = JSON.parse(entered);
+        $('.entries .entry').each(function(i, entry) {
+          entry = $(entry);
+          var project = $('.entry-project select', entry).val();
+          if(entered[project]) {
+            $('.entry-amount input', entry).val(Number(entered[project]));
+          }
+        });
+      }
+    }
 
     // Run on initial load
     populateHourTotals();
