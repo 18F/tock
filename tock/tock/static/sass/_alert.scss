@@ -2,7 +2,6 @@
     -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 	background-color: #{$color};
-	font-size: 0.8rem;
 	padding: 0.5em;
 	@include span-columns(10);
 	border-radius:0.5em;
@@ -23,4 +22,10 @@
 
 .alert-grey {
   @include alert('#B8B8B8');
+}
+
+.usa-alert-body {
+  :last-child {
+    margin-bottom: 0;
+  }
 }

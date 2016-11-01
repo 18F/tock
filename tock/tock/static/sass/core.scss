@@ -1,5 +1,5 @@
-@import "bourbon/bourbon";
-@import "neat/neat";
+@import "base/variables";
+@import "all";
 @import "base/base";
 
 @import "banner";
@@ -15,5 +15,7 @@
 
 .container {
   @include outer-container;
-  margin-top: 3em;
+  @include padding(null $site-margins-mobile);
+  margin-top: 5rem;
+  max-width: 111.3rem;
 }
