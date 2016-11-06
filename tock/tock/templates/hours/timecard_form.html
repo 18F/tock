@@ -9,7 +9,38 @@
       <strong>Submit your time card for the week</strong> by the end of the day on Friday (or the last business day of the week). If you are authorized to work on Saturday for any reason, enter and submit your time by the end of the day on Saturday.
     </p>
   </div>
+  {% if is_billable %}
+  <div class="alert-red">
+    {% if float_data.hard_fail %}
+      <b>{{ float_data.hard_fail }}</b>
+    {% else %}
+        {% if float_data.error %}
+          <b>{{ float_data.error }}</b>
+        {% else %}
+          {% if float_data.tasks %}
+          <p><b> For {{ float_data.metadata.float_period_start }} to
+            {{ float_data.metadata.float_period_end }} you were scheduled in Float
+            for:
+          </b></p>
+          <ul>
+            {% for i in float_data.tasks %}
+             <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
+                {% if i.task_name %}
+                assigned to {{ i.task_name }}
+                {% endif %}
+            {% endfor %}
+          {% else %}
+            <b>Tock was able to locate you in Float, but could not find any task data for you
+               during the period of {{ float_data.metadata.float_period_start }} to
+              {{ float_data.metadata.float_period_end }}. If you believe this is
+              incorrect, please contact your project lead or supervisor.</b>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+  </div>
+  {% endif %}
 </div>
+
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
   {{ formset.management_form }}

@@ -1,5 +1,6 @@
 import datetime
 import csv
+import requests
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
@@ -17,6 +18,9 @@ from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
+from tock.mock_api_server import TestMockServer
+from tock.settings import base, dev
+from tock.utils import get_free_port
 import hours.models
 import hours.views
 import projects.models
@@ -232,6 +236,24 @@ class ReportTests(WebTest):
             headers={'X_AUTH_USER': self.regular_user.email},
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_float_data_is_correct(self):
+        """Check that correct Float data is delivered to timecard_form
+        template."""
+        new_reporting_period = self.reporting_period
+        new_reporting_period.start_date = datetime.date(2016, 5, 1)
+        new_reporting_period.end_date = datetime.date(2016, 5, 8)
+        new_reporting_period.save()
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
+        )
+
+        self.assertIn('7.5 hours on pSOvkvbGYL', response)
 
     def test_prefilled_timecard(self):
         """
@@ -567,3 +589,51 @@ class ReportTests(WebTest):
             len(response.html.find_all('tr', {'class': 'user'})), 3
         )
         self.former_employee
+
+class TestFloatViewIntegration(TestCase):
+    fixtures = FIXTURES
+
+    def setUp(self):
+        self.userdata = UserData.objects.get(pk=1)
+
+    def test_time_period(self):
+        """Checks that correct time period for Float API call is derived from
+        Tock reporting period."""
+        pass
+
+    def test_task_data_structure(self):
+        """Checks that Float /task response data is parsed correctly."""
+        port = get_free_port()
+        TestMockServer.run_server(port)
+        endpoint = 'tasks'
+        r = requests.get(
+            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
+        )
+        result = hours.views.TimecardView.clean_task_data(self, self.userdata.float_people_id, r.json())
+
+        self.assertIn('tasks', str(result.keys()))
+        self.assertIn('metadata', str(result.keys()))
+        self.assertIn('float_period_end', str(result['metadata'].keys()))
+        self.assertIn('days_in_float_period', str(result['metadata'].keys()))
+        self.assertIn('float_period_start', str(result['metadata'].keys()))
+        self.assertIn('holidays_in_float_period', str(result['metadata'].keys()))
+
+    def test_get_float_data(self):
+        """Checks that users with Float people_id information
+        are handled correctly."""
+        port = get_free_port()
+        TestMockServer.run_server(port)
+        endpoint = 'tasks'
+        r = requests.get(
+            url='{}:{}/{}'.format(dev.FLOAT_API_URL_BASE, port, endpoint)
+        )
+        float_people_id = '755802'
+        result = hours.views.TimecardView.clean_task_data(self, float_people_id, r.json())
+
+        self.assertEqual(4, len(result['tasks']))
+        self.assertIn('belPvUzBnr', result['tasks'][0]['task_name'])
+        self.assertEqual(7.5, result['tasks'][0]['hours_wk'])
+        self.assertEqual(
+            result['tasks'][0]['hours_wk'],
+            float(result['tasks'][0]['hours_pd']) * base.FLOAT_API_WEEKDAYS
+        )

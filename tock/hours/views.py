@@ -7,6 +7,7 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -25,6 +26,8 @@ from employees.models import UserData
 from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from tock.settings import base
+from tock.utils import check_status_code, get_float_data
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 from .forms import (
@@ -35,7 +38,6 @@ from .forms import (
     TimecardFormSet,
     timecard_formset_factory
 )
-
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -274,6 +276,90 @@ class TimecardView(UpdateView):
             user_id=self.request.user.id)
         return obj
 
+    def get_task_float_data(self):
+        start_day = datetime.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d"
+        ).date()
+        response = get_float_data(
+            endpoint='tasks',
+            params={'weeks': base.FLOAT_API_TASK_WEEKS, 'start_day': start_day}
+        )
+        return response
+
+    def clean_task_data(self, float_people_id, json):
+        """From response, derive meta data about period."""
+        f_start_date = datetime.date(
+            int(json['start_yr']), 1, 1) + datetime.timedelta(
+            days=int(json['start_doy']
+            )-1)
+        f_end_date = f_start_date + datetime.timedelta(
+            days=(base.FLOAT_API_TASK_WEEKS * 6))
+        f_days = f_end_date - f_start_date
+
+        """Clean and prepare response for context. """
+        tasks = list()
+        for i in json['people']:
+            for ii in i['tasks']:
+                tasks.append(ii)
+
+        clean_data = {'tasks':[]}
+        for t in tasks:
+            if t['people_id'] == float_people_id:
+                clean_data['tasks'].append(t)
+
+        for i in clean_data['tasks']:
+            hours_wk = float(i['hours_pd']) * base.FLOAT_API_WEEKDAYS
+            i.update({'hours_wk': hours_wk})
+
+        clean_data.update(
+            {'metadata':
+                {
+                'float_period_start':f_start_date,
+                'float_period_end':f_end_date,
+                'days_in_float_period': f_days,
+                'holidays_in_float_period':'',
+                }
+            }
+        )
+
+        return clean_data
+
+    def get_float_data_for_context(self):
+        user = self.request.user
+        userdata = UserData.objects.get(user=user)
+        float_people_id = userdata.float_people_id
+
+        if float_people_id is None:
+            """If a user's Float people_id is None or blank, attempt to get the
+            user's Float people_id via the /people endpoint."""
+
+            float_people_id = userdata.get_people_id(
+                self.request.user,
+                check_status_code(
+                    userdata.get_people_float_data(
+
+                    )
+                )
+            )
+
+        if float_people_id is None:
+            """If a user's Float people_id is still None or blank, return error
+            message for use in template context."""
+
+            return {'error':'Cannot find matching Float account! Please check '\
+                'with the #admins-float channel on Slack or contact your '\
+                'supervisor.'}
+        else:
+            """With Float people_id, fetch and clean associated /task data."""
+
+            context_data = self.clean_task_data(
+                float_people_id,
+                check_status_code(
+                    self.get_task_float_data()
+                )
+            )
+            return context_data
+
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
 
@@ -308,6 +394,8 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
+            'float_data': self.get_float_data_for_context,
+            'is_billable': UserData.objects.get(user=self.request.user).is_billable,
         })
 
         return context

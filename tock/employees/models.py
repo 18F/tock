@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from django.db.models import Q, Max
 
+from tock.settings import base
+from tock.utils import get_float_data
 
 class EmployeeGrade(models.Model):
     GRADE_CHOICES = (
@@ -95,6 +97,7 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
+    float_people_id = models.CharField(max_length=50, null=True, blank=True, verbose_name='Float "people_id" attribute')
 
     class Meta:
         verbose_name='Employee'
@@ -103,6 +106,22 @@ class UserData(models.Model):
     def __str__(self):
         return '{0}'.format(self.user)
 
+    def get_people_float_data(self):
+        result = get_float_data(
+            endpoint='people',
+            params=None
+        )
+        return result
+
+    def get_people_id(self, user, json):
+        userdata = UserData.objects.get(user=user)
+        people_data = json
+        for i in people_data['people']:
+            if i['im'] == user.username:
+                float_people_id = i['people_id']
+                userdata.float_people_id = float_people_id
+                userdata.save()
+                return float_people_id
 
     def save(self, *args, **kwargs):
         if self.current_employee is False:
@@ -111,5 +130,8 @@ class UserData(models.Model):
                 token.delete()
             except Token.DoesNotExist:
                 pass
+
+        if self.float_people_id is '':
+            self.float_people_id = None
 
         super(UserData, self).save(*args, **kwargs)
