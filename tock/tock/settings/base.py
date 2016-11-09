@@ -31,6 +31,8 @@ INSTALLED_APPS = (
     'hours',
     'employees',
     'api',
+    'utilization',
+    'rest_framework.authtoken',
 )
 
 TEMPLATES =  [
@@ -90,5 +92,11 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         # use our CSV renderer instead of rest_framework_csv's
         'api.renderers.PaginatedCSVRenderer',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
     ),
 }

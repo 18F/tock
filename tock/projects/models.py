@@ -124,6 +124,14 @@ class ProjectAlert(models.Model):
 
         super(ProjectAlert, self).save(*args, **kwargs)
 
+class ProfitLossAccount(models.Model):
+    """ The profit and loss account where revenue is counted"""
+    name = models.CharField(max_length=200)
+    accounting_string = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.name
+
 class Project(models.Model):
     """ Stores information about a specific project"""
     name = models.CharField(max_length=200)
@@ -148,6 +156,7 @@ class Project(models.Model):
         help_text='Attach one or more alerts to be displayed with this project if need be.'
     )
     agreement_URL = models.URLField(blank=True, max_length=1000, verbose_name="Link to Agreement Folder")
+    profit_loss_account = models.ForeignKey(ProfitLossAccount, null=True)
     project_lead = models.ForeignKey(User, null=True)
 
     class Meta:
@@ -160,6 +169,9 @@ class Project(models.Model):
 
     def is_billable(self):
         return self.accounting_code.billable
+
+    def get_profit_loss_account(self):
+        return self.profit_loss_account.name
 
     def save(self, *args, **kwargs):
         if self.notes_required:

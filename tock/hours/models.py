@@ -4,9 +4,10 @@ from .utils import ValidateOnSaveMixin
 from projects.models import Project
 
 from django.contrib.auth.models import User
+from employees.models import EmployeeGrade
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Max
 
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
@@ -63,7 +64,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 
 class Timecard(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name="timecards")
     reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
@@ -79,7 +80,7 @@ class Timecard(models.Model):
 
 
 class TimecardObject(models.Model):
-    timecard = models.ForeignKey(Timecard)
+    timecard = models.ForeignKey(Timecard, related_name="timecardobjects")
     project = models.ForeignKey(Project)
     hours_spent = models.DecimalField(decimal_places=2,
                                       max_digits=5,
@@ -87,6 +88,7 @@ class TimecardObject(models.Model):
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    grade = models.ForeignKey(EmployeeGrade, blank=True, null=True)
 
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
@@ -108,6 +110,14 @@ class TimecardObject(models.Model):
         return self.notes.split('\n')
 
     def save(self, *args, **kwargs):
+        """Custom save() method to append employee grade info and the submitted
+        status of the related timecard."""
+
+        self.grade = EmployeeGrade.get_grade(
+            self.timecard.reporting_period.end_date,
+            self.timecard.user
+        )
+
         self.submitted = self.timecard.submitted
 
         super(TimecardObject, self).save(*args, **kwargs)

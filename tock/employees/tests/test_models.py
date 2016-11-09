@@ -1,10 +1,42 @@
 import datetime
 
 from django.test import TestCase
+from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from employees.models import UserData
 from django.contrib.auth.models import User
 
+from rest_framework.authtoken.models import Token
+
+from employees.models import EmployeeGrade, UserData
+
+class EmployeeGradeTests(TestCase):
+    fixtures = ['tock/fixtures/prod_user.json']
+
+    def setUp(self):
+        self.employeegrade = EmployeeGrade.objects.create(
+            employee=User.objects.get(pk=1),
+            grade=8,
+            g_start_date=datetime.date.today()
+        )
+    def test_unique_with_g_start_date(self):
+        """Check that multiple EmployeeGrade objects with the same g_start_date
+        cannot be saved for the same employee."""
+        with self.assertRaises(IntegrityError):
+            another_employeegrade = EmployeeGrade.objects.create(
+            employee=User.objects.get(pk=1),
+            grade=9,
+            g_start_date=datetime.date.today()
+        )
+
+    def test_string_method(self):
+        """Check that string method override works correctly."""
+        expected_string = '{0} - {1} (Starting: {2})'.format(
+            self.employeegrade.employee,
+            self.employeegrade.grade,
+            self.employeegrade.g_start_date
+        )
+
+        self.assertEqual(expected_string, str(self.employeegrade))
 
 class UserDataTests(TestCase):
 
@@ -20,6 +52,21 @@ class UserDataTests(TestCase):
         self.userdata.unit = 1
         self.userdata.is_18f_employee = True
         self.userdata.save()
+        self.regular_user = get_user_model().objects.create(
+            username='aaron.snow')
+        userdata = UserData(user=self.regular_user)
+        userdata.start_date = datetime.date(2014, 1, 1)
+        userdata.end_date = datetime.date(2016, 1, 1)
+        userdata.unit = 1
+        userdata.is_18f_employee = True
+        userdata.save()
+        self.token = Token.objects.create(user=self.regular_user)
+
+    def test_string_method(self):
+        """Check that string method override works correctly."""
+        userdata = UserData.objects.get(user=self.regular_user)
+        expected_string = str(userdata.user.username)
+        self.assertEqual(expected_string, str(userdata))
 
     def test_user_data_is_stored(self):
         """ Check that user data was stored correctly """
@@ -84,3 +131,16 @@ class UserDataTests(TestCase):
             username=self.regular_user.username).is_active
 
         self.assertNotEqual(status_before_save, status_after_save)
+
+    def test_token_is_delete_on_active_is_false(self):
+        """ Verify that any tokens associated with a user are deleted when that
+        user is marked as not active. """
+        token_before_save = self.token
+        userdata = UserData.objects.first()
+        userdata.current_employee = False
+        userdata.save()
+        try:
+            token_after_save = Token.objects.get(user=self.regular_user)
+        except Token.DoesNotExist:
+            token_after_save = None
+        self.assertNotEqual(token_before_save, token_after_save)

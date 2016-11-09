@@ -5,7 +5,7 @@
 		color: #555;
 		background-color: #fff;
 		border: 1px solid #ccc;
-		border-radius: 4px;
+		border-radius: $border-radius;
 		box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 		transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 		margin-bottom:0;
@@ -89,7 +89,7 @@
 
 .entry {
 	@include outer-container;
-    border-radius: 0.5em;
+    border-radius: $border-radius;
     padding: 10px;
 
 
@@ -100,8 +100,7 @@
     }
 
     &.odd {
-        background-color: #B8B8B8;
-        color: #fff;
+        background-color: $color-gray-lightest;
 				@include column-span(10);
 
 
@@ -158,6 +157,17 @@
 
 .entry-delete {
 	@include span-columns(1);
+
+  input {
+    height: initial;
+    margin-left: 0;
+    opacity: 1;
+    width: auto;
+
+    &:focus {
+      box-shadow: none;
+    }
+  }
 }
 
 .entry-hidden {
@@ -172,6 +182,19 @@
 		@include span-columns(3);
 		@include shift(3);
 		text-align:left;
+
+    .usa-button-outline {
+      float: left;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    [type="submit"] {
+      @include padding(null 2rem);
+      margin-top: 0.5em;
+    }
 	}
 	.entries-total-billable-amount {
 		color: green;
@@ -186,6 +209,10 @@
 
 .form-error,
 .invalid {
-	color: red;
+	color: $color-secondary;
 	font-weight: bold;
+}
+
+.reporting-period {
+  color: $color-medium;
 }

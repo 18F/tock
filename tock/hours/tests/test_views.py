@@ -1,18 +1,146 @@
 import datetime
+import csv
 
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
-
+from django.contrib.auth.models import User
 from django_webtest import WebTest
-from hours.utils import number_of_hours
 
+from api.renderers import stream_csv
+
+from rest_framework.test import APIClient
+from rest_framework.authtoken.models import Token
+
+from api.tests import client
+from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData
+from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
 import hours.models
-import projects.models
 import hours.views
+import projects.models
 
+FIXTURES = [
+    'tock/fixtures/prod_user.json',
+    'projects/fixtures/projects.json',
+    'hours/fixtures/timecards.json',
+    'employees/fixtures/user_data.json',
+]
+
+def decode_streaming_csv(response, **reader_options):
+    lines = [line.decode('utf-8') for line in response.streaming_content]
+    return csv.DictReader(lines, **reader_options)
+
+class CSVTests(TestCase):
+    fixtures = FIXTURES
+
+    def test_user_data_csv(self):
+        """Test that correct fields are returned for user data CSV request."""
+        response = client(self).get(reverse('reports:UserDataView'))
+        rows = decode_streaming_csv(response)
+        for row in rows:
+            num_of_fields = len(row)
+        num_of_expected_fields = len(
+            UserDataSerializer.__dict__['_declared_fields']
+        )
+
+        self.assertEqual(num_of_expected_fields, num_of_fields)
+
+    def test_project_csv(self):
+        """Test that correct fields are returned for project data CSV
+        request."""
+        response = client(self).get(reverse('reports:ProjectList'))
+        rows = decode_streaming_csv(response)
+        for row in rows:
+            num_of_fields = len(row)
+        num_of_expected_fields = len(
+            ProjectSerializer.__dict__['Meta'].__dict__['fields']
+        )
+        self.assertEqual(num_of_expected_fields, num_of_fields)
+
+class BulkTimecardsTests(TestCase):
+    fixtures = FIXTURES
+
+    def test_bulk_timecards(self):
+        response = client(self).get(reverse('reports:BulkTimecardList'))
+        rows = decode_streaming_csv(response)
+        expected_fields = set((
+            'project_name',
+            'project_id',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'agency',
+            'flat_rate',
+            'active',
+            'mbnumber',
+            'notes',
+        ))
+        rows_read = 0
+        for row in rows:
+            self.assertEqual(set(row.keys()), expected_fields)
+            self.assertEqual(row['project_id'], '1')
+            rows_read += 1
+        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
+
+    def test_slim_bulk_timecards(self):
+        response = client(self).get(reverse('reports:SlimBulkTimecardList'))
+        rows = decode_streaming_csv(response)
+        expected_fields = set((
+            'project_name',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'mbnumber',
+        ))
+        rows_read = 0
+        for row in rows:
+            self.assertEqual(set(row.keys()), expected_fields)
+            self.assertEqual(row['project_name'], 'Out Of Office')
+            self.assertEqual(row['billable'], 'False')
+            rows_read += 1
+        self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
+
+class TestAdminBulkTimecards(TestCase):
+    fixtures = FIXTURES
+
+    def test_admin_bulk_timecards(self):
+        factory = RequestFactory()
+        user = User.objects.get(username='aaron.snow')
+        request = factory.get(reverse('reports:AdminBulkTimecardList'))
+        request.user = user
+        response = hours.views.admin_bulk_timecard_list(request)
+        rows = decode_streaming_csv(response)
+        expected_fields = set((
+            'project_name',
+            'project_id',
+            'billable',
+            'employee',
+            'start_date',
+            'end_date',
+            'hours_spent',
+            'agency',
+            'flat_rate',
+            'active',
+            'mbnumber',
+            'notes',
+            'grade',
+        ))
+        for row in rows:
+            self.assertEqual(set(row.keys()), expected_fields)
+
+class ProjectTimelineTests(WebTest):
+    fixtures = FIXTURES
+
+    def test_project_timeline(self):
+        res = client(self).get(reverse('reports:UserTimelineView'))
+        self.assertIn(
+            'aaron.snow,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
 class UtilTests(TestCase):
 
@@ -141,7 +269,7 @@ class ReportTests(WebTest):
         # projects based on last submitted timecard
         last_timecard_projects = set(
             choice_label_for_project(tco.project) for tco
-            in self.timecard.timecardobject_set.all()
+            in self.timecard.timecardobjects.all()
         )
         scrubbed_projects_names = []
         for n in last_timecard_projects:
@@ -195,7 +323,7 @@ class ReportTests(WebTest):
         self.assertEqual(first_hour_val, str(new_tco.hours_spent))
         self.assertEqual(
             len(response.html.find_all('div', {'class': 'entry'})),
-            new_timecard.timecardobject_set.count() + 1
+            new_timecard.timecardobjects.count() + 1
         )
 
     def test_can_delete_unsubmitted_timecard_entries(self):
@@ -249,12 +377,12 @@ class ReportTests(WebTest):
             ),
             {
                 'save_only': '1',
-                'timecardobject_set-TOTAL_FORMS': '1',
-                'timecardobject_set-INITIAL_FORMS': '0',
-                'timecardobject_set-MIN_NUM_FORMS': '0',
-                'timecardobject_set-MAX_NUM_FORMS': '1000',
-                'timecardobject_set-0-project': '4',
-                'timecardobject_set-0-hours_spent': None,
+                'timecardobjects-TOTAL_FORMS': '1',
+                'timecardobjects-INITIAL_FORMS': '0',
+                'timecardobjects-MIN_NUM_FORMS': '0',
+                'timecardobjects-MAX_NUM_FORMS': '1000',
+                'timecardobjects-0-project': '4',
+                'timecardobjects-0-hours_spent': None,
             },
             headers={'X_AUTH_USER': self.regular_user.email},
         )

@@ -10,9 +10,7 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 ## Getting Started
 
-1. Install [Docker][] and [Docker Compose][]. (If you're on OS X or
-Windows, you'll also have to explicitly start the Docker Quickstart Terminal,
-at least until [Docker goes native][].)
+1. Install [Docker][]. If you're on OS X, install Docker for Mac. If you're on Windows, install Docker for Windows.
 
 1. Move into the `tock` directory at the repository root:
 
@@ -38,19 +36,17 @@ at least until [Docker goes native][].)
   ```
   
   This will start up all required servers in containers and output their
-  log information to stdout. If you're on Linux, you should be able
-  to visit http://localhost:8000/ directly to access the site. If you're on
-  OS X or Windows, you'll likely have to visit port 8000 on the IP
-  address given to you by `docker-machine ip default`. (Note that this 
-  hassle will go away once [Docker goes native][] for OS X/Windows.)
+  log information to stdout.
+
+1. Visit [http://localhost:8000/][] directly to access the site.
+
+  If you see this message in the console, you can disregard it:
+  ```
+  app_1   | Starting development server at http://0.0.0.0:1234/
+  ```
+  It's still running at http://localhost:8000
 
 You can access the admin panel at `/admin`.
-
-If you receive an `ERROR: Couldn't connect to Docker daemon - you might need to run...` error and you have confirmed that the Docker machine is running, you may need to run:
-
-```
-$ eval "$(docker-machine env default)"
-```
 
 ### Accessing the app container
 
@@ -70,30 +66,50 @@ can just run `python manage.py` directly from outside the container--the
 `manage.py` script has been modified to run itself in a Docker container
 if it detects that Django isn't installed.
 
-### Making Sass changes
+### Making CSS changes
 
-`docker-compose up` will also launch [Sass] and automatically compile
-SCSS (`.scss`) files into CSS as you change them.
+`docker-compose up` will also launch a [Node] machine that compiles the [Sass]
+files in `tock/tock/static/sass` into corresponding CSS files in
+`tock/tock/static/css/dist`. **The generated CSS files are not checked into
+git, and should not be modified by hand.**
 
-All of the files you should be editing are located in
-`tock/tock/static/sass/` and are labeled according to their purpose,
-e.g. `base/_typography.scss` focuses on website type stylings.
+You can also run the CSS build and watch scripts outside of the Docker
+container. Just install [Node][] (e.g. with `brew install node` on OS X), then
+install the dependencies with:
 
-**:warning: Only change files ending in  `.scss` directly; NOT `.css`!**
+```sh
+npm install
+```
+
+Assuming that goes off without a hitch, you can then either build the CSS in
+one go with:
+
+```
+npm run build-css
+```
+
+or start the watch process, which builds new CSS whenever the source Sass files
+are changed:
+
+```
+npm run watch-css
+```
 
 ## API
 
-Tock has an API! You can get the full dataset at
-[/api/timecards_bulk.csv](https://tock.18f.gov/api/timecards_bulk.csv),
-page through results at [/api/timecards.json](https://tock.18f.gov/api/timecards.json),
-or choose a different page or page size, e.g.
-[/api/timecards.json?page=2&page_size=100](https://tock.18f.gov/api/timecards.json?page=2&page_size=100)
+Tock has an API! You may issue GET requests to various [endpoints](https://github.com/18F/tock/tree/master/api-docs) via the /api/ path with results returned as JSON objects. We use Django REST framework's TokenAuthentication library which requires all requests to include a token value in your request header using the following format (a cURL command line based request is used for this example for getting project data from our Tock deployment):
+```
+$ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
+```
+To obtain your own Tock API authorization token, please visit [#tock-dev](https://gsa-tts.slack.com/messages/tock-dev/) on Slack!
 
-You can also get a list of projects at
-[/api/projects.json](https://tock.18f.gov/api/projects.json),
-or as a spreadsheet at [/api/projects.csv](https://tock.18f.gov/api/projects.csv).
+To access similar data in CSV format from within Tock, please visit the [/reports](https://tock.18f.gov/reports) page.
+
+## Authentication
+
+18F's current deployment of Tock relies on a [cloud.gov](https://cloud.gov) route service called [`uaa-auth`](https://github.com/dlapiduz/cf-uaa-guard-service).
 
 [Docker]: https://www.docker.com/
-[Docker Compose]: https://docs.docker.com/compose/
-[Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
+[http://localhost:8000/]: http://localhost:8000/
 [Sass]: http://sass-lang.com/
+[Node]: https://nodejs.org/en/
