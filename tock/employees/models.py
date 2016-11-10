@@ -111,15 +111,12 @@ class UserData(models.Model):
             user.is_active = False
             user.is_superuser = False
             user.is_staff = False
-        user.save()
-        return '{0}'.format(self.user)
-
-    def save(self, *args, **kwargs):
-        if self.current_employee is False:
+            user.save()
             try:
                 token = Token.objects.get(user=self.user)
                 token.delete()
             except Token.DoesNotExist:
                 pass
+        user.save()
 
         super(UserData, self).save(*args, **kwargs)
