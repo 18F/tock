@@ -24,6 +24,7 @@
       Non-Billable
     {% endif %}
   </li>
+  <li>
     <b> Agreement URL: </b>
 {% if project.agreement_URL %}
   <a href="{{ object.agreement_URL }}"> Google Drive folder </a>
@@ -46,7 +47,12 @@
 {% endif %}
   </li>
   <li>
-    <b> Description: </b> {{ object.description|default:'(no description provided)' }}
+    <b>Accounting Code:</b>
+      {{ object.profit_loss_account.accounting_string|default:'No accouting string available' }}
+  </li>
+  <li>
+    <b> Description: </b>
+      {{ object.description|default:'No description available' }}
   </li>
 
 </ul>
