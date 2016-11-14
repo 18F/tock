@@ -1,0 +1,12 @@
+// Reverts to browser default checkboxes bc problems with USWDS custom checkboxes
+input[type="checkbox"] {
+  height: initial;
+  margin-left: 0;
+  opacity: 1;
+  position: relative;
+  width: auto;
+
+  &:focus {
+    box-shadow: none;
+  }
+}
