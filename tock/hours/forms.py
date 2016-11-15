@@ -184,21 +184,25 @@ class TimecardObjectForm(forms.ModelForm):
 
     def clean(self):
         super(TimecardObjectForm, self).clean()
-
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
                 tags=[],
                 strip=True
             )
-
-            if self.cleaned_data['project'].notes_required and self.cleaned_data['notes'] == '':
-                self.add_error(
-                    'notes',
-                    forms.ValidationError('Please enter a snippet for this item.')
-                )
-            elif not self.cleaned_data['project'].notes_displayed:
-                del self.cleaned_data['notes']
+            if 'save_only' in self.data.keys():
+                pass
+            else:
+                if self.cleaned_data['project'].notes_required and \
+                    self.cleaned_data['notes'] == '':
+                    self.add_error(
+                        'notes',
+                        forms.ValidationError(
+                            'Please enter a snippet for this item.'
+                        )
+                    )
+                elif not self.cleaned_data['project'].notes_displayed:
+                    del self.cleaned_data['notes']
 
         return self.cleaned_data
 
@@ -240,7 +244,6 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
-
         total_hrs = 0
         for form in self.forms:
             if form.cleaned_data:
@@ -252,9 +255,12 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         'cannot be blank.'
                     )
                 total_hrs += form.cleaned_data.get('hours_spent')
-
         if not self.save_only:
-
+            if len(self._errors[0].keys()) > 0:
+                raise forms.ValidationError(
+                    'Timecard not submitted because one or more of your '\
+                    'entries has an error!'
+                )
             if total_hrs > self.get_max_working_hours():
                 raise forms.ValidationError('You may not submit more than %s '
                     'hours for this period. To report additional hours'
