@@ -256,7 +256,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                     )
                 total_hrs += form.cleaned_data.get('hours_spent')
         if not self.save_only:
-            if self._errors:
+            if len(self._errors[0].keys()) > 0:
                 raise forms.ValidationError(
                     'Timecard not submitted because one or more of your '\
                     'entries has an error!'
