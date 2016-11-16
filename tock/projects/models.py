@@ -158,6 +158,8 @@ class ProfitLossAccount(models.Model):
         today = datetime.date.today()
         if self.as_start_date > today or self.as_end_date < today:
             self.as_active = False
+        else:
+            self.as_active = True
         super(ProfitLossAccount, self).save(*args, **kwargs)
 
 class Project(models.Model):
