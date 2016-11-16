@@ -141,10 +141,16 @@ class ProfitLossAccount(models.Model):
     as_end_date = models.DateField(
         blank=True, null=True, verbose_name='End Date'
     )
+    account_type = models.CharField(
+        choices=[('Revenue','Revenue'), ('Expense', 'Expense')],
+        default='Revenue',
+        max_length=200
+    )
 
     def __str__(self):
-        return '{} ({}/{} - {}/{})'.format(
+        return '{} - {} ({}/{} - {}/{})'.format(
             self.name,
+            self.account_type,
             self.as_start_date.month,
             self.as_start_date.year,
             self.as_end_date.month,
