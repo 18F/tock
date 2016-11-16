@@ -99,10 +99,17 @@ class TimecardObject(models.Model):
         help_text='Please provide details about how you spent your time.'
     )
     submitted = models.BooleanField(default=False)
-    profit_loss_account = models.ForeignKey(
+    revenue_profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         blank=True,
-        null=True
+        null=True,
+        related_name='revenue_profit_loss_account_'
+    )
+    expense_profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        blank=True,
+        null=True,
+        related_name='expense_profit_loss_account_'
     )
 
     def project_alerts(self):
@@ -124,10 +131,20 @@ class TimecardObject(models.Model):
         )
 
         if self.project.profit_loss_account:
-            self.profit_loss_account = self.project.profit_loss_account
-            if self.profit_loss_account.as_start_date > \
+            self.revenue_profit_loss_account = self.project.profit_loss_account
+            if self.revenue_profit_loss_account.as_start_date > \
                 self.timecard.reporting_period.end_date or \
-                self.profit_loss_account.as_end_date < \
+                self.revenue_profit_loss_account.as_end_date < \
+                self.timecard.reporting_period.start_date:
+
+                self.profit_loss_account = None
+
+        if self.timecard.user.user_data.profit_loss_account:
+            self.expense_profit_loss_account = \
+            self.timecard.user.user_data.profit_loss_account
+            if self.expense_profit_loss_account.as_start_date > \
+                self.timecard.reporting_period.end_date or \
+                self.expense_profit_loss_account.as_end_date < \
                 self.timecard.reporting_period.start_date:
 
                 self.profit_loss_account = None
