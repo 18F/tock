@@ -7,6 +7,8 @@ from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.utils.dateformat import format as date_format
 from django_webtest import WebTest
+from django.test import Client
+
 
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
@@ -31,12 +33,17 @@ class ProjectsTest(WebTest):
         )
         accounting_code.save()
 
-        profit_loss_account = ProfitLossAccount(name='PIF')
-        profit_loss_account.save()
+        self.profit_loss_account = ProfitLossAccount(
+            name='PIF',
+            accounting_string='This_is_a_string',
+            as_start_date=datetime.date(2016, 10, 1),
+            as_end_date=datetime.date(2017, 9, 30)
+            )
+        self.profit_loss_account.save()
 
         self.project = Project(
             accounting_code=accounting_code,
-            profit_loss_account=profit_loss_account,
+            profit_loss_account=self.profit_loss_account,
             name='Test Project',
             start_date='2016-01-01',
             end_date='2016-02-01',
@@ -81,7 +88,20 @@ class ProjectsTest(WebTest):
         self.assertEqual(retrieved.end_date, datetime.date(2016, 2, 1))
         self.assertTrue(retrieved.accounting_code.billable)
         self.assertEqual(retrieved.profit_loss_account.name, 'PIF')
-        self.assertEqual(str(retrieved.profit_loss_account), 'PIF')
+        self.assertEqual(
+            str(retrieved.profit_loss_account), 'PIF (10/2016 - 9/2017)'
+        )
+
+    def test_profit_loss_save_method(self):
+        today = datetime.date.today()
+        before_update = self.profit_loss_account.as_active
+        self.profit_loss_account.as_end_date = (
+            today - datetime.timedelta(days=1)
+        )
+        self.profit_loss_account.save()
+        after_update = self.profit_loss_account.as_active
+
+        self.assertNotEqual(before_update, after_update)
 
     def test_is_billable(self):
         """
