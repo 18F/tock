@@ -184,7 +184,11 @@ class Project(models.Model):
         help_text='Attach one or more alerts to be displayed with this project if need be.'
     )
     agreement_URL = models.URLField(blank=True, max_length=1000, verbose_name="Link to Agreement Folder")
-    profit_loss_account = models.ForeignKey(ProfitLossAccount, null=True)
+    profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        null=True,
+        verbose_name='Profit/loss Accounting String'
+    )
     project_lead = models.ForeignKey(User, null=True)
 
     class Meta:
