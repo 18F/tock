@@ -1,5 +1,8 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 
 class Agency(models.Model):
@@ -126,11 +129,36 @@ class ProjectAlert(models.Model):
 
 class ProfitLossAccount(models.Model):
     """ The profit and loss account where revenue is counted"""
-    name = models.CharField(max_length=200)
-    accounting_string = models.CharField(max_length=200)
+    name = models.CharField(
+        max_length=200
+    )
+    accounting_string = models.CharField(
+        max_length=200, verbose_name='Accounting String'
+    )
+    as_start_date = models.DateField(
+        blank=True, null=True, verbose_name='Start Date'
+    )
+    as_end_date = models.DateField(
+        blank=True, null=True, verbose_name='End Date'
+    )
+    as_active = models.BooleanField(
+        default=True, verbose_name='Active'
+    )
 
     def __str__(self):
-        return self.name
+        return '{} ({}/{} - {}/{})'.format(
+            self.name,
+            self.as_start_date.month,
+            self.as_start_date.year,
+            self.as_end_date.month,
+            self.as_end_date.year
+        )
+
+    def save(self, *args, **kwargs):
+        today = datetime.date.today()
+        if self.as_start_date > today or self.as_end_date < today:
+            self.as_active = False
+        super(ProfitLossAccount, self).save(*args, **kwargs)
 
 class Project(models.Model):
     """ Stores information about a specific project"""
