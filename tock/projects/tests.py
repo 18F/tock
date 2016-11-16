@@ -92,17 +92,6 @@ class ProjectsTest(WebTest):
             str(retrieved.profit_loss_account), 'PIF (10/2016 - 9/2017)'
         )
 
-    def test_profit_loss_save_method(self):
-        today = datetime.date.today()
-        before_update = self.profit_loss_account.as_active
-        self.profit_loss_account.as_end_date = (
-            today - datetime.timedelta(days=1)
-        )
-        self.profit_loss_account.save()
-        after_update = self.profit_loss_account.as_active
-
-        self.assertNotEqual(before_update, after_update)
-
     def test_is_billable(self):
         """
         Check that the is_billable method works.

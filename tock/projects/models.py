@@ -141,9 +141,6 @@ class ProfitLossAccount(models.Model):
     as_end_date = models.DateField(
         blank=True, null=True, verbose_name='End Date'
     )
-    as_active = models.BooleanField(
-        default=True, verbose_name='Active'
-    )
 
     def __str__(self):
         return '{} ({}/{} - {}/{})'.format(
@@ -153,14 +150,6 @@ class ProfitLossAccount(models.Model):
             self.as_end_date.month,
             self.as_end_date.year
         )
-
-    def save(self, *args, **kwargs):
-        today = datetime.date.today()
-        if self.as_start_date > today or self.as_end_date < today:
-            self.as_active = False
-        else:
-            self.as_active = True
-        super(ProfitLossAccount, self).save(*args, **kwargs)
 
 class Project(models.Model):
     """ Stores information about a specific project"""

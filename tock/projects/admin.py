@@ -29,7 +29,6 @@ class ProfitLossAccountForm(forms.ModelForm):
 class ProfitLossAccountAdmin(admin.ModelAdmin):
     form = ProfitLossAccountForm
     search_fields = ['name',]
-    readonly_fields = ['as_active']
 
 class ProjectForm(forms.ModelForm):
     model = Project
