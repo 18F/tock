@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 import datetime
 
 from hours.models import ReportingPeriod, TimecardObject, Timecard
-from projects.models import Project
+from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade
 
 
@@ -142,8 +142,60 @@ class TimecardObjectTests(TestCase):
             user=self.user[0],
             reporting_period=self.reporting_period
         )
-        self.project = Project.objects.get_or_create(pk=1)
+        self.pl_acct = ProfitLossAccount.objects.create(
+            name='PL',
+            accounting_string='string',
+            as_start_date=datetime.date.today() - datetime.timedelta(days=10),
+            as_end_date=datetime.date.today() + datetime.timedelta(days=355)
+        )
+        self.pl_acct_2 = ProfitLossAccount.objects.create(
+            name='PL2',
+            accounting_string='newstring',
+            as_start_date=datetime.date.today() + datetime.timedelta(days=10),
+            as_end_date=datetime.date.today() - datetime.timedelta(days=10)
+        )
+        self.project = Project.objects.get_or_create(
+            pk=1
+        )
+
+        self.project[0].profit_loss_account = self.pl_acct
+        self.project[0].save()
+
         self.hours_spent = 10
+
+    def test_profit_loss(self):
+        """Check that profit / loss codes are correctly appended to
+        TimecardObjects."""
+
+        # Test that a valid profit/loss code is appended.
+        tco = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project[0],
+            hours_spent=13
+        )
+        self.assertEqual(tco.profit_loss_account, self.pl_acct)
+
+        # After adding invalid profit/loss code, test that the incorrect
+        # code is not appended.
+        self.project[0].profit_loss_account = self.pl_acct_2
+        self.project[0].save()
+        tco.save()
+        self.assertFalse(tco.profit_loss_account)
+
+        # Test that a profit / loss code previously appended to a TimecardObject
+        # persists when updating the profit / loss code for the project related
+        # to the TimecardObject.
+        self.project[0].profit_loss_account = self.pl_acct
+        self.project[0].save()
+        tco_new = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.project[0],
+            hours_spent=11
+        )
+        self.assertNotEqual(
+            tco.profit_loss_account,
+            tco_new.profit_loss_account
+        )
 
     def test_employee_grade(self):
         """Checks that employee grade is appended to timecard object on save."""
