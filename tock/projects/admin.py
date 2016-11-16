@@ -43,6 +43,18 @@ class ProjectForm(forms.ModelForm):
                 'will be active on or before the start date of this project.'\
                 .format(pl_acct_sd)
             )
+        if self.cleaned_data['profit_loss_account'].account_type == 'Expense':
+            raise forms.ValidationError(
+                'You have assigned the {} profit/loss '\
+                'accounting information to {}. The accounting information '\
+                'type is {}, which is cannot be assigned to a '\
+                'project. Only accounting information that is of the Revenue '\
+                'type may be assigned to a project.'.format(
+                    self.cleaned_data['profit_loss_account'],
+                    self.cleaned_data['name'],
+                    self.cleaned_data['profit_loss_account'].account_type
+                )
+            )
         return self.cleaned_data
 
 class ProjectAdmin(admin.ModelAdmin):
