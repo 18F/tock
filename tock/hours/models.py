@@ -1,7 +1,7 @@
 import datetime
 
 from .utils import ValidateOnSaveMixin
-from projects.models import Project
+from projects.models import Project, ProfitLossAccount
 
 from django.contrib.auth.models import User
 from employees.models import EmployeeGrade
@@ -99,6 +99,11 @@ class TimecardObject(models.Model):
         help_text='Please provide details about how you spent your time.'
     )
     submitted = models.BooleanField(default=False)
+    profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        blank=True,
+        null=True
+    )
 
     def project_alerts(self):
         return self.project.alerts.all()
@@ -117,6 +122,15 @@ class TimecardObject(models.Model):
             self.timecard.reporting_period.end_date,
             self.timecard.user
         )
+
+        if self.project.profit_loss_account:
+            self.profit_loss_account = self.project.profit_loss_account
+            if self.profit_loss_account.as_start_date > \
+                self.timecard.reporting_period.end_date or \
+                self.profit_loss_account.as_end_date < \
+                self.timecard.reporting_period.start_date:
+
+                self.profit_loss_account = None
 
         self.submitted = self.timecard.submitted
 
