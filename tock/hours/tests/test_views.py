@@ -78,6 +78,8 @@ class BulkTimecardsTests(TestCase):
             'active',
             'mbnumber',
             'notes',
+            'revenue_profit_loss_account',
+            'revenue_profit_loss_account_name'
         ))
         rows_read = 0
         for row in rows:
@@ -130,6 +132,8 @@ class TestAdminBulkTimecards(TestCase):
             'mbnumber',
             'notes',
             'grade',
+            'revenue_profit_loss_account',
+            'revenue_profit_loss_account_name'
         ))
         for row in rows:
             self.assertEqual(set(row.keys()), expected_fields)
@@ -162,6 +166,7 @@ class ReportTests(WebTest):
             end_date=datetime.date(2015, 1, 7),
             exact_working_hours=40)
         self.user = get_user_model().objects.get(id=1)
+        self.userdata = UserData.objects.create(user=self.user)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
             submitted=True,

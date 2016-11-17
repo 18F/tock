@@ -7,14 +7,83 @@ from django.core.urlresolvers import reverse
 from django.db.models import Sum
 from django.utils.dateformat import format as date_format
 from django_webtest import WebTest
-from django.test import Client
+from django.test import Client, TestCase
 
 
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.views import project_timeline
 from projects.models import AccountingCode, Agency, ProfitLossAccount, Project, ProjectAlert
 from employees.models import UserData
+from projects.admin import ProfitLossAccountForm, ProjectForm
 
+
+class AdminTests(TestCase):
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'tock/fixtures/prod_user.json'
+    ]
+
+    def test_profitloss_form(self):
+        """Tests custom validation on the ProfitLossAccountForm."""
+        form_data = {
+            'as_start_date':datetime.date.today(),
+            'as_end_date':datetime.date.today() - datetime.timedelta(days=1),
+            'name': 'foo',
+            'accounting_string':'bar',
+            'account_type': 'Revenue'
+        }
+        form = ProfitLossAccountForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_project_form(self):
+        """Tests custom validation on the ProjectForm."""
+        # Tests that a ProfitLossAccount object with a start date that is after
+        # the start date of the project is rejected.
+        ProfitLossAccount.objects.create(
+            name='PL',
+            accounting_string='1234',
+            as_start_date=datetime.date.today() + datetime.timedelta(
+                days=10
+            ),
+            as_end_date=datetime.date.today() + datetime.timedelta(days=20),
+            account_type='Revenue'
+        )
+        data = {
+            'name':'Foo',
+            'mbnumber':'',
+            'accounting_code':AccountingCode.objects.first().id,
+            'description':'',
+            'start_date':datetime.date.today(),
+            'end_date':'',
+            'active':'',
+            'notes_required':'',
+            'notes_displayed':'',
+            'alerts': '',
+            'agreement_URL': '',
+            'profit_loss_account': ProfitLossAccount.objects.first().id,
+            'project_lead': User.objects.first().id
+        }
+        form = ProjectForm(data=data)
+        self.assertFalse(form.is_valid())
+
+        # Tests that correcting the previously offending ProfitLossAccount
+        # object is accepted after correcting.
+        data.update(
+            {
+                'start_date':ProfitLossAccount.objects.first().as_start_date
+            }
+        )
+        form = ProjectForm(data=data)
+        self.assertTrue(form.is_valid())
+
+        # Tests that a ProfitLossAccount object with the wrong account type
+        # is rejected.
+        pl_update = ProfitLossAccount.objects.first()
+        pl_update.account_type = 'Expense'
+        pl_update
+        pl_update.save()
+        form = ProjectForm(data=data)
+        self.assertFalse(form.is_valid())
 
 class ProjectsTest(WebTest):
     def setUp(self):
@@ -89,7 +158,8 @@ class ProjectsTest(WebTest):
         self.assertTrue(retrieved.accounting_code.billable)
         self.assertEqual(retrieved.profit_loss_account.name, 'PIF')
         self.assertEqual(
-            str(retrieved.profit_loss_account), 'PIF (10/2016 - 9/2017)'
+            str(retrieved.profit_loss_account),
+            'PIF - Revenue (10/2016 - 9/2017)'
         )
 
     def test_is_billable(self):
@@ -327,6 +397,7 @@ class TestProjectTimeline(WebTest):
     def setUp(self):
         super(TestProjectTimeline, self).setUp()
         self.user = User.objects.first()
+        self.userdata = UserData.objects.create(user=self.user)
         agency = Agency.objects.create(name='General Services Administration')
         accounting_code = AccountingCode.objects.create(
             code='abc',
@@ -408,7 +479,8 @@ class ProjectViewTests(WebTest):
     fixtures = [
         'projects/fixtures/projects.json',
         'hours/fixtures/timecards.json',
-        'tock/fixtures/prod_user.json'
+        'tock/fixtures/prod_user.json',
+        'employees/fixtures/user_data.json'
     ]
     csrf_checks = False
 

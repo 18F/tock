@@ -81,11 +81,11 @@ class TimecardSerializer(serializers.Serializer):
     agency = serializers.CharField(source='project.accounting_code.agency.name')
     flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
     notes = serializers.CharField()
-    profit_loss_account = serializers.CharField(
-        source='profit_loss_account.accounting_string'
+    revenue_profit_loss_account = serializers.CharField(
+        source='revenue_profit_loss_account.accounting_string'
     )
-    profit_loss_account_name = serializers.CharField(
-        source='profit_loss_account.name'
+    revenue_profit_loss_account_name = serializers.CharField(
+        source='revenue_profit_loss_account.name'
     )
 
 # API Views

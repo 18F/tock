@@ -13,9 +13,10 @@ class AccountingCodeAdmin(admin.ModelAdmin):
     search_fields = ['agency__name', 'office',]
 
 class ProfitLossAccountForm(forms.ModelForm):
-    model = ProfitLossAccount
+    class Meta:
+        model = ProfitLossAccount
+        exclude = []
     def clean(self):
-        print(self.cleaned_data)
         if self.cleaned_data.get(
             'as_start_date'
         ) > self.cleaned_data.get(
@@ -31,30 +32,36 @@ class ProfitLossAccountAdmin(admin.ModelAdmin):
     search_fields = ['name',]
 
 class ProjectForm(forms.ModelForm):
-    model = Project
+    class Meta:
+        model = Project
+        exclude = []
     def clean(self):
-        print(self.cleaned_data)
-        project_sd = self.cleaned_data['start_date']
-        pl_acct_sd = self.cleaned_data['profit_loss_account'].as_start_date
-        if project_sd and (project_sd < pl_acct_sd):
-            raise forms.ValidationError(
-                'Profit/Loss accounting string will not be active until {}. '\
-                'Please select an profit/loss accounting string that is '\
-                'will be active on or before the start date of this project.'\
-                .format(pl_acct_sd)
-            )
-        if self.cleaned_data['profit_loss_account'].account_type == 'Expense':
-            raise forms.ValidationError(
-                'You have assigned the {} profit/loss '\
-                'accounting information to {}. The accounting information '\
-                'type is {}, which is cannot be assigned to a '\
-                'project. Only accounting information that is of the Revenue '\
-                'type may be assigned to a project.'.format(
-                    self.cleaned_data['profit_loss_account'],
-                    self.cleaned_data['name'],
-                    self.cleaned_data['profit_loss_account'].account_type
+        if 'profit_loss_account' in self.cleaned_data:
+            if self.cleaned_data['start_date']:
+                if self.cleaned_data['start_date'] < \
+                self.cleaned_data['profit_loss_account'].as_start_date:
+                    raise forms.ValidationError(
+                        'Profit/Loss accounting string will not be active '\
+                        'until {}. Please select an profit/loss accounting '\
+                        'string that is will be active on or before the start '\
+                        'date of this project.'\
+                        .format(
+                            self.cleaned_data['profit_loss_account'].as_start_date
+                        )
+                    )
+            if self.cleaned_data['profit_loss_account'].account_type == \
+            'Expense':
+                raise forms.ValidationError(
+                    'You have assigned the {} profit/loss '\
+                    'accounting information to {}. The accounting information '\
+                    'type is {}, which is cannot be assigned to a '\
+                    'project. Only accounting information that is of the'\
+                    'Revenue type may be assigned to a project.'.format(
+                        self.cleaned_data['profit_loss_account'],
+                        self.cleaned_data['name'],
+                        self.cleaned_data['profit_loss_account'].account_type
+                    )
                 )
-            )
         return self.cleaned_data
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -73,7 +80,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'description',
         'alerts',
         'notes_required',
-        'notes_displayed'
+        'notes_displayed',
     ]
 
 class ProjectAlertAdmin(admin.ModelAdmin):

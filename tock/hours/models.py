@@ -130,25 +130,28 @@ class TimecardObject(models.Model):
             self.timecard.user
         )
 
-        if self.project.profit_loss_account:
-            self.revenue_profit_loss_account = self.project.profit_loss_account
-            if self.revenue_profit_loss_account.as_start_date > \
-                self.timecard.reporting_period.end_date or \
-                self.revenue_profit_loss_account.as_end_date < \
-                self.timecard.reporting_period.start_date:
-
-                self.profit_loss_account = None
-
-        if self.timecard.user.user_data.profit_loss_account:
-            self.expense_profit_loss_account = \
-            self.timecard.user.user_data.profit_loss_account
-            if self.expense_profit_loss_account.as_start_date > \
-                self.timecard.reporting_period.end_date or \
-                self.expense_profit_loss_account.as_end_date < \
-                self.timecard.reporting_period.start_date:
-
-                self.profit_loss_account = None
-
         self.submitted = self.timecard.submitted
+
+        p_pl = self.project.profit_loss_account # Project PL info.
+        u_pl = self.timecard.user.user_data.profit_loss_account # User PL info.
+        rp = self.timecard.reporting_period # TimecardObject reporting period.
+
+        if p_pl and \
+        p_pl.account_type == 'Revenue' and \
+        p_pl.as_start_date < rp.end_date and \
+        p_pl.as_end_date > rp.end_date:
+            self.revenue_profit_loss_account = p_pl
+        else:
+            self.revenue_profit_loss_account = None
+
+        if u_pl and \
+        u_pl.account_type == 'Expense' and \
+        u_pl.as_start_date < rp.end_date and \
+        u_pl.as_end_date > rp.end_date:
+
+            self.expense_profit_loss_account = u_pl
+        else:
+            self.expense_profit_loss_account = None
+
 
         super(TimecardObject, self).save(*args, **kwargs)

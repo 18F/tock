@@ -9,7 +9,7 @@ import datetime
 
 from hours.models import ReportingPeriod, TimecardObject, Timecard
 from projects.models import Project, ProfitLossAccount
-from employees.models import EmployeeGrade
+from employees.models import EmployeeGrade, UserData
 
 
 class ReportingPeriodTests(TestCase):
@@ -65,6 +65,7 @@ class TimecardTests(TestCase):
             exact_working_hours=40)
         self.reporting_period.save()
         self.user = get_user_model().objects.get(id=1)
+        self.userdata = UserData.objects.create(user=self.user)
         self.timecard = Timecard.objects.create(
             user=self.user,
             reporting_period=self.reporting_period)
@@ -129,6 +130,7 @@ class TimecardObjectTests(TestCase):
         fixtures to eliminate the possibility of a unique_together error."""
         Timecard.objects.filter().delete()
         self.user = User.objects.get_or_create(id=1)
+        self.userdata = UserData.objects.create(user=self.user[0])
         self.grade = EmployeeGrade.objects.create(
             employee=self.user[0],
             grade=15,
@@ -146,14 +148,24 @@ class TimecardObjectTests(TestCase):
             name='PL',
             accounting_string='string',
             as_start_date=datetime.date.today() - datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() + datetime.timedelta(days=355)
+            as_end_date=datetime.date.today() + datetime.timedelta(days=355),
+            account_type='Revenue'
         )
         self.pl_acct_2 = ProfitLossAccount.objects.create(
             name='PL2',
             accounting_string='newstring',
             as_start_date=datetime.date.today() + datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() - datetime.timedelta(days=10)
+            as_end_date=datetime.date.today() - datetime.timedelta(days=10),
+            account_type='Expense'
         )
+        self.pl_acct_3 = ProfitLossAccount.objects.create(
+            name='PL3',
+            accounting_string='newstring',
+            as_start_date=datetime.date.today() - datetime.timedelta(days=10),
+            as_end_date=datetime.date.today() + datetime.timedelta(days=355),
+            account_type='Expense'
+        )
+
         self.project = Project.objects.get_or_create(
             pk=1
         )
@@ -173,14 +185,14 @@ class TimecardObjectTests(TestCase):
             project=self.project[0],
             hours_spent=13
         )
-        self.assertEqual(tco.profit_loss_account, self.pl_acct)
+        self.assertEqual(tco.revenue_profit_loss_account, self.pl_acct)
 
         # After adding invalid profit/loss code, test that the incorrect
         # code is not appended.
         self.project[0].profit_loss_account = self.pl_acct_2
         self.project[0].save()
         tco.save()
-        self.assertFalse(tco.profit_loss_account)
+        self.assertFalse(tco.revenue_profit_loss_account)
 
         # Test that a profit / loss code previously appended to a TimecardObject
         # persists when updating the profit / loss code for the project related
@@ -193,9 +205,22 @@ class TimecardObjectTests(TestCase):
             hours_spent=11
         )
         self.assertNotEqual(
-            tco.profit_loss_account,
-            tco_new.profit_loss_account
+            tco.revenue_profit_loss_account,
+            tco_new.revenue_profit_loss_account
         )
+        # Test that a correct profit / loss code will be appended to
+        # expense_profit_loss_account from UserData.
+        self.userdata.profit_loss_account = self.pl_acct_3
+        self.userdata.save()
+        tco.save()
+        self.assertEqual(tco.expense_profit_loss_account, self.pl_acct_3)
+
+        # Test that an incorrect profit / loss code will not be appended to
+        # expense_profit_loss_account.
+        self.userdata.profit_loss_account = self.pl_acct
+        self.userdata.save()
+        tco.save()
+        self.assertFalse(tco.expense_profit_loss_account)
 
     def test_employee_grade(self):
         """Checks that employee grade is appended to timecard object on save."""
