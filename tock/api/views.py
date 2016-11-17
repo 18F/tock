@@ -87,6 +87,12 @@ class TimecardSerializer(serializers.Serializer):
     revenue_profit_loss_account_name = serializers.CharField(
         source='revenue_profit_loss_account.name'
     )
+    expense_profit_loss_account = serializers.CharField(
+        source='expense_profit_loss_account.accounting_string'
+    )
+    expense_profit_loss_account_name = serializers.CharField(
+        source='expense_profit_loss_account.name'
+    )
 
 # API Views
 

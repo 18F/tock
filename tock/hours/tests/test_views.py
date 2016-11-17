@@ -79,7 +79,9 @@ class BulkTimecardsTests(TestCase):
             'mbnumber',
             'notes',
             'revenue_profit_loss_account',
-            'revenue_profit_loss_account_name'
+            'revenue_profit_loss_account_name',
+            'expense_profit_loss_account',
+            'expense_profit_loss_account_name'
         ))
         rows_read = 0
         for row in rows:
@@ -133,7 +135,9 @@ class TestAdminBulkTimecards(TestCase):
             'notes',
             'grade',
             'revenue_profit_loss_account',
-            'revenue_profit_loss_account_name'
+            'revenue_profit_loss_account_name',
+            'expense_profit_loss_account',
+            'expense_profit_loss_account_name'
         ))
         for row in rows:
             self.assertEqual(set(row.keys()), expected_fields)
