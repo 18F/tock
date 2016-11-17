@@ -33,7 +33,7 @@ class TestUtils(TestCase):
     def test_get_dates(self):
         periods = ReportingPeriod.objects.count() -1
         result = get_dates(periods)
-        self.assertEqual(len(result), 4)
+        self.assertEqual(len(result), 5)
         self.assertTrue(result[1] <= result[2])
         self.assertFalse(result[2] == result[3])
 

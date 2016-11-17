@@ -46,16 +46,43 @@ hours submitted on all projects for the given period.
 
     {% for userdata in object_list %}
 
-    {% if userdata.unit is i.0 %}
-    <tr class="report_table__row">
-      <td>
-        {{ userdata.user_data }}
-      </td>
-      <td>{{ userdata.last }}</td>
-      <td>{{ userdata.recent }}</td>
-      <td>{{ userdata.fytd }}</td>
-    </tr>
-    {% endif %}
+      {% if userdata.unit is i.0 %}
+      <tr class="report_table__row">
+        <td>
+          {{ userdata.user_data }}
+        </td>
+        <td>
+          {% if userdata.last_all_hours_total %}
+              <a href='{{ userdata.last_url }}'>
+                {{ userdata.last }}
+                ({{ userdata.last_billable_hours_total }} /
+                {{ userdata.last_all_hours_total }})
+              </a>
+          {% else %}
+              --
+          {% endif %}
+        </td>
+        <td>
+          {% if userdata.recent_all_hours_total %}
+            {{ userdata.recent }}
+            ({{ userdata.recent_billable_hours_total }} /
+            {{ userdata.recent_all_hours_total }})
+          {% else %}
+            --
+          {% endif %}
+          </td>
+
+        <td>
+          {% if userdata.fytd_all_hours_total %}
+            {{ userdata.fytd }}
+            ({{ userdata.fytd_billable_hours_total }} /
+            {{ userdata.fytd_all_hours_total }})
+          {% else %}
+            --
+          {% endif %}
+        </td>
+      </tr>
+      {% endif %}
     {% endfor %}
 </table>
 <br />
