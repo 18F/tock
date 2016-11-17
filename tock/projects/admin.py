@@ -36,32 +36,39 @@ class ProjectForm(forms.ModelForm):
         model = Project
         exclude = []
     def clean(self):
-        if 'profit_loss_account' in self.cleaned_data:
-            if self.cleaned_data['start_date']:
-                if self.cleaned_data['start_date'] < \
-                self.cleaned_data['profit_loss_account'].as_start_date:
-                    raise forms.ValidationError(
-                        'Profit/Loss accounting string will not be active '\
-                        'until {}. Please select an profit/loss accounting '\
-                        'string that is will be active on or before the start '\
-                        'date of this project.'\
-                        .format(
-                            self.cleaned_data['profit_loss_account'].as_start_date
-                        )
+        try:
+            pl_info = self.cleaned_data['profit_loss_account']
+            project_start = self.cleaned_data['start_date']
+
+            if pl_info and \
+            project_start and \
+            (project_start < pl_info.as_start_date):
+                raise forms.ValidationError(
+                    'Profit/Loss accounting string will not be active '\
+                    'until {}. Please select an profit/loss accounting '\
+                    'string that is will be active on or before the start '\
+                    'date of this project.'\
+                    .format(
+                        self.cleaned_data['profit_loss_account'].as_start_date
                     )
-            if self.cleaned_data['profit_loss_account'].account_type == \
-            'Expense':
+                )
+
+            if pl_info and\
+            (pl_info.account_type == 'Expense'):
                 raise forms.ValidationError(
                     'You have assigned the {} profit/loss '\
                     'accounting information to {}. The accounting information '\
                     'type is {}, which is cannot be assigned to a '\
-                    'project. Only accounting information that is of the'\
+                    'project. Only accounting information that is of the '\
                     'Revenue type may be assigned to a project.'.format(
                         self.cleaned_data['profit_loss_account'],
                         self.cleaned_data['name'],
                         self.cleaned_data['profit_loss_account'].account_type
                     )
                 )
+
+        except KeyError:
+            pass
         return self.cleaned_data
 
 class ProjectAdmin(admin.ModelAdmin):
