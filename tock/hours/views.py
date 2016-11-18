@@ -50,6 +50,19 @@ class BulkTimecardSerializer(serializers.Serializer):
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
+    revenue_profit_loss_account = serializers.CharField(
+        source='revenue_profit_loss_account.accounting_string'
+    )
+    revenue_profit_loss_account_name = serializers.CharField(
+        source='revenue_profit_loss_account.name'
+    )
+    expense_profit_loss_account = serializers.CharField(
+        source='expense_profit_loss_account.accounting_string'
+    )
+    expense_profit_loss_account_name = serializers.CharField(
+        source='expense_profit_loss_account.name'
+    )
+
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -74,6 +87,19 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
     grade = serializers.CharField(source='grade.grade')
+    revenue_profit_loss_account = serializers.CharField(
+        source='revenue_profit_loss_account.accounting_string'
+    )
+    revenue_profit_loss_account_name = serializers.CharField(
+        source='revenue_profit_loss_account.name'
+    )
+    expense_profit_loss_account = serializers.CharField(
+        source='expense_profit_loss_account.accounting_string'
+    )
+    expense_profit_loss_account_name = serializers.CharField(
+        source='expense_profit_loss_account.name'
+    )
+
 
 def user_data_csv(request):
     """

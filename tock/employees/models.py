@@ -4,6 +4,8 @@ from django.db.models import Q, Max
 
 from rest_framework.authtoken.models import Token
 
+from projects.models import ProfitLossAccount
+
 class EmployeeGrade(models.Model):
     GRADE_CHOICES = (
         (1, '1'),
@@ -94,7 +96,12 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
-
+    profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        blank=True,
+        null=True,
+        verbose_name='Profit/loss Accounting String'
+    )
     class Meta:
         verbose_name='Employee'
         verbose_name_plural='Employees'

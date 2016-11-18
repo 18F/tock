@@ -59,7 +59,12 @@ class ReportingPeriodAdmin(admin.ModelAdmin):
 class TimecardObjectInline(admin.TabularInline):
     formset = TimecardObjectFormset
     model = TimecardObject
-    readonly_fields = ['submitted', 'grade']
+    readonly_fields = [
+        'submitted',
+        'grade',
+        'revenue_profit_loss_account',
+        'expense_profit_loss_account'
+    ]
 
 
 class TimecardAdmin(admin.ModelAdmin):
