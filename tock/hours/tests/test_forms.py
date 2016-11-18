@@ -211,6 +211,21 @@ class TimecardInlineFormSetTests(TestCase):
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())
 
+    def test_no_zero_hours_saved(self):
+        """Tests that TimecardObject's with None or 0 hours are not entered
+        into the database on form submission."""
+        form_data = {
+            'timecardobjects-TOTAL_FORMS': '1',
+            'timecardobjects-INITIAL_FORMS': '0',
+            'timecardobjects-MIN_NUM_FORMS': '',
+            'timecardobjects-MAX_NUM_FORMS': '',
+            'timecardobjects-0-project': '4',
+            'timecardobjects-0-hours_spent': ''
+        }
+        formset = TimecardFormSet(form_data)
+        formset.is_valid()
+        self.assertTrue(formset[0].cleaned_data['DELETE'])
+
     def test_reporting_period_with_less_than_min_hours_success(self):
         """ Test the timecard form when the reporting period requires at least
         16 hours to be reported and the hours entered are less than 16"""
