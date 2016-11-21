@@ -8,6 +8,8 @@ from django.forms.models import inlineformset_factory
 from django.utils.encoding import force_text
 from django.utils.html import escape, conditional_escape, escapejs
 from django.db.models import Prefetch
+from django.utils.safestring import mark_safe
+from django.core.urlresolvers import reverse
 
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
@@ -245,8 +247,18 @@ class TimecardInlineFormSet(BaseInlineFormSet):
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
         total_hrs = 0
+        duplicate = False
         for form in self.forms:
             if form.cleaned_data:
+                timecard = form.cleaned_data['timecard']
+                try:
+                    if Timecard.objects.get(
+                        reporting_period=timecard.reporting_period,
+                        user=timecard.user
+                    ).submitted:
+                            duplicate = True
+                except KeyError:
+                    pass
                 if form.cleaned_data.get('DELETE'):
                     continue
                 if form.cleaned_data.get('hours_spent') is None:
@@ -276,6 +288,20 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 
+        if duplicate:
+            rp = timecard.reporting_period.start_date.__str__()
+            username = timecard.user.username.__str__()
+            link = reverse(
+                'reports:ReportingPeriodUserDetailView',
+                kwargs={'reporting_period':rp, 'username':username}
+            )
+            raise forms.ValidationError(
+                ((mark_safe(
+                'Timecard not saved or submitted! A timecard has already been '\
+                'submitted for this period. <a href="{}">Click to view '\
+                'submission.</a>'.format(link)
+                )))
+            )
 
         return getattr(self, 'cleaned_data', None)
 
