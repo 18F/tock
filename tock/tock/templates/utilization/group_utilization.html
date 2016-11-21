@@ -4,7 +4,6 @@
 
 <h2>Utilization by Unit</h2>
 {% if request.user.is_staff %}
-<br />
 <h3>Notes:</h3>
 <p>
 The following report contains users who are marked as billable in Tock,
@@ -22,26 +21,24 @@ Utilization is calculated by dividing the total number of hours submitted on
 projects that are marked "billable" in Tock, divided by the total number of
 hours submitted on all projects for the given period.
 </p>
-<br />
 <h3>Jump to:</h3>
 <ul>
 {% for i in unit_choices%}
   <li><a href="#{{i.1}}">{{i.1}}</a></li>
 {% endfor %}
 </ul>
-<br />
-<br />
+<br>
 
  {% for i in unit_choices %}
 
-<h3><a name="{{i.1}}">{{i.1}}</a></h3>
+<h3 id="{{i.1}}">{{i.1}}</h3>
 
 <table class="table-minimal report_table">
     <tr class="report_table__header-row">
         <th>Name</th>
-        <th>Last Week <br /> (Ending {{ through_date }})</th>
-        <th>Last Four Weeks <br /> ({{ recent_start_date }} - {{ through_date }})</th>
-    <th>Fiscal Year to Date <br /> (Ending {{ through_date }})</th>
+        <th>Last Week <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
+        <th>Last Four Weeks <br> ({{ recent_start_date }} - {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
+    <th>Fiscal Year to Date <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
     </tr>
 
     {% for userdata in object_list %}
@@ -53,7 +50,7 @@ hours submitted on all projects for the given period.
         </td>
         <td>
           {% if userdata.last_all_hours_total %}
-              <a href='{{ userdata.last_url }}'>
+              <a href='{{ userdata.last_url }}' title="Percent billable (billable hours / total hours)">
                 {{ userdata.last }}
                 ({{ userdata.last_billable_hours_total }} /
                 {{ userdata.last_all_hours_total }})
@@ -85,7 +82,7 @@ hours submitted on all projects for the given period.
       {% endif %}
     {% endfor %}
 </table>
-<br />
+<br>
 
 {% endfor %}
 
