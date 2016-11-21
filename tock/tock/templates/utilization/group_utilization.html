@@ -53,7 +53,7 @@ hours submitted on all projects for the given period.
         </td>
         <td>
           {% if userdata.last_all_hours_total %}
-              <a href='{{ userdata.last_url }}'>
+              <a href='{{ userdata.last_url }}' title="Percent billable (billable hours / total hours)">
                 {{ userdata.last }}
                 ({{ userdata.last_billable_hours_total }} /
                 {{ userdata.last_all_hours_total }})
