@@ -27,10 +27,11 @@ hours submitted on all projects for the given period.
   <li><a href="#{{i.1}}">{{i.1}}</a></li>
 {% endfor %}
 </ul>
+<br>
 
  {% for i in unit_choices %}
 
-<h3><a name="{{i.1}}">{{i.1}}</a></h3>
+<h3 id="{{i.1}}">{{i.1}}</h3>
 
 <table class="table-minimal report_table">
     <tr class="report_table__header-row">
