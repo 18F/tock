@@ -3,6 +3,7 @@ import datetime
 from django.db.models import Sum, Prefetch
 from django.views.generic import ListView
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from hours.models import Timecard, TimecardObject, ReportingPeriod
 from employees.models import UserData
@@ -125,15 +126,42 @@ class GroupUtilizationView(ListView):
                 fytd_billable_hours['hours_spent__sum'],
                 fytd_all_hours['hours_spent__sum']
             )
+            staffer.fytd_all_hours_total = fytd_all_hours['hours_spent__sum']
+            if fytd_billable_hours['hours_spent__sum']:
+                staffer.fytd_billable_hours_total = fytd_billable_hours['hours_spent__sum']
+            else:
+                staffer.fytd_billable_hours_total = 0.0
 
             staffer.recent = calculate_utilization(
                 recent_billable_hours['hours_spent__sum'],
                 recent_all_hours['hours_spent__sum']
             )
+            staffer.recent_all_hours_total = recent_all_hours['hours_spent__sum']
+            if recent_billable_hours['hours_spent__sum']:
+                staffer.recent_billable_hours_total = recent_billable_hours['hours_spent__sum']
+            else:
+                staffer.recent_billable_hours_total = 0.0
+
 
             staffer.last = calculate_utilization(
                 last_billable_hours['hours_spent__sum'],
                 last_all_hours['hours_spent__sum']
+            )
+            staffer.last_all_hours_total = last_all_hours['hours_spent__sum']
+            if last_billable_hours['hours_spent__sum']:
+                staffer.last_billable_hours_total = last_billable_hours['hours_spent__sum']
+            else:
+                staffer.last_billable_hours_total = 0.0
+
+
+
+            print()
+            staffer.last_url = reverse(
+                'reports:ReportingPeriodUserDetailView',
+                kwargs={
+                        'username':staffer,
+                        'reporting_period': recent_rps[4]
+                }
             )
 
         return billable_staff

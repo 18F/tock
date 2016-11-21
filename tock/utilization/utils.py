@@ -34,8 +34,10 @@ def get_dates(periods):
     else:
         earliest_date = fy_first_day
 
+    latest_start_date = reportingperiods[0].start_date
+
     return reportingperiods_end_date, reportingperiods_start_date, \
-        fy_first_day, earliest_date
+        fy_first_day, earliest_date, latest_start_date
 
 """Calculates utilization as hours billed divided by hours worked."""
 def calculate_utilization(billable_hours, all_hours):
