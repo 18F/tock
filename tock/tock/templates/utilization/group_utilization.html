@@ -4,7 +4,7 @@
 
 <h2>Utilization by Unit</h2>
 {% if request.user.is_staff %}
-<br />
+<br>
 <h3>Notes:</h3>
 <p>
 The following report contains users who are marked as billable in Tock,
@@ -22,15 +22,15 @@ Utilization is calculated by dividing the total number of hours submitted on
 projects that are marked "billable" in Tock, divided by the total number of
 hours submitted on all projects for the given period.
 </p>
-<br />
+<br>
 <h3>Jump to:</h3>
 <ul>
 {% for i in unit_choices%}
   <li><a href="#{{i.1}}">{{i.1}}</a></li>
 {% endfor %}
 </ul>
-<br />
-<br />
+<br>
+<br>
 
  {% for i in unit_choices %}
 
@@ -39,9 +39,9 @@ hours submitted on all projects for the given period.
 <table class="table-minimal report_table">
     <tr class="report_table__header-row">
         <th>Name</th>
-        <th>Last Week <br /> (Ending {{ through_date }})</th>
-        <th>Last Four Weeks <br /> ({{ recent_start_date }} - {{ through_date }})</th>
-    <th>Fiscal Year to Date <br /> (Ending {{ through_date }})</th>
+        <th>Last Week <br> (Ending {{ through_date }})</th>
+        <th>Last Four Weeks <br> ({{ recent_start_date }} - {{ through_date }})</th>
+    <th>Fiscal Year to Date <br> (Ending {{ through_date }})</th>
     </tr>
 
     {% for userdata in object_list %}
@@ -85,7 +85,7 @@ hours submitted on all projects for the given period.
       {% endif %}
     {% endfor %}
 </table>
-<br />
+<br>
 
 {% endfor %}
 
