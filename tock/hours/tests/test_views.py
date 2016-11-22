@@ -435,7 +435,7 @@ class ReportTests(WebTest):
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
-        result = '2015-01-01 - 2015-01-07,{0},aaron.snow@gsa.gov,Peace Corps,28.00'
+        result = '2015-01-01 - 2015-01-07,{0},aaron.snow,Peace Corps,28.00'
         self.assertEqual(
             result.format(
                 self.timecard.modified.strftime('%Y-%m-%d %H:%M:%S')
