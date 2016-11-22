@@ -177,11 +177,105 @@ class GroupUtilizationView(ListView):
         else:
             recent_rps = get_dates(available_periods)
 
+        units = UserData.UNIT_CHOICES
+        unit_totals = []
+        for unit in units:
+            # Query and calculate most recent RP hours.
+            last_total_hours = TimecardObject.objects.filter(
+                timecard__reporting_period__start_date=recent_rps[4],
+                submitted=True,
+                timecard__user__user_data__unit=unit[0],
+            ).aggregate(
+                Sum('hours_spent'
+                )
+            )['hours_spent__sum']
+            last_billable_hours = TimecardObject.objects.filter(
+                timecard__reporting_period__start_date=recent_rps[4],
+                submitted=True,
+                timecard__user__user_data__unit=unit[0],
+                project__accounting_code__billable=True
+            ).aggregate(
+                Sum('hours_spent'
+                )
+            )['hours_spent__sum']
+            # Query and calculate last n RP hours.
+            recent_total_hours = TimecardObject.objects.filter(
+                timecard__reporting_period__start_date__gte=recent_rps[1],
+                submitted=True,
+                timecard__user__user_data__unit=unit[0],
+            ).aggregate(
+                Sum('hours_spent'
+                )
+            )['hours_spent__sum']
+            recent_billable_hours = TimecardObject.objects.filter(
+                timecard__reporting_period__start_date__gte=recent_rps[1],
+                submitted=True,
+                timecard__user__user_data__unit=unit[0],
+                project__accounting_code__billable=True
+            ).aggregate(
+                Sum('hours_spent'
+                )
+            )['hours_spent__sum']
+            # Query and calculate all RP hours for FY to date.
+            fytd_total_hours = TimecardObject.objects.filter(
+                timecard__reporting_period__start_date__gte=recent_rps[2],
+                submitted=True,
+                timecard__user__user_data__unit=unit[0],
+            ).aggregate(
+                Sum('hours_spent'
+                )
+            )['hours_spent__sum']
+            fytd_billable_hours = TimecardObject.objects.filter(
+                timecard__reporting_period__start_date__gte=recent_rps[2],
+                submitted=True,
+                timecard__user__user_data__unit=unit[0],
+                project__accounting_code__billable=True
+            ).aggregate(
+                Sum('hours_spent'
+                )
+            )['hours_spent__sum']
+
+            unit_totals.append(
+                {'last':
+                    {
+                        'unit_name': unit[1],
+                        'billable_hours': last_billable_hours,
+                        'total_hours': last_total_hours,
+                        'utilization': calculate_utilization(
+                            last_billable_hours,
+                            last_total_hours
+                        )
+                    }
+                ,
+                'recent':
+                    {
+                        'unit_name': unit[1],
+                        'billable_hours': recent_billable_hours,
+                        'total_hours': recent_total_hours,
+                        'utilization': calculate_utilization(
+                            recent_billable_hours,
+                            recent_total_hours
+                        )
+                    },
+                'fytd':
+                    {
+                        'unit_name': unit[1],
+                        'billable_hours': fytd_billable_hours,
+                        'total_hours': fytd_total_hours,
+                        'utilization': calculate_utilization(
+                            fytd_billable_hours,
+                            fytd_total_hours
+                        )
+                    }
+                }
+            )
         context.update(
             {
                 'unit_choices': UserData.UNIT_CHOICES,
                 'through_date': recent_rps[0],
                 'recent_start_date': recent_rps[1],
+                'unit_totals':unit_totals
             }
         )
+
         return context
