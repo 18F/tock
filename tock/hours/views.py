@@ -62,7 +62,13 @@ class BulkTimecardSerializer(serializers.Serializer):
     expense_profit_loss_account_name = serializers.CharField(
         source='expense_profit_loss_account.name'
     )
-
+class GeneralSnippetsTimecardSerializer(serializers.Serializer):
+    project_name = serializers.CharField(source='project.name')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    notes = serializers.CharField()
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -131,6 +137,18 @@ def slim_bulk_timecard_list(request):
     """
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = SlimBulkTimecardSerializer()
+    return stream_csv(queryset, serializer)
+
+def general_snippets_only_timecard_list(request):
+    """
+    Stream all timecard data that is for General and has a snippet.
+    """
+    objects = TimecardObject.objects.filter(
+        project__name='General',
+        notes__isnull=False
+    )
+    queryset = get_timecards(objects, request.GET)
+    serializer = GeneralSnippetsTimecardSerializer()
     return stream_csv(queryset, serializer)
 
 def timeline_view(request, value_fields=(), **field_alias):
