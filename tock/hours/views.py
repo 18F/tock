@@ -7,7 +7,7 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -73,7 +73,11 @@ class GeneralSnippetsTimecardSerializer(serializers.Serializer):
     unit = serializers.SerializerMethodField()
 
     def get_unit(self,obj):
-        return obj.timecard.user.user_data.get_unit_display()
+        try:
+            unit = obj.timecard.user.user_data.get_unit_display()
+        except ObjectDoesNotExist:
+            unit = ''
+        return unit
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
