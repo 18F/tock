@@ -17,6 +17,7 @@ from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
+from hours.views import GeneralSnippetsTimecardSerializer
 import hours.models
 import hours.views
 import projects.models
@@ -58,6 +59,30 @@ class CSVTests(TestCase):
             ProjectSerializer.__dict__['Meta'].__dict__['fields']
         )
         self.assertEqual(num_of_expected_fields, num_of_fields)
+
+    def test_general_snippets(self):
+        """Test that snippets are returned in correct CSV format."""
+        project = projects.models.Project.objects.get_or_create(
+            name='General'
+        )[0]
+        tco = hours.models.TimecardObject.objects.first()
+        tco.project = project
+        tco.hours_spent = 40
+        tco.notes = 'Some notes about things!'
+        tco.save()
+
+        response = client(self).get(reverse('reports:GeneralSnippetsView'))
+        rows = decode_streaming_csv(response)
+        entry_found = False
+        for row in rows:
+                num_of_fields = len(row)
+                if tco.notes in row['notes']:
+                        entry_found = True
+                        break
+        expected_num_of_fields = \
+            len(GeneralSnippetsTimecardSerializer.__dict__['_declared_fields'])
+        self.assertEqual(num_of_fields, expected_num_of_fields)
+        self.assertTrue(entry_found)
 
 class BulkTimecardsTests(TestCase):
     fixtures = FIXTURES
