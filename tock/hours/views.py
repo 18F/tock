@@ -28,6 +28,7 @@ from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 from .forms import (
+    AddHoursForm,
     ReportingPeriodForm,
     ReportingPeriodImportForm,
     projects_as_choices,
@@ -227,6 +228,13 @@ class ReportingPeriodListView(PermissionMixin, ListView):
             unstarted_reporting_periods, unfinished_reporting_periods)),
             key=attrgetter('start_date'))
         return context
+
+class AddHoursView(PermissionMixin, FormView):
+    form_class = AddHoursForm
+    template_name = 'hours/add_hours_form.html'
+    permission_classes = (IsSuperUserOrSelf, )
+
+    # TODO: Add context like it's done on UserFormView
 
 
 class ReportingPeriodCreateView(PermissionMixin, CreateView):

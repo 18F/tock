@@ -20,6 +20,7 @@ from hours.forms import choice_label_for_project
 import hours.models
 import hours.views
 import projects.models
+from collections import OrderedDict
 
 FIXTURES = [
     'tock/fixtures/prod_user.json',
@@ -109,6 +110,38 @@ class BulkTimecardsTests(TestCase):
             self.assertEqual(row['billable'], 'False')
             rows_read += 1
         self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
+
+class TestAddHours(WebTest):
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'tock/fixtures/prod_user.json',
+    ]
+    csrf_checks = False
+
+    def setUp(self):
+        self.user = User.objects.get(username='aaron.snow')
+
+    def test_form_shows_correct_fields(self):
+        factory = RequestFactory()
+        request = factory.get(reverse('AddHours'))
+        request.user = self.user
+        hours_view = hours.views.AddHoursView.as_view()
+        response = hours_view(request)
+        field_keys = response.context_data['form'].fields.keys()
+        foo_dict = OrderedDict({'project': 'foo', 'hours_spent': 11})
+        expected_field_keys = foo_dict.keys()
+
+        self.assertEqual(expected_field_keys, field_keys)
+
+    def test_display_error_when_project_does_not_exist(self):
+        factory = RequestFactory()
+        request = factory.get(reverse('AddHours'), {'project_id': 42}, expect_errors=True)
+        request.user = self.user
+        hours_view = hours.views.AddHoursView.as_view()
+        response = hours_view(request)
+        current_project = response.context_data['form'].fields['project']
+
+        self.assertEqual(response.status_code, 404)
 
 class TestAdminBulkTimecards(TestCase):
     fixtures = FIXTURES
