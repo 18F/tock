@@ -25,18 +25,6 @@ class UserDataForm(forms.ModelForm):
                 )
 
             if pl_info and \
-            (pl_info.as_start_date > self.cleaned_data['start_date']):
-                raise forms.ValidationError('The profit/loss accounting '\
-                    'information you have selected, {}, has a start date that '\
-                    'is after the start date of {}. Please select profit/loss '\
-                    'accounting information with a start date that occurs on '\
-                    'or before {}.'.format(
-                        pl_info,
-                        self.cleaned_data['user'],
-                        self.cleaned_data['start_date']
-                    )
-                )
-            if pl_info and \
             (pl_info.as_end_date < self.cleaned_data['start_date']):
                 raise forms.ValidationError('The profit/loss accounting' \
                     'information you have selected, {}, has an end date that '\

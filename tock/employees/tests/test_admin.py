@@ -16,7 +16,7 @@ class TestUserDataForm(TestCase):
         """Tests custom admin form validation."""
 
         # Checks that a ProfitLossAccount object with a start date that is
-        # after the employee's start date is rejected.
+        # after the employee's start date is accepted.
         ProfitLossAccount.objects.create(
             name='PL',
             accounting_string='1234',
@@ -37,18 +37,18 @@ class TestUserDataForm(TestCase):
             'profit_loss_account': ProfitLossAccount.objects.first().id
         }
         form = UserDataForm(data=form_data)
-        self.assertFalse(form.is_valid())
+        self.assertTrue(form.is_valid())
 
-        # Checks that correcting the previous start date issue results in
-        # the ProfitLossAccount object being successfully associated with the
-        # UserData object.
+        # Checks that changing the start date to a date that is after the
+        # end date of the ProfitLossAccount object results in a rejection.
         form_data.update(
             {
-                'start_date': ProfitLossAccount.objects.first().as_start_date
+                'start_date': ProfitLossAccount.objects.first().as_end_date \
+                    + datetime.timedelta(days=1)
             }
         )
         form = UserDataForm(data=form_data)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
         # Checks that a ProfitLossAccount object with the wrong account type is
         # rejected.
