@@ -70,6 +70,10 @@ class GeneralSnippetsTimecardSerializer(serializers.Serializer):
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     notes = serializers.CharField()
+    unit = serializers.SerializerMethodField()
+
+    def get_unit(self,obj):
+        return obj.timecard.user.user_data.get_unit_display()
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
