@@ -7,7 +7,7 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -62,7 +62,22 @@ class BulkTimecardSerializer(serializers.Serializer):
     expense_profit_loss_account_name = serializers.CharField(
         source='expense_profit_loss_account.name'
     )
+class GeneralSnippetsTimecardSerializer(serializers.Serializer):
+    project_name = serializers.CharField(source='project.name')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    unit = serializers.CharField(source='timecard.user.user_data.unit')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    notes = serializers.CharField()
+    unit = serializers.SerializerMethodField()
 
+    def get_unit(self,obj):
+        try:
+            unit = obj.timecard.user.user_data.get_unit_display()
+        except ObjectDoesNotExist:
+            unit = ''
+        return unit
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -131,6 +146,18 @@ def slim_bulk_timecard_list(request):
     """
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = SlimBulkTimecardSerializer()
+    return stream_csv(queryset, serializer)
+
+def general_snippets_only_timecard_list(request):
+    """
+    Stream all timecard data that is for General and has a snippet.
+    """
+    objects = TimecardObject.objects.filter(
+        project__name='General',
+        notes__isnull=False
+    )
+    queryset = get_timecards(objects, request.GET)
+    serializer = GeneralSnippetsTimecardSerializer()
     return stream_csv(queryset, serializer)
 
 def timeline_view(request, value_fields=(), **field_alias):

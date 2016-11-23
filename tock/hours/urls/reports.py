@@ -18,4 +18,10 @@ urlpatterns = [
     url(r'^admin_timecard_bulk.csv$', views.admin_bulk_timecard_list, name='AdminBulkTimecardList'),
     url(r'^projects.csv$', views.projects_csv, name='ProjectList'),
     url(r'^user_data.csv$', views.user_data_csv, name='UserDataView'),
+    url(
+        r'^general_snippets_bulk.csv$',
+        views.general_snippets_only_timecard_list,
+        name='GeneralSnippetsView'
+    ),
+
 ]
