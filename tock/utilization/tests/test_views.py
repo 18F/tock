@@ -123,4 +123,3 @@ class TestGroupUtilizationView(WebTest):
         )
         self.assertEqual(
             response.context['user_list'][0].__dict__['_user_data_cache'].__dict__['unit'], 0)
-        #print(response.content)
