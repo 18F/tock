@@ -153,9 +153,6 @@ class GroupUtilizationView(ListView):
             else:
                 staffer.last_billable_hours_total = 0.0
 
-
-
-            print()
             staffer.last_url = reverse(
                 'reports:ReportingPeriodUserDetailView',
                 kwargs={
