@@ -381,24 +381,6 @@ class ReportTests(WebTest):
         self.assertTrue(len(delete_divs) > 0)
         self.assertTrue(response.context['unsubmitted'])
 
-    def test_cannot_delete_submitted_timecard_entries(self):
-        """
-        Test that entries for submitted timecards cannot
-        be deleted (do not have delete checkbox inputs on page)
-        """
-        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
-        response = self.app.get(
-            reverse(
-                'reportingperiod:UpdateTimesheet',
-                kwargs={'reporting_period': date}
-            ),
-            headers={'X_AUTH_USER': self.user.email},
-        )
-        delete_divs = response.html.find_all('div', {'class': 'entry-delete'})
-
-        self.assertEqual(len(delete_divs), 0)
-        self.assertFalse(response.context['unsubmitted'])
-
     def test_reportperiod_updatetimesheet_save_only_set(self):
         """
         Check that save_only flag switched to True if 'save_only' in post data

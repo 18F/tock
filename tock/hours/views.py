@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
@@ -230,11 +230,22 @@ class ReportingPeriodListView(PermissionMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
-        context['completed_reporting_periods'] = self.queryset.filter(
+        completed_reporting_periods = self.queryset.filter(
             timecard__submitted=True,
             timecard__user=self.request.user.id
-        ).distinct().order_by('-start_date')[:5]
-
+        ).distinct().order_by('-start_date')
+        try:
+            if datetime.date.today() < completed_reporting_periods[0].start_date:
+                increment = 2
+            else:
+                increment = 1
+            context['amendable_completed_reporting_periods'] = \
+                completed_reporting_periods[:increment]
+            context['completed_reporting_periods'] = \
+                completed_reporting_periods[increment:5]
+        except IndexError:
+            context['amendable_completed_reporting_periods'] = None
+            context['completed_reporting_periods'] = None
         try:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user.id).exclude(
@@ -326,6 +337,43 @@ class TimecardView(UpdateView):
             reporting_period_id=r.id,
             user_id=self.request.user.id)
         return obj
+
+    def get(self, request, *args, **kwargs):
+        """Get timecard form only for last N reporting periods or if
+        unsubmitted timecards."""
+        # Get reporting period object.
+        self.object = self.get_object()
+        selected_rp = ReportingPeriod.objects.get(
+            id=self.object.__dict__['reporting_period_id']
+        )
+
+        # Get most recent reporting period objects.
+        max_rps = ReportingPeriod.objects.all().order_by('-start_date')[:3]
+
+        # Determine increment and number of reporting periods in list.
+        if datetime.date.today() < max_rps[0].start_date:
+            increment = 2
+        else:
+            increment = 1
+        last_rps = max_rps[:increment]
+
+        # If the reporting period is in the reporting period list or if the
+        # timecard has not been submitted, return the timecard form. If not,
+        # return the non-editable report view of the timecard.
+        if selected_rp in last_rps or \
+        self.object.__dict__['submitted'] == False:
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
+        else:
+            return redirect(
+                reverse(
+                    'reports:ReportingPeriodUserDetailView',
+                    kwargs={
+                        'username':request.user.username,
+                        'reporting_period':self.kwargs['reporting_period']
+                    }
+                )
+            )
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)

@@ -17,7 +17,7 @@
     <ul class="entries-header">
       <li>PROJECTS</li>
       <li>HOURS</li>
-      {% if unsubmitted %}<li>DELETE?</li>{% endif %}
+      <li>DELETE?</li>
     </ul>
     {% for project_entry in formset %}
       <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
