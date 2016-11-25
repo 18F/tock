@@ -181,6 +181,52 @@ class UtilTests(TestCase):
         """Ensure the number of hours returns a correct value"""
         self.assertEqual(20, number_of_hours(50, 40))
 
+class UserReportsTest(TestCase):
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'projects/fixtures/projects.json',
+        'employees/fixtures/user_data.json'
+    ]
+    def setUp(self):
+        self.user = User.objects.first()
+        user_data = UserData.objects.first()
+        user_data.user = self.user
+        user_data.save()
+
+        self.reporting_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(1999, 12, 31),
+            end_date=datetime.date(2000, 1, 1)
+        )
+        self.timecard = hours.models.Timecard.objects.create(
+            user=self.user,
+            reporting_period=self.reporting_period
+        )
+        self.nonbillable_project = hours.models.Project.objects.filter(
+            accounting_code__billable=False
+        )[0]
+        self.billable_project = projects.models.Project.objects.filter(
+            accounting_code__billable=True
+        )[0]
+        self.timecard_obj_0 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.nonbillable_project,
+            hours_spent=13
+        )
+        self.timecard_obj_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.billable_project,
+            hours_spent=27
+        )
+
+    def test_user_reporting_period_report(self):
+        response = client(self).get(reverse(
+            'reports:ReportingPeriodUserDetailView',
+            kwargs={'reporting_period':'1999-12-31', 'username':'aaron.snow'}
+        ))
+        self.assertEqual(response.context['user_utilization'], '67.5%')
+        self.assertEqual(response.context['user_all_hours'], 40.00)
+        self.assertEqual(response.context['user_billable_hours'], 27)
+        self.assertContains(response, '67.5%')
 
 class ReportTests(WebTest):
     fixtures = [
