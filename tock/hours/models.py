@@ -10,6 +10,20 @@ from django.db import models
 from django.db.models import Q, Max
 
 
+class HolidayPrefills(models.Model):
+    """For use with ReportingPeriods to prefill timecards."""
+    project = models.ForeignKey(Project)
+    hours_per_period = models.PositiveSmallIntegerField(default=8)
+
+    def __str__(self):
+        return '{} ({} hrs.)'.format(self.project.name, self.hours_per_period)
+
+    class Meta:
+        verbose_name = 'Holiday Prefills'
+        verbose_name_plural = 'Holiday Prefills'
+        unique_together = ['project', 'hours_per_period']
+        ordering = ['project__name']
+
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     """Reporting period model details"""
     start_date = models.DateField(unique=True)
@@ -18,6 +32,12 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         default=40)
     max_working_hours = models.PositiveSmallIntegerField(default=60)
     min_working_hours = models.PositiveSmallIntegerField(default=40)
+    holiday_prefills = models.ManyToManyField(
+        HolidayPrefills,
+        blank=True,
+        help_text='Select items to prefill in timecards for this period. To '\
+        'create additional items, click the green "+" sign.'
+    )
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)

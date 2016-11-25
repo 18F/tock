@@ -394,10 +394,25 @@ class TimecardView(UpdateView):
         )
         extra = len(project_ids) + 1
         formset = timecard_formset_factory(extra=extra)
-        return formset(initial=[
-            {'hours_spent': None, 'project': pid}
-            for pid in project_ids
-        ])
+        rp = ReportingPeriod.objects.get(
+            start_date=self.kwargs['reporting_period'])
+        initial = []
+        if rp.holiday_prefills:
+            for hp in rp.holiday_prefills.all():
+                initial.append(
+                    {
+                        'hours_spent':hp.hours_per_period,
+                        'project':hp.project.id
+                    }
+                )
+        for pid in project_ids:
+            initial.append(
+                {
+                    'hours_spent': None,
+                    'project': pid
+                }
+            )
+        return formset(initial=initial)
 
     def form_valid(self, form):
         context = self.get_context_data()
