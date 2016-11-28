@@ -122,5 +122,27 @@ class TestGroupUtilizationView(WebTest):
             response.context['user_list'][0].__dict__['_user_data_cache']
         )
         self.assertEqual(
-            response.context['user_list'][0].__dict__['_user_data_cache'].__dict__['unit'], 0)
-        #print(response.content)
+            response.context['user_list'][0].__dict__['_user_data_cache'].\
+            __dict__['unit'], 0)
+
+    def test_summary_rows(self):
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
+        self.assertEqual(
+            response.context['unit_totals'][0]['recent']['total_hours'],
+            (self.b_timecard_object.hours_spent + \
+            self.nb_timecard_object.hours_spent)
+        )
+        # Update hours spent.
+        self.b_timecard_object.hours_spent = 33.33
+        self.b_timecard_object.save()
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
+        self.assertContains(response,int(
+            self.b_timecard_object.hours_spent + \
+            self.nb_timecard_object.hours_spent)
+        )
