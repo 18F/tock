@@ -6,6 +6,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django_webtest import WebTest
+from django.test.testcases import SimpleTestCase
 
 from api.renderers import stream_csv
 
@@ -181,6 +182,266 @@ class UtilTests(TestCase):
         """Ensure the number of hours returns a correct value"""
         self.assertEqual(20, number_of_hours(50, 40))
 
+class AmendableTimecardTests(WebTest):
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'projects/fixtures/projects.json',
+        'employees/fixtures/user_data.json'
+    ]
+    csrf_checks = False
+
+    def setUp(self):
+        # Set up user.
+        self.user = User.objects.first()
+        self.ud = UserData.objects.first()
+        self.ud.user = self.user
+        self.ud.save()
+        # Set up reporting periods.
+        base_date = datetime.date(2014, 12, 1)
+        self.oldest_reporting_period = \
+        hours.models.ReportingPeriod.objects.create(
+            start_date=base_date,
+            end_date=base_date + datetime.timedelta(days=6),
+            exact_working_hours=40,
+        )
+        self.older_reporting_period = \
+        hours.models.ReportingPeriod.objects.create(
+            start_date=base_date + datetime.timedelta(days=7),
+            end_date=base_date + datetime.timedelta(12),
+            exact_working_hours=40,
+        )
+        self.old_reporting_period = \
+        hours.models.ReportingPeriod.objects.create(
+            start_date=base_date + datetime.timedelta(days=14),
+            end_date=base_date + datetime.timedelta(20),
+            exact_working_hours=40,
+        )
+        self.recent_reporting_period = \
+        hours.models.ReportingPeriod.objects.create(
+            start_date=base_date + datetime.timedelta(days=21),
+            end_date=base_date + datetime.timedelta(27),
+            exact_working_hours=40,
+        )
+        self.last_reporting_period = \
+        hours.models.ReportingPeriod.objects.create(
+            start_date=base_date + datetime.timedelta(days=28),
+            end_date=base_date + datetime.timedelta(34),
+            exact_working_hours=40,
+        )
+        self.current_reporting_period = \
+        hours.models.ReportingPeriod.objects.create(
+            start_date=base_date + datetime.timedelta(days=35),
+            end_date=base_date + datetime.timedelta(41),
+            exact_working_hours=40,
+        )
+        # Set up prior timecards.
+        self.oldest_timecard = \
+        hours.models.Timecard.objects.create(
+            reporting_period=self.oldest_reporting_period,
+            user=self.user,
+            submitted=True
+        )
+        self.older_timecard = \
+        hours.models.Timecard.objects.create(
+            reporting_period=self.older_reporting_period,
+            user=self.user,
+            submitted=True
+        )
+        self.old_timecard = \
+        hours.models.Timecard.objects.create(
+            reporting_period=self.old_reporting_period,
+            user=self.user,
+            submitted=True
+        )
+        self.recent_timecard = \
+        hours.models.Timecard.objects.create(
+            reporting_period=self.recent_reporting_period,
+            user=self.user,
+            submitted=True
+        )
+        self.last_timecard = \
+        hours.models.Timecard.objects.create(
+            reporting_period=self.last_reporting_period,
+            user=self.user,
+            submitted=True
+        )
+        # Populate prior timecards.
+        self.project_1 = projects.models.Project.objects.first()
+        self.project_2 = projects.models.Project.objects.last()
+        self.oldest_timecard_object = \
+        hours.models.TimecardObject.objects.create(
+            timecard=self.oldest_timecard,
+            project=self.project_1,
+            hours_spent=40
+        )
+        self.older_timecard_object = \
+        hours.models.TimecardObject.objects.create(
+            timecard=self.older_timecard,
+            project=self.project_2,
+            hours_spent=40
+        )
+        self.old_timecard_object = \
+        hours.models.TimecardObject.objects.create(
+            timecard=self.old_timecard,
+            project=self.project_1,
+            hours_spent=40
+        )
+        self.recent_timecard_object = \
+        hours.models.TimecardObject.objects.create(
+            timecard=self.recent_timecard,
+            project=self.project_2,
+            hours_spent=40
+        )
+        self.last_timecard_object = \
+        hours.models.TimecardObject.objects.create(
+            timecard=self.last_timecard,
+            project=self.project_2,
+            hours_spent=40
+        )
+    def test_form_returned_for_unsubmitted(self):
+        """Check that form is returned for unsubmitted timecard, regardless of
+        date."""
+        ancient_reporting_period = \
+        hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(1984, 9, 30),
+            end_date=datetime.date(1984, 10, 5),
+            exact_working_hours=40
+        )
+        ancient_timecard = \
+        hours.models.Timecard.objects.create(
+            reporting_period=ancient_reporting_period,
+            user=self.user,
+            submitted=False
+        )
+        date = ancient_reporting_period.start_date.strftime(
+            '%Y-%m-%d'
+        )
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period':date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('TimecardView', str(response.context['view']))
+
+    def test_redirect_for_older_submitted_timecards(self):
+        """Check that a form is not returned for submitted timecard that is
+        outside of the amendable period. If a form is not returned, the request
+        should be redirected to a non-form view of the timecard."""
+        date = self.oldest_reporting_period.start_date.strftime(
+            '%Y-%m-%d'
+        )
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period':date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        expected_url = reverse(
+            'reports:ReportingPeriodUserDetailView',
+            kwargs={
+                'username':self.user.username,
+                'reporting_period':date
+            }
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, expected_url)
+
+    def test_reporting_period_list(self):
+        response = self.app.get(
+            reverse('ListReportingPeriods'),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(
+            len(response.context['uncompleted_reporting_periods']),
+            1
+        )
+        self.assertEqual(
+            response.context['uncompleted_reporting_periods'][0],
+            self.current_reporting_period
+        )
+        self.assertEqual(
+            response.context['amendable_completed_reporting_periods'].count(),
+            1
+        )
+        self.assertEqual(
+            response.context['amendable_completed_reporting_periods'][0],
+            self.last_reporting_period
+        )
+        self.assertEqual(
+            response.context['completed_reporting_periods'].count(),
+            len(
+                [
+                    self.recent_reporting_period,
+                    self.old_reporting_period,
+                    self.older_reporting_period,
+                    self.oldest_reporting_period
+                ]
+            )
+        )
+        
+    def test_increment_for_newly_created_reporting_periods(self):
+        """Checks that a reporting period may still be edited if its start date
+        has not yet occured. To address situation where a the next reporting
+        period is created before the current reporting period has ended."""
+        base_date = datetime.date.today()
+        contemporary_current_rp = hours.models.ReportingPeriod.objects.create(
+            start_date=base_date - datetime.timedelta(days=4),
+            end_date=base_date + datetime.timedelta(days=2),
+            exact_working_hours=40
+        )
+        contemporary_next_rp = hours.models.ReportingPeriod.objects.create(
+            start_date=base_date + datetime.timedelta(days=7),
+            end_date=base_date + datetime.timedelta(days=13),
+            exact_working_hours=40
+        )
+        contemporary_current_tc = hours.models.Timecard.objects.create(
+            reporting_period=contemporary_current_rp,
+            user=self.user,
+            submitted=True
+        )
+        contemporary_next_tc = hours.models.Timecard.objects.create(
+            reporting_period=contemporary_next_rp,
+            user=self.user,
+            submitted=True
+        )
+        date = contemporary_current_rp.start_date.strftime(
+            '%Y-%m-%d'
+        )
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period':date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('TimecardView', str(response.context['view']))
+
+        date = contemporary_next_rp.start_date.strftime(
+            '%Y-%m-%d'
+        )
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period':date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('TimecardView', str(response.context['view']))
+
+        response = self.app.get(
+            reverse('ListReportingPeriods'),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(
+            response.context['amendable_completed_reporting_periods'].count(),
+            2
+        )
 
 class ReportTests(WebTest):
     fixtures = [
