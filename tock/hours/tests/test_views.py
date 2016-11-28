@@ -128,14 +128,13 @@ class TestAddHours(WebTest):
         hours_view = hours.views.AddHoursView.as_view()
         response = hours_view(request)
         field_keys = response.context_data['form'].fields.keys()
-        foo_dict = OrderedDict({'project': 'foo', 'hours_spent': 11})
+        foo_dict = OrderedDict({'project': 'foo', 'hours': 11})
         expected_field_keys = foo_dict.keys()
-
         self.assertEqual(expected_field_keys, field_keys)
 
     def test_display_error_when_project_does_not_exist(self):
         factory = RequestFactory()
-        request = factory.get(reverse('AddHours'), {'project_id': 42}, expect_errors=True)
+        request = factory.get(reverse('AddHours'), kwargs={'project_id': 42, 'hours': 2}, expect_errors=True)
         request.user = self.user
         hours_view = hours.views.AddHoursView.as_view()
         response = hours_view(request)

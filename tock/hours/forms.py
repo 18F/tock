@@ -210,14 +210,19 @@ class AddHoursForm(forms.Form):
 
     project = forms.ChoiceField(
         widget=SelectWithData(),
+        required=True,
         choices=projects_as_choices
         )
-    hours_spent = forms.DecimalField(
+    hours = forms.DecimalField(
         min_value=0,
+        required=True,
         widget=forms.NumberInput(attrs={
             'step': '1'
         })
     )
+
+    def clean(self):
+        super(AddHoursForm, self).clean()
 
 class TimecardInlineFormSet(BaseInlineFormSet):
     """This FormSet is used for submissions of timecard entries."""
