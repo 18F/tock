@@ -37,7 +37,21 @@
     {% endif %}
 	{% endfor %}
 </table>
-
 <div>First Submitted: {{ object.created }}</div>
 Last Changed: {{ object.modified }}
+
+<h3> Reporting Period Summary </h3>
+<table class="table-minimal report_table">
+	<tr class="report_table__header-row">
+		<th>Billable Hours</th>
+		<th>Total Hours</th>
+		<th>Billable %</th>
+	</tr>
+	<tr class="report_table__header-row">
+		<td> {{ user_billable_hours }} </td>
+		<td> {{ user_all_hours }} </td>
+		<td> {{ user_utilization }} </td>
+	</tr>
+</table>
+
 {% endblock %}

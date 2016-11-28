@@ -35,6 +35,7 @@ from .forms import (
     TimecardFormSet,
     timecard_formset_factory
 )
+from utilization.utils import calculate_utilization
 
 
 class BulkTimecardSerializer(serializers.Serializer):
@@ -528,8 +529,43 @@ class ReportingPeriodUserDetailView(DetailView):
     template_name = "hours/reporting_period_user_detail.html"
 
     def get_object(self):
-        return get_object_or_404(
-            Timecard,
+        obj = Timecard.objects.prefetch_related(
+            'timecardobjects__project',
+            'timecardobjects__project__accounting_code'
+        ).get(
             reporting_period__start_date=self.kwargs['reporting_period'],
             user__username=self.kwargs['username']
         )
+        return obj
+
+    def get_context_data(self, **kwargs):
+        user_billable_hours = TimecardObject.objects.filter(
+            timecard__reporting_period__start_date=\
+                self.kwargs['reporting_period'],
+            timecard__user__username=self.kwargs['username'],
+            project__accounting_code__billable=True
+        ).aggregate(
+            (
+                Sum('hours_spent')
+            )
+        )['hours_spent__sum']
+
+        user_all_hours = TimecardObject.objects.filter(
+            timecard__reporting_period__start_date=\
+                self.kwargs['reporting_period'],
+            timecard__user__username=self.kwargs['username'],
+        ).aggregate(
+            (
+                Sum('hours_spent')
+            )
+        )['hours_spent__sum']
+
+        context = super(
+            ReportingPeriodUserDetailView, self).get_context_data(**kwargs)
+        context['user_billable_hours'] = user_billable_hours
+        context['user_all_hours'] = user_all_hours
+        context['user_utilization'] = calculate_utilization(
+            context['user_billable_hours'],
+            context['user_all_hours']
+        )
+        return context
