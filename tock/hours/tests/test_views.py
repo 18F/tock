@@ -267,6 +267,71 @@ class ReportTests(WebTest):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_holiday_prefill(self):
+        """Tests when a holiday is related to a reporting period that it is
+        contained in the timecard formset."""
+
+        # Additional test set up.
+        self.timecard_object_1.delete()
+        self.timecard_object_2.delete()
+        holiday_prefills = hours.models.HolidayPrefills.objects.create(
+            project=self.project_1,
+            hours_per_period=8
+        )
+        reporting_period_w_holiday = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+            exact_working_hours=40
+        )
+        reporting_period_w_holiday.holiday_prefills.add(holiday_prefills)
+        reporting_period_w_holiday.save()
+        self.timecard.reporting_period = reporting_period_w_holiday
+        self.timecard.save()
+        # Get response from TimecardView.
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': '2016-01-01'}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Checks response context for the prefilled project and hours.
+        project_found = False
+        str_formset = str(response.context['formset']).split('\n')
+        for line in str_formset:
+            if line.find('selected') > 0 and \
+            line.find(
+                'option value="{}"'.format(
+                    holiday_prefills.project.id
+                )
+            ) > 0:
+                project_found = True
+        self.assertTrue(project_found)
+        hours_found = False
+        hours_spent_str = str(holiday_prefills.hours_per_period)
+        for line in str_formset:
+            if line.find('id_timecardobjects-0-hours_spent') > 0 and \
+            line.find(hours_spent_str) > 0:
+                hours_found = True
+        self.assertTrue(hours_found)
+
+        # Removes related holiday prefill and checks that prefilled project is
+        # not found in a new respeonse.
+        reporting_period_w_holiday.holiday_prefills.clear()
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': '2016-01-01'}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        str_formset = str(response.context['formset']).split('\n')
+        for line in str_formset:
+            if line.find('selected') > 0 and line.find('option value=""') > 0:
+                project_found = False
+        self.assertFalse(project_found)
+
     def test_prefilled_timecard(self):
         """
         Test that new timecard form is prefilled with
