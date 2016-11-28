@@ -6,6 +6,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django_webtest import WebTest
+from decimal import Decimal
 
 from api.renderers import stream_csv
 
@@ -366,6 +367,69 @@ class ReportTests(WebTest):
             response.html.find_all('div', {'class': 'entry-amount'})[:-1]
         )
         self.assertEqual(prefilled_hours, {None})
+
+    def test_add_hours_with_existing_tco(self):
+        """
+        Test that addHours increases the current timecard by the
+        specified amount
+        """
+        self.user = self.regular_user
+
+        new_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+        )
+        new_timecard = hours.models.Timecard.objects.create(
+            user=self.user,
+            submitted=False,
+            reporting_period=new_period
+        )
+        new_project = projects.models.Project.objects.get(name="Midas")
+        new_tco = hours.models.TimecardObject.objects.create(
+            timecard=new_timecard,
+            project=new_project,
+            hours_spent=10.12
+        )
+
+        url = "%s?project=%d&hours=2" % (reverse('AddHours'), new_project.id)
+
+        response = self.app.get(
+            url, None,
+            headers={'X_AUTH_USER': self.user.email}
+        )
+
+        self.assertEqual(response.status_code, 302)
+        new_tco.refresh_from_db()
+        self.assertEqual(new_tco.hours_spent, Decimal('12.12'))
+
+    def test_add_hours_without_tco(self):
+        """
+        Test that addHours creates a new timecardobject when
+        none is available
+        """
+        self.user = self.regular_user
+
+        new_project = projects.models.Project.objects.get(name="Midas")
+        new_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+        )
+        new_timecard = hours.models.Timecard.objects.create(
+            user=self.user,
+            submitted=False,
+            reporting_period=new_period
+        )
+
+        url = "%s?project=%d&hours=2" % (reverse('AddHours'), new_project.id)
+
+        old_count = new_timecard.timecardobjects.count()
+        response = self.app.get(
+            url, None,
+            headers={'X_AUTH_USER': self.user.email}
+        )
+        new_count = new_timecard.timecardobjects.count()
+        self.assertEqual(old_count + 1, new_count)
+
 
     def test_do_not_prefill_timecard(self):
         """
