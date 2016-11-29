@@ -382,6 +382,14 @@ class AmendableTimecardTests(WebTest):
                 ]
             )
         )
+        # Check that order is correct.
+        self.assertTrue(
+            (response.context['completed_reporting_periods'].first().end_date \
+            > \
+            response.context['completed_reporting_periods'].last().end_date)
+        )
+        # Verify list was rendered correctly.
+        self.assertTemplateUsed(response, 'hours/reporting_period_list.html')
 
     def test_increment_for_newly_created_reporting_periods(self):
         """Checks that a reporting period may still be edited if its start date
@@ -442,6 +450,35 @@ class AmendableTimecardTests(WebTest):
             response.context['amendable_completed_reporting_periods'].count(),
             2
         )
+
+    def test_w_user_that_has_no_prior_timecards(self):
+        """Checks that a user who has no prior timecards receives the correct
+        response."""
+
+        # Delete all timecards.
+        all_tcs = hours.models.Timecard.objects.all()
+        all_tcs.delete()
+
+        # Check response.
+        response = self.app.get(
+            reverse('ListReportingPeriods'),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(
+            response.status_code, 200
+        )
+        self.assertFalse(
+            response.context['completed_reporting_periods']
+        )
+        self.assertFalse(
+            response.context['amendable_completed_reporting_periods']
+        )
+        self.assertEqual(
+            hours.models.ReportingPeriod.objects.all().count(),
+            len(response.context['uncompleted_reporting_periods'])
+        )
+
+
 
 class UserReportsTest(TestCase):
     fixtures = [
