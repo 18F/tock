@@ -38,12 +38,14 @@ hours submitted on all projects for the given period.
 <h3 id="{{i.1}}">{{i.1}}</h3>
 
 <table class="table-minimal report_table">
+  <thead>
     <tr class="report_table__header-row">
         <th>Name</th>
         <th>Last Week <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
         <th>Last Four Weeks <br> ({{ recent_start_date }} - {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
     <th>Fiscal Year to Date <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
     </tr>
+  </thead>
 
     {% for userdata in object_list %}
 
