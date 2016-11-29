@@ -315,6 +315,15 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
     def get_success_url(self):
         return reverse("ListReportingPeriods")
 
+def display_add_hours_error_message(request):
+    error_msg = "Oops. That command was not correct and no time was added to your timecard. Try again by entering a URL with this format: tock.gov/addHours?project=231&hours=1"
+    messages.add_message(
+        request,
+        messages.ERROR,
+        error_msg
+    )
+
+
 def add_hours_view(request):
     project_id = request.GET['project']
     hours = Decimal(request.GET['hours'])
@@ -323,12 +332,7 @@ def add_hours_view(request):
     try:
         proj = Project.objects.get(id=project_id)
     except Project.DoesNotExist:
-        msg = "Hours not updated. Project with ID %s does Not Exist" % (project_id)
-        messages.add_message(
-            request,
-            messages.ERROR,
-            msg
-        )
+        display_add_hours_error_message(request)
         return redirect(reverse('reportingperiod:UpdateTimesheet', args=[r]))
 
     tc, created = Timecard.objects.get_or_create(
@@ -344,6 +348,8 @@ def add_hours_view(request):
 
     if tco.hours_spent is None:
         tco.hours_spent = 0
+        display_add_hours_error_message(request)
+        return redirect(reverse('reportingperiod:UpdateTimesheet', args=[r]))
 
     updated_hours = tco.hours_spent + hours
     updated_hours = max(0, updated_hours)
