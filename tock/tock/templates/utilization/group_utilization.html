@@ -42,7 +42,41 @@
     <th>Fiscal Year to Date <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
     </tr>
   </thead>
-
+  <tfoot>
+    <tr>
+      <td><b>Totals:</b></td>
+      <td>
+        <b>
+        {% for ut in unit_totals %}
+        {% if i.1 is ut.last.unit_name %}
+          {{ ut.last.utilization }}<br>
+          ({{ ut.last.billable_hours }} / {{ ut.last.total_hours }})
+        {% endif %}
+        {% endfor %}
+        </b>
+      </td>
+      <td>
+        <b>
+        {% for ut in unit_totals %}
+        {% if i.1 is ut.last.unit_name %}
+          {{ ut.recent.utilization }}<br>
+          ({{ ut.recent.billable_hours }} / {{ ut.recent.total_hours }})
+        {% endif %}
+        {% endfor %}
+        </b>
+      </td>
+      <td>
+        <b>
+        {% for ut in unit_totals %}
+        {% if i.1 is ut.last.unit_name %}
+          {{ ut.fytd.utilization }}<br>
+          ({{ ut.fytd.billable_hours }} / {{ ut.fytd.total_hours }})
+        {% endif %}
+        {% endfor %}
+        </b>
+      </td>
+    </tr>
+  </tfoot>
   <tbody>
   {% for userdata in object_list %}
 
@@ -84,39 +118,7 @@
     </tr>
     {% endif %}
     {% endfor %}
-    <tr>
-      <td><b>Totals:</b></td>
-      <td>
-        <b>
-        {% for ut in unit_totals %}
-        {% if i.1 is ut.last.unit_name %}
-          {{ ut.last.utilization }}<br>
-          ({{ ut.last.billable_hours }} / {{ ut.last.total_hours }})
-        {% endif %}
-        {% endfor %}
-        </b>
-      </td>
-      <td>
-        <b>
-        {% for ut in unit_totals %}
-        {% if i.1 is ut.last.unit_name %}
-          {{ ut.recent.utilization }}<br>
-          ({{ ut.recent.billable_hours }} / {{ ut.recent.total_hours }})
-        {% endif %}
-        {% endfor %}
-        </b>
-      </td>
-      <td>
-        <b>
-        {% for ut in unit_totals %}
-        {% if i.1 is ut.last.unit_name %}
-          {{ ut.fytd.utilization }}<br>
-          ({{ ut.fytd.billable_hours }} / {{ ut.fytd.total_hours }})
-        {% endif %}
-        {% endfor %}
-        </b>
-      </td>
-    </tr>
+
   </tbody>
 </table>
 <br>
