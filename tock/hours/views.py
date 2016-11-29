@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
 from django.contrib.auth.decorators import user_passes_test
@@ -35,7 +35,144 @@ from .forms import (
     TimecardFormSet,
     timecard_formset_factory
 )
-from utilization.utils import calculate_utilization
+from utilization.utils import calculate_utilization, get_fy_first_day
+
+
+class DashboardView(TemplateView):
+    template_name = 'hours/dashboard.html'
+
+
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
+        requested_date = datetime.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d"
+        ).date()
+        try:
+            rp_selected = ReportingPeriod.objects.get(
+                start_date__lte=requested_date,
+                end_date__gte=requested_date
+            )
+        except ReportingPeriod.DoesNotExist:
+            context.update(
+                {
+                    'error':'No reporting period available for {}.'\
+                    .format(self.kwargs['reporting_period'])
+                }
+            )
+            return context
+
+        # Get first day of fiscal year for reporting period.
+        fytd_start_date = get_fy_first_day(requested_date)
+        percent_of_year = ((
+            requested_date-fytd_start_date
+        ).days)/365
+
+        # Get fiscal year to date info.
+        # TODO: Set up a DB table to store target info.
+        hours_required_cr = 100000
+        hours_required_cr_fytd = hours_required_cr * percent_of_year
+        hours_required_plan = 75000
+        hours_required_plan_fytd = hours_required_plan * percent_of_year
+        hours_billed_fytd = TimecardObject.objects.filter(
+            timecard__reporting_period__start_date__gte=fytd_start_date,
+            timecard__reporting_period__end_date__lte=requested_date,
+            project__accounting_code__billable=True
+        ).aggregate(
+            Sum(
+                'hours_spent'
+            )
+        )['hours_spent__sum']
+        if hours_billed_fytd:
+            pass
+        else:
+            hours_billed_fytd = 0
+
+        # Set variables for context.
+        hours_diff_cr_ytd = \
+            float(hours_billed_fytd) - hours_required_cr_fytd
+        hours_diff_plan_ytd = \
+            float(hours_billed_fytd) - hours_required_plan_fytd
+        variance_required_cr_fytd = \
+            hours_diff_cr_ytd / hours_required_cr_fytd
+        variance_required_plan_fytd = \
+            hours_diff_plan_ytd / hours_required_plan_fytd
+
+        # Get data for reporting period.
+        hours_required_cr_weekly = 3500
+        hours_required_plan_weekly = 3000
+        hours_billed_weekly = TimecardObject.objects.filter(
+            timecard__reporting_period__start_date=\
+                rp_selected.start_date.strftime('%Y-%m-%d'),
+            project__accounting_code__billable=True
+        ).aggregate(
+            Sum(
+                'hours_spent'
+            )
+        )['hours_spent__sum']
+        if hours_billed_weekly:
+            pass
+        else:
+            hours_billed_weekly = 0
+
+        # Set variables for context.
+        hours_diff_cr_weekly = \
+            float(hours_billed_weekly) - hours_required_cr_weekly
+        hours_diff_plan_weekly = \
+            float(hours_billed_weekly) - hours_required_plan_weekly
+        variance_required_cr_weekly = \
+            hours_diff_cr_weekly / hours_required_cr_weekly
+        variance_required_plan_weekly = \
+            hours_diff_plan_weekly / hours_required_plan_weekly
+
+        # Update context.
+        context.update(
+            {   'rp_selected':rp_selected,
+                'fytd_start_date':fytd_start_date,
+                'hours_required_cr_fytd':'{:,}'.format(
+                    round(hours_required_cr_fytd,2)
+                ),
+                'hours_required_plan_fytd':'{:,}'.format(
+                    round(hours_required_plan_fytd,2)
+                ),
+                'hours_billed_fytd':'{:,}'.format(
+                    round(hours_billed_fytd,2)
+                ),
+                'hours_diff_cr_ytd':'{:,}'.format(
+                    round(hours_diff_cr_ytd,2)
+                ),
+                'hours_diff_plan_ytd':'{:,}'.format(
+                    round(hours_diff_plan_ytd,2)
+                ),
+                'variance_required_cr_fytd':'{0:.2%}'.format(
+                    variance_required_cr_fytd
+                ),
+                'variance_required_plan_fytd':'{0:.2%}'.format(
+                    variance_required_plan_fytd
+                ),
+                'hours_required_cr_weekly':'{:,}'.format(
+                    round(hours_required_cr_weekly,2)
+                ),
+                'hours_required_plan_weekly':'{:,}'.format(
+                    round(hours_required_plan_weekly,2)
+                ),
+                'hours_billed_weekly':'{:,}'.format(
+                    round(hours_billed_weekly,2)
+                ),
+                'hours_diff_cr_weekly':'{:,}'.format(
+                    round(hours_diff_cr_weekly,2)
+                ),
+                'hours_diff_plan_weekly':'{:,}'.format(
+                    round(hours_diff_plan_weekly,2)
+                ),
+                'variance_required_cr_weekly':'{0:.2%}'.format(
+                    variance_required_cr_weekly
+                ),
+                'variance_required_plan_weekly':'{0:.2%}'.format(
+                    variance_required_plan_weekly
+                ),
+            }
+        )
+        return context
 
 
 class BulkTimecardSerializer(serializers.Serializer):

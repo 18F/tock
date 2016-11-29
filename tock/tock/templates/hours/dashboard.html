@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if error %}
+
+<h3>{{ error }}<h3>
+
+{% else %}
+
+<h2>18F Operations Dashboard</h2>
+
+Report for week of {{ rp_selected.start_date }} to {{ rp_selected.end_date }}
+
+<h3>Performance vs. Plan, FY to Date</h3>
+<i>{{ fytd_start_date }} to {{ rp_selected.end_date }}</i>
+
+<table>
+  <tr>
+    <th></th>
+    <th>FYTD Target</th>
+    <th>FYTD Billed</th>
+    <th>Variance</th>
+  </tr>
+  <tr>
+    <td>Cost Recovery</td>
+    <td>{{ hours_required_cr_fytd }}</td>
+    <td>{{ hours_billed_fytd }}</td>
+    <td>{{ hours_diff_cr_ytd }} ({{ variance_required_cr_fytd }})</td>
+  </tr>
+  <tr>
+    <td>Hours Required for Plan</td>
+    <td>{{ hours_required_plan_fytd }}</td>
+    <td>{{ hours_billed_fytd }}</td>
+    <td>{{ hours_diff_plan_ytd }} ({{ variance_required_plan_fytd }})</td>
+  </tr>
+</table>
+
+<h3>Performance vs. Plan, Selected Week</h3>
+<i>{{ rp_selected.start_date }} to {{ rp_selected.end_date }}</i>
+<table>
+  <tr>
+    <th></th>
+    <th>Weekly Target</th>
+    <th>Weekly Billed</th>
+    <th>Variance</th>
+  </tr>
+  <tr>
+    <td>Cost Recovery</td>
+    <td>{{ hours_required_cr_weekly }}</td>
+    <td>{{ hours_billed_weekly }}</td>
+    <td>{{ hours_diff_cr_weekly }} ({{ variance_required_cr_weekly }})</td>
+  </tr>
+  <tr>
+    <td>Financial Plan</td>
+    <td>{{ hours_required_plan_weekly }}</td>
+    <td>{{ hours_billed_weekly }}</td>
+    <td>{{ hours_diff_plan_weekly }} ({{ variance_required_plan_weekly }})</td>
+  </tr>
+</table>
+
+
+{% endif %}
+{% endblock %}
