@@ -9,34 +9,42 @@
 <br><br>
 <h3>Users Who Have Not Filed a Timecard!</h3>
 <table>
-<tr>
-	<th>First Name</th>
-	<th>Last Name</th>
-	<th>Email</th>
-</tr>
-{% for user in users_without_filed_timecards %}
-<tr class='user'>
-	<td>{{ user.first_name }}</td>
-	<td>{{ user.last_name }}</td>
-	<td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
-</tr>
-{% endfor %}
+	<thead>
+		<tr>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>Email</th>
+		</tr>
+	</thead>
+	{% for user in users_without_filed_timecards %}
+	<tbody>
+		<tr class='user'>
+			<td>{{ user.first_name }}</td>
+			<td>{{ user.last_name }}</td>
+			<td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
+		</tr>
+	</tbody>
+	{% endfor %}
 </table>
 <br><br>
 <h3>Users Who Have Filed a Timecard!</h3>
 <table>
-<tr>
-	<th>First Name</th>
-	<th>Last Name</th>
-	<th>View Timecard</th>
-</tr>
-{% for timecard in timecard_list %}
-<tr class='user'>
-	<td>{{ timecard.user.first_name }}</td>
-	<td>{{ timecard.user.last_name }}</td>
-	<td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
-</tr>
-{% endfor %}
+	<thead>
+		<tr>
+			<th>First Name</th>
+			<th>Last Name</th>
+			<th>View Timecard</th>
+		</tr>
+	</thead>
+	{% for timecard in timecard_list %}
+	<tbody>
+		<tr class='user'>
+			<td>{{ timecard.user.first_name }}</td>
+			<td>{{ timecard.user.last_name }}</td>
+			<td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
+		</tr>
+	</tbody>
+	{% endfor %}
 </table>
 
 {% endblock %}
