@@ -12,6 +12,9 @@ addons:
 before_script:
   - psql -c 'create database "tock-test";' -U postgres
 
+before_install:
+  - export TZ=America/New_York
+
 install:
   - travis_retry pip install codecov
   - travis_retry pip install -r requirements.txt
