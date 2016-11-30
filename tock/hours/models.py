@@ -6,8 +6,57 @@ from projects.models import Project, ProfitLossAccount
 from django.contrib.auth.models import User
 from employees.models import EmployeeGrade
 from django.core.validators import MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q, Max
+
+
+class Targets(models.Model):
+    name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    start_date = models.DateField(
+        unique=True
+    )
+    end_date = models.DateField(
+        unique=True
+    )
+    hours_target_cr = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Hours target for cost recovery'
+    )
+    hours_target_plan = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Hours target for financial plan'
+    )
+    revenue_target_cr = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Revenue target for financial plan'
+    )
+    revenue_target_plan = models.PositiveIntegerField(
+        blank=True,
+        null=True,
+        verbose_name='Revenue target for financial plan',
+    )
+    periods = models.PositiveSmallIntegerField(
+        default=52,
+    )
+
+    def fiscal_year(self):
+        return ReportingPeriod.get_fiscal_year(self)
+
+    def __str__(self):
+        return '{} (FY{})'.format(self.name, self.fiscal_year())
+
+    class Meta:
+        unique_together = ("start_date", "end_date")
+        verbose_name = 'Target'
+        verbose_name_plural = 'Targets'
 
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):

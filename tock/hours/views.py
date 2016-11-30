@@ -26,7 +26,7 @@ from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
-from .models import ReportingPeriod, Timecard, TimecardObject, Project
+from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
 from .forms import (
     ReportingPeriodForm,
     ReportingPeriodImportForm,
@@ -42,7 +42,8 @@ class DashboardReportsList(ListView):
 
     def get_queryset(self):
         available_reports = ReportingPeriod.objects.filter(
-            start_date__gte=datetime.date(2016, 10, 1)
+            start_date__gte=datetime.date(2016, 10, 1),
+            end_date__lt=datetime.date.today()
         )
         return available_reports
 
@@ -96,24 +97,37 @@ class DashboardView(TemplateView):
         ).days)/365
 
         # Get labor rate.
-        labor_rate = 100
+        labor_rate = 100 # Per hour.
 
         # Get initial targets.
-        hours_required_cr = 100000 # Annual.
-        hours_required_plan = 75000 # Annual.
-        revenue_required_cr = 25000000 # Annual.
-        revenue_required_plan = 20000000 # Annual.
-        number_of_periods = 47 # Weeks.
+        try:
+            target = Targets.objects.get(
+                start_date__lte=rp_selected.start_date,
+                end_date__gte=rp_selected.end_date
+            )
+        except Targets.DoesNotExist:
+            context.update(
+                {
+                    'error':'No target information available for {}.'\
+                    .format(self.kwargs['reporting_period'])
+                }
+            )
+            return context
+
 
         # Calculated targets.
-        hours_required_cr_fytd = hours_required_cr * percent_of_year
-        hours_required_plan_fytd = hours_required_plan * percent_of_year
-        revenue_required_cr_fytd = revenue_required_cr * percent_of_year
-        revenue_required_plan_fytd = revenue_required_plan * percent_of_year
-        hours_required_cr_weekly = hours_required_cr / number_of_periods
-        hours_required_plan_weekly = hours_required_plan / number_of_periods
-        revenue_required_cr_weekly = revenue_required_cr / number_of_periods
-        revenue_required_plan_weekly = revenue_required_plan / number_of_periods
+        hours_required_cr_fytd = target.hours_target_cr * percent_of_year
+        hours_required_plan_fytd = target.hours_target_plan * percent_of_year
+        revenue_required_cr_fytd = target.revenue_target_cr * percent_of_year
+        revenue_required_plan_fytd = \
+            target.revenue_target_plan * percent_of_year
+        hours_required_cr_weekly = target.hours_target_cr / target.periods
+        hours_required_plan_weekly = \
+            target.hours_target_plan / target.periods
+        revenue_required_cr_weekly = \
+            target.revenue_target_cr / target.periods
+        revenue_required_plan_weekly = \
+            target.revenue_target_plan / target.periods
 
         # Get hours billed for fiscal year to date and clean result.
         hours_billed_fytd = clean_result(TimecardObject.objects.filter(
@@ -160,11 +174,11 @@ class DashboardView(TemplateView):
         context.update(
             {
                 # Target info.
-                'revenue_required_cr':'${:,}'.format(
-                    revenue_required_cr
+                'revenue_target_cr':'${:,}'.format(
+                    target.revenue_target_cr
                 ),
-                'revenue_required_plan':'${:,}'.format(
-                    revenue_required_plan
+                'revenue_target_plan':'${:,}'.format(
+                    target.revenue_target_plan
                 ),
                 # Rate info.
                 'labor_rate':'${:,}'.format(

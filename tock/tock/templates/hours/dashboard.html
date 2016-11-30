@@ -3,25 +3,29 @@
 
 {% if error %}
 
-<h3>{{ error }}<h3>
+<h2>Whoops!</h2>
+
+{{ error }}
+
+<p><a href="{% url 'reports:DashboardReportsList' %}">Return to report list</a></p>
 
 {% else %}
 
 <h2>18F Operations Dashboard</h2>
 
-<h4>Notes: </h4>
+<h4>Notes</h4>
 <ul>
-<li>Data current through {{ rp_selected.end_date }}.</li>
-<li>Revenue on cost recovery revenue target of {{ revenue_required_cr }} and
-  financial plan revnue target of {{ revenue_required_plan }}.</li>
+<li>Data selected for reporting periods through {{ rp_selected.end_date }}.</li>
+<li>Revenue on cost recovery revenue target of {{ revenue_target_cr }} and
+  financial plan revenue target of {{ revenue_target_plan }}.</li>
 <li>Revenue performance calculated using a blended labor rate of {{ labor_rate }} per hour.</li>
 
 </ul>
 
 
-<h3>Performance vs. Targets, FY to Date - Hours</h3>
+<h3>Performance vs. Targets, Fiscal Year to Date</h3>
 <i>{{ fytd_start_date }} to {{ rp_selected.end_date }}</i>
-
+<h4>Hours</h4>
 <table>
   <tr>
     <th></th>
@@ -42,10 +46,8 @@
     <td>{{ variance_plan_fytd }} ({{ p_variance_plan_fytd }})</td>
   </tr>
 </table>
-
-<h3>Performance vs. Targets, FY to Date - Revenue</h3>
-<i>{{ fytd_start_date }} to {{ rp_selected.end_date }}</i>
-
+<br>
+<h4>Revenue</h4>
 <table>
   <tr>
     <th></th>
@@ -67,9 +69,10 @@
   </tr>
 </table>
 
-
-<h3>Performance vs. Targets, Selected Week - Hours</h3>
+<hr>
+  <h3>Performance vs. Targets, Selected Reporting Period</h3>
 <i>{{ rp_selected.start_date }} to {{ rp_selected.end_date }}</i>
+<h4>Hours</h4>
 <table>
   <tr>
     <th></th>
@@ -90,9 +93,8 @@
     <td>{{ variance_plan_weekly }} ({{ p_variance_plan_weekly }})</td>
   </tr>
 </table>
-
-<h3>Performance vs. Targets, Selected Week - Revenue</h3>
-<i>{{ rp_selected.start_date }} to {{ rp_selected.end_date }}</i>
+<br>
+<h4>Revenue</h4>
 <table>
   <tr>
     <th></th>
