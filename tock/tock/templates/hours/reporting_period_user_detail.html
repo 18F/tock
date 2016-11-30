@@ -29,12 +29,10 @@
     {% if entry.notes %}
     <tr>
       <td colspan="3">
-        <strong>Notes entered for {{ entry.project }}</strong><br />
-        <ul>
+        <strong>Notes entered for {{ entry.project }}</strong>
         {% for note in entry.notes_list %}
-          <li>{{ note }}</li>
+        <p>{{ note }}</p>
         {% endfor %}
-        <ul>
       </td>
     </tr>
   </tbody>
