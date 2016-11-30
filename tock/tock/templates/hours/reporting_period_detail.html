@@ -7,8 +7,11 @@
 <a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">Download Full CSV Report</a>
 
 <br><br>
-<h3>Users Who Have Not Filed a Timecard!</h3>
+
 <table>
+  <caption>
+    <h3>Users Who Have Not Filed a Timecard!</h3>
+  </caption>
   <thead>
     <tr>
       <th>First Name</th>
@@ -27,8 +30,11 @@
   {% endfor %}
 </table>
 <br><br>
-<h3>Users Who Have Filed a Timecard!</h3>
+
 <table>
+  <caption>
+    <h3>Users Who Have Filed a Timecard!</h3>
+  </caption>
   <thead>
     <tr>
       <th>First Name</th>
