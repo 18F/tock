@@ -27,24 +27,24 @@
   <li><a href="#{{i.1}}">{{i.1}}</a></li>
 {% endfor %}
 </ul>
-<br>
 
 {% for i in unit_choices %}
 
-<h3 id="{{i.1}}">{{i.1}}</h3>
-
 <table class="table-minimal report_table">
+  <caption>
+    <h3 id="{{i.1}}">{{i.1}}</h3>
+  </caption>
   <thead>
     <tr class="report_table__header-row">
-      <th>Name</th>
-      <th>Last Week <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
-      <th>Last Four Weeks <br> ({{ recent_start_date }} - {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
-    <th>Fiscal Year to Date <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
+      <th scope="col">Name</th>
+      <th scope="col">Last Week <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
+      <th scope="col">Last Four Weeks <br> ({{ recent_start_date }} - {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
+      <th scope="col">Fiscal Year to Date <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
     </tr>
   </thead>
   <tfoot>
     <tr>
-      <td><b>Totals:</b></td>
+      <th scope="row"><b>Totals:</b></th>
       <td>
         <b>
         {% for ut in unit_totals %}
@@ -82,9 +82,9 @@
 
   {% if userdata.unit is i.0 %}
     <tr class="report_table__row">
-      <td>
+      <th scope="row">
         {{ userdata.user_data }}
-      </td>
+      </th>
       <td>
       {% if userdata.last_all_hours_total %}
         <a href='{{ userdata.last_url }}' title="Percent billable (billable hours / total hours)">
@@ -120,7 +120,6 @@
   {% endfor %}
   </tbody>
 </table>
-<br>
 
 {% endfor %}
 
