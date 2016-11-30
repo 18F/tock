@@ -24,27 +24,26 @@ class Targets(models.Model):
         unique=True
     )
     hours_target_cr = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=0,
         verbose_name='Hours target for cost recovery'
     )
     hours_target_plan = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=0,
         verbose_name='Hours target for financial plan'
     )
     revenue_target_cr = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=0,
         verbose_name='Revenue target for financial plan'
     )
     revenue_target_plan = models.PositiveIntegerField(
-        blank=True,
-        null=True,
+        default=0,
         verbose_name='Revenue target for financial plan',
     )
     periods = models.PositiveSmallIntegerField(
         default=52,
+    )
+    labor_rate = models.PositiveSmallIntegerField(
+        default=1
     )
 
     def fiscal_year(self):
