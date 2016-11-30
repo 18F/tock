@@ -37,13 +37,41 @@ from .forms import (
 )
 from utilization.utils import calculate_utilization, get_fy_first_day
 
+class DashboardReportsList(ListView):
+    template_name = 'hours/dashboard_list.html'
+
+    def get_queryset(self):
+        available_reports = ReportingPeriod.objects.filter(
+            start_date__gte=datetime.date(2016, 10, 1)
+        )
+        return available_reports
 
 class DashboardView(TemplateView):
     template_name = 'hours/dashboard.html'
 
-
     def get_context_data(self, **kwargs):
+
+        # Helper functions.
+        def clean_result(result):
+            if result:
+                pass
+            else:
+                result = 0
+            return result
+
+        def calc_result(performance, target):
+            try:
+                variance = float(performance) - float(target)
+                p_variance = variance / target
+                return variance, p_variance
+            except ZeroDivisionError:
+                return 0, 0
+
+
+        # Get base context.
         context = super(DashboardView, self).get_context_data(**kwargs)
+
+        # Get requested date and corresponding reporting period.
         requested_date = datetime.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
@@ -67,67 +95,85 @@ class DashboardView(TemplateView):
             requested_date-fytd_start_date
         ).days)/365
 
-        # Get fiscal year to date info.
-        # TODO: Set up a DB table to store target info.
-        hours_required_cr = 100000
+        # Get labor rate.
+        labor_rate = 100
+
+        # Get initial targets.
+        hours_required_cr = 100000 # Annual.
+        hours_required_plan = 75000 # Annual.
+        revenue_required_cr = 25000000 # Annual.
+        revenue_required_plan = 20000000 # Annual.
+        number_of_periods = 47 # Weeks.
+
+        # Calculated targets.
         hours_required_cr_fytd = hours_required_cr * percent_of_year
-        hours_required_plan = 75000
         hours_required_plan_fytd = hours_required_plan * percent_of_year
-        hours_billed_fytd = TimecardObject.objects.filter(
+        revenue_required_cr_fytd = revenue_required_cr * percent_of_year
+        revenue_required_plan_fytd = revenue_required_plan * percent_of_year
+        hours_required_cr_weekly = hours_required_cr / number_of_periods
+        hours_required_plan_weekly = hours_required_plan / number_of_periods
+        revenue_required_cr_weekly = revenue_required_cr / number_of_periods
+        revenue_required_plan_weekly = revenue_required_plan / number_of_periods
+
+        # Get hours billed for fiscal year to date and clean result.
+        hours_billed_fytd = clean_result(TimecardObject.objects.filter(
             timecard__reporting_period__start_date__gte=fytd_start_date,
             timecard__reporting_period__end_date__lte=requested_date,
             project__accounting_code__billable=True
-        ).aggregate(
-            Sum(
-                'hours_spent'
-            )
-        )['hours_spent__sum']
-        if hours_billed_fytd:
-            pass
-        else:
-            hours_billed_fytd = 0
+        ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
+        rev_fytd = hours_billed_fytd * labor_rate
 
-        # Set variables for context.
-        hours_diff_cr_ytd = \
-            float(hours_billed_fytd) - hours_required_cr_fytd
-        hours_diff_plan_ytd = \
-            float(hours_billed_fytd) - hours_required_plan_fytd
-        variance_required_cr_fytd = \
-            hours_diff_cr_ytd / hours_required_cr_fytd
-        variance_required_plan_fytd = \
-            hours_diff_plan_ytd / hours_required_plan_fytd
-
-        # Get data for reporting period.
-        hours_required_cr_weekly = 3500
-        hours_required_plan_weekly = 3000
-        hours_billed_weekly = TimecardObject.objects.filter(
+        # Get data for reporting period and clean result.
+        hours_billed_weekly = clean_result(TimecardObject.objects.filter(
             timecard__reporting_period__start_date=\
                 rp_selected.start_date.strftime('%Y-%m-%d'),
             project__accounting_code__billable=True
-        ).aggregate(
-            Sum(
-                'hours_spent'
-            )
-        )['hours_spent__sum']
-        if hours_billed_weekly:
-            pass
-        else:
-            hours_billed_weekly = 0
+        ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
+        rev_weekly = hours_billed_weekly * labor_rate
 
-        # Set variables for context.
-        hours_diff_cr_weekly = \
-            float(hours_billed_weekly) - hours_required_cr_weekly
-        hours_diff_plan_weekly = \
-            float(hours_billed_weekly) - hours_required_plan_weekly
-        variance_required_cr_weekly = \
-            hours_diff_cr_weekly / hours_required_cr_weekly
-        variance_required_plan_weekly = \
-            hours_diff_plan_weekly / hours_required_plan_weekly
+        variance_cr_ytd, p_variance_cr_fytd = calc_result(
+            hours_billed_fytd, hours_required_cr_fytd
+        )
+        variance_plan_fytd, p_variance_plan_fytd = calc_result(
+            hours_billed_fytd, hours_required_plan_fytd
+        )
+        variance_cr_weekly, p_variance_cr_weekly = calc_result(
+            hours_billed_weekly, hours_required_cr_weekly
+        )
+        variance_plan_weekly, p_variance_plan_weekly = calc_result(
+            hours_billed_weekly, hours_required_plan_weekly
+        )
+        variance_rev_cr_ytd, p_variance_rev_cr_ytd = calc_result(
+            rev_fytd, revenue_required_cr_fytd
+        )
+        variance_rev_plan_ytd, p_variance_rev_plan_ytd = calc_result(
+            rev_fytd, revenue_required_plan_fytd
+        )
+        variance_rev_cr_weekly, p_variance_rev_cr_weekly = calc_result(
+            rev_weekly, revenue_required_cr_weekly
+        )
+        variance_rev_plan_weekly, p_variance_rev_plan_weekly = calc_result(
+            rev_weekly, revenue_required_plan_weekly
+        )
 
         # Update context.
         context.update(
-            {   'rp_selected':rp_selected,
+            {
+                # Target info.
+                'revenue_required_cr':'${:,}'.format(
+                    revenue_required_cr
+                ),
+                'revenue_required_plan':'${:,}'.format(
+                    revenue_required_plan
+                ),
+                # Rate info.
+                'labor_rate':'${:,}'.format(
+                    labor_rate
+                ),
+                # Temporal info.
+                'rp_selected':rp_selected,
                 'fytd_start_date':fytd_start_date,
+                # Annual performance
                 'hours_required_cr_fytd':'{:,}'.format(
                     round(hours_required_cr_fytd,2)
                 ),
@@ -137,18 +183,40 @@ class DashboardView(TemplateView):
                 'hours_billed_fytd':'{:,}'.format(
                     round(hours_billed_fytd,2)
                 ),
-                'hours_diff_cr_ytd':'{:,}'.format(
-                    round(hours_diff_cr_ytd,2)
+                'variance_cr_ytd':'{:,}'.format(
+                    round(variance_cr_ytd,2)
                 ),
-                'hours_diff_plan_ytd':'{:,}'.format(
-                    round(hours_diff_plan_ytd,2)
+                'variance_plan_fytd':'{:,}'.format(
+                    round(variance_plan_fytd,2)
                 ),
-                'variance_required_cr_fytd':'{0:.2%}'.format(
-                    variance_required_cr_fytd
+                'p_variance_cr_fytd':'{0:.2%}'.format(
+                    p_variance_cr_fytd
                 ),
-                'variance_required_plan_fytd':'{0:.2%}'.format(
-                    variance_required_plan_fytd
+                'p_variance_plan_fytd':'{0:.2%}'.format(
+                    p_variance_plan_fytd
                 ),
+                'revenue_required_cr_fytd':'${:,}'.format(
+                    round(revenue_required_cr_fytd)
+                ),
+                'revenue_required_plan_fytd':'${:,}'.format(
+                    round(revenue_required_plan_fytd)
+                ),
+                'rev_fytd':'${:,}'.format(
+                    round(rev_fytd)
+                ),
+                'variance_rev_cr_ytd':'${:,}'.format(
+                    round(variance_rev_cr_ytd)
+                ),
+                'variance_rev_plan_ytd':'${:,}'.format(
+                    round(variance_rev_plan_ytd)
+                ),
+                'p_variance_rev_cr_ytd':'{0:.2%}'.format(
+                    p_variance_rev_cr_ytd
+                ),
+                'p_variance_rev_plan_ytd':'{0:.2%}'.format(
+                    p_variance_rev_plan_ytd
+                ),
+                # Weekly performance.
                 'hours_required_cr_weekly':'{:,}'.format(
                     round(hours_required_cr_weekly,2)
                 ),
@@ -158,18 +226,40 @@ class DashboardView(TemplateView):
                 'hours_billed_weekly':'{:,}'.format(
                     round(hours_billed_weekly,2)
                 ),
-                'hours_diff_cr_weekly':'{:,}'.format(
-                    round(hours_diff_cr_weekly,2)
+                'variance_cr_weekly':'{:,}'.format(
+                    round(variance_cr_weekly,2)
                 ),
-                'hours_diff_plan_weekly':'{:,}'.format(
-                    round(hours_diff_plan_weekly,2)
+                'variance_plan_weekly':'{:,}'.format(
+                    round(variance_plan_weekly,2)
                 ),
-                'variance_required_cr_weekly':'{0:.2%}'.format(
-                    variance_required_cr_weekly
+                'p_variance_cr_weekly':'{0:.2%}'.format(
+                    p_variance_cr_weekly
                 ),
-                'variance_required_plan_weekly':'{0:.2%}'.format(
-                    variance_required_plan_weekly
+                'p_variance_plan_weekly':'{0:.2%}'.format(
+                    p_variance_plan_weekly
                 ),
+                'revenue_required_cr_weekly':'${:,}'.format(
+                    round(revenue_required_cr_weekly)
+                ),
+                'revenue_required_plan_weekly':'${:,}'.format(
+                    round(revenue_required_plan_weekly)
+                ),
+                'rev_weekly':'${:,}'.format(
+                    round(rev_weekly)
+                ),
+                'variance_rev_cr_weekly':'${:,}'.format(
+                    round(variance_rev_cr_weekly)
+                ),
+                'variance_rev_plan_weekly':'${:,}'.format(
+                    round(variance_rev_plan_weekly)
+                ),
+                'p_variance_rev_cr_weekly':'{0:.2%}'.format(
+                    p_variance_rev_cr_weekly
+                ),
+                'p_variance_rev_plan_weekly':'{0:.2%}'.format(
+                    p_variance_rev_plan_weekly
+                ),
+
             }
         )
         return context

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="reporting-periods">
+	<h2>18F Operations Dashboard Reports</h2>
+
+<h3>Available reports:</h3>
+	<ul>
+	{% for reporting_period in object_list %}
+	    <li><a href="{% url 'reports:DashboardView' reporting_period.end_date %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> </li>
+	{% endfor %}
+	</ul>
+</div>
+
+
+
+{% endblock %}
