@@ -2,12 +2,12 @@
 
 {% block content %}
 
-<table class="table-minimal report_table">
+<table>
   <caption>
     <h2>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
   </caption>
   <thead>
-    <tr class="report_table__header-row">
+    <tr>
       <th>Project</th>
       <th>Billable</th>
       <th>Number of Hours</th>
@@ -15,8 +15,8 @@
   </thead>
   {% for entry in object.timecardobjects.all %}
   <tbody>
-    <tr class="report_table__row">
-      <td>{{ entry.project }}</td>
+    <tr>
+      <th scope="row">{{ entry.project }}</th>
       <td>
       {% if entry.project.is_billable %}
         <i class="fa fa-money icon-green"></i> <em>Billable</em>
@@ -27,7 +27,7 @@
       <td>{{ entry.hours_spent }}</td>
     </tr>
     {% if entry.notes %}
-    <tr class="report_table__row">
+    <tr>
       <td colspan="3">
         <strong>Notes entered for {{ entry.project }}</strong><br />
         <ul>
@@ -44,19 +44,19 @@
 <div>First Submitted: {{ object.created }}</div>
 Last Changed: {{ object.modified }}
 
-<table class="table-minimal report_table">
+<table>
   <caption>
     <h3>Reporting Period Summary</h3>
   </caption>
   <thead>
-    <tr class="report_table__header-row">
+    <tr>
       <th>Billable Hours</th>
       <th>Total Hours</th>
       <th>Billable %<br><span class="table-subtext">(billable hrs / total hrs)</span></th>
     </tr>
   </thead>
   <tbody>
-    <tr class="report_table__header-row">
+    <tr>
       <td> {{ user_billable_hours }} </td>
       <td> {{ user_all_hours }} </td>
       <td> {{ user_utilization }} </td>

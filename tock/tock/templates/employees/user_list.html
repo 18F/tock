@@ -2,12 +2,12 @@
 
 {% block content %}
 
-<table class="table-minimal report_table">
+<table class="report_table">
   <caption>
     <h2>Tock Users</h2>
   </caption>
   <thead>
-    <tr class="report_table__header-row">
+    <tr>
       <th>Email Address</th>
       <th>First Name</th>
       <th>Last Name</th>
@@ -17,15 +17,15 @@
   </thead>
   {% for user in object_list %}
   <tbody>
-    <tr class="report_table__row">
+    <tr>
       <td>
-        {% if request.user.is_superuser %}
-          <a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
-        {% elif request.user.username == user.username %}
-          <a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
-        {% else %}
-          <a href="/employees/{{ user.username }}">{{ user.username }}</a>
-        {% endif %}
+      {% if request.user.is_superuser %}
+        <a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
+      {% elif request.user.username == user.username %}
+        <a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
+      {% else %}
+        <a href="/employees/{{ user.username }}">{{ user.username }}</a>
+      {% endif %}
       </td>
       <td>{{ user.first_name }}</td>
       <td>{{ user.last_name }}</td>
