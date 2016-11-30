@@ -95,9 +95,6 @@ class DashboardView(TemplateView):
             requested_date-fytd_start_date
         ).days)/365
 
-        # Get labor rate.
-        labor_rate = 100 # Per hour.
-
         # Get initial targets.
         try:
             target = Targets.objects.get(
@@ -134,7 +131,7 @@ class DashboardView(TemplateView):
             timecard__reporting_period__end_date__lte=requested_date,
             project__accounting_code__billable=True
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
-        rev_fytd = hours_billed_fytd * labor_rate
+        rev_fytd = hours_billed_fytd * target.labor_rate
 
         # Get data for reporting period and clean result.
         hours_billed_weekly = clean_result(TimecardObject.objects.filter(
@@ -142,7 +139,7 @@ class DashboardView(TemplateView):
                 rp_selected.start_date.strftime('%Y-%m-%d'),
             project__accounting_code__billable=True
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
-        rev_weekly = hours_billed_weekly * labor_rate
+        rev_weekly = hours_billed_weekly * target.labor_rate
 
         variance_cr_ytd, p_variance_cr_fytd = calc_result(
             hours_billed_fytd, hours_required_cr_fytd
@@ -181,7 +178,7 @@ class DashboardView(TemplateView):
                 ),
                 # Rate info.
                 'labor_rate':'${:,}'.format(
-                    labor_rate
+                    target.labor_rate
                 ),
                 # Temporal info.
                 'rp_selected':rp_selected,
