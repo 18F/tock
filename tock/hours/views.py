@@ -68,7 +68,6 @@ class DashboardView(TemplateView):
             except ZeroDivisionError:
                 return 0, 0
 
-
         # Get base context.
         context = super(DashboardView, self).get_context_data(**kwargs)
 

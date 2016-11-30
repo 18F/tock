@@ -33,6 +33,188 @@ def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
     return csv.DictReader(lines, **reader_options)
 
+class DashboardReportsListTests(WebTest):
+    fixtures = ['tock/fixtures/prod_user.json',]
+
+    def setUp(self):
+        self.user = User.objects.first()
+        self.rp_1 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 1),
+            end_date=datetime.date(2016, 10, 7)
+        )
+        self.rp_2 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 8),
+            end_date=datetime.date(2016, 10, 14)
+        )
+
+    def test_response_ok(self):
+        response = self.app.get(
+            reverse('reports:DashboardReportsList'),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_template_render(self):
+        response = self.app.get(
+            reverse('reports:DashboardReportsList'),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            hours.models.ReportingPeriod.objects.all().count(),
+            len(response.context['reportingperiod_list'])
+        )
+
+class DashboardViewTests(WebTest):
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'projects/fixtures/projects.json',
+        'employees/fixtures/user_data.json'
+    ]
+
+    def setUp(self):
+        self.user = User.objects.first()
+        ud = UserData.objects.first()
+        ud.user = self.user
+        ud.save()
+        self.rp_1 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 1),
+            end_date=datetime.date(2016, 10, 7),
+            exact_working_hours=40
+        )
+        self.rp_2 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 8),
+            end_date=datetime.date(2016, 10, 14),
+            exact_working_hours=40
+        )
+        self.target = hours.models.Targets.objects.create(
+            start_date=datetime.date(2016, 10, 1),
+            end_date=datetime.date(2017, 9, 30),
+            revenue_target_cr=100,
+            revenue_target_plan=80,
+            hours_target_cr=80,
+            hours_target_plan=40,
+            labor_rate=100,
+            periods=40
+        )
+        self.timecard_1 = hours.models.Timecard.objects.create(
+            reporting_period=self.rp_1,
+            user=self.user,
+            submitted=True
+        )
+        self.timecard_2 = hours.models.Timecard.objects.create(
+            reporting_period=self.rp_2,
+            user=self.user,
+            submitted=True
+        )
+
+        ac_1 = projects.models.AccountingCode.objects.first()
+        ac_1.billable = True
+        ac_1.save()
+        ac_2 = projects.models.AccountingCode.objects.last()
+        ac_2.billable = False
+        ac_2.save()
+        self.project_1 = projects.models.Project.objects.first()
+        self.project_1.accounting_code = ac_1
+        self.project_1.save()
+        self.project_2 = projects.models.Project.objects.last()
+        self.project_2.accounting_code = ac_2
+        self.project_2.save()
+
+        to_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1,
+            hours_spent=30,
+            submitted=True
+        )
+        to_2 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_2,
+            hours_spent=10,
+            submitted=True
+        )
+        to_3 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_2,
+            project=self.project_1,
+            hours_spent=15,
+            submitted=True
+        )
+        to_4 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_2,
+            project=self.project_2,
+            hours_spent=25,
+            submitted=True
+        )
+
+    def test_response_ok(self):
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period':'1999-12-31'}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_no_reporting_period(self):
+        """Tests errors are handled when there is no matching reporting
+        period."""
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period':'1999-12-31'}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertContains(response, 'Whoops!')
+        self.assertContains(response, '1999-12-31')
+
+    def test_no_targets(self):
+        """Tests that errors are handled when there is a reporting period but
+        no targets for that reporting period."""
+        for obj in hours.models.Targets.objects.all():
+            obj.delete()
+        date = hours.models.ReportingPeriod.objects.first().start_date.strftime(
+            '%Y-%m-%d'
+        )
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertContains(response, 'Whoops')
+        self.assertContains(response, date)
+
+    def test_template_render(self):
+        date = self.rp_2.end_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertContains(response, '<td>$4,500</td>')
+        self.assertContains(response, '<td>13.0 (650.00%)</td>')
+        self.assertContains(response, '<td>$1,498 (59900.00%)</td>')
+
+    def test_random_but_viable_date(self):
+        """Tests that a date that is not a start date or end date of a
+        reporting period returns a valid and correct response."""
+        date = '2016-10-03'
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        self.assertContains(response, '18F Operations Dashboard')
+        self.assertEqual(response.context['rp_selected'], self.rp_1)
+
 class CSVTests(TestCase):
     fixtures = FIXTURES
 
