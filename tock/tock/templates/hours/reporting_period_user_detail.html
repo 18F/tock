@@ -2,9 +2,10 @@
 
 {% block content %}
 
-<h2>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
-
 <table class="table-minimal report_table">
+  <caption>
+    <h2>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
+  </caption>
   <thead>
     <tr class="report_table__header-row">
       <th>Project</th>
@@ -43,8 +44,10 @@
 <div>First Submitted: {{ object.created }}</div>
 Last Changed: {{ object.modified }}
 
-<h3>Reporting Period Summary</h3>
 <table class="table-minimal report_table">
+  <caption>
+    <h3>Reporting Period Summary</h3>
+  </caption>
   <thead>
     <tr class="report_table__header-row">
       <th>Billable Hours</th>
