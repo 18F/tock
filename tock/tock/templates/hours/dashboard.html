@@ -27,46 +27,53 @@
 <i>{{ fytd_start_date }} to {{ rp_selected.end_date }}</i>
 <h4>Hours</h4>
 <table>
-  <tr>
-    <th></th>
-    <th>FYTD Target</th>
-    <th>FYTD Performance</th>
-    <th>Variance</th>
-  </tr>
-  <tr>
-    <td>Cost Recovery</td>
-    <td>{{ hours_required_cr_fytd }}</td>
-    <td>{{ hours_billed_fytd }}</td>
-    <td>{{ variance_cr_ytd }} ({{ p_variance_cr_fytd }})</td>
-  </tr>
-  <tr>
-    <td>Financial Plan</td>
-    <td>{{ hours_required_plan_fytd }}</td>
-    <td>{{ hours_billed_fytd }}</td>
-    <td>{{ variance_plan_fytd }} ({{ p_variance_plan_fytd }})</td>
-  </tr>
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col">FYTD Target</th>
+      <th scope="col">FYTD Performance</th>
+      <th scope="col">Variance</th>
+    </tr>
+  <tbody>
+    <tr>
+      <th scope="row">Cost Recovery</th>
+      <td>{{ hours_required_cr_fytd }}</td>
+      <td>{{ hours_billed_fytd }}</td>
+      <td>{{ variance_cr_ytd }} ({{ p_variance_cr_fytd }})</td>
+    </tr>
+    <tr>
+      <th scope="row">Financial Plan</th>
+      <td>{{ hours_required_plan_fytd }}</td>
+      <td>{{ hours_billed_fytd }}</td>
+      <td>{{ variance_plan_fytd }} ({{ p_variance_plan_fytd }})</td>
+    </tr>
+  </tbody>
 </table>
 <br>
 <h4>Revenue</h4>
 <table>
+  <thead>
+    <tr>
+      <th></th>
+      <th scope="col">FYTD Target</th>
+      <th scope="col">FYTD Performance</th>
+      <th scope="col">Variance</th>
+    </tr>
+  </thead>
+  <tbody>
   <tr>
-    <th></th>
-    <th>FYTD Target</th>
-    <th>FYTD Performance</th>
-    <th>Variance</th>
-  </tr>
-  <tr>
-    <td>Cost Recovery</td>
-    <td>{{ revenue_required_cr_fytd }}</td>
-    <td>{{ rev_fytd }}</td>
-    <td>{{ variance_rev_cr_ytd }} ({{ p_variance_rev_cr_ytd }})</td>
-  </tr>
-  <tr>
-    <td>Financial Plan</td>
-    <td>{{ revenue_required_plan_fytd }}</td>
-    <td>{{ rev_fytd }}</td>
-    <td>{{ variance_rev_plan_ytd }} ({{ p_variance_rev_plan_ytd }})</td>
-  </tr>
+    <th scope="row">Cost Recovery</th>
+      <td>{{ revenue_required_cr_fytd }}</td>
+      <td>{{ rev_fytd }}</td>
+      <td>{{ variance_rev_cr_ytd }} ({{ p_variance_rev_cr_ytd }})</td>
+    </tr>
+    <tr>
+      <th scope="row">Financial Plan</th>
+      <td>{{ revenue_required_plan_fytd }}</td>
+      <td>{{ rev_fytd }}</td>
+      <td>{{ variance_rev_plan_ytd }} ({{ p_variance_rev_plan_ytd }})</td>
+    </tr>
+  </tbody>
 </table>
 
 <hr>
@@ -74,46 +81,54 @@
 <i>{{ rp_selected.start_date }} to {{ rp_selected.end_date }}</i>
 <h4>Hours</h4>
 <table>
-  <tr>
-    <th></th>
-    <th>Weekly Target</th>
-    <th>Weekly Performance</th>
-    <th>Variance</th>
-  </tr>
-  <tr>
-    <td>Cost Recovery</td>
-    <td>{{ hours_required_cr_weekly }}</td>
-    <td>{{ hours_billed_weekly }}</td>
-    <td>{{ variance_cr_weekly }} ({{ p_variance_cr_weekly }})</td>
-  </tr>
-  <tr>
-    <td>Financial Plan</td>
-    <td>{{ hours_required_plan_weekly }}</td>
-    <td>{{ hours_billed_weekly }}</td>
-    <td>{{ variance_plan_weekly }} ({{ p_variance_plan_weekly }})</td>
-  </tr>
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col">Weekly Target</th>
+      <th scope="col">Weekly Performance</th>
+      <th scope="col">Variance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Cost Recovery</th>
+      <td>{{ hours_required_cr_weekly }}</td>
+      <td>{{ hours_billed_weekly }}</td>
+      <td>{{ variance_cr_weekly }} ({{ p_variance_cr_weekly }})</td>
+    </tr>
+    <tr>
+      <th scope="row">Financial Plan</th>
+      <td>{{ hours_required_plan_weekly }}</td>
+      <td>{{ hours_billed_weekly }}</td>
+      <td>{{ variance_plan_weekly }} ({{ p_variance_plan_weekly }})</td>
+    </tr>
+  </tbody>
 </table>
 <br>
 <h4>Revenue</h4>
 <table>
-  <tr>
-    <th></th>
-    <th>Weekly Target</th>
-    <th>Weekly Performance</th>
-    <th>Variance</th>
-  </tr>
-  <tr>
-    <td>Cost Recovery</td>
-    <td>{{ revenue_required_cr_weekly }}</td>
-    <td>{{ rev_weekly }}</td>
-    <td>{{ variance_rev_cr_weekly }} ({{ p_variance_rev_cr_weekly }})</td>
-  </tr>
-  <tr>
-    <td>Financial Plan</td>
-    <td>{{ revenue_required_plan_weekly }}</td>
-    <td>{{ rev_weekly }}</td>
-    <td>{{ variance_rev_plan_weekly }} ({{ p_variance_rev_plan_weekly }})</td>
-  </tr>
+  <thead>
+    <tr>
+      <th scope="col"></th>
+      <th scope="col">Weekly Target</th>
+      <th scope="col">Weekly Performance</th>
+      <th scope="col">Variance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Cost Recovery</th>
+      <td>{{ revenue_required_cr_weekly }}</td>
+      <td>{{ rev_weekly }}</td>
+      <td>{{ variance_rev_cr_weekly }} ({{ p_variance_rev_cr_weekly }})</td>
+    </tr>
+    <tr>
+      <th scope="row">Financial Plan</th>
+      <td>{{ revenue_required_plan_weekly }}</td>
+      <td>{{ rev_weekly }}</td>
+      <td>{{ variance_rev_plan_weekly }} ({{ p_variance_rev_plan_weekly }})</td>
+    </tr>
+  </tbody>
 </table>
 
 
