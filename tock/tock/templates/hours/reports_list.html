@@ -18,23 +18,23 @@
 	{% endif %}
 	<li>Complete timecard data:
 		<a href="{% url 'reports:BulkTimecardList' %}">All</a>
-		<a href="{% url 'reports:BulkTimecardList' %}?after=2016-10-01">FY2017</a>
+		<a href="{% url 'reports:BulkTimecardList' %}?after=2016-10-02">FY2017</a>
 	</li>
 	<li>Complete timecard data with fewer fields:
 		<a href="{% url 'reports:SlimBulkTimecardList' %}">All</a>
-		<a href="{% url 'reports:SlimBulkTimecardList' %}?after=2016-10-01">FY2017</a>
+		<a href="{% url 'reports:SlimBulkTimecardList' %}?after=2016-10-02">FY2017</a>
 	</li>
 	<li>Complete snippet data for 'General':
 			<a href="{% url 'reports:GeneralSnippetsView' %}">All</a>
-			<a href="{% url 'reports:GeneralSnippetsView' %}?after=2016-10-01">FY2017</a>
+			<a href="{% url 'reports:GeneralSnippetsView' %}?after=2016-10-02">FY2017</a>
 	</li>
 	<li>Aggregate hourly data by project and reporting period:
 		<a href="{% url 'reports:ProjectTimelineView' %}">All</a>
-		<a href="{% url 'reports:ProjectTimelineView' %}?after=2016-10-01">FY2017</a>
+		<a href="{% url 'reports:ProjectTimelineView' %}?after=2016-10-02">FY2017</a>
 	</li>
 	<li>Aggregate hourly data by user, reporting period, and project billable status:
 		<a href="{% url 'reports:UserTimelineView' %}">All</a>
-		<a href="{% url 'reports:UserTimelineView' %}?after=2016-10-01">FY2017</a>
+		<a href="{% url 'reports:UserTimelineView' %}?after=2016-10-02">FY2017</a>
 	</li>
 	<li><a href="{% url 'reports:ProjectList' %}">List of all projects</a></li>
 	<li><a href="{% url 'reports:UserDataView' %}">List of all users</a></li>
