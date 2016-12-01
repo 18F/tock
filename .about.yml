@@ -14,24 +14,27 @@ full_name: Tock
 # What is the problem your project solves? What is the solution? Use the
 # format shown below. The #dashboard team will gladly help you put this
 # together for your project. (required)
-description:
+description: |
+  18F uses Tock to track our time, so that we can bill clients accurately and meet our legal and regulatory obligations.
 
 # What is the measurable impact of your project? Use the format shown below.
 # The #dashboard team will gladly help you put this together for your project.
 # (required)
-impact:
+impact: |
+  We built a web app that allows 18F employees to log the hours they spend on various projects.
+  We use this information for client billing and for internal analytics on what our team is working on.
 
 # What kind of team owns the repository? (required)
 # values: guild, working-group, project
-owner_type:
+owner_type: project
 
 # What is your project's current status? (required)
 # values: discovery, alpha, beta, live
-stage:
+stage: live
 
 # Should this repo have automated tests? If so, set to `true`. (required)
 # values: true, false
-testable:
+testable: true
 
 # What are the licenses that apply to the project and/or its components?
 # (required)
@@ -46,7 +49,7 @@ licenses:
 # documented here:
 # https://github.com/18F/dashboard/blob/staging/_data/partners.yml)
 partners:
-- 
+- 18F
 
 # The main point of contact(s) and/or the issue reporting system for your
 # project, and either a `mailto:` link or URL for each contact.
@@ -54,7 +57,8 @@ partners:
 # - url: URL for the link
 #   text: Anchor text for the link
 contact:
-- 
+- url: https://github.com/18F/tock/issues
+  text: Tock Issue Tracker
 
 # Who are the team members on your project? You can specify GitHub usernames,
 # email addresses, or other organizational usernames. (required)
@@ -63,19 +67,27 @@ contact:
 #   id: Internal team identifier/user name
 #   role: Team member's role; leads should be designated as 'lead'
 team:
-- 
+- github: @joshuabailes
+  role: product owner
 
+- github: @abrouilette
+  role: project manager
+  
+- github: @batemapf
+  role: developer
+  
+- github: @annalee
+  role: tech lead
+  
+- github: @maya
+  role: front-end design and development
+  
+- github: @lauraponce
+  role: research
+  
 # What kind of content is contained in the project repository?
 # values: app, docs, policy
-type:
-
-# What are the key milestones you've achieved recently?
-milestones:
-- 
-
-# Name of the main project repo if this is a sub-repo; name of the grouplet
-# repo if this is a working group/guild subproject
-parent:
+type: app
 
 # What are the links to key artifacts associated with your project? e.g. the
 # production site, documentation.
@@ -84,16 +96,15 @@ parent:
 #   text: Anchor text for the link
 #   category: Type of the link
 links:
-- 
-
-# What tags does your organization's blog associate with your project? You can
-# find a list of 18F blog tags here: https://18f.gsa.gov/tags/
-blogTag:
-- 
+- url: https://tock.18f.gov/
+  text: Tock production site
 
 # What technologies are used in this project?
 stack:
-- 
+- Cloud.gov
+- Cloud.gov authentication
+- Django
+- Docker
 
 # What are the services used to supply project status information?
 # Items:
