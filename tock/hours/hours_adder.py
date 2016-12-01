@@ -1,5 +1,5 @@
 from django.template.defaultfilters import pluralize
-from django.core.urlresolvers import reverse
+from decimal import Decimal, InvalidOperation
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 
 class HoursAdder(object):
@@ -31,10 +31,16 @@ class HoursAdder(object):
     def perform_operation(self):
         error_msg = "Oops. That command was not correct and no time was added to your timecard. Try again by entering a URL with this format: tock.gov/addHours?project=231&hours=1"
         try:
+            self.hours = Decimal(self.hours)
+        except InvalidOperation:
+            self.message = error_msg
+            return
+
+        try:
             project = Project.objects.get(id=self.project_id)
         except Project.DoesNotExist:
             self.message = error_msg
-            self.operation_was_successful = False
+            return
 
         tc, created = Timecard.objects.get_or_create(
             reporting_period_id=self.reporting_period_id,
@@ -49,14 +55,12 @@ class HoursAdder(object):
 
         if self.hours is None:
             self.message = error_msg
-            self.operation_was_successful = False
             return
 
         if tco.hours_spent is None:
             tco.hours_spent = 0
 
-        updated_hours = tco.hours_spent + self.hours
-        updated_hours = max(0, updated_hours)
+        updated_hours = max(0, tco.hours_spent + self.hours)
         tco.hours_spent = updated_hours
         tco.save()
 

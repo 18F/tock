@@ -593,7 +593,7 @@ def add_hours_view(request):
     reporting_period = ReportingPeriod.objects.latest()
     hours_adder = HoursAdder(
         project_id = request.GET['project'],
-        hours = Decimal(request.GET['hours']),
+        hours = request.GET['hours'],
         user_id = request.user.id,
         reporting_period_id = reporting_period.id
     )
