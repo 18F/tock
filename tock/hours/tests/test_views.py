@@ -568,7 +568,7 @@ class ReportTests(WebTest):
             )
         )
         self.assertEqual(
-            len(response.html.find_all('tr', {'class': 'user'})), 2
+            len(response.html.find_all('tbody')), 2
         )
 
     def test_ReportingPeriodDetailView_add_submitted_time(self):
@@ -593,12 +593,11 @@ class ReportTests(WebTest):
         tables = response.html.find_all('table')
         not_filed_time = tables[0]
         filed_time = tables[1]
-
         self.assertEqual(
-            len(not_filed_time.find_all('tr', {'class': 'user'})), 0
+            len(not_filed_time.find_all('tbody')), 0
         )
         self.assertEqual(
-            len(filed_time.find_all('tr', {'class': 'user'})), 2
+            len(filed_time.find_all('tbody')), 2
         )
 
 
@@ -626,10 +625,10 @@ class ReportTests(WebTest):
         filed_time = tables[1]
 
         self.assertEqual(
-            len(not_filed_time.find_all('tr', {'class': 'user'})), 1
+            len(not_filed_time.find_all('tbody')), 1
         )
         self.assertEqual(
-            len(filed_time.find_all('tr', {'class': 'user'})), 1
+            len(filed_time.find_all('tbody')), 1
         )
 
     def test_ReportingPeriodDetailView_current_employee_toggle(self):
@@ -644,6 +643,6 @@ class ReportTests(WebTest):
             )
         )
         self.assertEqual(
-            len(response.html.find_all('tr', {'class': 'user'})), 3
+            len(response.html.find_all('tbody')), 3
         )
         self.former_employee

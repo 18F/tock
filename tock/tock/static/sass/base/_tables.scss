@@ -24,9 +24,14 @@ th {
   vertical-align: middle;
 }
 
+caption {
+  text-align: left;
+}
+
 // Custom table styles
 .table-subtext {
   color: $color-gray;
   font-size: $h6-font-size;
   font-style: italic;
+  font-weight: $font-normal;
 }
