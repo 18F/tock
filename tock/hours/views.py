@@ -38,6 +38,7 @@ from .forms import (
     timecard_formset_factory
 )
 from utilization.utils import calculate_utilization, get_fy_first_day
+from .hours_adder import HoursAdder
 
 class DashboardReportsList(ListView):
     template_name = 'hours/dashboard_list.html'
@@ -312,7 +313,6 @@ class DashboardView(TemplateView):
             }
         )
         return context
-
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -589,64 +589,29 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
     def get_success_url(self):
         return reverse("ListReportingPeriods")
 
-def display_add_hours_error_message(request):
-    error_msg = "Oops. That command was not correct and no time was added to your timecard. Try again by entering a URL with this format: tock.gov/addHours?project=231&hours=1"
-    messages.add_message(
-        request,
-        messages.ERROR,
-        error_msg
+def add_hours_view(request):
+    reporting_period = ReportingPeriod.objects.latest()
+    hours_adder = HoursAdder(
+        project_id = request.GET['project'],
+        hours = Decimal(request.GET['hours']),
+        user_id = request.user.id,
+        reporting_period_id = reporting_period.id
     )
 
+    hours_adder.perform_operation()
 
-def add_hours_view(request):
-    project_id = request.GET['project']
-    hours = Decimal(request.GET['hours'])
-    r = ReportingPeriod.objects.latest()
-
-    try:
-        proj = Project.objects.get(id=project_id)
-    except Project.DoesNotExist:
-        display_add_hours_error_message(request)
-        return redirect(reverse('reportingperiod:UpdateTimesheet', args=[r]))
-
-    tc, created = Timecard.objects.get_or_create(
-        reporting_period_id=r.id,
-        user_id=request.user.id)
-
-    if created:
-        tc.save()
-
-    tco, created = TimecardObject.objects.get_or_create(
-        timecard_id=tc.id,
-        project_id=proj.id)
-
-    if tco.hours_spent is None:
-        tco.hours_spent = 0
-        display_add_hours_error_message(request)
-        return redirect(reverse('reportingperiod:UpdateTimesheet', args=[r]))
-
-    updated_hours = tco.hours_spent + hours
-    updated_hours = max(0, updated_hours)
-
-    tco.hours_spent = updated_hours
-    tco.save()
-
-    if hours > 0:
-        plural_hours = pluralize(hours, 'hour,hours')
-        has = pluralize(hours, 'has,have')
-        undo_query = "?hours=-%s&project=%s" % (hours, proj.id)
-        undo_url = reverse('AddHours') + undo_query
-        undo_tag = "<a href=\"%s\">Undo</a>" % (undo_url)
-        msg = "%s %s %s been added to %s. %s" % (hours, plural_hours, has,
-                proj.name, undo_tag)
+    if hours_adder.successful():
+        message_type = messages.INFO
     else:
-        plural_hours = pluralize(-hours, 'hour,hours')
-        has = pluralize(-hours, 'has,have')
-        msg = "%s %s %s been removed from %s." % (-hours, plural_hours, has,
-                proj.name)
+        message_type = messages.ERROR
 
-    messages.add_message(request, messages.INFO, msg)
-    return redirect(reverse('reportingperiod:UpdateTimesheet', args=[r]))
+    messages.add_message(
+        request,
+        message_type,
+        hours_adder.message
+    )
+    return redirect(reverse('reportingperiod:UpdateTimesheet', args=[reporting_period]))
+
 
 class TimecardView(UpdateView):
     form_class = TimecardForm
