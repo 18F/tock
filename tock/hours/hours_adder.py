@@ -12,14 +12,14 @@ class HoursAdder(object):
         self.message = "Unknown error"
         self.user_id = kwargs.get('user_id', None)
         self.operation_was_successful = False
+        self.undo_url = kwargs.get('undo_url', '')
 
     def generate_successful_message(self, hours, project):
         if hours > 0:
             plural_hours = pluralize(hours, 'hour,hours')
             has = pluralize(hours, 'has,have')
             undo_query = "?hours=-%s&project=%s" % (hours, project.id)
-            undo_url = reverse('AddHours') + undo_query
-            undo_tag = "<a href=\"%s\">Undo</a>" % (undo_url)
+            undo_tag = "<a href=\"%s\">Undo</a>" % (self.undo_url + undo_query)
             return "%s %s %s been added to %s. %s" % (hours, plural_hours, has,
                     project.name, undo_tag)
 
@@ -29,7 +29,13 @@ class HoursAdder(object):
                 project.name)
 
     def perform_operation(self):
-        error_msg = "Oops. That command was not correct and no time was added to your timecard. Try again by entering a URL with this format: tock.gov/addHours?project=231&hours=1"
+        error_msg = """
+            Oops.
+            That command was not correct and no time was added to your timecard.
+            Try again by entering a URL with this format:
+            tock.gov/addHours?project=231&hours=1
+        """
+
         try:
             self.hours = Decimal(self.hours)
         except InvalidOperation:

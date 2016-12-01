@@ -595,7 +595,8 @@ def add_hours_view(request):
         project_id = request.GET['project'],
         hours = request.GET['hours'],
         user_id = request.user.id,
-        reporting_period_id = reporting_period.id
+        reporting_period_id = reporting_period.id,
+        undo_url = reverse('AddHours')
     )
 
     hours_adder.perform_operation()
