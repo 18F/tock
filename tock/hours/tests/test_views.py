@@ -665,6 +665,16 @@ class ReportTests(WebTest):
         new_tco.refresh_from_db()
         self.assertEqual(new_tco.hours_spent, Decimal('12.12'))
 
+        undo_url = "%s?project=%d&hours=-2" % (reverse('AddHours'), new_project.id)
+
+        response = self.app.get(
+            undo_url, None,
+            headers={'X_AUTH_USER': self.user.email}
+        )
+        self.assertEqual(response.status_code, 302)
+        new_tco.refresh_from_db()
+        self.assertEqual(new_tco.hours_spent, Decimal('10.12'))
+
     def test_do_not_prefill_timecard(self):
         """
         Test that a timecard doesn't get prefilled
