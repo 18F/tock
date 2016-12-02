@@ -2,6 +2,13 @@ from django.template.defaultfilters import pluralize
 from decimal import Decimal, InvalidOperation
 from .models import ReportingPeriod, Timecard, TimecardObject, Project
 
+ERROR_MSG = """
+    Oops.
+    That command was not correct and no time was added to your timecard.
+    Try again by entering a URL with this format:
+    tock.gov/addHours?project=231&hours=1
+"""
+
 class HoursAdder(object):
     """Service object in charge of adding hours to a timecard object"""
 
@@ -28,25 +35,42 @@ class HoursAdder(object):
         return "%s %s %s been removed from %s." % (-hours, plural_hours, has,
                 project.name)
 
-    def perform_operation(self):
-        error_msg = """
-            Oops.
-            That command was not correct and no time was added to your timecard.
-            Try again by entering a URL with this format:
-            tock.gov/addHours?project=231&hours=1
-        """
+    def inputs_are_invalid(self):
+        if self.hours is None:
+            return True
+
+        if self.project_id is None:
+            return True
+
+        if self.reporting_period_id is None:
+            return True
 
         try:
             self.hours = Decimal(self.hours)
         except InvalidOperation:
-            self.message = error_msg
+            return True
+        except TypeError:
+            return True
+
+        try:
+            self.project_id = int(self.project_id)
+        except TypeError:
+            return True
+        except ValueError:
+            return True
+
+        return False
+
+    def perform_operation(self):
+        if self.inputs_are_invalid():
+            self.message = ERROR_MSG
             return
 
         try:
             project = Project.objects.get(id=self.project_id)
         except Project.DoesNotExist:
-            self.message = error_msg
-            return
+            self.message = ERROR_MSG
+            return True
 
         tc, created = Timecard.objects.get_or_create(
             reporting_period_id=self.reporting_period_id,
@@ -56,9 +80,6 @@ class HoursAdder(object):
             timecard_id=tc.id,
             project_id=project.id)
 
-        if self.hours is None:
-            self.message = error_msg
-            return
 
         if tco.hours_spent is None:
             tco.hours_spent = 0
