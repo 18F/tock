@@ -112,11 +112,33 @@ class DashboardView(TemplateView):
         )
 
         # Control for billable employees.
+
         billable_employees = UserData.objects.filter(
             is_billable=True,
             is_18f_employee=True,
-            current_employee=True
+            current_employee=True,
         )
+
+        units = []
+        for b_e in billable_employees:
+            units.append(
+                (
+                    b_e.unit,
+                    b_e.get_unit_display()
+                )
+            )
+
+        units = sorted(set(units), key=lambda x: x[1])
+        try:
+            if self.request.GET['unit']:
+                billable_employees = billable_employees.filter(
+                    unit=self.request.GET['unit']
+                )
+                unit_param = self.request.GET['unit']
+        except KeyError:
+            unit_param = None
+            pass
+
 
         # Calculate available hours.
         available_hours = billable_employees.count() * 6.5 * workdays
@@ -152,6 +174,7 @@ class DashboardView(TemplateView):
         for person in r.json()['people']:
             if person['im'] in billable_employees_usernames:
                 float_billable_employees.append(person['people_id'])
+
         # Get number of hours scheduled.
         r = requests.get(
             url='https://api.floatschedule.com/api/v1/tasks',
@@ -215,26 +238,38 @@ class DashboardView(TemplateView):
             )
             return context
 
+        # Get unit/org proportion.
+        if unit_param:
+            org_proportion = UserData.objects.filter(
+                unit=unit_param
+            ).count() / UserData.objects.count()
+        else:
+            org_proportion = 1
 
         # Calculated targets.
-        hours_required_cr_fytd = target.hours_target_cr * percent_of_year
-        hours_required_plan_fytd = target.hours_target_plan * percent_of_year
-        revenue_required_cr_fytd = target.revenue_target_cr * percent_of_year
+        hours_required_cr_fytd = \
+            target.hours_target_cr * percent_of_year * org_proportion
+        hours_required_plan_fytd = \
+            target.hours_target_plan * percent_of_year * org_proportion
+        revenue_required_cr_fytd = \
+            target.revenue_target_cr * percent_of_year * org_proportion
         revenue_required_plan_fytd = \
-            target.revenue_target_plan * percent_of_year
-        hours_required_cr_weekly = target.hours_target_cr / target.periods
+            target.revenue_target_plan * percent_of_year * org_proportion
+        hours_required_cr_weekly = \
+            (target.hours_target_cr / target.periods) * org_proportion
         hours_required_plan_weekly = \
-            target.hours_target_plan / target.periods
+            (target.hours_target_plan / target.periods) * org_proportion
         revenue_required_cr_weekly = \
-            target.revenue_target_cr / target.periods
+            (target.revenue_target_cr / target.periods) * org_proportion
         revenue_required_plan_weekly = \
-            target.revenue_target_plan / target.periods
+            (target.revenue_target_plan / target.periods) * org_proportion
 
         # Get hours billed for fiscal year to date and clean result.
         hours_billed_fytd = clean_result(TimecardObject.objects.filter(
             timecard__reporting_period__start_date__gte=fytd_start_date,
             timecard__reporting_period__end_date__lte=requested_date,
-            project__accounting_code__billable=True
+            project__accounting_code__billable=True,
+            timecard__user__user_data__in=billable_employees
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_fytd = hours_billed_fytd * target.labor_rate
 
@@ -242,7 +277,8 @@ class DashboardView(TemplateView):
         hours_billed_weekly = clean_result(TimecardObject.objects.filter(
             timecard__reporting_period__start_date=\
                 rp_selected.start_date.strftime('%Y-%m-%d'),
-            project__accounting_code__billable=True
+            project__accounting_code__billable=True,
+            timecard__user__user_data__in=billable_employees
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_weekly = hours_billed_weekly * target.labor_rate
 
@@ -273,7 +309,9 @@ class DashboardView(TemplateView):
 
         # Update context.
         context.update(
-            {   # Float data.
+            {   # Unit data.
+                'units':units,
+                # Float data.
                 'float_data':float_data,
                 # Target info.
                 'revenue_target_cr':'${:,}'.format(

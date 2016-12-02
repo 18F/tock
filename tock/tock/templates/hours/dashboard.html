@@ -21,8 +21,19 @@
 <li>Revenue performance calculated using a blended labor rate of {{ labor_rate }} per hour.</li>
 
 </ul>
-
-
+<h4>Select a unit or all:</h4>
+{% if request.GET.unit %}
+<a href="{% url 'reports:DashboardView' rp_selected.end_date %}">All</a> |
+{% else %}
+<b>All</b> |
+{% endif %}
+{% for unit in units %}
+  {% if unit.0|stringformat:"s" == request.GET.unit %}
+  <b>{{ unit.1 }}</b> |
+  {% else %}
+  <a href="{% url 'reports:DashboardView' rp_selected.end_date %}?unit={{ unit.0}}">{{ unit.1 }}</a> |
+  {% endif %}
+{% endfor %}
 <h3>Performance vs. Targets, Fiscal Year to Date</h3>
 <i>{{ fytd_start_date }} to {{ rp_selected.end_date }}</i>
 <h4>Hours</h4>
@@ -130,7 +141,7 @@
     </tr>
   </tbody>
 </table>
-
+<hr>
 <h3>Float Summary</h3>
 <i>{{ rp_selected.end_date }} to {{ rp_selected.future_date }} ({{ float_data.workdays }} work days); billable employees only</i>
 <table>
