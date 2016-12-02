@@ -86,8 +86,9 @@ class TimecardTests(TestCase):
         timecard = Timecard.objects.first()
         self.assertEqual(timecard.user.pk, 1)
         self.assertEqual(timecard.reporting_period.exact_working_hours, 40)
-        self.assertEqual(timecard.created.day, datetime.date.today().day)
-        self.assertEqual(timecard.modified.day, datetime.date.today().day)
+        today_utc_day = datetime.datetime.utcnow().day
+        self.assertEqual(timecard.created.day, today_utc_day)
+        self.assertEqual(timecard.modified.day, today_utc_day)
         self.assertEqual(len(timecard.time_spent.all()), 2)
 
     def test_time_card_unique_constraint(self):
@@ -112,8 +113,10 @@ class TimecardTests(TestCase):
         self.assertEqual(timecardobj.timecard.user.pk, 1)
         self.assertEqual(timecardobj.project.name, 'openFEC')
         self.assertEqual(timecardobj.hours_spent, 12)
-        self.assertEqual(timecardobj.created.day, datetime.date.today().day)
-        self.assertEqual(timecardobj.modified.day, datetime.date.today().day)
+        today_utc_day = datetime.datetime.utcnow().day
+
+        self.assertEqual(timecardobj.created.day, today_utc_day)
+        self.assertEqual(timecardobj.modified.day, today_utc_day)
 
     def test_timecardobject_hours(self):
         """Test the TimeCardObject hours method."""
