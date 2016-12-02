@@ -131,6 +131,39 @@
   </tbody>
 </table>
 
+<h3>Float Summary</h3>
+<i>{{ rp_selected.end_date }} to {{ rp_selected.future_date }} ({{ float_data.workdays }} work days); billable employees only</i>
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Available Hours
+        <br />
+        <span class="table-subtext">billable employees X work days X 6.5 hrs</span>
+        </th>
+      <th scope="col">Total Hours Scheduled
+        <br />
+        <span class="table-subtext">scheduled hrs / available hrs</span>
+      </th>
+      <th scope="col">Billable Hours Scheduled
+        <br />
+        <span class="table-subtext">billable scheduled hrs / available hrs</span>
+      </th>
+    </tr>
+    <tbody>
+      <tr>
+        <td>
+          {{ float_data.available_hours }} (100.0%)
+        </td>
+        <td>
+          {{ float_data.total_hours }} ({{ float_data.p_scheduled }})
+        </td>
+        <td>
+          {{ float_data.billable_hours }} ({{ float_data.p_billable }})
+        </td>
+    </tbody>
+  </thead>
+</table>
+
 
 
 {% endif %}

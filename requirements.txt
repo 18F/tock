@@ -7,3 +7,4 @@ whitenoise==3.2.1
 djangorestframework==3.4.6
 djangorestframework-csv==1.4.1
 bleach==1.4.3
+requests
