@@ -24,7 +24,7 @@ urlpatterns = [
         name='GeneralSnippetsView'
     ),
     url(
-        r'^dashboard/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})$',
+        r'^dashboard/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/$',
         views.DashboardView.as_view(),
         name='DashboardView'
     ),

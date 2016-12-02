@@ -68,8 +68,18 @@ class DashboardView(TemplateView):
             except ZeroDivisionError:
                 return 0, 0
 
+        def get_params(key):
+            try:
+                param = self.request.GET[key]
+            except KeyError:
+                param = None
+            return param
+
         # Get base context.
         context = super(DashboardView, self).get_context_data(**kwargs)
+
+        # Get unit param.
+        unit_param = get_params('unit')
 
         # Get requested date and corresponding reporting period.
         requested_date = datetime.datetime.strptime(
@@ -80,6 +90,9 @@ class DashboardView(TemplateView):
                 start_date__lte=requested_date,
                 end_date__gte=requested_date
             )
+            rp_selected.future_date = rp_selected.end_date + datetime.timedelta(
+                weeks=13
+            )
         except ReportingPeriod.DoesNotExist:
             context.update(
                 {
@@ -89,11 +102,29 @@ class DashboardView(TemplateView):
             )
             return context
 
-        # Get first day of fiscal year for reporting period.
+        # Get all current employees.
+        employees = UserData.objects.filter(
+            is_18f_employee=True,
+            current_employee=True
+        )
+        units = []
+        for e in employees:
+            units.append(
+                (e.unit, e.get_unit_display())
+            )
+        units = sorted(set(units), key=lambda x: x[1])
+
+        # Narrow to unit employees, if applicable.
+        if unit_param:
+            all_count = employees.count()
+            employees = employees.filter(unit=unit_param)
+            org_proportion = employees.count() / all_count
+        else:
+            org_proportion = 1
+
+        # Get calendar info.
         fytd_start_date = get_fy_first_day(requested_date)
-        percent_of_year = ((
-            requested_date-fytd_start_date
-        ).days)/365
+        percent_of_year = ((requested_date - fytd_start_date).days) / 365
 
         # Get initial targets.
         try:
@@ -110,26 +141,30 @@ class DashboardView(TemplateView):
             )
             return context
 
-
         # Calculated targets.
-        hours_required_cr_fytd = target.hours_target_cr * percent_of_year
-        hours_required_plan_fytd = target.hours_target_plan * percent_of_year
-        revenue_required_cr_fytd = target.revenue_target_cr * percent_of_year
+        hours_required_cr_fytd = \
+            target.hours_target_cr * percent_of_year * org_proportion
+        hours_required_plan_fytd = \
+            target.hours_target_plan * percent_of_year * org_proportion
+        revenue_required_cr_fytd = \
+            target.revenue_target_cr * percent_of_year * org_proportion
         revenue_required_plan_fytd = \
-            target.revenue_target_plan * percent_of_year
-        hours_required_cr_weekly = target.hours_target_cr / target.periods
+            target.revenue_target_plan * percent_of_year * org_proportion
+        hours_required_cr_weekly = \
+            (target.hours_target_cr / target.periods) * org_proportion
         hours_required_plan_weekly = \
-            target.hours_target_plan / target.periods
+            (target.hours_target_plan / target.periods) * org_proportion
         revenue_required_cr_weekly = \
-            target.revenue_target_cr / target.periods
+            (target.revenue_target_cr / target.periods) * org_proportion
         revenue_required_plan_weekly = \
-            target.revenue_target_plan / target.periods
+            (target.revenue_target_plan / target.periods) * org_proportion
 
         # Get hours billed for fiscal year to date and clean result.
         hours_billed_fytd = clean_result(TimecardObject.objects.filter(
             timecard__reporting_period__start_date__gte=fytd_start_date,
             timecard__reporting_period__end_date__lte=requested_date,
-            project__accounting_code__billable=True
+            project__accounting_code__billable=True,
+            timecard__user__user_data__in=employees
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_fytd = hours_billed_fytd * target.labor_rate
 
@@ -137,7 +172,8 @@ class DashboardView(TemplateView):
         hours_billed_weekly = clean_result(TimecardObject.objects.filter(
             timecard__reporting_period__start_date=\
                 rp_selected.start_date.strftime('%Y-%m-%d'),
-            project__accounting_code__billable=True
+            project__accounting_code__billable=True,
+            timecard__user__user_data__in=employees
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_weekly = hours_billed_weekly * target.labor_rate
 
@@ -168,7 +204,8 @@ class DashboardView(TemplateView):
 
         # Update context.
         context.update(
-            {
+            {   # Unit data.
+                'units':units,
                 # Target info.
                 'revenue_target_cr':'${:,}'.format(
                     target.revenue_target_cr
