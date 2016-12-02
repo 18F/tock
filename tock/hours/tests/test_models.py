@@ -140,8 +140,8 @@ class TimecardObjectTests(TestCase):
             g_start_date=datetime.date(2016, 1, 1)
         )
         self.reporting_period = ReportingPeriod.objects.create(
-            start_date=datetime.date.today() - datetime.timedelta(days=7),
-            end_date=datetime.date.today()
+            start_date=datetime.datetime.utcnow() - datetime.timedelta(days=7),
+            end_date=datetime.datetime.utcnow()
         )
         self.timecard = Timecard.objects.create(
             user=self.user[0],
@@ -150,22 +150,22 @@ class TimecardObjectTests(TestCase):
         self.pl_acct = ProfitLossAccount.objects.create(
             name='PL',
             accounting_string='string',
-            as_start_date=datetime.date.today() - datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() + datetime.timedelta(days=355),
+            as_start_date=datetime.datetime.utcnow() - datetime.timedelta(days=10),
+            as_end_date=datetime.datetime.utcnow() + datetime.timedelta(days=355),
             account_type='Revenue'
         )
         self.pl_acct_2 = ProfitLossAccount.objects.create(
             name='PL2',
             accounting_string='newstring',
-            as_start_date=datetime.date.today() + datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() - datetime.timedelta(days=10),
+            as_start_date=datetime.datetime.utcnow() + datetime.timedelta(days=10),
+            as_end_date=datetime.datetime.utcnow() - datetime.timedelta(days=10),
             account_type='Expense'
         )
         self.pl_acct_3 = ProfitLossAccount.objects.create(
             name='PL3',
             accounting_string='newstring',
-            as_start_date=datetime.date.today() - datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() + datetime.timedelta(days=355),
+            as_start_date=datetime.datetime.utcnow() - datetime.timedelta(days=10),
+            as_end_date=datetime.datetime.utcnow() + datetime.timedelta(days=355),
             account_type='Expense'
         )
 

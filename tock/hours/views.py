@@ -235,6 +235,8 @@ class ReportingPeriodListView(PermissionMixin, ListView):
             timecard__submitted=True,
             timecard__user=self.request.user.id
         ).distinct().order_by('-start_date')[:5]
+        context['server_time'] = datetime.datetime.now()
+        context['utc_time'] = datetime.datetime.utcnow()
 
         try:
             unstarted_reporting_periods = self.queryset.exclude(

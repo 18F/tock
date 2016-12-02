@@ -16,7 +16,7 @@ class EmployeeGradeTests(TestCase):
         self.employeegrade = EmployeeGrade.objects.create(
             employee=User.objects.get(pk=1),
             grade=8,
-            g_start_date=datetime.date.today()
+            g_start_date=datetime.datetime.utcnow()
         )
     def test_unique_with_g_start_date(self):
         """Check that multiple EmployeeGrade objects with the same g_start_date
@@ -25,7 +25,7 @@ class EmployeeGradeTests(TestCase):
             another_employeegrade = EmployeeGrade.objects.create(
             employee=User.objects.get(pk=1),
             grade=9,
-            g_start_date=datetime.date.today()
+            g_start_date=datetime.datetime.utcnow()
         )
 
     def test_string_method(self):

@@ -20,15 +20,15 @@ class TestUserDataForm(TestCase):
         ProfitLossAccount.objects.create(
             name='PL',
             accounting_string='1234',
-            as_start_date=datetime.date.today() + datetime.timedelta(
+            as_start_date=datetime.datetime.utcnow() + datetime.timedelta(
                 days=10
             ),
-            as_end_date=datetime.date.today() + datetime.timedelta(days=20),
+            as_end_date=datetime.datetime.utcnow() + datetime.timedelta(days=20),
             account_type='Expense'
         )
         form_data = {
             'user': User.objects.first().id,
-            'start_date': datetime.date.today(),
+            'start_date': datetime.datetime.utcnow(),
             'end_date': '',
             'current_employee': '',
             'is_18f_employee': '',
