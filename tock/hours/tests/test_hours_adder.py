@@ -1,7 +1,7 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 import hours.models
-from hours.hours_adder import HoursAdder, ERROR_MSG
+from hours.hours_adder import HoursAdder, ERROR_MSG, NEGATIVE_HOURS_ERROR_MSG
 from employees.models import UserData
 from decimal import Decimal
 import datetime
@@ -135,6 +135,38 @@ class HoursAdderTests(TestCase):
         hours_adder.perform_operation()
         self.assertFalse(hours_adder.successful())
         self.assertEqual(ERROR_MSG, hours_adder.message)
+
+    def test_cannot_make_hours_negative(self):
+        new_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+        )
+        new_timecard = hours.models.Timecard.objects.create(
+            user=self.user,
+            submitted=False,
+            reporting_period=new_period
+        )
+        project_midas = projects.models.Project.objects.get(name="Midas")
+        new_tco = hours.models.TimecardObject.objects.create(
+            timecard=new_timecard,
+            project=project_midas,
+            hours_spent=10.12
+        )
+        hours_adder = HoursAdder(
+            project_id = project_midas.id,
+            hours = '-12.12',
+            user_id = self.user.id,
+            reporting_period_id = new_period.id,
+            undo_url = ''
+        )
+        hours_adder.perform_operation()
+        new_tco.refresh_from_db()
+
+        self.assertFalse(hours_adder.successful())
+        expected_message = "The total hours after the operation cannot be negative"
+        self.assertEqual(NEGATIVE_HOURS_ERROR_MSG, hours_adder.message)
+        self.assertEqual(new_tco.hours_spent, Decimal('10.12'))
+
 
     def test_add_hours_with_existing_tco(self):
         """

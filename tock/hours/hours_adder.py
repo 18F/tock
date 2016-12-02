@@ -9,6 +9,8 @@ ERROR_MSG = """
     tock.gov/addHours?project=231&hours=1
 """
 
+NEGATIVE_HOURS_ERROR_MSG = "The total hours after the operation cannot be negative"
+
 class HoursAdder(object):
     """Service object in charge of adding hours to a timecard object"""
 
@@ -70,7 +72,7 @@ class HoursAdder(object):
             project = Project.objects.get(id=self.project_id)
         except Project.DoesNotExist:
             self.message = ERROR_MSG
-            return True
+            return
 
         tc, created = Timecard.objects.get_or_create(
             reporting_period_id=self.reporting_period_id,
@@ -84,7 +86,11 @@ class HoursAdder(object):
         if tco.hours_spent is None:
             tco.hours_spent = 0
 
-        updated_hours = max(0, tco.hours_spent + self.hours)
+        updated_hours = tco.hours_spent + self.hours
+        if updated_hours < 0:
+            self.message = NEGATIVE_HOURS_ERROR_MSG
+            return
+
         tco.hours_spent = updated_hours
         tco.save()
         tc.save()
