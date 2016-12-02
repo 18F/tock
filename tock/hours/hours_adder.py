@@ -52,9 +52,6 @@ class HoursAdder(object):
             reporting_period_id=self.reporting_period_id,
             user_id=self.user_id)
 
-        if created:
-            tc.save()
-
         tco, created = TimecardObject.objects.get_or_create(
             timecard_id=tc.id,
             project_id=project.id)
@@ -69,6 +66,7 @@ class HoursAdder(object):
         updated_hours = max(0, tco.hours_spent + self.hours)
         tco.hours_spent = updated_hours
         tco.save()
+        tc.save()
 
         self.message = self.generate_successful_message(self.hours, project)
         self.operation_was_successful = True

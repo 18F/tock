@@ -626,10 +626,15 @@ class ReportTests(WebTest):
         )
         self.assertEqual(prefilled_hours, {None})
 
-    def test_add_hours_with_existing_tco(self):
+    def test_add_hours(self):
         """
         Test that addHours increases the current timecard by the
-        specified amount
+        specified amount.
+
+        This test exists both as a sanity check, and for checking HoursAdder is being used
+        internally. Normally we would assert HoursAdded is called with the Mock library,
+        but since that dependency isn't in that project yet, we'll have to settle
+        and test side effects instead.
         """
         self.user = self.regular_user
 
@@ -659,35 +664,6 @@ class ReportTests(WebTest):
         self.assertEqual(response.status_code, 302)
         new_tco.refresh_from_db()
         self.assertEqual(new_tco.hours_spent, Decimal('12.12'))
-
-    def test_add_hours_without_tco(self):
-        """
-        Test that addHours creates a new timecardobject when
-        none is available
-        """
-        self.user = self.regular_user
-
-        new_project = projects.models.Project.objects.get(name="Midas")
-        new_period = hours.models.ReportingPeriod.objects.create(
-            start_date=datetime.date(2016, 1, 1),
-            end_date=datetime.date(2016, 1, 7),
-        )
-        new_timecard = hours.models.Timecard.objects.create(
-            user=self.user,
-            submitted=False,
-            reporting_period=new_period
-        )
-
-        url = "%s?project=%d&hours=2" % (reverse('AddHours'), new_project.id)
-
-        old_count = new_timecard.timecardobjects.count()
-        response = self.app.get(
-            url, None,
-            headers={'X_AUTH_USER': self.user.email}
-        )
-        new_count = new_timecard.timecardobjects.count()
-        self.assertEqual(old_count + 1, new_count)
-
 
     def test_do_not_prefill_timecard(self):
         """
