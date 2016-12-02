@@ -68,8 +68,18 @@ class DashboardView(TemplateView):
             except ZeroDivisionError:
                 return 0, 0
 
+        def get_params(key):
+            try:
+                param = self.request.GET[key]
+            except KeyError:
+                param = None
+            return param
+
         # Get base context.
         context = super(DashboardView, self).get_context_data(**kwargs)
+
+        # Get unit param.
+        unit_param = get_params('unit')
 
         # Get requested date and corresponding reporting period.
         requested_date = datetime.datetime.strptime(
@@ -92,36 +102,29 @@ class DashboardView(TemplateView):
             )
             return context
 
-        # Control for billable employees.
-        billable_employees = UserData.objects.filter(
-            is_billable=True,
+        # Get all current employees.
+        employees = UserData.objects.filter(
             is_18f_employee=True,
-            current_employee=True,
+            current_employee=True
         )
         units = []
-        for b_e in billable_employees:
+        for e in employees:
             units.append(
-                (
-                    b_e.unit,
-                    b_e.get_unit_display()
-                )
+                (e.unit, e.get_unit_display())
             )
         units = sorted(set(units), key=lambda x: x[1])
-        try:
-            if self.request.GET['unit']:
-                billable_employees = billable_employees.filter(
-                    unit=self.request.GET['unit']
-                )
-                unit_param = self.request.GET['unit']
-        except KeyError:
-            unit_param = None
-            pass
 
-        # Get first day of fiscal year for reporting period.
+        # Narrow to unit employees, if applicable.
+        if unit_param:
+            all_count = employees.count()
+            employees = employees.filter(unit=unit_param)
+            org_proportion = employees.count() / all_count
+        else:
+            org_proportion = 1
+
+        # Get calendar info.
         fytd_start_date = get_fy_first_day(requested_date)
-        percent_of_year = ((
-            requested_date-fytd_start_date
-        ).days)/365
+        percent_of_year = ((requested_date - fytd_start_date).days) / 365
 
         # Get initial targets.
         try:
@@ -137,14 +140,6 @@ class DashboardView(TemplateView):
                 }
             )
             return context
-
-        # Get unit/org proportion.
-        if unit_param:
-            org_proportion = UserData.objects.filter(
-                unit=unit_param
-            ).count() / UserData.objects.count()
-        else:
-            org_proportion = 1
 
         # Calculated targets.
         hours_required_cr_fytd = \
@@ -169,7 +164,7 @@ class DashboardView(TemplateView):
             timecard__reporting_period__start_date__gte=fytd_start_date,
             timecard__reporting_period__end_date__lte=requested_date,
             project__accounting_code__billable=True,
-            timecard__user__user_data__in=billable_employees
+            timecard__user__user_data__in=employees
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_fytd = hours_billed_fytd * target.labor_rate
 
@@ -178,7 +173,7 @@ class DashboardView(TemplateView):
             timecard__reporting_period__start_date=\
                 rp_selected.start_date.strftime('%Y-%m-%d'),
             project__accounting_code__billable=True,
-            timecard__user__user_data__in=billable_employees
+            timecard__user__user_data__in=employees
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_weekly = hours_billed_weekly * target.labor_rate
 

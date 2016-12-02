@@ -74,9 +74,9 @@ class DashboardViewTests(WebTest):
 
     def setUp(self):
         self.user = User.objects.first()
-        ud = UserData.objects.first()
-        ud.user = self.user
-        ud.save()
+        self.ud = UserData.objects.first()
+        self.ud.user = self.user
+        self.ud.save()
         self.rp_1 = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2016, 10, 1),
             end_date=datetime.date(2016, 10, 7),
@@ -156,6 +156,17 @@ class DashboardViewTests(WebTest):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_response_w_params_ok(self):
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period':'1999-12-31'}
+            ),
+            {'unit':'1'},
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(response.status_code, 200)
+
     def test_no_reporting_period(self):
         """Tests errors are handled when there is no matching reporting
         period."""
@@ -187,6 +198,39 @@ class DashboardViewTests(WebTest):
         self.assertContains(response, 'Whoops')
         self.assertContains(response, date)
 
+    def test_unit_param(self):
+        date = self.rp_2.end_date.strftime('%Y-%m-%d')
+        self.ud.unit = 13
+        self.ud.save()
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            {'unit':'13'},
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(
+            response.context['units'],
+            [(self.ud.unit, self.ud.get_unit_display())]
+        )
+        self.assertEqual(
+            response.context['variance_rev_cr_weekly'],
+            '$1,498'
+        )
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            {'unit':'1'},
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertEqual(
+            response.context['variance_rev_cr_weekly'],
+            '$0'
+        )
+
     def test_template_render(self):
         date = self.rp_2.end_date.strftime('%Y-%m-%d')
         response = self.app.get(
@@ -199,6 +243,38 @@ class DashboardViewTests(WebTest):
         self.assertContains(response, '<td>$4,500</td>')
         self.assertContains(response, '<td>13.0 (650.00%)</td>')
         self.assertContains(response, '<td>$1,498 (59900.00%)</td>')
+
+        self.ud.unit = 13
+        self.ud.save()
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            {'unit':'1'},
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertContains(
+            response,
+            '<td>$0 (0.00%)</td>',
+            html=True
+        )
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            {'unit':'13'},
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertContains(
+            response,
+            '<td>14.0 (1400.00%)</td>',
+            html=True
+        )
+
+
+
 
     def test_random_but_viable_date(self):
         """Tests that a date that is not a start date or end date of a
