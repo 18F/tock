@@ -23,21 +23,23 @@
 </ul>
 <h4>Select a unit or all:</h4>
 {% if request.GET.unit %}
-<a href="{% url 'reports:DashboardView' rp_selected.end_date %}">All</a> |
+<a href="{% url 'reports:DashboardView' rp_selected.end_date %}">All</a> 
 {% else %}
-<b>All</b> |
+<b>All</b>
 {% endif %}
 {% for unit in units %}
   {% if unit.0|stringformat:"s" == request.GET.unit %}
-  <b>{{ unit.1 }}</b> |
+  | <b>{{ unit.1 }}</b>
   {% else %}
-  <a href="{% url 'reports:DashboardView' rp_selected.end_date %}?unit={{ unit.0}}">{{ unit.1 }}</a> |
+  | <a href="{% url 'reports:DashboardView' rp_selected.end_date %}?unit={{ unit.0}}">{{ unit.1 }}</a>
   {% endif %}
 {% endfor %}
 <h3>Performance vs. Targets, Fiscal Year to Date</h3>
 <i>{{ fytd_start_date }} to {{ rp_selected.end_date }}</i>
-<h4>Hours</h4>
 <table>
+  <caption>
+    <h4>Hours</h4>
+  </caption>
   <thead>
     <tr>
       <th scope="col"></th>
@@ -45,6 +47,7 @@
       <th scope="col">FYTD Performance</th>
       <th scope="col">Variance</th>
     </tr>
+  </thead>
   <tbody>
     <tr>
       <th scope="row">Cost Recovery</th>
@@ -60,9 +63,10 @@
     </tr>
   </tbody>
 </table>
-<br>
-<h4>Revenue</h4>
 <table>
+  <caption>
+    <h4>Revenue</h4>
+  </caption>
   <thead>
     <tr>
       <th></th>
@@ -72,7 +76,7 @@
     </tr>
   </thead>
   <tbody>
-  <tr>
+    <tr>
     <th scope="row">Cost Recovery</th>
       <td>{{ revenue_required_cr_fytd }}</td>
       <td>{{ rev_fytd }}</td>
@@ -86,12 +90,13 @@
     </tr>
   </tbody>
 </table>
-
 <hr>
   <h3>Performance vs. Targets, Selected Reporting Period</h3>
 <i>{{ rp_selected.start_date }} to {{ rp_selected.end_date }}</i>
-<h4>Hours</h4>
 <table>
+  <caption>
+    <h4>Hours</h4>
+  </caption>
   <thead>
     <tr>
       <th scope="col"></th>
@@ -115,9 +120,10 @@
     </tr>
   </tbody>
 </table>
-<br>
-<h4>Revenue</h4>
 <table>
+  <caption>
+    <h4>Revenue</h4>
+  </caption>
   <thead>
     <tr>
       <th scope="col"></th>
