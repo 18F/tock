@@ -1,7 +1,6 @@
 import csv
 import datetime
 import io
-import requests
 from itertools import chain
 from operator import attrgetter
 
