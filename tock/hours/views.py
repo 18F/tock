@@ -69,15 +69,6 @@ class DashboardView(TemplateView):
             except ZeroDivisionError:
                 return 0, 0
 
-        def work_days_between(start_date, end_date):
-            delta = end_date - start_date
-            workdays = 0
-            for day in range(delta.days):
-                date = start_date + datetime.timedelta(days=day)
-                if date.weekday() < 5:
-                    workdays += 1
-            return workdays
-
         # Get base context.
         context = super(DashboardView, self).get_context_data(**kwargs)
 
@@ -102,23 +93,12 @@ class DashboardView(TemplateView):
             )
             return context
 
-        # Get info for Float report.
-        key = ''
-
-        # Calculate work days in period.
-        workdays = work_days_between(
-            rp_selected.end_date,
-            rp_selected.future_date
-        )
-
         # Control for billable employees.
-
         billable_employees = UserData.objects.filter(
             is_billable=True,
             is_18f_employee=True,
             current_employee=True,
         )
-
         units = []
         for b_e in billable_employees:
             units.append(
@@ -127,7 +107,6 @@ class DashboardView(TemplateView):
                     b_e.get_unit_display()
                 )
             )
-
         units = sorted(set(units), key=lambda x: x[1])
         try:
             if self.request.GET['unit']:
@@ -138,84 +117,6 @@ class DashboardView(TemplateView):
         except KeyError:
             unit_param = None
             pass
-
-
-        # Calculate available hours.
-        available_hours = billable_employees.count() * 6.5 * workdays
-
-        # Get billable project ids.
-        r = requests.get(
-            url='https://api.floatschedule.com/api/v1/projects',
-            headers={
-                'Authorization': 'Bearer ' + key
-            }
-        )
-        billable_ids = []
-        non_billable_ids = []
-        for project in r.json()['projects']:
-            if project['non_billable'] == '0':
-                billable_ids.append(project['project_id'])
-            else:
-                non_billable_ids.append(project['project_id'])
-
-        # Get billable people ids.
-        r = requests.get(
-            url='https://api.floatschedule.com/api/v1/people',
-            headers={
-                'Authorization': 'Bearer ' + key
-            }
-        )
-        billable_employees_usernames = []
-        for employee in billable_employees:
-            billable_employees_usernames.append(
-                employee.user.username
-            )
-        float_billable_employees = []
-        for person in r.json()['people']:
-            if person['im'] in billable_employees_usernames:
-                float_billable_employees.append(person['people_id'])
-
-        # Get number of hours scheduled.
-        r = requests.get(
-            url='https://api.floatschedule.com/api/v1/tasks',
-            headers={
-                'Authorization': 'Bearer ' + key
-            },
-            params={
-                'weeks': 13,
-                'start_day': rp_selected.end_date
-            }
-        )
-        total_hours = 0
-        billable_hours = 0
-        for person in r.json()['people']:
-            if person['people_id'] in float_billable_employees:
-                for task in person['tasks']:
-                    hours = float(task['hours_pd']) * work_days_between(
-                        datetime.datetime.strptime(
-                            task['start_date'], "%Y-%m-%d"
-                        ).date(),
-                        datetime.datetime.strptime(
-                            task['end_date'], "%Y-%m-%d"
-                        ).date()
-                    )
-                    total_hours += hours
-                    if task['project_id'] in billable_ids:
-                        billable_hours += hours
-
-        non_billable_hours = total_hours - billable_hours
-
-        # Prepare Float data dict for context.
-        float_data = {
-            'total_hours':'{:,}'.format(
-                round(total_hours,2)
-            ),
-            'workdays':workdays,
-            'available_hours':'{:,}'.format(available_hours),
-            'billable_hours':'{:,}'.format(billable_hours),
-            'p_scheduled':'{0:.2%}'.format(total_hours / available_hours),
-            'p_billable':'{0:.2%}'.format(billable_hours / available_hours)
-        }
 
         # Get first day of fiscal year for reporting period.
         fytd_start_date = get_fy_first_day(requested_date)
@@ -311,8 +212,6 @@ class DashboardView(TemplateView):
         context.update(
             {   # Unit data.
                 'units':units,
-                # Float data.
-                'float_data':float_data,
                 # Target info.
                 'revenue_target_cr':'${:,}'.format(
                     target.revenue_target_cr

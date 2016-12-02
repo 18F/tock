@@ -6,7 +6,7 @@
 <h3>Available reports:</h3>
 	<ul>
 	{% for reporting_period in object_list %}
-	    <li><a href="{% url 'reports:DashboardView' reporting_period.end_date all %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> </li>
+	    <li><a href="{% url 'reports:DashboardView' reporting_period.end_date %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> </li>
 	{% endfor %}
 	</ul>
 
