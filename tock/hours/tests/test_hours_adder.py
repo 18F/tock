@@ -2,6 +2,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 import hours.models
 from hours.hours_adder import HoursAdder, ERROR_MSG, NEGATIVE_HOURS_ERROR_MSG
+from hours.hours_adder import SUBMIT_ERROR_MSG
 from employees.models import UserData
 from decimal import Decimal
 import datetime
@@ -55,6 +56,31 @@ class HoursAdderTests(TestCase):
 
         self.assertTrue(hours_adder.successful())
         self.assertEqual(1, new_count)
+
+    def test_abort_if_a_submitted_timecard_for_the_current_period_exists(self):
+        project_midas = projects.models.Project.objects.get(name="Midas")
+        new_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+        )
+
+        timecard_count_before = hours.models.Timecard.objects.count()
+        submitted_time_card = hours.models.Timecard.objects.create(
+            user=self.user,
+            submitted=True,
+            reporting_period=new_period
+        )
+
+        hours_adder = HoursAdder(
+            project_id = project_midas.id,
+            hours = '2',
+            user_id = self.user.id,
+            reporting_period_id = new_period.id,
+            undo_url = ''
+        )
+        hours_adder.perform_operation()
+        self.assertFalse(hours_adder.successful())
+        self.assertEqual(SUBMIT_ERROR_MSG, hours_adder.message)
 
     def test_invalid_hour_inputs_return_error_messages(self):
         new_period = hours.models.ReportingPeriod.objects.create(

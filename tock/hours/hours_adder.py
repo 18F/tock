@@ -10,6 +10,7 @@ ERROR_MSG = """
 """
 
 NEGATIVE_HOURS_ERROR_MSG = "The total hours after the operation cannot be negative"
+SUBMIT_ERROR_MSG = "A submitted timecard for the current period already exists"
 
 class HoursAdder(object):
     """Service object in charge of adding hours to a timecard object"""
@@ -72,6 +73,16 @@ class HoursAdder(object):
             project = Project.objects.get(id=self.project_id)
         except Project.DoesNotExist:
             self.message = ERROR_MSG
+            return
+
+        submited_timecards_current_period = Timecard.objects.filter(
+            reporting_period_id=self.reporting_period_id,
+            submitted=True,
+            user_id=self.user_id
+        )
+
+        if len(submited_timecards_current_period) > 0:
+            self.message = SUBMIT_ERROR_MSG
             return
 
         tc, created = Timecard.objects.get_or_create(
