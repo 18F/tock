@@ -23,7 +23,7 @@
 </ul>
 <h4>Select a unit or all:</h4>
 {% if request.GET.unit %}
-<a href="{% url 'reports:DashboardView' rp_selected.end_date %}">All</a> 
+<a href="{% url 'reports:DashboardView' rp_selected.end_date %}">All</a>
 {% else %}
 <b>All</b>
 {% endif %}
@@ -77,7 +77,7 @@
   </thead>
   <tbody>
     <tr>
-    <th scope="row">Cost Recovery</th>
+      <th scope="row">Cost Recovery</th>
       <td>{{ revenue_required_cr_fytd }}</td>
       <td>{{ rev_fytd }}</td>
       <td>{{ variance_rev_cr_ytd }} ({{ p_variance_rev_cr_ytd }})</td>
