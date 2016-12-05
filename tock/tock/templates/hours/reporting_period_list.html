@@ -40,7 +40,7 @@
 				to
 				{{ reporting_period.end_date | date:"F j, Y" }}</a></li>
 		{% endfor %}
-			<li><a href="{% url 'reports:ListReports' %}">See more...</a></li>
+			<li><a href="{% url 'reports:ReportingPeriodListUserView' username=request.user.username %}">See more...</a></li>
 		</ul>
 		{% endif %}
 

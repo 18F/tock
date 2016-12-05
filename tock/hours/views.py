@@ -11,7 +11,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
 from django.contrib.auth.decorators import user_passes_test
@@ -233,7 +233,8 @@ class ReportingPeriodListView(PermissionMixin, ListView):
             ReportingPeriodListView, self).get_context_data(**kwargs)
         completed_reporting_periods = self.queryset.filter(
             timecard__submitted=True,
-            timecard__user=self.request.user.id
+            timecard__user=self.request.user.id,
+            **self.request.GET.dict()
         ).distinct().order_by('-start_date')
         try:
             if datetime.date.today() < completed_reporting_periods[0].start_date:
@@ -267,6 +268,33 @@ class ReportingPeriodListView(PermissionMixin, ListView):
             key=attrgetter('start_date'))
         return context
 
+class ReportingPeriodListUserView(TemplateView):
+    template_name = 'hours/reporting_period_user_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            ReportingPeriodListUserView, self).get_context_data(**kwargs)
+
+        timecards = Timecard.objects.prefetch_related(
+            'reporting_period'
+        ).filter(
+            user=self.request.user.id
+        )
+        data = []
+        for timecard in timecards:
+            data.append(
+                {
+                    'reporting_period':timecard.reporting_period,
+                    'timecard':timecard
+                }
+        )
+        data = sorted(
+            data,
+            key=lambda x: x['reporting_period'].start_date,
+            reverse=True
+        )
+        context.update({'data':data})
+        return context
 
 class ReportingPeriodCreateView(PermissionMixin, CreateView):
     form_class = ReportingPeriodForm

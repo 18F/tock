@@ -23,5 +23,10 @@ urlpatterns = [
         views.general_snippets_only_timecard_list,
         name='GeneralSnippetsView'
     ),
+    url(
+        r'^(?P<username>[A-Za-z0-9._%+-]*)/$',
+        views.ReportingPeriodListUserView.as_view(),
+        name='ReportingPeriodListUserView'
+    ),
 
 ]

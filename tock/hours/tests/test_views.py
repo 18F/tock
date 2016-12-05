@@ -581,6 +581,31 @@ class ReportTests(WebTest):
             current_employee=False,
         ).save()
 
+    def test_timecard_by_user_by_rp(self):
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodListUserView',
+                kwargs={'username':self.user.username}
+            ),
+        headers={'X_AUTH_USER': self.user.email}
+        )
+        self.assertEqual(len(response.context['data']), 1)
+        self.assertContains(
+            response,
+            '<a href="/reports/2015-01-01/aaron.snow/">'
+        )
+
+        for rp in hours.models.ReportingPeriod.objects.all():
+            rp.delete()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodListUserView',
+                kwargs={'username':self.user.username}
+            ),
+        headers={'X_AUTH_USER': self.user.email}
+        )
+        self.assertFalse(response.context['data'])
+
     def test_ReportList_get_queryset(self):
         hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2016, 1, 1),

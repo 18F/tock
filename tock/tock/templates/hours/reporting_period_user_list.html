@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Timecards by Reporting Period for {{ request.user.first_name }} {{request.user.last_name }}</h2>
+
+{% if data %}
+
+<table class="table-minimal report_table">
+  <thead>
+    <tr class="report_table__header-row">
+      <th scope='col'>Dates</th>
+      <th scope='col'>Submitted Status</th>
+      <th scope='col'>Last Modified</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for datum in data %}
+    <tr>
+      <td>
+        <a href="{% url 'reports:ReportingPeriodUserDetailView' username=request.user.username reporting_period=datum.reporting_period.start_date|date:'Y-m-d'  %}">{{ datum.reporting_period.start_date }} to {{ datum.reporting_period.end_date }}</a></td>
+      <td>{{ datum.timecard.submitted }}</td>
+      <td>{{ datum.timecard.modified }}</td>
+    </tr>
+    {% endfor %}
+
+
+
+  </tbody>
+
+</table>
+
+{% else %}
+No data.
+{% endif %}
+
+{% endblock %}
