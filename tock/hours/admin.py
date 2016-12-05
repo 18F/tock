@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
-from .models import ReportingPeriod, Timecard, TimecardObject
+from .models import ReportingPeriod, Timecard, TimecardObject, Targets
 
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
@@ -76,3 +76,4 @@ class TimecardAdmin(admin.ModelAdmin):
 
 admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
 admin.site.register(Timecard, TimecardAdmin)
+admin.site.register(Targets)
