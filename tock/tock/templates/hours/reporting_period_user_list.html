@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2>Timecards by Reporting Period for {{ request.user.first_name }} {{request.user.last_name }}</h2>
+<h2>Timecards by reporting period for {{ request.user.first_name }} {{request.user.last_name }}</h2>
 
 {% if data %}
 
@@ -10,8 +10,8 @@
   <thead>
     <tr class="report_table__header-row">
       <th scope='col'>Dates</th>
-      <th scope='col'>Submitted Status</th>
-      <th scope='col'>Last Modified</th>
+      <th scope='col'>Submitted status</th>
+      <th scope='col'>Last modified</th>
     </tr>
   </thead>
   <tbody>
