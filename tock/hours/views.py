@@ -106,7 +106,7 @@ class DashboardView(TemplateView):
         employees = UserData.objects.filter(
             is_18f_employee=True,
             current_employee=True
-        )
+        ).exclude(unit__in=[4, 9, 14, 15])
         units = []
         missing_units = []
         for e in employees:

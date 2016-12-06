@@ -76,6 +76,7 @@ class DashboardViewTests(WebTest):
         self.user = User.objects.first()
         self.ud = UserData.objects.first()
         self.ud.user = self.user
+        self.ud.unit = 0
         self.ud.save()
         self.rp_1 = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2016, 10, 1),
@@ -242,6 +243,20 @@ class DashboardViewTests(WebTest):
         self.assertContains(response, '<td>$4,500</td>')
         self.assertContains(response, '<td>13.0 (650.00%)</td>')
         self.assertContains(response, '<td>$1,498 (59900.00%)</td>')
+        self.assertNotContains(response, '<td>$-2 (-100.00%)</td>')
+
+        # Test that units are correctly excluded.
+        self.ud.unit = 4
+        self.ud.save()
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
+        self.assertNotContains(response, '<td>$1,498 (59900.00%)</td>')
 
         """self.ud.unit = 13
         self.ud.save()
