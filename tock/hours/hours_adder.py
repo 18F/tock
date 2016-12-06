@@ -1,6 +1,7 @@
 from django.template.defaultfilters import pluralize
 from decimal import Decimal, InvalidOperation
-from .models import ReportingPeriod, Timecard, TimecardObject, Project
+from .models import ReportingPeriod, Timecard, TimecardObject, Project, ReportingPeriod
+import datetime
 
 ERROR_MSG = """
     Oops.
@@ -11,9 +12,12 @@ ERROR_MSG = """
 
 NEGATIVE_HOURS_ERROR_MSG = "The total hours after the operation cannot be negative"
 SUBMIT_ERROR_MSG = "A submitted timecard for the current period already exists"
+INVALID_PERIOD_MSG = "Could not find a current time period"
 
 class HoursAdder(object):
-    """Service object in charge of adding hours to a timecard object"""
+    """Service object in charge of adding hours to a timecard object.
+    self.current_date is an optional argument used for Dependency Injection during tests.
+    """
 
     def __init__(self, **kwargs):
         self.project_id = kwargs.get('project_id', None)
@@ -23,6 +27,7 @@ class HoursAdder(object):
         self.user_id = kwargs.get('user_id', None)
         self.operation_was_successful = False
         self.undo_url = kwargs.get('undo_url', '')
+        self.current_date = kwargs.get('current_date', None)
 
     def generate_successful_message(self, hours, project):
         if hours > 0:
@@ -46,6 +51,23 @@ class HoursAdder(object):
             return True
 
         if self.reporting_period_id is None:
+            return True
+
+        if self.current_date is None:
+            self.current_date = datetime.datetime.now().date()
+
+        try:
+            reporting_period = ReportingPeriod.objects.get(id=self.reporting_period_id)
+        except ReportingPeriod.DoesNotExist:
+            self.message = ERROR_MSG
+            return True
+
+        if reporting_period.start_date > self.current_date:
+            self.message = INVALID_PERIOD_MSG
+            return True
+
+        if reporting_period.end_date < self.current_date:
+            self.message = INVALID_PERIOD_MSG
             return True
 
         try:

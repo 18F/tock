@@ -31,6 +31,28 @@ class HoursAdderTests(TestCase):
             end_date=datetime.date(2017, 1, 1),
         ).save()
 
+    def test_check_latest_period_is_the_present_one(self):
+        project_midas = projects.models.Project.objects.get(name="Midas")
+        new_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 2, 1),
+            end_date=datetime.date(2015, 2, 7),
+        )
+        new_timecard = hours.models.Timecard.objects.create(
+            user=self.user,
+            submitted=False,
+            reporting_period=new_period
+        )
+        hours_adder = HoursAdder(
+            project_id = project_midas.id,
+            hours = '2',
+            user_id = self.user.id,
+            reporting_period_id = new_period.id,
+            undo_url = '',
+            current_date=datetime.date(2016, 1, 2)
+        )
+        self.assertFalse(hours_adder.successful())
+
+
     def test_add_without_tco(self):
         project_midas = projects.models.Project.objects.get(name="Midas")
         new_period = hours.models.ReportingPeriod.objects.create(
@@ -46,6 +68,7 @@ class HoursAdderTests(TestCase):
             project_id = project_midas.id,
             hours = '2',
             user_id = self.user.id,
+            current_date=datetime.date(2016, 1, 2),
             reporting_period_id = new_period.id,
             undo_url = ''
         )
@@ -76,6 +99,7 @@ class HoursAdderTests(TestCase):
             hours = '2',
             user_id = self.user.id,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()
@@ -93,6 +117,7 @@ class HoursAdderTests(TestCase):
             hours = 'foobar',
             user_id = self.user.id,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()
@@ -103,6 +128,7 @@ class HoursAdderTests(TestCase):
             project_id = project_midas.id,
             user_id = self.user.id,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()
@@ -119,6 +145,7 @@ class HoursAdderTests(TestCase):
             hours = '2',
             user_id = self.user.id,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()
@@ -129,6 +156,7 @@ class HoursAdderTests(TestCase):
             hours = '2',
             user_id = self.user.id,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()
@@ -156,6 +184,7 @@ class HoursAdderTests(TestCase):
             hours = '2',
             user_id = None,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()
@@ -183,6 +212,7 @@ class HoursAdderTests(TestCase):
             hours = '-12.12',
             user_id = self.user.id,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()
@@ -219,6 +249,7 @@ class HoursAdderTests(TestCase):
             hours = '2',
             user_id = self.user.id,
             reporting_period_id = new_period.id,
+            current_date=datetime.date(2016, 1, 2),
             undo_url = ''
         )
         hours_adder.perform_operation()

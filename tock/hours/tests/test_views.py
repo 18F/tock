@@ -638,10 +638,12 @@ class ReportTests(WebTest):
         """
         self.user = self.regular_user
 
+        todays_date = datetime.datetime.now().date()
         new_period = hours.models.ReportingPeriod.objects.create(
-            start_date=datetime.date(2016, 1, 1),
-            end_date=datetime.date(2016, 1, 7),
+            start_date=todays_date,
+            end_date=todays_date + datetime.timedelta(days=2),
         )
+
         new_timecard = hours.models.Timecard.objects.create(
             user=self.user,
             submitted=False,
