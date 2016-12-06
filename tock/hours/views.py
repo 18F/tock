@@ -551,6 +551,10 @@ class ReportingPeriodListUserView(TemplateView):
             if datum['timecard'].submitted:
                 rp_end_date = datum['reporting_period'].end_date
                 # If the reporting period has not ended, all actions available.
+                # While this could be handled in the next if statement, there
+                # could be future needs to provide additional options for
+                # reporting periods that have not yet closed, for example
+                # to delete the entire timecard and start again.
                 if rp_end_date >= today:
                     datum['actions'].extend(['Edit'])
                 # If the reporting period has ended, but was within the last 7
