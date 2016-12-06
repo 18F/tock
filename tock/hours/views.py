@@ -505,23 +505,6 @@ class ReportingPeriodListView(PermissionMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
-        completed_reporting_periods = self.queryset.filter(
-            timecard__submitted=True,
-            timecard__user=self.request.user.id,
-            **self.request.GET.dict()
-        ).distinct().order_by('-start_date')
-        try:
-            if datetime.date.today() < completed_reporting_periods[0].start_date:
-                increment = 2
-            else:
-                increment = 1
-            context['amendable_completed_reporting_periods'] = \
-                completed_reporting_periods[:increment]
-            context['completed_reporting_periods'] = \
-                completed_reporting_periods[increment:5]
-        except IndexError:
-            context['amendable_completed_reporting_periods'] = None
-            context['completed_reporting_periods'] = None
         try:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user.id).exclude(
@@ -559,9 +542,24 @@ class ReportingPeriodListUserView(TemplateView):
             data.append(
                 {
                     'reporting_period':timecard.reporting_period,
-                    'timecard':timecard
+                    'timecard':timecard,
+                    'actions':['View']
                 }
         )
+        today = datetime.date.today()
+        for datum in data:
+            if datum['timecard'].submitted:
+                rp_end_date = datum['reporting_period'].end_date
+                # If the reporting period has not ended, all actions available.
+                if rp_end_date >= today:
+                    datum['actions'].extend(['Edit'])
+                # If the reporting period has ended, but was within the last 7
+                # days and the timecard is submitted, edit action availble.
+                elif (today - rp_end_date).days <= 7:
+                    datum['actions'].append('Edit')
+            else:
+                # If never submitted, all actions available.
+                datum['actions'].extend(['Edit'])
         data = sorted(
             data,
             key=lambda x: x['reporting_period'].start_date,
@@ -644,30 +642,23 @@ class TimecardView(UpdateView):
     def get(self, request, *args, **kwargs):
         """Get timecard form only for last N reporting periods or if
         unsubmitted timecards."""
-        # Get reporting period object.
+
         self.object = self.get_object()
-        selected_rp = ReportingPeriod.objects.get(
-            id=self.object.__dict__['reporting_period_id']
-        )
+        context = self.get_context_data(object=self.object)
 
-        # Get most recent reporting period objects.
-        max_rps = ReportingPeriod.objects.all().order_by('-start_date')[:3]
-
-        # Determine increment and number of reporting periods in list.
-        if datetime.date.today() < max_rps[0].start_date:
-            increment = 2
-        else:
-            increment = 1
-        last_rps = max_rps[:increment]
-
-        # If the reporting period is in the reporting period list or if the
-        # timecard has not been submitted, return the timecard form. If not,
-        # return the non-editable report view of the timecard.
-        if selected_rp in last_rps or \
-        self.object.__dict__['submitted'] == False:
-            context = self.get_context_data(object=self.object)
+        if self.object.submitted == False:
+            # If timecard has not been submitted, return form.
             return self.render_to_response(context)
-        else:
+        today = datetime.date.today()
+        rp_end_date = self.object.reporting_period.end_date
+        if rp_end_date > today:
+            # If timecard has been submitted, but the reporting period has not
+            # ended, return form.
+            return self.render_to_response(context)
+        elif (today - rp_end_date).days > 7:
+            # If the timecard has been submitted and the end date of the
+            # reporting period is greater than seven days, do not return form
+            # instead return the report page.
             return redirect(
                 reverse(
                     'reports:ReportingPeriodUserDetailView',

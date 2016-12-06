@@ -3,7 +3,7 @@
 {% block content %}
 
 <h2>Timecards by reporting period for {{ request.user.first_name }} {{request.user.last_name }}</h2>
-
+<i>Unsubmited timecards and timecards for reporting periods with end dates seven or less days in the past may be edited.</i>
 {% if data %}
 
 <table class="table-minimal report_table">
@@ -12,6 +12,7 @@
       <th scope='col'>Dates</th>
       <th scope='col'>Submitted status</th>
       <th scope='col'>Last modified</th>
+      <th scope='col'>Actions</th>
     </tr>
   </thead>
   <tbody>
@@ -21,13 +22,21 @@
         <a href="{% url 'reports:ReportingPeriodUserDetailView' username=request.user.username reporting_period=datum.reporting_period.start_date|date:'Y-m-d'  %}">{{ datum.reporting_period.start_date }} to {{ datum.reporting_period.end_date }}</a></td>
       <td>{{ datum.timecard.submitted }}</td>
       <td>{{ datum.timecard.modified }}</td>
+      <td>{% for action in datum.actions %}
+            {% if action == 'View' %}
+              <a href="{% url 'reports:ReportingPeriodUserDetailView' username=request.user.username reporting_period=datum.reporting_period.start_date|date:'Y-m-d'  %}">View</a>
+            {% elif action == 'Edit' %}
+              <a href="{% url 'reportingperiod:UpdateTimesheet' datum.reporting_period.start_date%}">{{ action }}</a>
+            {% endif %}
+          {% endfor %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
 {% else %}
-No data.
+No timecards have been submitted!
 {% endif %}
 
 {% endblock %}

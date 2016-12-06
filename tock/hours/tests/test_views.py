@@ -608,52 +608,11 @@ class AmendableTimecardTests(WebTest):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.location, expected_url)
 
-    def test_reporting_period_list(self):
-        response = self.app.get(
-            reverse('ListReportingPeriods'),
-            headers={'X_AUTH_USER': self.user.email},
-        )
-        self.assertEqual(
-            len(response.context['uncompleted_reporting_periods']),
-            1
-        )
-        self.assertEqual(
-            response.context['uncompleted_reporting_periods'][0],
-            self.current_reporting_period
-        )
-        self.assertEqual(
-            response.context['amendable_completed_reporting_periods'].count(),
-            1
-        )
-        self.assertEqual(
-            response.context['amendable_completed_reporting_periods'][0],
-            self.last_reporting_period
-        )
-        self.assertEqual(
-            response.context['completed_reporting_periods'].count(),
-            len(
-                [
-                    self.recent_reporting_period,
-                    self.old_reporting_period,
-                    self.older_reporting_period,
-                    self.oldest_reporting_period
-                ]
-            )
-        )
-        # Check that order is correct.
-        self.assertTrue(
-            (response.context['completed_reporting_periods'].first().end_date \
-            > \
-            response.context['completed_reporting_periods'].last().end_date)
-        )
-        # Verify list was rendered correctly.
-        self.assertTemplateUsed(response, 'hours/reporting_period_list.html')
-
     def test_increment_for_newly_created_reporting_periods(self):
-        """Checks that a reporting period may still be edited if its start date
+        """Checks that a reporting period may still be edited if its end date
         has not yet occured. To address situation where a the next reporting
         period is created before the current reporting period has ended."""
-        base_date = datetime.date.today()
+        base_date = datetime.datetime.utcnow()
         contemporary_current_rp = hours.models.ReportingPeriod.objects.create(
             start_date=base_date - datetime.timedelta(days=4),
             end_date=base_date + datetime.timedelta(days=2),
@@ -700,15 +659,6 @@ class AmendableTimecardTests(WebTest):
         self.assertEqual(response.status_code, 200)
         self.assertIn('TimecardView', str(response.context['view']))
 
-        response = self.app.get(
-            reverse('ListReportingPeriods'),
-            headers={'X_AUTH_USER': self.user.email},
-        )
-        self.assertEqual(
-            response.context['amendable_completed_reporting_periods'].count(),
-            2
-        )
-
     def test_w_user_that_has_no_prior_timecards(self):
         """Checks that a user who has no prior timecards receives the correct
         response."""
@@ -719,24 +669,12 @@ class AmendableTimecardTests(WebTest):
 
         # Check response.
         response = self.app.get(
-            reverse('ListReportingPeriods'),
+            reverse('reports:ReportingPeriodListUserView',
+                kwargs={'username':self.user.username}
+            ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertEqual(
-            response.status_code, 200
-        )
-        self.assertFalse(
-            response.context['completed_reporting_periods']
-        )
-        self.assertFalse(
-            response.context['amendable_completed_reporting_periods']
-        )
-        self.assertEqual(
-            hours.models.ReportingPeriod.objects.all().count(),
-            len(response.context['uncompleted_reporting_periods'])
-        )
-
-
+        self.assertContains(response, 'No timecards have been submitted!')
 
 class UserReportsTest(TestCase):
     fixtures = [
@@ -847,12 +785,82 @@ class ReportTests(WebTest):
             ),
         headers={'X_AUTH_USER': self.user.email}
         )
+
+        # Check base case.
         self.assertEqual(len(response.context['data']), 1)
         self.assertContains(
             response,
-            '<a href="/reports/2015-01-01/aaron.snow/">'
+            '<a href="/reports/2015-01-01/aaron.snow/">View</a>'
+        )
+        self.assertNotContains(
+            response,
+            '<a href="/reporting_period/2015-01-01/">Edit</a>'
+        )
+        # Check if timecard is not submitted.
+        self.timecard.submitted = False
+        self.timecard.save()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodListUserView',
+                kwargs={'username':self.user.username}
+            ),
+        headers={'X_AUTH_USER': self.user.email}
+        )
+        self.assertContains(
+            response,
+            '<a href="/reporting_period/2015-01-01/">Edit</a>'
+        )
+        self.timecard.submitted = True
+        self.timecard.save()
+
+        # Check edit ability for a period that has not ended.
+        self.reporting_period.end_date = datetime.datetime.utcnow().date()
+        self.reporting_period.save()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodListUserView',
+                kwargs={'username':self.user.username}
+            ),
+        headers={'X_AUTH_USER': self.user.email}
+        )
+        self.assertContains(
+            response,
+            '<a href="/reporting_period/2015-01-01/">Edit</a>'
+        )
+        # Check editability for a period ended seven or less days ago.
+        date = datetime.datetime.utcnow().date() - datetime.timedelta(days=7)
+        self.reporting_period.end_date = date
+        self.reporting_period.save()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodListUserView',
+                kwargs={'username':self.user.username}
+            ),
+        headers={'X_AUTH_USER': self.user.email}
+        )
+        self.assertContains(
+            response,
+            '<a href="/reporting_period/2015-01-01/">Edit</a>'
         )
 
+        # Check non-editability for a period that ended more than seven days
+        # ago.
+        date = datetime.datetime.utcnow().date() - datetime.timedelta(days=8)
+        self.reporting_period.end_date = date
+        self.reporting_period.save()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodListUserView',
+                kwargs={'username':self.user.username}
+            ),
+        headers={'X_AUTH_USER': self.user.email}
+        )
+        self.assertNotContains(
+            response,
+            '<a href="/reporting_period/2015-01-01/">Edit</a>'
+        )
+
+        # Check no data case.
         for rp in hours.models.ReportingPeriod.objects.all():
             rp.delete()
         response = self.app.get(
@@ -863,6 +871,10 @@ class ReportTests(WebTest):
         headers={'X_AUTH_USER': self.user.email}
         )
         self.assertFalse(response.context['data'])
+        self.assertNotContains(
+            response,
+            '<a href="/reports/2015-01-01/aaron.snow/">View</a>'
+        )
 
     def test_ReportList_get_queryset(self):
         hours.models.ReportingPeriod.objects.create(

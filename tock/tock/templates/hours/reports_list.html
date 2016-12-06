@@ -5,6 +5,12 @@
 <h2>Tock Reports</h2>
 <!--TODO: use URLconf to link to the API URLs as opposed to hard coding. -->
 
+<h3>Reports for {{request.user.first_name}} {{request.user.last_name }}</h3>
+<ul>
+	<li><a href="{% url 'reports:ReportingPeriodListUserView' username=request.user.username %}">List of all timecards</a></li>
+</ul>
+
+
 <h3> Raw data in .csv </h3>
 <ul>
 	{% if user.is_superuser %}
