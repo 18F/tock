@@ -79,7 +79,7 @@ class DashboardView(TemplateView):
         context = super(DashboardView, self).get_context_data(**kwargs)
 
         # Get unit param.
-        unit_param = get_params('unit')
+        unit_param = None #get_params('unit')
 
         # Get requested date and corresponding reporting period.
         requested_date = datetime.datetime.strptime(
@@ -108,10 +108,15 @@ class DashboardView(TemplateView):
             current_employee=True
         )
         units = []
+        missing_units = []
         for e in employees:
-            units.append(
-                (e.unit, e.get_unit_display())
-            )
+            if e.unit:
+                units.append(
+                    (e.unit, e.get_unit_display())
+                )
+            else:
+                missing_units.append(e)
+
         units = sorted(set(units), key=lambda x: x[1])
 
         # Narrow to unit employees, if applicable.
@@ -206,6 +211,7 @@ class DashboardView(TemplateView):
         context.update(
             {   # Unit data.
                 'units':units,
+                'missing_units':missing_units,
                 # Target info.
                 'revenue_target_cr':'${:,}'.format(
                     target.revenue_target_cr
