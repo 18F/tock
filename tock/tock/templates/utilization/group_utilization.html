@@ -21,12 +21,21 @@
   projects that are marked "billable" in Tock, divided by the total number of
   hours submitted on all projects for the given period.
 </p>
+<h3>Select employee type: </h4>
+  {% if request.GET.all == '' %}
+  All | <a href="{% url 'utilization:GroupUtilizationView' %}">Billable Only</a>
+  {% else %}
+  <a href="{% url 'utilization:GroupUtilizationView'%}?all">All</a> | Billable Only
+  {% endif %}
+
 <h3>Jump to:</h3>
-<ul>
-{% for i in unit_choices %}
-  <li><a href="#{{i.1}}">{{i.1}}</a></li>
+{% for i in unit_choices|slice:":1" %}
+  <a href="#{{i.1}}">{{i.1}}</a></li>
 {% endfor %}
-</ul>
+{% for i in unit_choices|slice:"1:" %}
+  | <a href="#{{i.1}}">{{i.1}}</a></li>
+{% endfor %}
+
 
 {% for i in unit_choices %}
 

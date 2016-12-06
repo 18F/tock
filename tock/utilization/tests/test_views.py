@@ -125,6 +125,31 @@ class TestGroupUtilizationView(WebTest):
             response.context['user_list'][0].__dict__['_user_data_cache'].\
             __dict__['unit'], 0)
 
+    def test_all_param(self):
+        self.user_data.is_billable = False
+        self.user_data.save()
+
+        # Check that nonbillable employee is included with all param.
+        response = self.app.get(
+            url='{}?all'.format(
+                reverse(
+                    'utilization:GroupUtilizationView',
+                )
+            ),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
+        self.assertContains(response, 'regular.user')
+        self.assertEqual(response.context['user_list'].count(), 2)
+
+        # Check that nonbillable employee is not included w/o all param.
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
+
+        self.assertNotContains(response, 'regular.user')
+        self.assertEqual(response.context['user_list'].count(), 1)
+
     def test_summary_rows(self):
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
