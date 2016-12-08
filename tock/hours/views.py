@@ -170,6 +170,8 @@ class DashboardView(TemplateView):
             timecard__reporting_period__end_date__lte=requested_date,
             project__accounting_code__billable=True,
             timecard__user__user_data__in=employees
+        ).exclude(
+            project__profit_loss_account__name='FY17 Acquisition Svcs Billable'
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_fytd = hours_billed_fytd * target.labor_rate
 
@@ -179,6 +181,8 @@ class DashboardView(TemplateView):
                 rp_selected.start_date.strftime('%Y-%m-%d'),
             project__accounting_code__billable=True,
             timecard__user__user_data__in=employees
+        ).exclude(
+            project__profit_loss_account__name='FY17 Acquisition Svcs Billable'
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
         rev_weekly = hours_billed_weekly * target.labor_rate
 
