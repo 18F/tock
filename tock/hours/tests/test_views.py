@@ -168,6 +168,33 @@ class DashboardViewTests(WebTest):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_acq_exclusion(self):
+        date = self.rp_2.end_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertNotContains(response, '<td>$-2 (-100.00%)</td>')
+
+        p_l = projects.models.ProfitLossAccount.objects.create(
+            name='FY17 Acquisition Svcs Billable',
+        )
+        self.project_1.profit_loss_account = p_l
+        self.project_1.save()
+        self.project_2.profit_loss_account = p_l
+        self.project_2.save()
+        response = self.app.get(
+            reverse(
+                'reports:DashboardView',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
+
     def test_no_reporting_period(self):
         """Tests errors are handled when there is no matching reporting
         period."""
