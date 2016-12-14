@@ -164,6 +164,8 @@
 }
 
 .entries-total {
+  margin-top: 1rem;
+
 	.entries-add-more {
 		@include span-columns(3);
 	}
