@@ -56,7 +56,12 @@
     {% endfor %}
   </div>
   {% if formset.errors %}
-    <div class="alert-red"><b>{{ formset.non_form_errors }}</b></div>
+    <div class="usa-alert usa-alert-error" role="alert">
+      <div class="usa-alert-body">
+        <h3 class="usa-alert-heading">Complete your timecard</h3>
+        <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+      </div>
+    </div>
   {% endif %}
   {% if messages %}
   <ul class="messages">
