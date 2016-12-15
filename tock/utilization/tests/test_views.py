@@ -66,7 +66,6 @@ class TestGroupUtilizationView(WebTest):
         req_user.save()
 
         req_user_data = UserData.objects.get_or_create(user=req_user)[0]
-        req_user_data.unit = 0
         req_user_data.is_billable = True
         req_user_data.save()
 
@@ -74,7 +73,6 @@ class TestGroupUtilizationView(WebTest):
             username='regular.user'
         )
         self.user_data = UserData.objects.get_or_create(user=self.user)[0]
-        self.user_data.unit = 0
         self.user_data.save()
 
         self.reporting_period = ReportingPeriod.objects.create(
@@ -106,10 +104,6 @@ class TestGroupUtilizationView(WebTest):
             url=reverse('utilization:GroupUtilizationView'),
             headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
-
-        self.assertEqual(len(
-            response.context['unit_choices']), len(UserData.UNIT_CHOICES)
-        )
         self.assertContains(response, 'regular.user')
         self.assertContains(response, 'aaron.snow')
         self.assertTrue(response.context['through_date'])
@@ -121,19 +115,11 @@ class TestGroupUtilizationView(WebTest):
         self.assertTrue(
             response.context['user_list'][0].__dict__['_user_data_cache']
         )
-        self.assertEqual(
-            response.context['user_list'][0].__dict__['_user_data_cache'].\
-            __dict__['unit'], 0)
 
     def test_summary_rows(self):
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
             headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
-        )
-        self.assertEqual(
-            response.context['unit_totals'][0]['recent']['total_hours'],
-            (self.b_timecard_object.hours_spent + \
-            self.nb_timecard_object.hours_spent)
         )
         # Update hours spent.
         self.b_timecard_object.hours_spent = 33.33

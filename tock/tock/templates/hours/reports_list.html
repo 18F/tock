@@ -7,15 +7,6 @@
 
 <h3> Raw data in .csv </h3>
 <ul>
-	{% if user.is_superuser %}
-	<i>Superuser Reports</i>
-	<li>Complete timecard data with grade info:
-			<a href="{% url 'reports:AdminBulkTimecardList' %}">All</a>
-			<a href="{% url 'reports:AdminBulkTimecardList' %}?after=2016-10-01">FY2017</a>
-	</li>
-	<br />
-	<i>Regular Reports</i>
-	{% endif %}
 	<li>Complete timecard data:
 		<a href="{% url 'reports:BulkTimecardList' %}">All</a>
 		<a href="{% url 'reports:BulkTimecardList' %}?after=2016-10-02">FY2017</a>

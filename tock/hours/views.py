@@ -78,9 +78,6 @@ class DashboardView(TemplateView):
         # Get base context.
         context = super(DashboardView, self).get_context_data(**kwargs)
 
-        # Get unit param.
-        unit_param = None #get_params('unit')
-
         # Get requested date and corresponding reporting period.
         requested_date = datetime.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
@@ -104,28 +101,8 @@ class DashboardView(TemplateView):
 
         # Get all current employees.
         employees = UserData.objects.filter(
-            is_18f_employee=True,
             current_employee=True
-        ).exclude(unit__in=[4, 9, 14, 15])
-        units = []
-        missing_units = []
-        for e in employees:
-            if e.unit:
-                units.append(
-                    (e.unit, e.get_unit_display())
-                )
-            else:
-                missing_units.append(e)
-
-        units = sorted(set(units), key=lambda x: x[1])
-
-        # Narrow to unit employees, if applicable.
-        if unit_param:
-            all_count = employees.count()
-            employees = employees.filter(unit=unit_param)
-            org_proportion = employees.count() / all_count
-        else:
-            org_proportion = 1
+        )
 
         # Get calendar info.
         fytd_start_date = get_fy_first_day(requested_date)
@@ -148,21 +125,21 @@ class DashboardView(TemplateView):
 
         # Calculated targets.
         hours_required_cr_fytd = \
-            target.hours_target_cr * percent_of_year * org_proportion
+            target.hours_target_cr * percent_of_year
         hours_required_plan_fytd = \
-            target.hours_target_plan * percent_of_year * org_proportion
+            target.hours_target_plan * percent_of_year
         revenue_required_cr_fytd = \
-            target.revenue_target_cr * percent_of_year * org_proportion
+            target.revenue_target_cr * percent_of_year
         revenue_required_plan_fytd = \
-            target.revenue_target_plan * percent_of_year * org_proportion
+            target.revenue_target_plan * percent_of_year
         hours_required_cr_weekly = \
-            (target.hours_target_cr / target.periods) * org_proportion
+            (target.hours_target_cr / target.periods)
         hours_required_plan_weekly = \
-            (target.hours_target_plan / target.periods) * org_proportion
+            (target.hours_target_plan / target.periods)
         revenue_required_cr_weekly = \
-            (target.revenue_target_cr / target.periods) * org_proportion
+            (target.revenue_target_cr / target.periods)
         revenue_required_plan_weekly = \
-            (target.revenue_target_plan / target.periods) * org_proportion
+            (target.revenue_target_plan / target.periods)
 
         # Get hours billed for fiscal year to date and clean result.
         hours_billed_fytd = clean_result(TimecardObject.objects.filter(
@@ -213,9 +190,7 @@ class DashboardView(TemplateView):
 
         # Update context.
         context.update(
-            {   # Unit data.
-                'units':units,
-                'missing_units':missing_units,
+            {
                 # Target info.
                 'revenue_target_cr':'${:,}'.format(
                     target.revenue_target_cr
@@ -341,28 +316,14 @@ class BulkTimecardSerializer(serializers.Serializer):
     revenue_profit_loss_account_name = serializers.CharField(
         source='revenue_profit_loss_account.name'
     )
-    expense_profit_loss_account = serializers.CharField(
-        source='expense_profit_loss_account.accounting_string'
-    )
-    expense_profit_loss_account_name = serializers.CharField(
-        source='expense_profit_loss_account.name'
-    )
+
 class GeneralSnippetsTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     employee = serializers.StringRelatedField(source='timecard.user')
-    unit = serializers.CharField(source='timecard.user.user_data.unit')
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     notes = serializers.CharField()
-    unit = serializers.SerializerMethodField()
-
-    def get_unit(self,obj):
-        try:
-            unit = obj.timecard.user.user_data.get_unit_display()
-        except ObjectDoesNotExist:
-            unit = ''
-        return unit
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -386,20 +347,12 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
-    grade = serializers.CharField(source='grade.grade')
     revenue_profit_loss_account = serializers.CharField(
         source='revenue_profit_loss_account.accounting_string'
     )
     revenue_profit_loss_account_name = serializers.CharField(
         source='revenue_profit_loss_account.name'
     )
-    expense_profit_loss_account = serializers.CharField(
-        source='expense_profit_loss_account.accounting_string'
-    )
-    expense_profit_loss_account_name = serializers.CharField(
-        source='expense_profit_loss_account.name'
-    )
-
 
 def user_data_csv(request):
     """
@@ -523,11 +476,11 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         try:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user.id).exclude(
-                end_date__lte=self.request.user.user_data.start_date)
+                end_date__lte=self.request.user.date_joined)
             unfinished_reporting_periods = self.queryset.filter(
                 timecard__submitted=False,
                 timecard__user=self.request.user.id).exclude(
-                end_date__lte=self.request.user.user_data.start_date)
+                end_date__lte=self.request.user.date_joined)
         except ValueError:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user)

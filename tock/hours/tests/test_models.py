@@ -9,7 +9,7 @@ import datetime
 
 from hours.models import ReportingPeriod, TimecardObject, Timecard, Targets
 from projects.models import Project, ProfitLossAccount
-from employees.models import EmployeeGrade, UserData
+from employees.models import UserData
 
 class TargetsTests(TestCase):
     def test_string_method(self):
@@ -95,8 +95,8 @@ class TimecardTests(TestCase):
         timecard = Timecard.objects.first()
         self.assertEqual(timecard.user.pk, 1)
         self.assertEqual(timecard.reporting_period.exact_working_hours, 40)
-        self.assertEqual(timecard.created.day, datetime.date.today().day)
-        self.assertEqual(timecard.modified.day, datetime.date.today().day)
+        self.assertEqual(timecard.created.day, datetime.datetime.utcnow().day)
+        self.assertEqual(timecard.modified.day, datetime.datetime.utcnow().day)
         self.assertEqual(len(timecard.time_spent.all()), 2)
 
     def test_time_card_unique_constraint(self):
@@ -121,8 +121,8 @@ class TimecardTests(TestCase):
         self.assertEqual(timecardobj.timecard.user.pk, 1)
         self.assertEqual(timecardobj.project.name, 'openFEC')
         self.assertEqual(timecardobj.hours_spent, 12)
-        self.assertEqual(timecardobj.created.day, datetime.date.today().day)
-        self.assertEqual(timecardobj.modified.day, datetime.date.today().day)
+        self.assertEqual(timecardobj.created.day, datetime.datetime.utcnow().day)
+        self.assertEqual(timecardobj.modified.day, datetime.datetime.utcnow().day)
 
     def test_timecardobject_hours(self):
         """Test the TimeCardObject hours method."""
@@ -140,11 +140,6 @@ class TimecardObjectTests(TestCase):
         Timecard.objects.filter().delete()
         self.user = User.objects.get_or_create(id=1)
         self.userdata = UserData.objects.create(user=self.user[0])
-        self.grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
-            grade=15,
-            g_start_date=datetime.date(2016, 1, 1)
-        )
         self.reporting_period = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=7),
             end_date=datetime.date.today()
@@ -217,70 +212,3 @@ class TimecardObjectTests(TestCase):
             tco.revenue_profit_loss_account,
             tco_new.revenue_profit_loss_account
         )
-        # Test that a correct profit / loss code will be appended to
-        # expense_profit_loss_account from UserData.
-        self.userdata.profit_loss_account = self.pl_acct_3
-        self.userdata.save()
-        tco.save()
-        self.assertEqual(tco.expense_profit_loss_account, self.pl_acct_3)
-
-        # Test that an incorrect profit / loss code will not be appended to
-        # expense_profit_loss_account.
-        self.userdata.profit_loss_account = self.pl_acct
-        self.userdata.save()
-        tco.save()
-        self.assertFalse(tco.expense_profit_loss_account)
-
-    def test_employee_grade(self):
-        """Checks that employee grade is appended to timecard object on save."""
-        tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project[0],
-            hours_spent=self.hours_spent
-        )
-
-        self.assertEqual(tco.grade, self.grade)
-
-    def test_correct_grade(self):
-        """Checks that latest grade is appended to the timecard object on
-        save."""
-        new_grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
-            grade=13,
-            g_start_date=datetime.date(2016, 1, 2)
-        )
-        tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project[0],
-            hours_spent=self.hours_spent
-        )
-
-        self.assertEqual(new_grade, tco.grade)
-
-    def test_if_grade_is_none(self):
-        """Checks that no grade is appended if no grade exists."""
-        EmployeeGrade.objects.filter(employee=self.user[0]).delete()
-        tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project[0],
-            hours_spent=self.hours_spent
-        )
-
-        self.assertFalse(tco.grade)
-
-    def test_future_grade_only(self):
-        """Checks that no grade is appended if the only EmployeeGrade object has
-         a g_start_date that is after the end date of the reporting period."""
-        EmployeeGrade.objects.filter(employee=self.user[0]).delete()
-        newer_grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
-            grade=13,
-            g_start_date=self.reporting_period.end_date + datetime.timedelta(days=1)
-        )
-        tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project[0],
-            hours_spent=self.hours_spent
-        )
-
-        self.assertFalse(tco.grade)

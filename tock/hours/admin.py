@@ -61,11 +61,8 @@ class TimecardObjectInline(admin.TabularInline):
     model = TimecardObject
     readonly_fields = [
         'submitted',
-        'grade',
-        'revenue_profit_loss_account',
-        'expense_profit_loss_account'
+        'revenue_profit_loss_account'
     ]
-
 
 class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)

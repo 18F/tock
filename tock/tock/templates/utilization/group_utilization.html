@@ -21,18 +21,10 @@
   projects that are marked "billable" in Tock, divided by the total number of
   hours submitted on all projects for the given period.
 </p>
-<h3>Jump to:</h3>
-<ul>
-{% for i in unit_choices %}
-  <li><a href="#{{i.1}}">{{i.1}}</a></li>
-{% endfor %}
-</ul>
-
-{% for i in unit_choices %}
 
 <table class="report_table">
   <caption>
-    <h3 id="{{i.1}}">{{i.1}}</h3>
+    <h3 id="">_</h3>
   </caption>
   <thead>
     <tr class="report_table__header-row">
@@ -42,45 +34,8 @@
       <th scope="col">Fiscal Year to Date <br> (Ending {{ through_date }}) <br><span class="table-subtext">% billable (billable hrs / total hrs)</span></th>
     </tr>
   </thead>
-  <tfoot>
-    <tr>
-      <th scope="row"><b>Totals:</b></th>
-      <td>
-        <b>
-        {% for ut in unit_totals %}
-        {% if i.1 is ut.last.unit_name %}
-          {{ ut.last.utilization }}<br>
-          ({{ ut.last.billable_hours }} / {{ ut.last.total_hours }})
-        {% endif %}
-        {% endfor %}
-        </b>
-      </td>
-      <td>
-        <b>
-        {% for ut in unit_totals %}
-        {% if i.1 is ut.last.unit_name %}
-          {{ ut.recent.utilization }}<br>
-          ({{ ut.recent.billable_hours }} / {{ ut.recent.total_hours }})
-        {% endif %}
-        {% endfor %}
-        </b>
-      </td>
-      <td>
-        <b>
-        {% for ut in unit_totals %}
-        {% if i.1 is ut.last.unit_name %}
-          {{ ut.fytd.utilization }}<br>
-          ({{ ut.fytd.billable_hours }} / {{ ut.fytd.total_hours }})
-        {% endif %}
-        {% endfor %}
-        </b>
-      </td>
-    </tr>
-  </tfoot>
   <tbody>
   {% for userdata in object_list %}
-
-  {% if userdata.unit is i.0 %}
     <tr class="report_table__row">
       <th scope="row">
         {{ userdata.user_data }}
@@ -115,12 +70,9 @@
       {% endif %}
       </td>
     </tr>
-  {% endif %}
-  {% endfor %}
+    {% endfor %}
   </tbody>
 </table>
-
-{% endfor %}
 
 {% else %}
 
