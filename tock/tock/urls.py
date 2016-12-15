@@ -26,10 +26,6 @@ urlpatterns = [
         'employees.urls',
         namespace='employees'
     )),
-    url(r'^utilization/', include(
-        'utilization.urls',
-        namespace='utilization'
-    )),
     url(r'^projects/', include(projects.urls)),
 
     # TODO: version the API?

@@ -31,7 +31,6 @@ INSTALLED_APPS = (
     'hours',
     'employees',
     'api',
-    'utilization',
     'rest_framework.authtoken',
 )
 

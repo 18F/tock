@@ -35,7 +35,7 @@ from .forms import (
     TimecardFormSet,
     timecard_formset_factory
 )
-from utilization.utils import calculate_utilization, get_fy_first_day
+from tock.utils import calculate_utilization, get_fy_first_day
 
 class DashboardReportsList(ListView):
     template_name = 'hours/dashboard_list.html'
