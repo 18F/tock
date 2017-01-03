@@ -1,71 +1,32 @@
 ---
-# .about.yml project metadata
-#
-# Copy this template into your project repository's root directory as
-# .about.yml and fill in the fields as described below.
-
-# This is a short name of your project that can be used as a URL slug.
-# (required)
 name: tock
-
-# This is the display name of your project. (required)
 full_name: Tock
 
-# What is the problem your project solves? What is the solution? Use the
-# format shown below. The #dashboard team will gladly help you put this
-# together for your project. (required)
 description: |
   18F uses Tock to track our time, so that we can bill clients accurately and meet our legal and regulatory obligations.
 
-# What is the measurable impact of your project? Use the format shown below.
-# The #dashboard team will gladly help you put this together for your project.
-# (required)
 impact: |
   We built a web app that allows 18F employees to log the hours they spend on various projects.
   We use this information for client billing and for internal analytics on what our team is working on.
-
-# What kind of team owns the repository? (required)
-# values: guild, working-group, project
+  
 owner_type: project
 
-# What is your project's current status? (required)
-# values: discovery, alpha, beta, live
 stage: live
 
-# Should this repo have automated tests? If so, set to `true`. (required)
-# values: true, false
 testable: true
 
-# What are the licenses that apply to the project and/or its components?
-# (required)
-# Items by property name pattern:
-#   .*:
-#     name: Name of the license from the Software Package Data Exchange (SPDX): https://spdx.org/licenses/
-#     url: URL for the text of the license
 licenses:
-  placeholder_label:
+  tock:
+    name: Public Domain (CC0)
+    url: https://github.com/18F/tock/blob/master/LICENSE.md
 
-# Who is the partner for your project? (Use the full name of the partner
-# documented here:
-# https://github.com/18F/dashboard/blob/staging/_data/partners.yml)
 partners:
 - 18F
 
-# The main point of contact(s) and/or the issue reporting system for your
-# project, and either a `mailto:` link or URL for each contact.
-# Items:
-# - url: URL for the link
-#   text: Anchor text for the link
 contact:
 - url: https://github.com/18F/tock/issues
   text: Tock Issue Tracker
 
-# Who are the team members on your project? You can specify GitHub usernames,
-# email addresses, or other organizational usernames. (required)
-# Items:
-# - github: GitHub user name
-#   id: Internal team identifier/user name
-#   role: Team member's role; leads should be designated as 'lead'
 team:
 - github: @joshuabailes
   role: product owner
@@ -84,17 +45,9 @@ team:
   
 - github: @lauraponce
   role: research
-  
-# What kind of content is contained in the project repository?
-# values: app, docs, policy
+
 type: app
 
-# What are the links to key artifacts associated with your project? e.g. the
-# production site, documentation.
-# Items:
-# - url: URL for the link
-#   text: Anchor text for the link
-#   category: Type of the link
 links:
 - url: https://tock.18f.gov/
   text: Tock production site
@@ -103,8 +56,8 @@ links:
 stack:
 - Cloud.gov
 - Cloud.gov authentication
-- Django
 - Docker
+- Django
 
 # What are the services used to supply project status information?
 # Items:
