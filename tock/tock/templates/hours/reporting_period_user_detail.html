@@ -2,56 +2,64 @@
 
 {% block content %}
 
-<h2>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
-
-<table class="table-minimal report_table">
-	<tr class="report_table__header-row">
-		<th>Project</th>
-		<th>Billable</th>
-		<th>Number of Hours</th>
-	</tr>
-	{% for entry in object.timecardobjects.all %}
-	<tr class="report_table__row">
-		<td>{{ entry.project }}</td>
-		<td>
-		{% if entry.project.is_billable %}
-        <i class="fa fa-money icon-green"></i> <em>Billable</em>
-    {% else %}
-      	<i class="fa fa-money icon-18f"></i> <em>Non-Billable</em>
-    {% endif %}
-    </td>
-		<td>{{ entry.hours_spent }}</td>
-	</tr>
-    {% if entry.notes %}
-    <tr class="report_table__row">
-        <td colspan="3">
-            <strong>Notes entered for {{ entry.project }}</strong><br />
-
-            <ul>
-                {% for note in entry.notes_list %}
-                <li>{{ note }}</li>
-                {% endfor %}
-            <ul>
-        </td>
+<table>
+  <caption>
+    <h2>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h2>
+  </caption>
+  <thead>
+    <tr>
+      <th>Project</th>
+      <th>Billable</th>
+      <th>Number of Hours</th>
     </tr>
-    {% endif %}
-	{% endfor %}
+  </thead>
+  {% for entry in object.timecardobjects.all %}
+  <tbody>
+    <tr>
+      <th scope="row">{{ entry.project }}</th>
+      <td>
+      {% if entry.project.is_billable %}
+        <i class="fa fa-money icon-green"></i> <em>Billable</em>
+      {% else %}
+        <i class="fa fa-money icon-18f"></i> <em>Non-Billable</em>
+      {% endif %}
+      </td>
+      <td>{{ entry.hours_spent }}</td>
+    </tr>
+    {% if entry.notes %}
+    <tr>
+      <td colspan="3">
+        <strong>Notes entered for {{ entry.project }}</strong>
+        {% for note in entry.notes_list %}
+        <p>{{ note }}</p>
+        {% endfor %}
+      </td>
+    </tr>
+  </tbody>
+  {% endif %}
+  {% endfor %}
 </table>
 <div>First Submitted: {{ object.created }}</div>
 Last Changed: {{ object.modified }}
 
-<h3> Reporting Period Summary </h3>
-<table class="table-minimal report_table">
-	<tr class="report_table__header-row">
-		<th>Billable Hours</th>
-		<th>Total Hours</th>
-		<th>Billable %<br><span class="table-subtext">(billable hrs / total hrs)</span></th>
-	</tr>
-	<tr class="report_table__header-row">
-		<td> {{ user_billable_hours }} </td>
-		<td> {{ user_all_hours }} </td>
-		<td> {{ user_utilization }} </td>
-	</tr>
+<table>
+  <caption>
+    <h3>Reporting Period Summary</h3>
+  </caption>
+  <thead>
+    <tr>
+      <th>Billable Hours</th>
+      <th>Total Hours</th>
+      <th>Billable %<br><span class="table-subtext">(billable hrs / total hrs)</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td> {{ user_billable_hours }} </td>
+      <td> {{ user_all_hours }} </td>
+      <td> {{ user_utilization }} </td>
+    </tr>
+  </tbody>
 </table>
 
 {% endblock %}
