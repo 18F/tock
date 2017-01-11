@@ -18,6 +18,8 @@ deploy()
 	echo "$current_deployment is currently deployed, pushing $next_deployment"
 	cf push $next_deployment --no-start -n $app_name-$timestamp
 	cf push $next_deployment -n $app_name-$timestamp
+	echo "binding tock-creds-prod to $next_deployment"
+	cf bs $next_deployment tock-creds-prod
 	echo "Mapping $next_deployment to the Main Domain"
 	cf map-route $next_deployment 18f.gov -n $app_name
 	cf map-route $next_deployment 18f.gov -n $app_name --path api
