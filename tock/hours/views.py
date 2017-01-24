@@ -1,6 +1,7 @@
 import csv
 import datetime
 import io
+from decimal import Decimal
 from itertools import chain
 from operator import attrgetter
 
@@ -10,11 +11,12 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
 from django.contrib.auth.decorators import user_passes_test
+from django.template.defaultfilters import pluralize
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
@@ -36,6 +38,7 @@ from .forms import (
     timecard_formset_factory
 )
 from utilization.utils import calculate_utilization, get_fy_first_day
+from .hours_adder import HoursAdder
 
 class DashboardReportsList(ListView):
     template_name = 'hours/dashboard_list.html'
@@ -321,7 +324,6 @@ class DashboardView(TemplateView):
         )
         return context
 
-
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     project_id = serializers.CharField(source='project.id')
@@ -596,6 +598,30 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
 
     def get_success_url(self):
         return reverse("ListReportingPeriods")
+
+def add_hours_view(request):
+    reporting_period = ReportingPeriod.objects.latest()
+    hours_adder = HoursAdder(
+        project_id = request.GET['project'],
+        hours = request.GET['hours'],
+        user_id = request.user.id,
+        reporting_period_id = reporting_period.id,
+        undo_url = reverse('AddHours')
+    )
+
+    hours_adder.perform_operation()
+
+    if hours_adder.successful():
+        message_type = messages.INFO
+    else:
+        message_type = messages.ERROR
+
+    messages.add_message(
+        request,
+        message_type,
+        hours_adder.message
+    )
+    return redirect(reverse('reportingperiod:UpdateTimesheet', args=[reporting_period]))
 
 
 class TimecardView(UpdateView):
