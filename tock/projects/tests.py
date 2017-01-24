@@ -26,8 +26,8 @@ class AdminTests(TestCase):
     def test_profitloss_form(self):
         """Tests custom validation on the ProfitLossAccountForm."""
         form_data = {
-            'as_start_date':datetime.date.today(),
-            'as_end_date':datetime.date.today() - datetime.timedelta(days=1),
+            'as_start_date':datetime.datetime.utcnow(),
+            'as_end_date':datetime.datetime.utcnow() - datetime.timedelta(days=1),
             'name': 'foo',
             'accounting_string':'bar',
             'account_type': 'Revenue'
@@ -42,10 +42,10 @@ class AdminTests(TestCase):
         ProfitLossAccount.objects.create(
             name='PL',
             accounting_string='1234',
-            as_start_date=datetime.date.today() + datetime.timedelta(
+            as_start_date=datetime.datetime.utcnow() + datetime.timedelta(
                 days=10
             ),
-            as_end_date=datetime.date.today() + datetime.timedelta(days=20),
+            as_end_date=datetime.datetime.utcnow() + datetime.timedelta(days=20),
             account_type='Revenue'
         )
         data = {
@@ -53,7 +53,7 @@ class AdminTests(TestCase):
             'mbnumber':'',
             'accounting_code':AccountingCode.objects.first().id,
             'description':'',
-            'start_date':datetime.date.today(),
+            'start_date':datetime.datetime.utcnow(),
             'end_date':'',
             'active':'',
             'notes_required':'',
@@ -410,7 +410,7 @@ class TestProjectTimeline(WebTest):
             name='Test Project',
         )
         self.dates = [
-            datetime.date.today() + datetime.timedelta(weeks * 7)
+            datetime.datetime.utcnow().date() + datetime.timedelta(weeks * 7)
             for weeks in range(10)
         ]
         self.objs = [

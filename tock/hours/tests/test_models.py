@@ -95,8 +95,9 @@ class TimecardTests(TestCase):
         timecard = Timecard.objects.first()
         self.assertEqual(timecard.user.pk, 1)
         self.assertEqual(timecard.reporting_period.exact_working_hours, 40)
-        self.assertEqual(timecard.created.day, datetime.date.today().day)
-        self.assertEqual(timecard.modified.day, datetime.date.today().day)
+        today_utc_day = datetime.datetime.utcnow().day
+        self.assertEqual(timecard.created.day, today_utc_day)
+        self.assertEqual(timecard.modified.day, today_utc_day)
         self.assertEqual(len(timecard.time_spent.all()), 2)
 
     def test_time_card_unique_constraint(self):
@@ -121,8 +122,10 @@ class TimecardTests(TestCase):
         self.assertEqual(timecardobj.timecard.user.pk, 1)
         self.assertEqual(timecardobj.project.name, 'openFEC')
         self.assertEqual(timecardobj.hours_spent, 12)
-        self.assertEqual(timecardobj.created.day, datetime.date.today().day)
-        self.assertEqual(timecardobj.modified.day, datetime.date.today().day)
+        today_utc_day = datetime.datetime.utcnow().day
+
+        self.assertEqual(timecardobj.created.day, today_utc_day)
+        self.assertEqual(timecardobj.modified.day, today_utc_day)
 
     def test_timecardobject_hours(self):
         """Test the TimeCardObject hours method."""
@@ -146,8 +149,8 @@ class TimecardObjectTests(TestCase):
             g_start_date=datetime.date(2016, 1, 1)
         )
         self.reporting_period = ReportingPeriod.objects.create(
-            start_date=datetime.date.today() - datetime.timedelta(days=7),
-            end_date=datetime.date.today()
+            start_date=datetime.datetime.utcnow() - datetime.timedelta(days=7),
+            end_date=datetime.datetime.utcnow()
         )
         self.timecard = Timecard.objects.create(
             user=self.user[0],
@@ -156,22 +159,22 @@ class TimecardObjectTests(TestCase):
         self.pl_acct = ProfitLossAccount.objects.create(
             name='PL',
             accounting_string='string',
-            as_start_date=datetime.date.today() - datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() + datetime.timedelta(days=355),
+            as_start_date=datetime.datetime.utcnow() - datetime.timedelta(days=10),
+            as_end_date=datetime.datetime.utcnow() + datetime.timedelta(days=355),
             account_type='Revenue'
         )
         self.pl_acct_2 = ProfitLossAccount.objects.create(
             name='PL2',
             accounting_string='newstring',
-            as_start_date=datetime.date.today() + datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() - datetime.timedelta(days=10),
+            as_start_date=datetime.datetime.utcnow() + datetime.timedelta(days=10),
+            as_end_date=datetime.datetime.utcnow() - datetime.timedelta(days=10),
             account_type='Expense'
         )
         self.pl_acct_3 = ProfitLossAccount.objects.create(
             name='PL3',
             accounting_string='newstring',
-            as_start_date=datetime.date.today() - datetime.timedelta(days=10),
-            as_end_date=datetime.date.today() + datetime.timedelta(days=355),
+            as_start_date=datetime.datetime.utcnow() - datetime.timedelta(days=10),
+            as_end_date=datetime.datetime.utcnow() + datetime.timedelta(days=355),
             account_type='Expense'
         )
 

@@ -44,7 +44,7 @@ class AuthTests(WebTest):
         self.assertEqual('tock.tock', user.username)
         self.assertIsNotNone(UserData.objects.get(user=user))
         self.assertEqual(
-            datetime.date.today(), UserData.objects.get(user=user).start_date
+            datetime.datetime.utcnow().date(), UserData.objects.get(user=user).start_date
         )
         self.assertEqual('Tock', user.first_name)
         self.assertEqual('Tock', user.last_name)
