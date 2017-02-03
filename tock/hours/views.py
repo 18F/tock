@@ -366,6 +366,7 @@ class GeneralSnippetsTimecardSerializer(serializers.Serializer):
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
+    project_id = serializers.CharField(source='project.id')
     employee = serializers.StringRelatedField(source='timecard.user')
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
