@@ -420,6 +420,7 @@ class BulkTimecardsTests(TestCase):
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
+            'project_id',
             'billable',
             'employee',
             'start_date',
