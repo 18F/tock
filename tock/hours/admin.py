@@ -78,3 +78,4 @@ class TimecardAdmin(admin.ModelAdmin):
 admin.site.register(HolidayPrefills)
 admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
 admin.site.register(Timecard, TimecardAdmin)
+admin.site.register(Targets)

@@ -4,7 +4,7 @@ We use Tock to track our time. You can read more about Tock in this [blog post](
 
 [![Build Status](https://travis-ci.org/18F/tock.svg)](https://travis-ci.org/18F/tock)
 
-![Screenshot of Tock](https://18f.gsa.gov/assets/blog/tockingtime/tock03.jpg)
+![Screenshot of Tock](https://github.com/18F/tock/blob/master/Screen%20Shot%202016-12-05%20at%2011.30.54%20AM.png)
 
 If your team uses Tock and Slack, you might also find the ["angrytock" reminder bot](https://github.com/18F/angrytock) helpful.
 

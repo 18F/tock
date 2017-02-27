@@ -23,5 +23,14 @@ urlpatterns = [
         views.general_snippets_only_timecard_list,
         name='GeneralSnippetsView'
     ),
-
+    url(
+        r'^dashboard/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/$',
+        views.DashboardView.as_view(),
+        name='DashboardView'
+    ),
+    url(
+        r'^dashboard/list$',
+        view=views.DashboardReportsList.as_view(),
+        name='DashboardReportsList'
+    ),
 ]
