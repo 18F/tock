@@ -4,8 +4,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
-from .models import ReportingPeriod, Timecard, TimecardObject, HolidayPrefills
-
+from .models import ReportingPeriod, Timecard, TimecardObject, Targets, HolidayPrefills
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
     parameter_name = 'reporting_period'
