@@ -672,37 +672,29 @@ class TimecardView(UpdateView):
 
     def prefilled_formset(self):
         timecard = self.last_timecard()
+        project_ids, extra = [], 1
         if timecard:
             project_ids = set(
                 tco.project_id for tco in
                 timecard.timecardobjects.all()
             )
             extra = len(project_ids) + 1
-        else:
-            project_ids = []
-            extra = 1
-        formset = timecard_formset_factory(extra=extra)
-        rp = ReportingPeriod.objects.prefetch_related(
-            'holiday_prefills__project'
-        ).get(
-            start_date=self.kwargs['reporting_period'])
-        initial = []
+
+        rp = ReportingPeriod.objects \
+            .prefetch_related('holiday_prefills__project') \
+            .get(start_date=self.kwargs['reporting_period'])
+
+        init = []
         if rp.holiday_prefills:
-            for hp in rp.holiday_prefills.all():
-                initial.append(
-                    {
-                        'hours_spent':hp.hours_per_period,
-                        'project':hp.project.id
-                    }
-                )
-        for pid in project_ids:
-            initial.append(
-                {
-                    'hours_spent': None,
-                    'project': pid
-                }
-            )
-        return formset(initial=initial)
+            init += [
+                {'hours_spent': hp.hours_per_period, 'project': hp.project.id}
+                for hp in rp.holiday_prefills.all()
+            ]
+        init += [{'hours_spent': None, 'project': pid} for pid in project_ids]
+
+        formset = timecard_formset_factory(extra=extra)
+        return formset(initial=init)
+
 
     def form_valid(self, form):
         context = self.get_context_data()
