@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 
 import datetime
 
-from hours.models import ReportingPeriod, TimecardObject, Timecard, Targets
+from hours.models import ReportingPeriod, TimecardObject, Timecard, Targets, HolidayPrefills
 from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade, UserData
 
@@ -20,6 +20,22 @@ class TargetsTests(TestCase):
         )
         self.assertEqual(obj.__str__(), 'Foo! (FY2017)')
 
+
+class HolidayPrefillsTests(TestCase):
+    fixtures = ['projects/fixtures/projects.json',]
+    def setUp(self):
+        self.holiday_prefills = HolidayPrefills.objects.create(
+            project=Project.objects.first(),
+            hours_per_period=8
+        )
+
+    def test_string_method(self):
+        """Tests custom string method returns correct string"""
+        expected_string = '{} ({} hrs.)'.format(
+            self.holiday_prefills.project.name,
+            self.holiday_prefills.hours_per_period
+        )
+        self.assertEqual(expected_string, self.holiday_prefills.__str__())
 
 class ReportingPeriodTests(TestCase):
     def setUp(self):
