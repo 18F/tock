@@ -155,7 +155,12 @@ class TimecardObject(models.Model):
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    grade = models.ForeignKey(EmployeeGrade, blank=True, null=True)
+    grade = models.ForeignKey(
+        EmployeeGrade,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL
+    )
 
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
