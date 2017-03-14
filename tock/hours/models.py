@@ -197,10 +197,10 @@ class TimecardObject(models.Model):
         """Custom save() method to append employee grade info and the submitted
         status of the related timecard."""
 
-        self.grade = EmployeeGrade.get_grade(
-            self.timecard.reporting_period.end_date,
-            self.timecard.user
-        )
+        self.grade = EmployeeGrade.objects.filter(
+            employee=self.timecard.user,
+            g_start_date__lte=self.timecard.reporting_period.end_date
+        ).order_by('g_start_date').last()
 
         self.submitted = self.timecard.submitted
 
