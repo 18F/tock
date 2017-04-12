@@ -21,6 +21,7 @@ class GroupUtilizationView(ListView):
         accept a form response that allows the user or app to dynamically
         customize number of periods to include in the queryset."""
 
+
         available_periods = ReportingPeriod.objects.count()
         requested_periods = 4
 
@@ -28,13 +29,16 @@ class GroupUtilizationView(ListView):
             recent_rps = get_dates(requested_periods)
         else:
             recent_rps = get_dates(available_periods)
-
-        billable_staff = User.objects.filter(
-            user_data__is_billable=True,
-            user_data__current_employee=True
-        ).prefetch_related('user_data')
-
-        for staffer in billable_staff:
+        if 'all' in self.request.GET.dict().keys():
+            employees = User.objects.filter(
+                user_data__current_employee=True
+            ).prefetch_related('user_data')
+        else:
+            employees = User.objects.filter(
+                user_data__is_billable=True,
+                user_data__current_employee=True
+            ).prefetch_related('user_data')
+        for staffer in employees:
             staffer.unit = staffer.user_data.unit
 
             """Create smallest possible TimecardObject queryset based on the
@@ -155,7 +159,7 @@ class GroupUtilizationView(ListView):
                 }
             )
 
-        return billable_staff
+        return employees
 
     def get_context_data(self, **kwargs):
         context = super(GroupUtilizationView, self).get_context_data(**kwargs)
