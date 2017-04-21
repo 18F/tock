@@ -83,7 +83,6 @@ class SelectWithData(forms.widgets.Select):
             notes_displayed_html, notes_required_html, alerts_html,
             conditional_escape(force_text(option_label)))
 
-
 def choice_label_for_project(project):
     """
     Returns the label for a project as it should appear in an
@@ -206,6 +205,24 @@ class TimecardObjectForm(forms.ModelForm):
 
         return self.cleaned_data
 
+class AddHoursForm(forms.Form):
+    """Form for Adding Hours to the users unsubmitted timecard"""
+
+    project = forms.ChoiceField(
+        widget=SelectWithData(),
+        required=True,
+        choices=projects_as_choices
+        )
+    hours = forms.DecimalField(
+        min_value=0,
+        required=True,
+        widget=forms.NumberInput(attrs={
+            'step': '1'
+        })
+    )
+
+    def clean(self):
+        super(AddHoursForm, self).clean()
 
 class TimecardInlineFormSet(BaseInlineFormSet):
     """This FormSet is used for submissions of timecard entries."""

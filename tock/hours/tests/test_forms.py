@@ -9,7 +9,7 @@ import projects.models
 from hours.forms import (
     TimecardForm, TimecardObjectForm,
     TimecardFormSet, projects_as_choices,
-    choice_label_for_project
+    choice_label_for_project, AddHoursForm
 )
 
 
@@ -294,3 +294,33 @@ class TimecardInlineFormSetTests(TestCase):
         form_data['timecardobjects-0-notes'] = 'Did some work.'
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())
+
+class AddHoursFormTests(TestCase):
+    fixtures = [
+        'projects/fixtures/projects.json',
+        'tock/fixtures/prod_user.json',
+    ]
+
+    def setUp(self):
+        self.reporting_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 1),
+            end_date=datetime.date(2015, 1, 7),
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60)
+        self.user = get_user_model().objects.get(id=1)
+        self.project_1 = projects.models.Project.objects.get(name="openFEC")
+
+    def test_invalid_form(self):
+        form_data = {}
+        form = AddHoursForm(form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_valid_form(self):
+        form_data = {
+            'project': self.project_1.id,
+            'hours': 2
+        }
+
+        form = AddHoursForm(form_data)
+        self.assertTrue(form.is_valid())
