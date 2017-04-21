@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
@@ -516,11 +516,6 @@ class ReportingPeriodListView(PermissionMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
-        context['completed_reporting_periods'] = self.queryset.filter(
-            timecard__submitted=True,
-            timecard__user=self.request.user.id
-        ).distinct().order_by('-start_date')[:5]
-
         try:
             unstarted_reporting_periods = self.queryset.exclude(
                 timecard__user=self.request.user.id).exclude(
@@ -541,6 +536,52 @@ class ReportingPeriodListView(PermissionMixin, ListView):
             key=attrgetter('start_date'))
         return context
 
+class ReportingPeriodListUserView(TemplateView):
+    template_name = 'hours/reporting_period_user_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(
+            ReportingPeriodListUserView, self).get_context_data(**kwargs)
+
+        timecards = Timecard.objects.prefetch_related(
+            'reporting_period'
+        ).filter(
+            user=self.request.user.id
+        )
+        data = []
+        for timecard in timecards:
+            data.append(
+                {
+                    'reporting_period':timecard.reporting_period,
+                    'timecard':timecard,
+                    'actions':['View']
+                }
+        )
+        today = datetime.date.today()
+        for datum in data:
+            if datum['timecard'].submitted:
+                rp_end_date = datum['reporting_period'].end_date
+                # If the reporting period has not ended, all actions available.
+                # While this could be handled in the next if statement, there
+                # could be future needs to provide additional options for
+                # reporting periods that have not yet closed, for example
+                # to delete the entire timecard and start again.
+                if rp_end_date >= today:
+                    datum['actions'].extend(['Edit'])
+                # If the reporting period has ended, but was within the last 7
+                # days and the timecard is submitted, edit action availble.
+                elif (today - rp_end_date).days <= 7:
+                    datum['actions'].append('Edit')
+            else:
+                # If never submitted, all actions available.
+                datum['actions'].extend(['Edit'])
+        data = sorted(
+            data,
+            key=lambda x: x['reporting_period'].start_date,
+            reverse=True
+        )
+        context.update({'data':data})
+        return context
 
 class ReportingPeriodCreateView(PermissionMixin, CreateView):
     form_class = ReportingPeriodForm
@@ -612,6 +653,36 @@ class TimecardView(UpdateView):
             reporting_period_id=r.id,
             user_id=self.request.user.id)
         return obj
+
+    def get(self, request, *args, **kwargs):
+        """Get timecard form only for last N reporting periods or if
+        unsubmitted timecards."""
+
+        self.object = self.get_object()
+        context = self.get_context_data(object=self.object)
+
+        if self.object.submitted == False:
+            # If timecard has not been submitted, return form.
+            return self.render_to_response(context)
+        today = datetime.date.today()
+        rp_end_date = self.object.reporting_period.end_date
+        if rp_end_date > today:
+            # If timecard has been submitted, but the reporting period has not
+            # ended, return form.
+            return self.render_to_response(context)
+        elif (today - rp_end_date).days > 7:
+            # If the timecard has been submitted and the end date of the
+            # reporting period is greater than seven days, do not return form
+            # instead return the report page.
+            return redirect(
+                reverse(
+                    'reports:ReportingPeriodUserDetailView',
+                    kwargs={
+                        'username':request.user.username,
+                        'reporting_period':self.kwargs['reporting_period']
+                    }
+                )
+            )
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)

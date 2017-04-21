@@ -24,6 +24,11 @@ urlpatterns = [
         name='GeneralSnippetsView'
     ),
     url(
+        r'^(?P<username>[A-Za-z0-9._%+-]*)/$',
+        views.ReportingPeriodListUserView.as_view(),
+        name='ReportingPeriodListUserView'
+    ),
+    url(
         r'^dashboard/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/$',
         views.DashboardView.as_view(),
         name='DashboardView'
