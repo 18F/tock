@@ -6,42 +6,29 @@
 <div class="clear-fix">
   <div class="alert-grey">
     <p class="alert-body">
-      <b>Reminder!</b> Please complete your Tock time card for the prior week no later than end of the day on Monday (or the first business day of the following week).
+      <strong>Submit your time card for the week</strong>
+      by the end of the day on Friday (or the last business day of the week).
+      If you are authorized to work on Saturday for any reason, enter and
+      submit your time by the end of the day on Saturday.
     </p>
     <p class="alert-body">
-       <b> What's this <i> Float </i> </b> thing I keep hearing about? Float is a tool 18F uses to schedule employee availability across our many projects. For now, Float is focused on projects that are "billable" (i.e. where we have a signed reimbursable agreement with a partner). Want to see your Float assignments? Click the <b><a href="https://login.float.com/?people={{ user.first_name}}+{{user.last_name}}" target="_blank">View Float assigments</a></b> link in the left sidebar! Have a question about your Float assignment? Please check in with your project lead, your supervisor, or head over to #admins-float on Slack.
     </p>
   </div>
-  {% if is_billable %}
-  <div class="alert-red">
-    {% if float_data.hard_fail %}
-      <b>{{ float_data.hard_fail }}</b>
-    {% else %}
-        {% if float_data.error %}
-          <b>{{ float_data.error }}</b>
-        {% else %}
-          {% if float_data.tasks %}
-          <p><b> For {{ float_data.metadata.float_period_start }} to
-            {{ float_data.metadata.float_period_end }} you were scheduled in Float
-            for:
-          </b></p>
-          <ul>
-            {% for i in float_data.tasks %}
-             <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
-                {% if i.task_name %}
-                assigned to {{ i.task_name }}
-                {% endif %}
-            {% endfor %}
-          {% else %}
-            <b>Tock was able to locate you in Float, but could not find any task data for you
-               during the period of {{ float_data.metadata.float_period_start }} to
-              {{ float_data.metadata.float_period_end }}. If you believe this is
-              incorrect, please contact your project lead or supervisor.</b>
-          {% endif %}
-        {% endif %}
-      {% endif %}
-  </div>
-  {% endif %}
+    {% if float_data.tasks %}
+    <div class="alert-red">
+      <p><b> For {{ float_data.metadata.float_period_start }} to
+        {{ float_data.metadata.float_period_end }} you were scheduled in Float
+        for:
+      </b></p>
+      <ul>
+        {% for i in float_data.tasks %}
+         <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
+            {% if i.task_name %}
+            assigned to {{ i.task_name }}
+            {% endif %}
+        {% endfor %}
+      </div>
+    {% endif %}
 </div>
 
 <form class="form-horizontal form-inline" method="post">

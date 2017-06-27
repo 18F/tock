@@ -93,23 +93,6 @@ class UserData(models.Model):
     def __str__(self):
         return '{0}'.format(self.user)
 
-    def get_people_float_data(self):
-        result = get_float_data(
-            endpoint='people',
-            params=None
-        )
-        return result
-
-    def get_people_id(self, user, json):
-        userdata = UserData.objects.get(user=user)
-        people_data = json
-        for i in people_data['people']:
-            if i['im'] == user.username:
-                float_people_id = i['people_id']
-                userdata.float_people_id = float_people_id
-                userdata.save()
-                return float_people_id
-
     def save(self, *args, **kwargs):
         if self.current_employee is False:
             try:

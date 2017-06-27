@@ -9,8 +9,6 @@ from django.contrib.auth.models import User
 
 from tock.settings import base, dev
 from employees.models import UserData
-from tock.utils import get_free_port
-from tock.mock_api_server import TestMockServer
 
 class EmployeeGradeTests(TestCase):
     fixtures = ['tock/fixtures/prod_user.json']
@@ -93,7 +91,7 @@ class UserDataTests(TestCase):
             token_after_save = None
         self.assertNotEqual(token_before_save, token_after_save)
 
-class TestFloatIntegration(TestCase):
+class TestFloat(TestCase):
     fixtures = [
         'employees/fixtures/user_data.json',
         'tock/fixtures/prod_user.json'
@@ -113,35 +111,6 @@ class TestFloatIntegration(TestCase):
             is_billable=True,
             unit=1
         )
-
-    def test_get_people_id_valid_user(self):
-        """Checks that Float /people response data is parsed correctly."""
-        port = get_free_port()
-        TestMockServer.run_server(port)
-        endpoint = 'people'
-        r = requests.get(
-            url='{}:{}/{}'.format(
-                dev.FLOAT_API_URL_BASE, port, endpoint
-            )
-        )
-        result = UserData.get_people_id(self, self.user, r.json())
-
-        self.assertEqual(result, self.userdata.float_people_id)
-
-    def test_get_people_id_invalid_user(self):
-        """Checks that an invalid Float user is correctly handled."""
-        port = get_free_port()
-        TestMockServer.run_server(port)
-        endpoint = 'people'
-        r = requests.get(
-            url='{}:{}/{}'.format(
-                dev.FLOAT_API_URL_BASE, port, endpoint
-            )
-        )
-        user = User.objects.get(username='aaron.snow')
-        result = UserData.get_people_id(self, user, r.json())
-
-        self.assertIsNone(result)
 
     def test_save_method(self):
         """Checks that a blank Float people_id is always saved as None."""
