@@ -250,7 +250,7 @@ class ReportTests(WebTest):
             ),
             headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
         )
-        self.assertIn('7.5 hours on pSOvkvbGYL', response)
+        self.assertIn('7.5 hours on NYbNJGuffc', response)
 
     def test_prefilled_timecard(self):
         """

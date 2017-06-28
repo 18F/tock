@@ -45,12 +45,16 @@ def get_float_data(endpoint, params=None):
     testing = 'test' in sys.argv
     shell = 'shell' in sys.argv
     if testing or shell:
+        url = '{}/{}'.format(test.FLOAT_API_URL_BASE, endpoint)
+        print('Fetching data from mock Float API server via {}...'.format(url))
         return requests.get(
-            url='{}/{}'.format(test.FLOAT_API_URL_BASE, endpoint)
+            url=url
         )
     else:
+        url = '{}/{}'.format(base.FLOAT_API_URL_BASE, endpoint)
+        print('Fetching data from real Float API server via {}...'.format(url))
         return requests.get(
-            url='{}/{}'.format(base.FLOAT_API_URL_BASE, endpoint),
+            url=url,
             headers=base.FLOAT_API_HEADER,
             params=params
         )
