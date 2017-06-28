@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Tell us about your time for <font color='#2c5999'> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</font></h2>
+<h2>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h2>
 
 <div class="clear-fix">
   <div class="alert-grey">
@@ -10,8 +10,6 @@
       by the end of the day on Friday (or the last business day of the week).
       If you are authorized to work on Saturday for any reason, enter and
       submit your time by the end of the day on Saturday.
-    </p>
-    <p class="alert-body">
     </p>
   </div>
     {% if float_data.tasks %}
@@ -43,16 +41,17 @@
     {% for project_entry in formset %}
       <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
         <div class="entry-project">
-          <label for="project">Project:</label>
+          {{ project_entry.project.label_tag }}
           {{ project_entry.project }}
           </select>
         </div>
         <div class="entry-amount">
-          <label for="hours">Hours Spent:</label>
+          {{ project_entry.hours_spent.label_tag }}
           {{ project_entry.hours_spent }}
         </div>
         {% if unsubmitted %}
         <div class="entry-delete">
+          {{ project_entry.DELETE.label_tag }}
           {{ project_entry.DELETE }}
         </div>
         {% endif %}
@@ -63,7 +62,7 @@
         <div class="entry-alerts" id="entry-alerts">
         </div>
         <div class="entry-hidden" id="entry-notes">
-          <label for="notes">Notes:</label>
+          {{ project_entry.notes.label_tag }}
           {{ project_entry.notes.help_text }}
           {% if project_entry.notes.errors %}
             <div class="invalid">
@@ -87,15 +86,15 @@
   {% endif %}
   <div class="entries-total">
     <div class="entries-add-more"></br>
-      <button type="button" class="btn btn-info add-timecard-entry">Add More Items</a>
+      <button type="button" class="add-timecard-entry">Add More Items</a>
       </button>
     </div>
     <div class="entries-total-reported">
       <div class="entries-total-reported-wrapper">
         Total: <span class="entries-total-reported-amount">0</span> hours
       </div>
-      <button type="button" class="btn btn-outline" id="save-timecard">Save</button>
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button type="button" class="usa-button-outline" id="save-timecard">Save</button>
+      <button type="submit">Submit</button>
     </div>
   </div>
  </form>
@@ -240,7 +239,7 @@ $( document ).ready(function() {
           });
 
         // Increment the TOTAL_FORMS
-        $('#id_timecardobject_set-TOTAL_FORMS').val(parseInt($('#id_timecardobject_set-TOTAL_FORMS').val()) + 1);
+        $('#id_timecardobjects-TOTAL_FORMS').val(parseInt($('#id_timecardobjects-TOTAL_FORMS').val()) + 1);
     });
 
     // Run on initial load

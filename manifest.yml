@@ -1,11 +1,17 @@
 ---
 # all applications use these settings and services
 memory: 512M
-instances: 1
+env:
+  NEW_RELIC_CONFIG_FILE: newrelic.ini
+  NEW_RELIC_APP_NAME: tock
+  NEW_RELIC_LOG: stdout
+  WEB_CONCURRENCY: 4
 applications:
 - name: tock
+  instances: 1
   timeout: 180
   buildpack: python_buildpack
   services:
   - tockdb
   - float-key
+  - tock-creds-prod

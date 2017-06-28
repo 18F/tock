@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 import hours.models
 import projects.models
 from hours.templatetags.has_submitted_timesheet import has_submitted_timesheet
+from employees.models import UserData
 
 
 class TemplateTagTests(TestCase):
@@ -19,6 +20,7 @@ class TemplateTagTests(TestCase):
             end_date=datetime.date(2015, 1, 7),
             exact_working_hours=40)
         self.user = get_user_model().objects.get(id=1)
+        self.userdata = UserData.objects.create(user=self.user)
         self.timecard = hours.models.Timecard.objects.create(
             user=self.user,
             submitted=True,

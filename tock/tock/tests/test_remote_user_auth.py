@@ -1,9 +1,12 @@
+import datetime
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
 from django_webtest import WebTest
 
 from ..remote_user_auth import email_to_username
+from employees.models import UserData
 
 
 class AuthTests(WebTest):
@@ -32,19 +35,27 @@ class AuthTests(WebTest):
         )
 
     def test_login_creates_user_and_user_data(self):
-        email = 'tock@gsa.gov'
+        email = 'tock.tock@gsa.gov'
         self._login(email)
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
+
         self.assertIsNotNone(user)
         self.assertTrue(hasattr(user, 'user_data'))
+        self.assertEqual('tock.tock', user.username)
+        self.assertIsNotNone(UserData.objects.get(user=user))
+        self.assertEqual(
+            datetime.date.today(), UserData.objects.get(user=user).start_date
+        )
+        self.assertEqual('Tock', user.first_name)
+        self.assertEqual('Tock', user.last_name)
 
     def test_login_ensures_user_data(self):
-        email = 'tock@gsa.gov'
+        email = 'tock.tock@gsa.gov'
         self._login(email)
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
         user.user_data.delete()
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
         self.assertFalse(hasattr(user, 'user_data'))
         self._login(email)
-        user = User.objects.filter(username='tock').first()
+        user = User.objects.filter(username='tock.tock').first()
         self.assertTrue(hasattr(user, 'user_data'))

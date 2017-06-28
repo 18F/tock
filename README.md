@@ -4,15 +4,13 @@ We use Tock to track our time. You can read more about Tock in this [blog post](
 
 [![Build Status](https://travis-ci.org/18F/tock.svg)](https://travis-ci.org/18F/tock)
 
-![Screenshot of Tock](https://18f.gsa.gov/assets/blog/tockingtime/tock03.jpg)
+![Screenshot of Tock](https://github.com/18F/tock/blob/master/Screen%20Shot%202016-12-05%20at%2011.30.54%20AM.png)
 
 If your team uses Tock and Slack, you might also find the ["angrytock" reminder bot](https://github.com/18F/angrytock) helpful.
 
 ## Getting Started
 
-1. Install [Docker][] and [Docker Compose][]. (If you're on OS X or
-Windows, you'll also have to explicitly start the Docker Quickstart Terminal,
-at least until [Docker goes native][].)
+1. Install [Docker][]. If you're on OS X, install Docker for Mac. If you're on Windows, install Docker for Windows.
 
 1. Move into the `tock` directory at the repository root:
 
@@ -38,19 +36,17 @@ at least until [Docker goes native][].)
   ```
   
   This will start up all required servers in containers and output their
-  log information to stdout. If you're on Linux, you should be able
-  to visit http://localhost:8000/ directly to access the site. If you're on
-  OS X or Windows, you'll likely have to visit port 8000 on the IP
-  address given to you by `docker-machine ip default`. (Note that this 
-  hassle will go away once [Docker goes native][] for OS X/Windows.)
+  log information to stdout.
+
+1. Visit [http://localhost:8000/][] directly to access the site.
+
+  If you see this message in the console, you can disregard it:
+  ```
+  app_1   | Starting development server at http://0.0.0.0:1234/
+  ```
+  It's still running at http://localhost:8000
 
 You can access the admin panel at `/admin`.
-
-If you receive an `ERROR: Couldn't connect to Docker daemon - you might need to run...` error and you have confirmed that the Docker machine is running, you may need to run:
-
-```
-$ eval "$(docker-machine env default)"
-```
 
 ### Accessing the app container
 
@@ -105,7 +101,7 @@ Tock has an API! You may issue GET requests to various [endpoints](https://githu
 ```
 $ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
 ```
-To obtain your own Tock API authorization token, please visit [#tock-dev](https://18f.slack.com/tock-dev) on Slack!
+To obtain your own Tock API authorization token, please visit [#tock-dev](https://gsa-tts.slack.com/messages/tock-dev/) on Slack!
 
 To access similar data in CSV format from within Tock, please visit the [/reports](https://tock.18f.gov/reports) page.
 
@@ -114,7 +110,6 @@ To access similar data in CSV format from within Tock, please visit the [/report
 18F's current deployment of Tock relies on a [cloud.gov](https://cloud.gov) route service called [`uaa-auth`](https://github.com/dlapiduz/cf-uaa-guard-service).
 
 [Docker]: https://www.docker.com/
-[Docker Compose]: https://docs.docker.com/compose/
-[Docker goes native]: https://blog.docker.com/2016/03/docker-for-mac-windows-beta/
+[http://localhost:8000/]: http://localhost:8000/
 [Sass]: http://sass-lang.com/
 [Node]: https://nodejs.org/en/

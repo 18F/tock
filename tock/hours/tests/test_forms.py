@@ -143,14 +143,14 @@ class TimecardInlineFormSetTests(TestCase):
     def form_data(self, clear=[], **kwargs):
         """ Method that auto generates form data for tests """
         form_data = {
-            'timecardobject_set-TOTAL_FORMS': '2',
-            'timecardobject_set-INITIAL_FORMS': '0',
-            'timecardobject_set-MIN_NUM_FORMS': '',
-            'timecardobject_set-MAX_NUM_FORMS': '',
-            'timecardobject_set-0-project': '4',
-            'timecardobject_set-0-hours_spent': '22',
-            'timecardobject_set-1-project': '5',
-            'timecardobject_set-1-hours_spent': '20'
+            'timecardobjects-TOTAL_FORMS': '2',
+            'timecardobjects-INITIAL_FORMS': '0',
+            'timecardobjects-MIN_NUM_FORMS': '',
+            'timecardobjects-MAX_NUM_FORMS': '',
+            'timecardobjects-0-project': '4',
+            'timecardobjects-0-hours_spent': '22',
+            'timecardobjects-1-project': '5',
+            'timecardobjects-1-hours_spent': '20'
         }
         for key in clear:
             del form_data[key]
@@ -175,9 +175,9 @@ class TimecardInlineFormSetTests(TestCase):
     def test_timecard_is_too_big(self):
         """ Test timecard form data that exceeds the maximum hours allowed """
         form_data = self.form_data()
-        form_data['timecardobject_set-2-project'] = '6'
-        form_data['timecardobject_set-2-hours_spent'] = '50'
-        form_data['timecardobject_set-TOTAL_FORMS'] = '3'
+        form_data['timecardobjects-2-project'] = '6'
+        form_data['timecardobjects-2-hours_spent'] = '50'
+        form_data['timecardobjects-TOTAL_FORMS'] = '3'
         formset = TimecardFormSet(form_data)
         self.assertFalse(formset.is_valid())
 
@@ -185,9 +185,9 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test timecard form data that is smaller than the minimum
         allowable hours """
         form_data = self.form_data()
-        form_data['timecardobject_set-1-project'] = '6'
-        form_data['timecardobject_set-1-hours_spent'] = '10'
-        form_data['timecardobject_set-TOTAL_FORMS'] = '2'
+        form_data['timecardobjects-1-project'] = '6'
+        form_data['timecardobjects-1-hours_spent'] = '10'
+        form_data['timecardobjects-TOTAL_FORMS'] = '2'
         formset = TimecardFormSet(form_data)
         self.assertFalse(formset.is_valid())
 
@@ -195,9 +195,9 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test timecard form data has an empty hours spent value for
         a project """
         form_data = self.form_data()
-        form_data['timecardobject_set-2-project'] = '6'
-        form_data['timecardobject_set-2-hours_spent'] = None
-        form_data['timecardobject_set-TOTAL_FORMS'] = '3'
+        form_data['timecardobjects-2-project'] = '6'
+        form_data['timecardobjects-2-hours_spent'] = None
+        form_data['timecardobjects-TOTAL_FORMS'] = '3'
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())
 
@@ -205,18 +205,33 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test timecard form data has an 0 hours spent value for
         a project """
         form_data = self.form_data()
-        form_data['timecardobject_set-2-project'] = '6'
-        form_data['timecardobject_set-2-hours_spent'] = 0
-        form_data['timecardobject_set-TOTAL_FORMS'] = '3'
+        form_data['timecardobjects-2-project'] = '6'
+        form_data['timecardobjects-2-hours_spent'] = 0
+        form_data['timecardobjects-TOTAL_FORMS'] = '3'
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())
+
+    def test_no_zero_hours_saved(self):
+        """Tests that TimecardObject's with None or 0 hours are not entered
+        into the database on form submission."""
+        form_data = {
+            'timecardobjects-TOTAL_FORMS': '1',
+            'timecardobjects-INITIAL_FORMS': '0',
+            'timecardobjects-MIN_NUM_FORMS': '',
+            'timecardobjects-MAX_NUM_FORMS': '',
+            'timecardobjects-0-project': '4',
+            'timecardobjects-0-hours_spent': ''
+        }
+        formset = TimecardFormSet(form_data)
+        formset.is_valid()
+        self.assertTrue(formset[0].cleaned_data['DELETE'])
 
     def test_reporting_period_with_less_than_min_hours_success(self):
         """ Test the timecard form when the reporting period requires at least
         16 hours to be reported and the hours entered are less than 16"""
         form_data = self.form_data()
-        form_data['timecardobject_set-0-hours_spent'] = '8'
-        form_data['timecardobject_set-1-hours_spent'] = '10'
+        form_data['timecardobjects-0-hours_spent'] = '8'
+        form_data['timecardobjects-1-hours_spent'] = '10'
         formset = TimecardFormSet(form_data)
         formset.set_min_working_hours(16)
         self.assertTrue(formset.is_valid())
@@ -225,8 +240,8 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test the timecard form when the reporting period requires at least
         16 hours to be reported and the hours entered are less than 16"""
         form_data = self.form_data()
-        form_data['timecardobject_set-0-hours_spent'] = '5'
-        form_data['timecardobject_set-1-hours_spent'] = '5'
+        form_data['timecardobjects-0-hours_spent'] = '5'
+        form_data['timecardobjects-1-hours_spent'] = '5'
         formset = TimecardFormSet(form_data)
         formset.set_min_working_hours(16)
         self.assertFalse(formset.is_valid())
@@ -235,8 +250,8 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test the timecard form when the reporting period requires no more
         than 60 hours to be reported and the hours entered are less than 60"""
         form_data = self.form_data()
-        form_data['timecardobject_set-0-hours_spent'] = '50'
-        form_data['timecardobject_set-1-hours_spent'] = '2'
+        form_data['timecardobjects-0-hours_spent'] = '50'
+        form_data['timecardobjects-1-hours_spent'] = '2'
         formset = TimecardFormSet(form_data)
         formset.set_max_working_hours(60)
         self.assertTrue(formset.is_valid())
@@ -245,8 +260,8 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test the timecard form when the reporting period requires no more
         than 60 hours to be reported and the hours entered are more than 60"""
         form_data = self.form_data()
-        form_data['timecardobject_set-0-hours_spent'] = '50'
-        form_data['timecardobject_set-1-hours_spent'] = '20'
+        form_data['timecardobjects-0-hours_spent'] = '50'
+        form_data['timecardobjects-1-hours_spent'] = '20'
         formset = TimecardFormSet(form_data)
         formset.set_max_working_hours(60)
         self.assertFalse(formset.is_valid())
@@ -256,8 +271,8 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test the timecard form when the reporting period is less than
         minimum required hours a period and you save (not submit) """
         form_data = self.form_data()
-        form_data['timecardobject_set-0-hours_spent'] = '5'
-        form_data['timecardobject_set-1-hours_spent'] = '5'
+        form_data['timecardobjects-0-hours_spent'] = '5'
+        form_data['timecardobjects-1-hours_spent'] = '5'
         formset = TimecardFormSet(form_data)
         formset.set_min_working_hours(16)
         formset.save_only = True
@@ -267,7 +282,7 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test the timecard form when one entry requires notes and another
         entry does not, and the notes are not filled in"""
         form_data = self.form_data()
-        form_data['timecardobject_set-0-project'] = '2'
+        form_data['timecardobjects-0-project'] = '2'
         formset = TimecardFormSet(form_data)
         self.assertFalse(formset.is_valid())
 
@@ -275,7 +290,7 @@ class TimecardInlineFormSetTests(TestCase):
         """ Test the timecard form when one entry requires notes and another
         entry does not, and the notes are filled in"""
         form_data = self.form_data()
-        form_data['timecardobject_set-0-project'] = '2'
-        form_data['timecardobject_set-0-notes'] = 'Did some work.'
+        form_data['timecardobjects-0-project'] = '2'
+        form_data['timecardobjects-0-notes'] = 'Did some work.'
         formset = TimecardFormSet(form_data)
         self.assertTrue(formset.is_valid())

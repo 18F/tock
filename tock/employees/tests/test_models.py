@@ -2,13 +2,14 @@ import datetime
 import requests
 
 from django.test import TestCase
+from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from employees.models import EmployeeGrade, UserData
-from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 
 from tock.settings import base, dev
 from employees.models import UserData
+from rest_framework.authtoken.models import Token
+from employees.models import EmployeeGrade, UserData
 
 class EmployeeGradeTests(TestCase):
     fixtures = ['tock/fixtures/prod_user.json']
@@ -17,6 +18,15 @@ class EmployeeGradeTests(TestCase):
         self.employeegrade = EmployeeGrade.objects.create(
             employee=User.objects.get(pk=1),
             grade=8,
+            g_start_date=datetime.date.today()
+        )
+    def test_unique_with_g_start_date(self):
+        """Check that multiple EmployeeGrade objects with the same g_start_date
+        cannot be saved for the same employee."""
+        with self.assertRaises(IntegrityError):
+            another_employeegrade = EmployeeGrade.objects.create(
+            employee=User.objects.get(pk=1),
+            grade=9,
             g_start_date=datetime.date.today()
         )
 
@@ -33,50 +43,60 @@ class EmployeeGradeTests(TestCase):
 class UserDataTests(TestCase):
 
     def setUp(self):
-        self.regular_user = get_user_model().objects.create(
-            username='aaron.snow')
-        userdata = UserData(user=self.regular_user)
-        userdata.start_date = datetime.date(2014, 1, 1)
-        userdata.end_date = datetime.date(2016, 1, 1)
-        userdata.unit = 1
-        userdata.is_18f_employee = True
-        userdata.save()
+        # Create regular_user.
+        self.regular_user = User.objects.create(
+            username='aaron.snow',
+            is_superuser=True,
+            is_staff=True,
+            is_active=True)
+        # Create UserData object related to regular_user.
+        self.regular_user_userdata = UserData.objects.create(
+            user=self.regular_user,
+            start_date= datetime.date(2014, 1, 1),
+            end_date=datetime.date(2100, 1, 1),
+            unit=1,
+            is_18f_employee=True,
+            current_employee=True
+        )
+        # Create API token for regular_user.
         self.token = Token.objects.create(user=self.regular_user)
 
     def test_string_method(self):
         """Check that string method override works correctly."""
-        userdata = UserData.objects.get(user=self.regular_user)
+        userdata = UserData.objects.get(
+            user=self.regular_user
+        )
         expected_string = str(userdata.user.username)
         self.assertEqual(expected_string, str(userdata))
 
     def test_user_data_is_stored(self):
         """ Check that user data was stored correctly """
-        userdata = UserData.objects.first()
+        userdata = UserData.objects.get(user=self.regular_user)
         self.assertEqual(
             userdata.start_date,
-            datetime.date(2014, 1, 1))
+            datetime.date(2014, 1, 1)
+        )
         self.assertEqual(
             userdata.end_date,
-            datetime.date(2016, 1, 1))
+            datetime.date(2100, 1, 1)
+        )
         self.assertEqual(userdata.unit, 1)
 
-    def test_check_user_data_connected_to_user_model(self):
-        """ Check that user data can be retrieved from User Model """
-        self.assertEqual(
-            self.regular_user.user_data.start_date,
-            datetime.date(2014, 1, 1))
-        self.assertEqual(
-            self.regular_user.user_data.end_date,
-            datetime.date(2016, 1, 1))
-        self.assertEqual(
-            self.regular_user.user_data.unit, 1)
-        self.assertTrue(
-            self.regular_user.user_data.is_18f_employee)
+    def test_employee_active(self):
+        """ Check that the save() method correctly aligns UserData and User
+         attributes when current_employee is True."""
+        user = User.objects.get(
+            username=self.regular_user.username)
+        user.is_active = False
+        user.save()
+        status_before_save = User.objects.get(
+            username=self.regular_user.username).is_active
+        self.regular_user_userdata.current_employee = True
+        self.regular_user_userdata.save()
 
-    def test_user_data_current_employee_default_is_true(self):
-        """ Check that the user data is initalized with the current
-        employee value being true """
-        self.assertTrue(self.regular_user.user_data.current_employee)
+        status_after_save = User.objects.get(
+            username=self.regular_user.username).is_active
+        self.assertNotEqual(status_before_save, status_after_save)
 
     def test_token_is_delete_on_active_is_false(self):
         """ Verify that any tokens associated with a user are deleted when that

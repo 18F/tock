@@ -46,7 +46,7 @@ class TestOptions(WebTest):
             kwargs={'reporting_period': date},
         )
         res = self.app.get(url, headers={'X_AUTH_USER': self.user.email})
-        select = res.forms[0].fields['timecardobject_set-0-project'][0]
+        select = res.forms[0].fields['timecardobjects-0-project'][0]
         options = [each[-1] for each in select.options]
         for each in (positive or []):
             self.assertIn(each, options)

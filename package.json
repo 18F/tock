@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build-css": "node-sass --source-map true tock/tock/static/sass -o tock/tock/static/css/dist",
+    "build-css": "node-sass --source-map true --include-path ./node_modules/uswds/src/stylesheets tock/tock/static/sass -o tock/tock/static/css/dist",
     "watch-css": "npm run build-css -- --watch",
     "prestart": "npm install --quiet",
     "start": "npm run build-css && npm run watch-css",
@@ -10,7 +10,8 @@
   "engines": {
     "node": "6.3.1"
   },
-  "devDependencies": {
-    "node-sass": "^3.9.3"
+  "dependencies": {
+    "node-sass": "^3.9.3",
+    "uswds": "^0.12.1"
   }
 }

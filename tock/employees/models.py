@@ -1,10 +1,10 @@
-from django.db import models
 from django.contrib.auth.models import User
-from rest_framework.authtoken.models import Token
+from django.db import models, IntegrityError
 from django.db.models import Q, Max
 
 from tock.settings import base
-from tock.utils import get_float_data
+from rest_framework.authtoken.models import Token
+from projects.models import ProfitLossAccount
 
 class EmployeeGrade(models.Model):
     GRADE_CHOICES = (
@@ -27,12 +27,12 @@ class EmployeeGrade(models.Model):
     )
     employee = models.ForeignKey(
         User,
-        help_text='Please select from existing employees.'
+        help_text='Please select from existing employees.',
+        unique_for_date='g_start_date',
     )
     grade = models.IntegerField(
         choices=GRADE_CHOICES,
-        help_text='Please select a GS grade level.',
-        unique_for_date='g_start_date'
+        help_text='Please select a GS grade level.'
     )
     g_start_date = models.DateField(
         help_text='Please select a start date for this grade.',
@@ -54,6 +54,18 @@ class EmployeeGrade(models.Model):
             return queryset.latest('g_start_date')
         else:
             return None
+
+    def save(self, *args, **kwargs):
+        queryset = EmployeeGrade.objects.filter(
+            employee=self.employee,
+            g_start_date=self.g_start_date
+        )
+        if queryset:
+            raise IntegrityError(
+                'Employee cannot have multiple EmployeeGrade objects with the '\
+                'same g_start_date.'
+            )
+        super(EmployeeGrade, self).save(*args, **kwargs)
 
 class UserData(models.Model):
 
@@ -85,6 +97,12 @@ class UserData(models.Model):
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
     float_people_id = models.CharField(max_length=50, null=True, blank=True, verbose_name='Float "people_id" attribute')
+    profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        blank=True,
+        null=True,
+        verbose_name='Profit/loss Accounting String'
+    )
 
     class Meta:
         verbose_name='Employee'
@@ -94,12 +112,21 @@ class UserData(models.Model):
         return '{0}'.format(self.user)
 
     def save(self, *args, **kwargs):
-        if self.current_employee is False:
+        """Aligns User model and UserData model attributes on save."""
+        user = User.objects.get(username=self.user)
+        if self.current_employee:
+            user.is_active = True
+            user.save()
+        else:
+            user.is_active = False
+            user.is_superuser = False
+            user.is_staff = False
             try:
                 token = Token.objects.get(user=self.user)
                 token.delete()
             except Token.DoesNotExist:
                 pass
+            user.save()
 
         if self.float_people_id is '':
             self.float_people_id = None
