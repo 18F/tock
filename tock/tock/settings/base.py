@@ -29,7 +29,7 @@ WSGI_APPLICATION = 'tock.wsgi.application'
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_string(50))
 
 FLOAT_API_KEY = get_float_key('float-key')
-FLOAT_API_URL_BASE = 'https://api.float.com/api/v1/'
+FLOAT_API_URL_BASE = 'https://api.float.com/api/v1'
 FLOAT_API_HEADER = {'Authorization': 'Bearer ' + FLOAT_API_KEY}
 FLOAT_API_TASK_WEEKS = 1
 FLOAT_API_WEEKDAYS = 5
