@@ -19,7 +19,7 @@ class ReportingPeriodForm(forms.ModelForm):
 
     class Meta:
         model = ReportingPeriod
-        fields = ['start_date', 'end_date', 'min_working_hours', 'max_working_hours',]
+        fields = ['start_date', 'end_date']
         widgets = {
             'start_date': forms.TextInput(attrs={'class': "datepicker"}),
             'end_date': forms.TextInput(attrs={'class': "datepicker"})
@@ -214,33 +214,12 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         super(TimecardInlineFormSet, self).__init__(*args, **kwargs)
         self.save_only = False
 
-    def set_exact_working_hours(self, exact_working_hours):
-        """ Set the number of hours employees should work """
-        self.exact_working_hours = exact_working_hours
-
-    def get_exact_working_hours(self):
-        """ Return exact working hours required if it exists
-        otherwise assumes 40 """
-        return getattr(self, 'exact_working_hours', 40)
-
-    def set_max_working_hours(self, max_working_hours):
-        """ Set the maximum number of hours an employee may work in a period """
-        self.max_working_hours = max_working_hours
-
-    def get_max_working_hours(self):
-        """ Return maximum number of hours an employee may work in a period
-        if it exists, otherwise assumes 60 """
-        return getattr(self, 'max_working_hours', 60)
-
-    def set_min_working_hours(self, min_working_hours):
-        """ Set the minimum number of hours an employee may work in a period """
-        self.min_working_hours = min_working_hours
-
-    def get_min_working_hours(self):
-        """ Return minimum number of hours an employee may work in a period
-        if it exists, otherwise assumes 40 """
-        return getattr(self, 'min_working_hours', 40)
-
+    def set_working_hours(self, user_data, standard_hours=40):
+        """These variables are passed in from hours.views.TimecardView """
+        self.user_data = user_data
+        self.working_hours = user_data.authorized_hours
+        self.alt_work_schedule = user_data.alt_work_schedule
+        self.standard_hours = standard_hours
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
@@ -255,6 +234,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         'cannot be blank.'
                     )
                 total_hrs += form.cleaned_data.get('hours_spent')
+
         if not self.save_only:
             for form in self.forms:
                 try:
@@ -267,15 +247,21 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                     'Timecard not submitted because one or more of your '\
                     'entries has an error!'
                 )
-            if total_hrs > self.get_max_working_hours():
-                raise forms.ValidationError('You may not submit more than %s '
-                    'hours for this period. To report additional hours'
-                    ', please contact your supervisor.' % self.get_max_working_hours())
 
-            if total_hrs < self.get_min_working_hours():
-                raise forms.ValidationError('You must report at least %s hours '
-                    'for this period.' % self.get_min_working_hours())
+            if not alt_work_schedule:
+                if total_hrs > standard_hours:
+                    raise forms.ValidationError('You may not submit more than %s '
+                        'hours for this period. To report additional hours'
+                        ', please contact your supervisor.' % standard_hours)
+                if total_hrs < standard_hours:
+                    raise forms.ValidationError('You must report at least %s '
+                        'hours for this period.' % standard_hours)
 
+            if alt_work_schedule and total_hrs not in working_hours:
+
+                raise forms.ValidationError('you are on an alternate work schedule. '
+                    'You must submit %s hours. To change your authorized hours, '
+                    'please contact your supervisor.' % user_data.aws_hours_string)
 
         return getattr(self, 'cleaned_data', None)
 

@@ -77,8 +77,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     end_date = models.DateField(unique=True)
     exact_working_hours = models.PositiveSmallIntegerField(
         default=40)
-    max_working_hours = models.PositiveSmallIntegerField(default=60)
-    min_working_hours = models.PositiveSmallIntegerField(default=40)
+
     holiday_prefills = models.ManyToManyField(
         HolidayPrefills,
         blank=True,

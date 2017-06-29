@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Targets, HolidayPrefills
+from employees.models import UserData
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
     parameter_name = 'reporting_period'
@@ -31,8 +32,9 @@ class TimecardObjectFormset(BaseInlineFormSet):
             return
 
         hours = Decimal(0.0)
-        min_working_hours = self.instance.reporting_period.min_working_hours
-        max_working_hours = self.instance.reporting_period.max_working_hours
+        timecard = self.cleaned_data[0]['timecard']
+        employee = timecard.user.user_data
+        standard_hours = timecard.reporting_period.exact_working_hours
 
         for unit in self.cleaned_data:
             try:
@@ -40,15 +42,19 @@ class TimecardObjectFormset(BaseInlineFormSet):
             except KeyError:
                 pass
 
-        if hours > max_working_hours:
-            raise ValidationError(
-                'You have entered more than %s hours' % max_working_hours
-            )
-
-        if hours < min_working_hours:
-            raise ValidationError(
-                'You have entered fewer than %s hours' % min_working_hours
-            )
+        if not employee.alt_work_schedule:
+            if hours > standard_hours:
+                raise ValidationError(
+                    'You have entered more than %s hours' % standard_hours
+                )
+            if hours < timecard.exact_working_hours:
+                raise ValidationError(
+                    'You have entered fewer than %s hours' % standard_hours
+                )
+        if employee.alt_work_schedule and hours not in employee.authorized_hours:
+                raise ValidationError(
+                    'this employee is authorized to work %s hours' % employee.aws_hours_string
+                )
 
 
 class ReportingPeriodAdmin(admin.ModelAdmin):
