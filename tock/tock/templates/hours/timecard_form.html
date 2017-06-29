@@ -3,32 +3,33 @@
 {% block content %}
 <h2>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h2>
 
-<div class="clear-fix">
-  <div class="alert-grey">
-    <p class="alert-body">
-      <strong>Submit your time card for the week</strong>
-      by the end of the day on Friday (or the last business day of the week).
-      If you are authorized to work on Saturday for any reason, enter and
-      submit your time by the end of the day on Saturday.
+<div class="usa-alert usa-alert-info">
+  <div class="usa-alert-body">
+    <p class="usa-alert-text">
+      <strong>Submit your time card for the week</strong> by the end of the day on Friday (or the last business day of the week). If you are authorized to work on Saturday for any reason, enter and submit your time by the end of the day on Saturday.
     </p>
   </div>
-    {% if float_data.tasks %}
-    <div class="alert-red">
-      <p><b> For {{ float_data.metadata.float_period_start }} to
-        {{ float_data.metadata.float_period_end }} you were scheduled in Float
-        for:
-      </b></p>
-      <ul>
-        {% for i in float_data.tasks %}
-         <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
-            {% if i.task_name %}
-            assigned to {{ i.task_name }}
-            {% endif %}
-        {% endfor %}
-      </div>
-    {% endif %}
 </div>
-
+{% if float_data.tasks %}
+  <div class="usa-alert usa-alert-error">
+    <div class="usa-alert-body">
+      <p class="usa-alert-text">
+        <b>
+          For {{ float_data.metadata.float_period_start }} to
+          {{ float_data.metadata.float_period_end }} you were scheduled in Float
+          for:
+        </b>
+      </p>
+    <ul>
+      {% for i in float_data.tasks %}
+       <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
+          {% if i.task_name %}
+          assigned to {{ i.task_name }}
+          {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
   {{ formset.management_form }}
@@ -75,14 +76,20 @@
     {% endfor %}
   </div>
   {% if formset.errors %}
-    <div class="alert-red"><b>{{ formset.non_form_errors }}</b></div>
+    <div class="usa-alert usa-alert-error">
+      <div class="usa-alert-body">
+        <p class="usa-alert-heading"><strong>{{ formset.non_form_errors }}</strong></p>
+      </div>
+    </div>
   {% endif %}
   {% if messages %}
-  <ul class="messages">
     {% for message in messages %}
-      <b><li{% if message.tags %} class="alert-{{ message.tags }}"{% endif %}>{{ message }}</li></b>
+    <div class="usa-alert usa-alert-info">
+      <div class="usa-alert-body">
+        <p class="usa-alert-heading"><strong>{{ message }}</strong></p>
+      </div>
+    </div>
     {% endfor %}
-  </ul>
   {% endif %}
   <div class="entries-total">
     <div class="entries-add-more"></br>
