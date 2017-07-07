@@ -213,6 +213,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         super(TimecardInlineFormSet, self).__init__(*args, **kwargs)
         self.save_only = False
+        self.aws_eligible = False
 
     def set_exact_working_hours(self, exact_working_hours):
         """ Set the number of hours employees should work """
