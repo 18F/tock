@@ -13,6 +13,21 @@
 <form class="form-horizontal form-inline" method="post">
   {% csrf_token %}
   {{ formset.management_form }}
+  {% if formset.errors %}
+    <div class="usa-alert usa-alert-error timecard-alert-error" role="alert">
+      <div class="usa-alert-body">
+        <h3 class="usa-alert-heading">Complete your timecard</h3>
+        <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+      </div>
+    </div>
+  {% endif %}
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <b><li{% if message.tags %} class="alert-{{ message.tags }}"{% endif %}>{{ message }}</li></b>
+    {% endfor %}
+  </ul>
+  {% endif %}
   <div class="entries">
     <ul class="entries-header">
       <li>PROJECTS</li>
@@ -55,16 +70,7 @@
       </div>
     {% endfor %}
   </div>
-  {% if formset.errors %}
-    <div class="alert-red"><b>{{ formset.non_form_errors }}</b></div>
-  {% endif %}
-  {% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <b><li{% if message.tags %} class="alert-{{ message.tags }}"{% endif %}>{{ message }}</li></b>
-    {% endfor %}
-  </ul>
-  {% endif %}
+
   <div class="entries-total">
     <div class="entries-add-more"></br>
       <button type="button" class="add-timecard-entry">Add More Items</a>
