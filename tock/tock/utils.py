@@ -1,4 +1,4 @@
-import functools
+import functools, datetime
 
 from django.core.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
@@ -33,3 +33,20 @@ class IsSuperUserOrSelf(BasePermission):
                 request.user.username == view.kwargs.get('username')
             )
         )
+
+def get_fy_first_day(date):
+    if date.month <= 9:
+        year = (date - datetime.timedelta(weeks=52)).year
+    else:
+        year = date.year
+    fy_first_day = datetime.date(year, 10, 1)
+    return fy_first_day
+
+def calculate_utilization(billable_hours, all_hours):
+    if all_hours is (None or 0):
+        return 'No hours submitted.'
+    else:
+        if billable_hours is None:
+            return '0.00%'
+        else:
+            return '{:.3}%'.format((billable_hours / all_hours * 100))

@@ -7,36 +7,7 @@ from django.contrib.auth.models import User
 
 from rest_framework.authtoken.models import Token
 
-from employees.models import EmployeeGrade, UserData
-
-class EmployeeGradeTests(TestCase):
-    fixtures = ['tock/fixtures/prod_user.json']
-
-    def setUp(self):
-        self.employeegrade = EmployeeGrade.objects.create(
-            employee=User.objects.get(pk=1),
-            grade=8,
-            g_start_date=datetime.date.today()
-        )
-    def test_unique_with_g_start_date(self):
-        """Check that multiple EmployeeGrade objects with the same g_start_date
-        cannot be saved for the same employee."""
-        with self.assertRaises(IntegrityError):
-            another_employeegrade = EmployeeGrade.objects.create(
-            employee=User.objects.get(pk=1),
-            grade=9,
-            g_start_date=datetime.date.today()
-        )
-
-    def test_string_method(self):
-        """Check that string method override works correctly."""
-        expected_string = '{0} - {1} (Starting: {2})'.format(
-            self.employeegrade.employee,
-            self.employeegrade.grade,
-            self.employeegrade.g_start_date
-        )
-
-        self.assertEqual(expected_string, str(self.employeegrade))
+from employees.models import UserData
 
 class UserDataTests(TestCase):
 
@@ -52,8 +23,6 @@ class UserDataTests(TestCase):
             user=self.regular_user,
             start_date= datetime.date(2014, 1, 1),
             end_date=datetime.date(2016, 1, 1),
-            unit=1,
-            is_18f_employee=True
         )
         # Create API token for regular_user.
         self.token = Token.objects.create(user=self.regular_user)
@@ -77,7 +46,6 @@ class UserDataTests(TestCase):
             userdata.end_date,
             datetime.date(2016, 1, 1)
         )
-        self.assertEqual(userdata.unit, 1)
 
     def test_employee_active(self):
         """ Check that the save() method correctly aligns UserData and User

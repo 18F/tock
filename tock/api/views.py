@@ -51,12 +51,6 @@ class UserSerializer(serializers.ModelSerializer):
 class UserDataSerializer(serializers.Serializer):
     user = serializers.StringRelatedField()
     current_employee = serializers.BooleanField()
-    is_18f_employee = serializers.BooleanField()
-    is_billable = serializers.BooleanField()
-    unit = serializers.SerializerMethodField()
-
-    def get_unit(self,obj):
-        return obj.get_unit_display()
 
 class ReportingPeriodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -86,12 +80,6 @@ class TimecardSerializer(serializers.Serializer):
     )
     revenue_profit_loss_account_name = serializers.CharField(
         source='revenue_profit_loss_account.name'
-    )
-    expense_profit_loss_account = serializers.CharField(
-        source='expense_profit_loss_account.accounting_string'
-    )
-    expense_profit_loss_account_name = serializers.CharField(
-        source='expense_profit_loss_account.name'
     )
 
 # API Views

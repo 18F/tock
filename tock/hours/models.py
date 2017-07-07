@@ -4,7 +4,6 @@ from .utils import ValidateOnSaveMixin
 from projects.models import Project, ProfitLossAccount
 
 from django.contrib.auth.models import User
-from employees.models import EmployeeGrade
 from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -155,7 +154,6 @@ class TimecardObject(models.Model):
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    grade = models.ForeignKey(EmployeeGrade, blank=True, null=True)
 
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
@@ -172,12 +170,6 @@ class TimecardObject(models.Model):
         null=True,
         related_name='revenue_profit_loss_account_'
     )
-    expense_profit_loss_account = models.ForeignKey(
-        ProfitLossAccount,
-        blank=True,
-        null=True,
-        related_name='expense_profit_loss_account_'
-    )
 
     def project_alerts(self):
         return self.project.alerts.all()
@@ -189,18 +181,12 @@ class TimecardObject(models.Model):
         return self.notes.split('\n')
 
     def save(self, *args, **kwargs):
-        """Custom save() method to append employee grade info and the submitted
+        """Custom save() method to append the submitted
         status of the related timecard."""
-
-        self.grade = EmployeeGrade.get_grade(
-            self.timecard.reporting_period.end_date,
-            self.timecard.user
-        )
 
         self.submitted = self.timecard.submitted
 
         p_pl = self.project.profit_loss_account # Project PL info.
-        u_pl = self.timecard.user.user_data.profit_loss_account # User PL info.
         rp = self.timecard.reporting_period # TimecardObject reporting period.
 
         if p_pl and \
@@ -210,15 +196,5 @@ class TimecardObject(models.Model):
             self.revenue_profit_loss_account = p_pl
         else:
             self.revenue_profit_loss_account = None
-
-        if u_pl and \
-        u_pl.account_type == 'Expense' and \
-        u_pl.as_start_date < rp.end_date and \
-        u_pl.as_end_date > rp.end_date:
-
-            self.expense_profit_loss_account = u_pl
-        else:
-            self.expense_profit_loss_account = None
-
 
         super(TimecardObject, self).save(*args, **kwargs)
