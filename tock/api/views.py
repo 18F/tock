@@ -64,9 +64,6 @@ class ReportingPeriodSerializer(serializers.ModelSerializer):
         fields = (
             'start_date',
             'end_date',
-            'exact_working_hours',
-            'min_working_hours',
-            'max_working_hours',
         )
 
 class TimecardSerializer(serializers.Serializer):

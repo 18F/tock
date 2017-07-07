@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, IntegrityError
 from django.db.models import Q, Max
 
@@ -89,6 +90,9 @@ class UserData(models.Model):
         (16, 'Unknown / N/A')
     )
 
+    def authorized_hours_default():
+        return [40]
+
     user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username')
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
@@ -102,12 +106,36 @@ class UserData(models.Model):
         null=True,
         verbose_name='Profit/loss Accounting String'
     )
+    alt_work_schedule = models.BooleanField(
+        default=False,
+        verbose_name='Alternate Work Schedule')
+    authorized_hours = ArrayField(models.IntegerField(),
+        default=authorized_hours_default(),
+        verbose_name='Authorized Hours')
+
     class Meta:
         verbose_name='Employee'
         verbose_name_plural='Employees'
 
     def __str__(self):
         return '%s' % (self.user)
+
+    def aws_hours_string:
+        """For users on an alt work schedule, provide a plain-english list of
+        hours they're permitted to work."""
+        self.authorized_hours.sort()
+        hours_string = ""
+        if len(authorized_hours) > 2:
+            """When there are three or more options, include an oxford comma"""
+            for x in self.authorized_hours[:-1]:
+                hours_string += "%s, " % x
+            hours_string += "or %s" % self.authorized_hours[-1]
+        elif len(authorized_hours) == 2:
+            """Two options, no comma"""
+            hours_string += "%s or %s" % (self.authorized_hours[0], self.authorized_hours[1])
+        else:
+            hours_string = "%s" % self.authorized_hours[0]
+        return hours_string
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""
