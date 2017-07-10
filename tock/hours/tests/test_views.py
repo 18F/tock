@@ -686,7 +686,7 @@ class ReportTests(WebTest):
             ),
             headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
         )
-        self.assertIn('2.0 hours on pSOvkvbGYL', response)
+        self.assertIn('0 hours on pSOvkvbGYL', response)
         self.assertNotIn('7.5 hours on pSOvkvbGYL', response)
         # Dissassociate time off data with user, then try again.
         with open('hours/fixtures/float_timeoffs_fixture.json', 'r+') as infile:
@@ -709,7 +709,7 @@ class ReportTests(WebTest):
             infile.seek(0)
             infile.truncate()
             infile.write(json.dumps(data, indent=4))
-        self.assertNotIn('2.0 hours on pSOvkvbGYL', response)
+        self.assertNotIn('0 hours on pSOvkvbGYL', response)
         self.assertIn('7.5 hours on pSOvkvbGYL', response)
 
     def test_holiday_prefill(self):
