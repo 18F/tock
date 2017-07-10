@@ -39,6 +39,7 @@ from .forms import (
     timecard_formset_factory
 )
 from utilization.utils import calculate_utilization, get_fy_first_day
+from employees.models import UserData
 
 class DashboardReportsList(ListView):
     template_name = 'hours/dashboard_list.html'
@@ -682,8 +683,11 @@ class TimecardView(UpdateView):
 
         base_reporting_period = ReportingPeriod.objects.get(
             start_date=self.kwargs['reporting_period'])
+        aws_eligible = UserData.objects.get(
+            user=self.request.user).is_aws_eligible
 
         formset = self.get_formset()
+        formset.set_is_aws_eligible(aws_eligible)
         formset.set_exact_working_hours(base_reporting_period.exact_working_hours)
         formset.set_max_working_hours(base_reporting_period.max_working_hours)
         formset.set_min_working_hours(base_reporting_period.min_working_hours)

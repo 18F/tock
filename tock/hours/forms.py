@@ -213,6 +213,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         super(TimecardInlineFormSet, self).__init__(*args, **kwargs)
         self.save_only = False
+        self.aws_eligible = False
 
     def set_exact_working_hours(self, exact_working_hours):
         """ Set the number of hours employees should work """
@@ -241,6 +242,8 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         if it exists, otherwise assumes 40 """
         return getattr(self, 'min_working_hours', 40)
 
+    def set_is_aws_eligible(self, aws_eligible):
+        self.aws_eligible = aws_eligible
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
@@ -267,12 +270,12 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                     'Timecard not submitted because one or more of your '\
                     'entries has an error!'
                 )
-            if total_hrs > self.get_max_working_hours():
+            if total_hrs > self.get_max_working_hours() and not self.aws_eligible:
                 raise forms.ValidationError('You may not submit more than %s '
                     'hours for this period. To report additional hours'
                     ', please contact your supervisor.' % self.get_max_working_hours())
 
-            if total_hrs < self.get_min_working_hours():
+            if total_hrs < self.get_min_working_hours() and not self.aws_eligible:
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 
