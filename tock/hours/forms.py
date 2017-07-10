@@ -160,7 +160,7 @@ class TimecardObjectForm(forms.ModelForm):
         min_value=0,
         required=False,
         widget=forms.NumberInput(attrs={
-            'step': '0.25'
+            'step': '0.50'
         })
     )
 

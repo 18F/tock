@@ -2,8 +2,8 @@ from django.contrib.auth.models import User
 from django.db import models, IntegrityError
 from django.db.models import Q, Max
 
+from tock.settings import base
 from rest_framework.authtoken.models import Token
-
 from projects.models import ProfitLossAccount
 
 class EmployeeGrade(models.Model):
@@ -96,35 +96,38 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
+    float_people_id = models.IntegerField(null=True, blank=True, verbose_name='Float "people_id" attribute')
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         blank=True,
         null=True,
         verbose_name='Profit/loss Accounting String'
     )
+
     is_aws_eligible = models.BooleanField(default=False, verbose_name='Is alternative work schedule eligible')
+
     class Meta:
         verbose_name='Employee'
         verbose_name_plural='Employees'
 
     def __str__(self):
-        return '%s' % (self.user)
+        return '{0}'.format(self.user)
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""
         user = User.objects.get(username=self.user)
         if self.current_employee:
             user.is_active = True
+            user.save()
         else:
             user.is_active = False
             user.is_superuser = False
             user.is_staff = False
-            user.save()
             try:
                 token = Token.objects.get(user=self.user)
                 token.delete()
             except Token.DoesNotExist:
                 pass
-        user.save()
+            user.save()
 
         super(UserData, self).save(*args, **kwargs)

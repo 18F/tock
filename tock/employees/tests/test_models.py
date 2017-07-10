@@ -1,12 +1,14 @@
 import datetime
+import requests
 
 from django.test import TestCase
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 
+from tock.settings import base, dev
+from employees.models import UserData
 from rest_framework.authtoken.models import Token
-
 from employees.models import EmployeeGrade, UserData
 
 class EmployeeGradeTests(TestCase):
@@ -51,9 +53,10 @@ class UserDataTests(TestCase):
         self.regular_user_userdata = UserData.objects.create(
             user=self.regular_user,
             start_date= datetime.date(2014, 1, 1),
-            end_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2100, 1, 1),
             unit=1,
-            is_18f_employee=True
+            is_18f_employee=True,
+            current_employee=True
         )
         # Create API token for regular_user.
         self.token = Token.objects.create(user=self.regular_user)
@@ -75,7 +78,7 @@ class UserDataTests(TestCase):
         )
         self.assertEqual(
             userdata.end_date,
-            datetime.date(2016, 1, 1)
+            datetime.date(2100, 1, 1)
         )
         self.assertEqual(userdata.unit, 1)
 
@@ -93,7 +96,6 @@ class UserDataTests(TestCase):
 
         status_after_save = User.objects.get(
             username=self.regular_user.username).is_active
-
         self.assertNotEqual(status_before_save, status_after_save)
 
     def test_token_is_delete_on_active_is_false(self):

@@ -1,4 +1,4 @@
-import csv
+import csv, json
 import datetime
 import io
 from itertools import chain
@@ -7,6 +7,8 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -24,7 +26,8 @@ from api.renderers import stream_csv
 from employees.models import UserData
 from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
-from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from tock.utils import PermissionMixin, IsSuperUserOrSelf, get_float_data, flatten
+from tock.settings import base
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
 from .forms import (
@@ -322,7 +325,6 @@ class DashboardView(TemplateView):
         )
         return context
 
-
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     project_id = serializers.CharField(source='project.id')
@@ -614,6 +616,68 @@ class TimecardView(UpdateView):
             user_id=self.request.user.id)
         return obj
 
+    def clean_task_data(self, float_people_id):
+        # First day of reporting period.
+        start_date = datetime.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d"
+        ).date()
+        # Last day of reporting period.
+        end_date = start_date + datetime.timedelta(days=6)
+        # Get Float task data for week corresponding start and end dates.
+        # Assumes a reporting period is 1 week.
+        r = get_float_data(
+            endpoint='tasks',
+            params={
+                'weeks': 1,
+                'start_day': start_date
+            }
+        )
+        if not r:
+            return None
+        task_data = r.json()['people']
+        clean_data = {
+            # Get all of the tasks (ii) associated with a Float user if the
+            # user's Float people_id matches their Tock float_people_id.
+            # See https://github.com/floatschedule/api/blob/805663be98c9f48a275c9a13e824b0d6701df398/Sections/tasks.md.
+            'tasks': flatten(
+                [ ii for ii in [i['tasks'] for i in task_data \
+                    if int(i['people_id']) == float_people_id] ]
+            ),
+            'metadata': {} # If needed in future.
+        }
+        # Calculate estimated hours per week. Assumes there are 5 workdays
+        # per week.
+        # Need to take into account holidays and timeoff in future build.
+        for i in clean_data['tasks']:
+            i.update(
+                {'hours_wk': float(i['hours_pd']) * 5}
+            )
+        return clean_data
+
+    def get_float_data_for_context(self):
+        userdata = UserData.objects.get(user=self.request.user)
+        float_people_id = userdata.float_people_id
+        if float_people_id is None:
+            # Attempt to get the user's Float people_id.
+            # See https://github.com/floatschedule/api/blob/67e00fddd29cf7274f36f405806a2ca57c18890d/Sections/people.md
+            r = get_float_data(
+                endpoint='people')
+            if not r:
+                return None
+            float_people_data = r.json()['people']
+            float_people_id = [ i['people_id'] for i in float_people_data \
+                if i['im'] == self.request.user.username ]
+            if float_people_id:
+                # Use most recent Float people_id in the rare case a
+                # person has multiple people_ids.
+                userdata.float_people_id = int(float_people_id[-1])
+                userdata.save()
+                return self.clean_task_data(int(float_people_id[-1]))
+            else:
+                return None
+        else:
+            return self.clean_task_data(float_people_id)
+
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
 
@@ -651,8 +715,8 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
+            'float_data': self.get_float_data_for_context(),
         })
-
         return context
 
     def get_formset(self):

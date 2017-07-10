@@ -1,5 +1,6 @@
 import datetime
 import csv
+import requests
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
@@ -17,6 +18,7 @@ from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
+from tock.settings import base, dev
 from hours.views import GeneralSnippetsTimecardSerializer
 import hours.models
 import hours.views
@@ -315,9 +317,6 @@ class DashboardViewTests(WebTest):
             html=True
         )"""
 
-
-
-
     def test_random_but_viable_date(self):
         """Tests that a date that is not a start date or end date of a
         reporting period returns a valid and correct response."""
@@ -613,6 +612,23 @@ class ReportTests(WebTest):
             headers={'X_AUTH_USER': self.regular_user.email},
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_float_data_is_correct(self):
+        """Check that correct Float data is delivered to timecard_form
+        template."""
+        new_reporting_period = self.reporting_period
+        new_reporting_period.start_date = datetime.date(2016, 5, 1)
+        new_reporting_period.end_date = datetime.date(2016, 5, 8)
+        new_reporting_period.save()
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
+        )
+        self.assertIn('7.5 hours on NYbNJGuffc', response)
 
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is
