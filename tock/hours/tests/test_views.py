@@ -1,6 +1,7 @@
 import datetime
 import csv
 import requests
+import json
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
@@ -628,7 +629,88 @@ class ReportTests(WebTest):
             ),
             headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
         )
-        self.assertIn('7.5 hours on NYbNJGuffc', response)
+        self.assertIn('7.5 hours on pSOvkvbGYL', response)
+
+    def test_float_data_with_holiday(self):
+        """Check that if reporting period contains a holiday that correct
+        Float hours are returned."""
+        new_reporting_period = self.reporting_period
+        new_reporting_period.start_date = datetime.date(2016, 10, 2)
+        new_reporting_period.end_date = datetime.date(2016, 10, 8)
+        new_reporting_period.save()
+        date = new_reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
+        )
+        self.assertIn('6.0 hours on pSOvkvbGYL', response)
+        self.assertNotIn('7.5 hours on pSOvkvbGYL', response)
+        with open('hours/fixtures/float_holiday_fixture.json', 'r+') as infile:
+            data = json.loads(infile.read())
+            holiday_date = data['holidays'][0]['date']
+            data['holidays'][0]['date'] = '1999-12-31'
+            infile.seek(0)
+            infile.truncate()
+            infile.write(json.dumps(data, indent=4))
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
+        )
+        with open('hours/fixtures/float_holiday_fixture.json', 'r+') as infile:
+            data = json.loads(infile.read())
+            data['holidays'][0]['date'] = holiday_date
+            infile.seek(0)
+            infile.truncate()
+            infile.write(json.dumps(data, indent=4))
+        self.assertNotIn('6.0 hours on pSOvkvbGYL', response)
+        self.assertIn('7.5 hours on pSOvkvbGYL', response)
+
+    def test_float_data_with_timeoff(self):
+        """Check that if reporting period contains timeoff that correct
+        Float hours are returned."""
+        new_reporting_period = self.reporting_period
+        new_reporting_period.start_date = datetime.date(2016, 10, 9)
+        new_reporting_period.end_date = datetime.date(2016, 10, 15)
+        new_reporting_period.save()
+        date = new_reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
+        )
+        self.assertIn('2.0 hours on pSOvkvbGYL', response)
+        self.assertNotIn('7.5 hours on pSOvkvbGYL', response)
+        # Dissassociate time off data with user, then try again.
+        with open('hours/fixtures/float_timeoffs_fixture.json', 'r+') as infile:
+            data = json.loads(infile.read())
+            people_id = data['timeoffs'][0]['people_id']
+            data['timeoffs'][0]['people_id'] = '1234'
+            infile.seek(0)
+            infile.truncate()
+            infile.write(json.dumps(data, indent=4))
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
+        )
+        with open('hours/fixtures/float_timeoffs_fixture.json', 'r+') as infile:
+            data = json.loads(infile.read())
+            data['timeoffs'][0]['people_id'] = people_id
+            infile.seek(0)
+            infile.truncate()
+            infile.write(json.dumps(data, indent=4))
+        self.assertNotIn('2.0 hours on pSOvkvbGYL', response)
+        self.assertIn('7.5 hours on pSOvkvbGYL', response)
 
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is

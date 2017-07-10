@@ -1,5 +1,5 @@
 import csv, json
-import datetime
+import datetime as dt
 import io
 from itertools import chain
 from operator import attrgetter
@@ -45,8 +45,8 @@ class DashboardReportsList(ListView):
 
     def get_queryset(self):
         available_reports = ReportingPeriod.objects.filter(
-            start_date__gte=datetime.date(2016, 10, 1),
-            end_date__lt=datetime.date.today()
+            start_date__gte=dt.date(2016, 10, 1),
+            end_date__lt=dt.date.today()
         )
         return available_reports
 
@@ -85,7 +85,7 @@ class DashboardView(TemplateView):
         unit_param = None #get_params('unit')
 
         # Get requested date and corresponding reporting period.
-        requested_date = datetime.datetime.strptime(
+        requested_date = dt.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
         try:
@@ -93,7 +93,7 @@ class DashboardView(TemplateView):
                 start_date__lte=requested_date,
                 end_date__gte=requested_date
             )
-            rp_selected.future_date = rp_selected.end_date + datetime.timedelta(
+            rp_selected.future_date = rp_selected.end_date + dt.timedelta(
                 weeks=13
             )
         except ReportingPeriod.DoesNotExist:
@@ -606,7 +606,7 @@ class TimecardView(UpdateView):
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        self.report_date = datetime.datetime.strptime(
+        self.report_date = dt.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
         r = ReportingPeriod.objects.get(start_date=self.report_date)
@@ -617,19 +617,16 @@ class TimecardView(UpdateView):
 
     def clean_task_data(self, float_people_id):
         # First day of reporting period.
-        start_date = datetime.datetime.strptime(
+        start_date = dt.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
         # Last day of reporting period.
-        end_date = start_date + datetime.timedelta(days=6)
+        end_date = start_date + dt.timedelta(days=6)
         # Get Float task data for week corresponding start and end dates.
         # Assumes a reporting period is 1 week.
         r = get_float_data(
             endpoint='tasks',
-            params={
-                'weeks': 1,
-                'start_day': start_date
-            }
+            params={'weeks': 1, 'start_day': start_date}
         )
         if not r:
             return None
@@ -644,12 +641,91 @@ class TimecardView(UpdateView):
             ),
             'metadata': {} # If needed in future.
         }
-        # Calculate estimated hours per week. Assumes there are 5 workdays
-        # per week.
-        # Need to take into account holidays and timeoff in future build.
+
+        # Get holiday info from Float and check for holidays in period.
+        weekday_count = 5
+        r = get_float_data(
+            endpoint='holidays', params={
+                'start_day': (
+                    # Get holidays in the last two weeks.
+                    end_date - dt.timedelta(weeks=2)
+                ).isoformat()
+            }
+        )
+        if not r:
+            return None
+        holidays = [ i['date'] for i in r.json()['holidays'] ]
+        holidays_in_period = [ i for i in holidays \
+            if start_date <= \
+            dt.datetime.strptime(i, '%Y-%m-%d').date() <= \
+            end_date ]
+        # Subtract days from calculation if needed.
+        # Assumes there are 5 working days in a standard week.
+        weekday_count = 5 - len(holidays_in_period)
+
+        # Check for time off.
+        r = get_float_data(
+            endpoint='timeoffs', params={
+                # Get last 26 weeks of Float timeoff data to guard against
+                # an extreme edge case where someone has a timeoff
+                # starting <= 26 weeks ago.
+                'weeks': 26,
+                'start_day': start_date - dt.timedelta(weeks=26)
+            }
+        )
+        if not r:
+            return None
+        timeoffs = [ i for i in r.json()['timeoffs'] \
+            # Filter for timeoffs w/ matching float_people_id.
+            if int(i['people_id']) == float_people_id and
+            # Filter for timeoffs that either have at least one
+            # day occuring b/w the start_date and end_date.
+            (start_date <= \
+            dt.datetime.strptime(i['start_date'], '%Y-%m-%d').date() \
+            <= end_date \
+            or \
+            start_date >= \
+            dt.datetime.strptime(i['end_date'], '%Y-%m-%d').date() \
+            <= end_date)
+        ]
+        # Get total hours off between start_date and end_date.
+        hours_off = 0
+        for i in timeoffs:
+            hours_per_day = float(i['hours'])
+            # Timeoff start date.
+            to_start_date = \
+                dt.datetime.strptime(i['start_date'], '%Y-%m-%d').date()
+            # Timeoff end date.
+            to_end_date =  \
+                dt.datetime.strptime(i['end_date'], '%Y-%m-%d').date()
+            # For "Thurs and Fri off" scenario, get Thurs and Fri.
+            if start_date <= to_start_date and end_date >= to_end_date:
+                if to_end_date == to_start_date:
+                    days_off = 1 # To avoid a zero if single day off.
+                else:
+                    days_off = (to_end_date - to_start_date).days
+            # For "Friday through Monday" scenario, get Friday.
+            elif end_date <= to_end_date:
+                days_off = (end_date - to_start_date).days
+            # For "Friday through Monday" scenario, get Monday.
+            elif start_date >= to_start_date:
+                days_off = (to_end_date - start_date).days
+            else:
+                days_off = 0
+            hours_off += hours_per_day * days_off
+
+        # Calculate total hours for the week. Default weekday_count is five
+        # (see above), but could be less if the week has a holiday in it.
         for i in clean_data['tasks']:
+            hours = round(
+                (float(i['hours_pd']) * weekday_count) - \
+                (hours_off/len(clean_data['tasks'])), # Divide hours off by all tasks to spread time off.
+            2)
+            # If any task has negative hours assigned, set to 0.
+            if hours < 0:
+                hours = 0
             i.update(
-                {'hours_wk': float(i['hours_pd']) * 5}
+                {'hours_wk': hours}
             )
         return clean_data
 
@@ -819,7 +895,7 @@ class ReportingPeriodDetailView(ListView):
 
     def get_queryset(self):
         return Timecard.objects.filter(
-            reporting_period__start_date=datetime.datetime.strptime(
+            reporting_period__start_date=dt.datetime.strptime(
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
             submitted=True,
@@ -833,7 +909,7 @@ class ReportingPeriodDetailView(ListView):
         context = super(
             ReportingPeriodDetailView, self).get_context_data(**kwargs)
         reporting_period = ReportingPeriod.objects.get(
-            start_date=datetime.datetime.strptime(
+            start_date=dt.datetime.strptime(
                 self.kwargs['reporting_period'], "%Y-%m-%d").date())
         filed_users = list(
             Timecard.objects.filter(
