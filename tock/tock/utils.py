@@ -1,6 +1,6 @@
 import functools
 import requests
-import sys
+import sys, os
 
 from httmock import urlmatch, HTTMock, all_requests, response
 
@@ -39,6 +39,10 @@ class IsSuperUserOrSelf(BasePermission):
             )
         )
 
+def is_running_test_suite():
+    return (os.path.basename(sys.argv[0]) == 'manage.py' and
+            len(sys.argv) > 1 and sys.argv[1] == 'test')
+
 def get_float_data(endpoint, params=None):
     """Fetch Float data from given endpoint with given params. Different request
       variables used for testing / shell work with the mock Float API."""
@@ -46,7 +50,7 @@ def get_float_data(endpoint, params=None):
     url = '{}/{}'.format(base.FLOAT_API_URL_BASE, endpoint)
 
     # If testing, get mock response.
-    if 'test' in sys.argv or 'shell' in sys.argv:
+    if is_running_test_suite():
         print('Fetching data from mock Float API server via {}...'.format(url))
 
         def get_mock_content(path_to_content):
