@@ -1028,11 +1028,3 @@ class ReportTests(WebTest):
             len(response.html.find_all('tbody')), 3
         )
         self.former_employee
-
-class TestFloatViewIntegration(TestCase):
-    fixtures = FIXTURES
-    def setUp(self):
-        self.userdata = UserData.objects.get(pk=1)
-
-    def test_basic(self):
-        pass

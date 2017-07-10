@@ -96,7 +96,7 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
-    float_people_id = models.CharField(max_length=50, null=True, blank=True, verbose_name='Float "people_id" attribute')
+    float_people_id = models.IntegerField(null=True, blank=True, verbose_name='Float "people_id" attribute')
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         blank=True,
@@ -127,8 +127,5 @@ class UserData(models.Model):
             except Token.DoesNotExist:
                 pass
             user.save()
-
-        if self.float_people_id is '':
-            self.float_people_id = None
 
         super(UserData, self).save(*args, **kwargs)

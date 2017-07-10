@@ -110,30 +110,3 @@ class UserDataTests(TestCase):
         except Token.DoesNotExist:
             token_after_save = None
         self.assertNotEqual(token_before_save, token_after_save)
-
-class TestFloat(TestCase):
-    fixtures = [
-        'employees/fixtures/user_data.json',
-        'tock/fixtures/prod_user.json'
-    ]
-
-    def setUp(self):
-        self.float_username = 'jrortt.zh1maf'
-        self.float_people_id = '318575'
-        self.user = User.objects.create(username=self.float_username)
-        self.userdata = UserData.objects.create(
-            user=self.user,
-            float_people_id=self.float_people_id,
-            start_date=datetime.date.today(),
-            end_date=datetime.date.today() + datetime.timedelta(days=365),
-            current_employee=False,
-            is_18f_employee=True,
-            is_billable=True,
-            unit=1
-        )
-
-    def test_save_method(self):
-        """Checks that a blank Float people_id is always saved as None."""
-        self.userdata.float_people_id = ''
-        self.userdata.save()
-        self.assertFalse(self.userdata.float_people_id)

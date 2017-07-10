@@ -14,19 +14,22 @@
   <div class="usa-alert usa-alert-error">
     <div class="usa-alert-body">
       <p class="usa-alert-text">
-        <b>
-          For {{ float_data.metadata.float_period_start }} to
-          {{ float_data.metadata.float_period_end }} you were scheduled in Float
+        <strong>
+          For {{ object.reporting_period.start_date }} to
+          {{ fobject.reporting_period.end_date }} you were scheduled in Float
           for:
-        </b>
+        </strong>
       </p>
-    <ul>
-      {% for i in float_data.tasks %}
-       <li>-  {{ i.hours_wk }} hours on {{ i.project_name }}
-          {% if i.task_name %}
-          assigned to {{ i.task_name }}
+      <ul style="list-style-type:disc">
+        {% for i in float_data.tasks %}
+         <li>
+           {{ i.hours_wk }} hours on {{ i.project_name }}
+           {% if i.task_name %}
+            assigned to {{ i.task_name }}
           {% endif %}
-      {% endfor %}
+        </li>
+        {% endfor %}
+      </ul>
     </div>
   </div>
   {% endif %}

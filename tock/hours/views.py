@@ -26,9 +26,8 @@ from api.renderers import stream_csv
 from employees.models import UserData
 from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
-from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from tock.utils import PermissionMixin, IsSuperUserOrSelf, get_float_data, flatten
 from tock.settings import base
-from tock.utils import get_float_data
 
 from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
 from .forms import (
@@ -617,43 +616,40 @@ class TimecardView(UpdateView):
         return obj
 
     def clean_task_data(self, float_people_id):
-        # Get Float task data for week corresponding w/ ReportingPeriod
-        # instance.
+        # First day of reporting period.
+        start_date = datetime.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d"
+        ).date()
+        # Last day of reporting period.
+        end_date = start_date + datetime.timedelta(days=6)
+        # Get Float task data for week corresponding start and end dates.
+        # Assumes a reporting period is 1 week.
         r = get_float_data(
             endpoint='tasks',
             params={
-                'weeks': base.FLOAT_API_TASK_WEEKS,
-                'start_day': datetime.datetime.strptime(
-                    self.kwargs['reporting_period'], "%Y-%m-%d"
-                ).date()
+                'weeks': 1,
+                'start_day': start_date
             }
         )
-        if r.status_code != 200:
+        if not r:
             return None
-        else:
-            task_data = r.json()
-        #From response, derive meta data and tasks for the period.
-        f_start_date = datetime.date(
-            int(task_data['start_yr']), 1, 1) + datetime.timedelta(
-            days=int(task_data['start_doy']
-            )-1)
-        f_end_date = f_start_date + datetime.timedelta(
-            days=(base.FLOAT_API_TASK_WEEKS * 6))
+        task_data = r.json()['people']
         clean_data = {
-            'metadata': {
-                'float_period_start': f_start_date,
-                'float_period_end': f_end_date
-            },
-            'tasks': [ item for sublist in \
-                [ ii for ii in [i['tasks'] for i in task_data['people'] \
-                if i['people_id'] == float_people_id] ] \
-            for item in sublist ]
+            # Get all of the tasks (ii) associated with a Float user if the
+            # user's Float people_id matches their Tock float_people_id.
+            # See https://github.com/floatschedule/api/blob/805663be98c9f48a275c9a13e824b0d6701df398/Sections/tasks.md.
+            'tasks': flatten(
+                [ ii for ii in [i['tasks'] for i in task_data \
+                    if int(i['people_id']) == float_people_id] ]
+            ),
+            'metadata': {} # If needed in future.
         }
-        # Calculate estimated hours per week. Need to take into account
-        # holidays in future build.
+        # Calculate estimated hours per week. Assumes there are 5 workdays
+        # per week.
+        # Need to take into account holidays and timeoff in future build.
         for i in clean_data['tasks']:
             i.update(
-                {'hours_wk': float(i['hours_pd']) * base.FLOAT_API_WEEKDAYS}
+                {'hours_wk': float(i['hours_pd']) * 5}
             )
         return clean_data
 
@@ -662,20 +658,20 @@ class TimecardView(UpdateView):
         float_people_id = userdata.float_people_id
         if float_people_id is None:
             # Attempt to get the user's Float people_id.
+            # See https://github.com/floatschedule/api/blob/67e00fddd29cf7274f36f405806a2ca57c18890d/Sections/people.md
             r = get_float_data(
                 endpoint='people')
-            if r.status_code != 200:
+            if not r:
                 return None
-            else:
-                float_people_data = r.json()['people']
+            float_people_data = r.json()['people']
             float_people_id = [ i['people_id'] for i in float_people_data \
                 if i['im'] == self.request.user.username ]
             if float_people_id:
-                userdata.float_people_id = float_people_id[-1]
-                # Use "highest" (last) Float people_id in case person has
-                # multiple people_ids.
+                # Use most recent Float people_id in the rare case a
+                # person has multiple people_ids.
+                userdata.float_people_id = int(float_people_id[-1])
                 userdata.save()
-                return self.clean_task_data(float_people_id[-1])
+                return self.clean_task_data(int(float_people_id[-1]))
             else:
                 return None
         else:

@@ -1,12 +1,13 @@
 import functools
 import requests
-import socket
 import sys
+
+from httmock import urlmatch, HTTMock, all_requests, response
 
 from django.core.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 
-from tock.settings import base, dev, test
+from tock.settings import base
 
 class PermissionMixin(object):
 
@@ -40,21 +41,56 @@ class IsSuperUserOrSelf(BasePermission):
 
 def get_float_data(endpoint, params=None):
     """Fetch Float data from given endpoint with given params. Different request
-      variables used for testing / shell work with the fake Float API
-     (see tock.mock_api_server) versus all other uses."""
-    testing = 'test' in sys.argv
-    shell = 'shell' in sys.argv
-    if testing or shell:
-        url = '{}/{}'.format(test.FLOAT_API_URL_BASE, endpoint)
+      variables used for testing / shell work with the mock Float API."""
+
+    url = '{}/{}'.format(base.FLOAT_API_URL_BASE, endpoint)
+
+    # If testing, get mock response.
+    if 'test' in sys.argv or 'shell' in sys.argv:
         print('Fetching data from mock Float API server via {}...'.format(url))
-        return requests.get(
-            url=url
-        )
+
+        def get_mock_content(path_to_content):
+            with open(path_to_content) as infile:
+                return infile.read()
+
+        @all_requests
+        def float_mock(url, request):
+            endpoint = url.path.split('/')[-1]
+            headers = {'content-type': 'application/json'}
+
+            if endpoint == 'people':
+                content = get_mock_content(
+                    'employees/fixtures/float_people_fixture.json')
+                return response(200, content, headers, None, 5, request)
+
+            elif endpoint == 'tasks':
+                content = get_mock_content(
+                    'hours/fixtures/float_task_fixture.json')
+                return response(200, content, headers, None, 5, request)
+
+        with HTTMock(float_mock):
+            r = requests.get(url=url)
+
+    # Otherwise get real data from Float API.
     else:
-        url = '{}/{}'.format(base.FLOAT_API_URL_BASE, endpoint)
         print('Fetching data from real Float API server via {}...'.format(url))
-        return requests.get(
+        r = requests.get(
             url=url,
             headers=base.FLOAT_API_HEADER,
             params=params
         )
+
+    # Return response or log error.
+    if r.status_code == 200:
+        return r
+    else:
+        print('Failed call to Float with {}. Response:\n\n{}'.format(
+            r.url, r.content))
+        return None
+
+def flatten(nested_list):
+    flat_list = []
+    for sublist in nested_list:
+        for item in sublist:
+            flat_list.append(item)
+    return flat_list
