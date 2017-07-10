@@ -191,6 +191,26 @@ class TimecardInlineFormSetTests(TestCase):
         formset = TimecardFormSet(form_data)
         self.assertFalse(formset.is_valid())
 
+    def test_aws_timecard_is_wrong_size(self):
+        """ Test timecard form data does not abide by min/max hours if
+        user is alternative work schedule eligible. """
+        # Too small.
+        form_data = self.form_data()
+        form_data['timecardobjects-1-project'] = '6'
+        form_data['timecardobjects-1-hours_spent'] = '10'
+        form_data['timecardobjects-TOTAL_FORMS'] = '2'
+        formset = TimecardFormSet(form_data)
+        formset.aws_eligible = True
+        self.assertTrue(formset.is_valid())
+        # Too large
+        form_data = self.form_data()
+        form_data['timecardobjects-1-project'] = '6'
+        form_data['timecardobjects-1-hours_spent'] = '50'
+        form_data['timecardobjects-TOTAL_FORMS'] = '2'
+        formset = TimecardFormSet(form_data)
+        formset.aws_eligible = True
+        self.assertTrue(formset.is_valid())
+
     def test_timecard_has_empty_project(self):
         """ Test timecard form data has an empty hours spent value for
         a project """

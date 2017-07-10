@@ -104,6 +104,8 @@ class UserData(models.Model):
         verbose_name='Profit/loss Accounting String'
     )
 
+    is_aws_eligible = models.BooleanField(default=False, verbose_name='Is alternative work schedule eligible')
+
     class Meta:
         verbose_name='Employee'
         verbose_name_plural='Employees'
