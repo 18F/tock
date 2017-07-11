@@ -532,19 +532,21 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         else:
             return []
 
-    def auto_create_reporting_period(self):
+    def create_reporting_period_if_missing(self):
         # Automatically creates a new reporting period if the latest reporting
         # period has concluded.
         latest_rp = self.queryset.first()
         if not latest_rp:
             return None # In case there are no reporting periods created yet.
-        if latest_rp.end_date >= datetime.datetime.utcnow().date():
-            return None # If the latest rp hasn't ended yet.
-        start_date = latest_rp.end_date + datetime.timedelta(days=1)
-        if start_date not in self.disallowed_dates(latest_rp.end_date):
+
+        latest_end = latest_rp.end_date
+        new_start = latest_end + datetime.timedelta(days=1)
+
+        if latest_end <= datetime.datetime.utcnow().date() and \
+        new_start not in self.disallowed_dates(latest_rp.end_date):
             ReportingPeriod.objects.create(
-                start_date=start_date,
-                end_date=start_date + datetime.timedelta(days=7),
+                start_date=new_start,
+                end_date=new_start + datetime.timedelta(days=7),
                 max_working_hours=40,
                 min_working_hours=40,
                 exact_working_hours=40
@@ -553,7 +555,7 @@ class ReportingPeriodListView(PermissionMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
-        self.auto_create_reporting_period()
+        self.create_reporting_period_if_missing()
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__submitted=True,
             timecard__user=self.request.user.id
