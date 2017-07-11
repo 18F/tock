@@ -599,6 +599,35 @@ class ReportTests(WebTest):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_auto_create_reporting_period(self):
+        """ Check that a reporting period is automatically created if the
+        previous reporting period has ended. """
+        existing_rps = hours.models.ReportingPeriod.objects.all()
+        response = self.app.get(
+            reverse('ListReportingPeriods'),
+            headers={'X_AUTH_USER': self.regular_user.email},
+        )
+        new_rps = hours.models.ReportingPeriod.objects.all()
+        self.assertNotEqual(existing_rps, new_rps)
+        self.assertEqual(
+            new_rps.first().start_date,
+            (self.reporting_period.end_date + datetime.timedelta(days=1))
+        )
+
+    def test_auto_create_reporting_period_fy_end(self):
+        """ Check that a reporting period is NOT automatically created if
+        the reporting period span two fiscal years. """
+        self.reporting_period.end_date = datetime.date(
+            year=2015, month=9, day=30)
+        self.reporting_period.save()
+        existing_rps = hours.models.ReportingPeriod.objects.all()
+        response = self.app.get(
+            reverse('ListReportingPeriods'),
+            headers={'X_AUTH_USER': self.regular_user.email},
+        )
+        new_rps = hours.models.ReportingPeriod.objects.all()
+        self.assertEqual(len(existing_rps), len(new_rps))
+
     def test_reportperiod_updatetimesheet_self(self):
         """
         Test that users can access their own timesheets update forms
