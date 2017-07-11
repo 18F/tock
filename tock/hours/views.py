@@ -522,13 +522,12 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         # where a reporting period will not be automatically created. This
         # prevents the automatic creation of a reporting period that has
         # working week days that span two fiscal years.
+        if date.month not in [9, 10]:
+            return []
         fy_start_date = datetime.date(year=date.year, month=10, day=1)
-        if fy_start_date.weekday() < 5 and date.month < 10:
-            buffer_days = 7 # A week before and after.
-            buffer_start = fy_start_date - datetime.timedelta(days=buffer_days)
-            buffer_end = fy_start_date + datetime.timedelta(days=buffer_days)
-            return [ buffer_start + datetime.timedelta(days=i) for i in \
-                range((buffer_end - buffer_start).days) ]
+        if fy_start_date.weekday() not in [5, 6, 1]:
+            return [ fy_start_date + datetime.timedelta(days=i) for i in \
+                range(-7, 7) ] # A disallow dates a week before and after.
         else:
             return []
 

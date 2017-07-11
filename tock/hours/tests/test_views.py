@@ -628,6 +628,83 @@ class ReportTests(WebTest):
         new_rps = hours.models.ReportingPeriod.objects.all()
         self.assertEqual(len(existing_rps), len(new_rps))
 
+    def test_disallowed_dates_safe_dates(self):
+        """ Check that dates are correctly disallowed when auto-creating a new
+        reporting period."""
+        safe_end_dates = [(2011, 9, 28), (2011, 10, 2), (2016, 9, 29),
+            (2016, 10, 3)]
+        ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
+        for i in safe_end_dates:
+            self.reporting_period.end_date = datetime.date(
+                year=i[0], month=i[1], day=i[2])
+            self.reporting_period.save()
+            response = self.app.get(
+                reverse('ListReportingPeriods'),
+                headers={'X_AUTH_USER': self.regular_user.email},
+            )
+            ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
+            self.assertNotEqual(ct_existing_rps, ct_new_rps)
+
+    def test_disallowed_dates_not_safe_dates(self):
+        """ Check that dates are correctly allowed when auto-creating a new
+        reporting period."""
+        not_safe_end_dates = [(2015, 10, 2), (2015, 9, 30), (2014, 10, 2),
+            (2014, 9, 30)]
+        ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
+        for i in not_safe_end_dates:
+            self.reporting_period.end_date = datetime.date(
+                year=i[0], month=i[1], day=i[2])
+            self.reporting_period.save()
+            response = self.app.get(
+                reverse('ListReportingPeriods'),
+                headers={'X_AUTH_USER': self.regular_user.email},
+            )
+            ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
+            self.assertEqual(ct_existing_rps, ct_new_rps)
+
+    def test_disallowed_dates_irrelevant_dates(self):
+        """ Check that dates are correctly disallowed / allowed when
+        auto-creating a new reporting period. """
+        irrelevant_end_dates = [(2015, 2, 2), (2015, 11, 30)]
+        ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
+        for i in irrelevant_end_dates:
+            self.reporting_period.end_date = datetime.date(
+                year=i[0], month=i[1], day=i[2])
+            self.reporting_period.save()
+            response = self.app.get(
+                reverse('ListReportingPeriods'),
+                headers={'X_AUTH_USER': self.regular_user.email},
+            )
+            ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
+            self.assertNotEqual(ct_existing_rps, ct_new_rps)
+
+    def test_dont_auto_create_rp(self):
+        """ Check that a new reporting period is NOT created if the current
+        reporting period has not ended. """
+        ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
+        today = datetime.date.today()
+        end_date = today + datetime.timedelta(days=1)
+        self.reporting_period.start_date = today
+        self.reporting_period.end_date = today + datetime.timedelta(days=1)
+        self.reporting_period.save()
+        response = self.app.get(
+            reverse('ListReportingPeriods'),
+            headers={'X_AUTH_USER': self.regular_user.email},
+        )
+        ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
+        self.assertEqual(ct_existing_rps, ct_new_rps)
+
+    def test_dont_auto_create_rp_if_no_rps(self):
+        """ Check that no attempt to auto-create a reporting period is made
+        if no reporting periods exist. """
+        self.reporting_period.delete()
+        response = self.app.get(
+            reverse('ListReportingPeriods'),
+            headers={'X_AUTH_USER': self.regular_user.email},
+        )
+        self.assertIsNotNone(hours.models.ReportingPeriod.objects.all())
+
+
     def test_reportperiod_updatetimesheet_self(self):
         """
         Test that users can access their own timesheets update forms
