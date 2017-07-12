@@ -42,7 +42,6 @@
     <td data-title="Start Date">{{ project.start_date}}</td>
     <td data-title="End Date">{{ project.end_date}}</td>
     <td data-title="Alerts">
-      {% if alert %}
       <ul>
         {% for alert in project.alerts.all %}
           <li>
@@ -54,7 +53,6 @@
           </li>
         {% endfor %}
       </ul>
-      {% endif %}
     </td>
   </tr>
     {% endif %}
