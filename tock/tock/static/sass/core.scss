@@ -72,7 +72,7 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
   left:-999em;
     }
     tr:nth-child(odd) td {
-  background-color: red !important;
+  background-color: $color-gray-lightest !important;
 }
   }
 
@@ -91,22 +91,16 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
 
     .table-responsive-reflow td,
     .table-responsive-reflow th {
-        width: 100%;
-        float: none;
-        clear: both;
-        position: relative;
-        padding-left: 50%!important;
-        text-align: left!important;
-        min-height: 30px;
+        padding: .5rem 1rem;
     }
 
 .table-responsive-reflow th[data-title]:before,
   .table-responsive-reflow td[data-title]:before {
         content: attr(data-title);
         font-weight: 700;
-        position: absolute;
-        top: 6px;
-        left: 6px;
+        display: inline-block;
+        min-width: 25%;
+
     }
 
    .table-responsive-reflow tr {
