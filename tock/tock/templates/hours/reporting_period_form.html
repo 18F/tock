@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Create New Reporting Period</h2>
+<div class="usa-grid usa-section">
+<h1>Create New Reporting Period</h1>
 
 <form action="" method="post">{% csrf_token %}
     {{ form.as_p }}
@@ -16,4 +17,5 @@ $(function() {
 	$( ".datepicker" ).datepicker();
 });
 </script>
+</div>
 {% endblock %}

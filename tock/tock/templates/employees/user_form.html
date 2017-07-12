@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Let's Tock about {{ username }}!</h2>
+<div class="usa-grid usa-section">
+<h1>Let's Tock about {{ username }}!</h1>
 
 <figure class="chart chart--utilization">
-  <h3 class="chart__title">Project Hours Over Time</h3>
+  <h2 class="chart__title">Project Hours Over Time</h2>
   <utilization-chart
     class="timeline timeline--project"
     data-url="/reports/project_timeline.csv?user={{ username }}"
@@ -29,4 +30,5 @@ $(function() {
 	$( ".datepicker" ).datepicker();
 });
 </script>
+</div>
 {% endblock %}

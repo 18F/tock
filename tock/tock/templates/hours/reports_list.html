@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h2>Tock Reports</h2>
+<div class="usa-grid usa-section">
+<h1>Tock Reports</h1>
 <!--TODO: use URLconf to link to the API URLs as opposed to hard coding. -->
 
-<h3> Raw data in .csv </h3>
+<h2> Raw data in .csv </h2>
 <ul>
 	{% if user.is_superuser %}
 	<i>Superuser Reports</i>
@@ -36,8 +36,8 @@
 		<a href="{% url 'reports:UserTimelineView' %}">All</a>
 		<a href="{% url 'reports:UserTimelineView' %}?after=2016-10-02">FY2017</a>
 	</li>
-	<li><a href="{% url 'reports:ProjectList' %}">List of all projects</a></li>
-	<li><a href="{% url 'reports:UserDataView' %}">List of all users</a></li>
+	<li><a href="{% url 'reports:ProjectList' %}">Download list of all projects</a></li>
+	<li><a href="{% url 'reports:UserDataView' %}">Download list of all users</a></li>
 
 
 <div class="reporting-periods">
@@ -50,5 +50,6 @@
 	{% endfor %}
 	</ul>
 	{% endfor %}
+</div>
 </div>
 {% endblock %}

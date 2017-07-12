@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-
+<div class="usa-grid usa-section">
 {% if error %}
 
-<h2>Whoops!</h2>
+<h1>Whoops!</h1>
 
 {{ error }}
 
@@ -137,4 +137,5 @@
 
 
 {% endif %}
+</div>
 {% endblock %}

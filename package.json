@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "node-sass": "^3.9.3",
-    "uswds": "^0.12.1"
+    "uswds": "^1.2.0"
   }
 }

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Tock Projects</h2>
+<div class="usa-grid usa-section">
+<h1>Tock Projects</h1>
 
 <figure class="chart chart--utilization">
-  <h3 class="chart__title">Project Hours Over Time</h3>
+  <h2 class="chart__title">Project Hours Over Time</h2>
   <utilization-chart
     class="timeline timeline--projects"
     data-url="/reports/project_timeline.csv"
@@ -18,7 +19,8 @@
 
 <h3> Active Projects </h3>
 
-<table class="table-minimal report_table">
+<table class="table-responsive-reflow">
+  <thead>
   <tr class="report_table__header-row">
     <th>Project</th>
     <th>ID</th>
@@ -27,17 +29,19 @@
     <th>End Date</th>
     <th>Alerts</th>
   </tr>
+</thead>
+<tbody>
   {% for project in object_list %}
     {% if project.active %}
   <tr class="report_table__row">
-    <td>
+    <td data-title="Project">
       <a href="/projects/{{ project.id }}">{{ project.name }}</a>
     </td>
-    <td>{{ project.id }}</td>
-    <td>{{ project.description}}</td>
-    <td>{{ project.start_date}}</td>
-    <td>{{ project.end_date}}</td>
-    <td>
+    <td data-title="ID">{{ project.id }}</td>
+    <td data-title="Description">{{ project.description}}</td>
+    <td data-title="Start Date">{{ project.start_date}}</td>
+    <td data-title="End Date">{{ project.end_date}}</td>
+    <td data-title="Alerts">
       <ul>
         {% for alert in project.alerts.all %}
           <li>
@@ -53,12 +57,14 @@
   </tr>
     {% endif %}
   {% endfor %}
+</tbody>
 </table>
 
 <br />
 <h3> Inactive Projects </h3>
 
-<table class="table-minimal report_table">
+<table class="table-minimal report_table table-responsive-reflow">
+  <thead>
   <tr class="report_table__header-row">
     <th>Project</th>
     <th>ID</th>
@@ -67,6 +73,8 @@
     <th>End Date</th>
     <th>Alerts</th>
   </tr>
+</thead>
+<tbody>
   {% for project in object_list %}
     {% if project.active == False %}
 
@@ -94,6 +102,7 @@
   </tr>
     {% endif %}
   {% endfor %}
+</tbody>
 </table>
-
+</div>
 {% endblock %}
