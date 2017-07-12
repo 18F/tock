@@ -512,17 +512,53 @@ class ReportingPeriodListView(PermissionMixin, ListView):
     """ Currently the home view that lists the completed and missing time
     periods """
     context_object_name = "incomplete_reporting_periods"
-    queryset = ReportingPeriod.objects.all()
+    queryset = ReportingPeriod.objects.all().order_by('-start_date')
     template_name = "hours/reporting_period_list.html"
     permission_classes = (IsAuthenticated, )
+
+    def disallowed_dates(self, date):
+        # If the end of the fiscal year is not on a weekend, then create
+        # a list of dates around (the buffer) the end of the fiscal year
+        # where a reporting period will not be automatically created. This
+        # prevents the automatic creation of a reporting period that has
+        # working week days that span two fiscal years.
+        if date.month not in [9, 10]:
+            return []
+        fy_start_date = datetime.date(year=date.year, month=10, day=1)
+        if fy_start_date.weekday() not in [5, 6, 1]:
+            return [ fy_start_date + datetime.timedelta(days=i) for i in \
+                range(-7, 7) ] # A disallow dates a week before and after.
+        else:
+            return []
+
+    def create_reporting_period_if_missing(self):
+        # Automatically creates a new reporting period if the latest reporting
+        # period has concluded.
+        latest_rp = self.queryset.first()
+        if not latest_rp:
+            return None # In case there are no reporting periods created yet.
+
+        latest_end = latest_rp.end_date
+        new_start = latest_end + datetime.timedelta(days=1)
+
+        if latest_end <= datetime.datetime.utcnow().date() and \
+        new_start not in self.disallowed_dates(latest_rp.end_date):
+            ReportingPeriod.objects.create(
+                start_date=new_start,
+                end_date=new_start + datetime.timedelta(days=7),
+                max_working_hours=40,
+                min_working_hours=40,
+                exact_working_hours=40
+            )
 
     def get_context_data(self, **kwargs):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
+        self.create_reporting_period_if_missing()
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__submitted=True,
             timecard__user=self.request.user.id
-        ).distinct().order_by('-start_date')[:5]
+        ).distinct()[:5]
 
         try:
             unstarted_reporting_periods = self.queryset.exclude(
