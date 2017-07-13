@@ -320,7 +320,10 @@ class TestAggregates(WebTest):
         self.assertEqual(row['total'], 60)
 
 class ReportingPeriodList(WebTest):
-    fixtures = FIXTURES
+    fixtures = ['tock/fixtures/prod_user.json',
+            'projects/fixtures/projects.json',
+            'hours/fixtures/timecards.json']
+
 
     def test_ReportingPeriodList_json(self):
         """ Check that the reporting periods are listed """
