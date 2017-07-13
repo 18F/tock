@@ -71,8 +71,7 @@
 .entry {
 	border-top: 2px solid $color-gray-lighter;
 	background-color: $color-gray-lightest;
-	padding-bottom: 1.5rem;
-	padding-top: 1.5rem;
+	padding: 1.5rem;
 
 .usa-grid {
 	padding-bottom: .25rem;
@@ -179,8 +178,7 @@ background-color: $color-green-lightest;
 
 .entries-total {
 	background: $color-primary-alt-light;
-	padding-top: 1.5rem;
-	padding-bottom: 1.5rem;
+	padding: 1.5rem;
 	.add-timecard-entry,
 	.add-timecard-entry:first-child  {
 		margin-top: 1.7rem;
@@ -219,8 +217,7 @@ background-color: $color-green-lightest;
 
 }
 .submit-form {
-	padding-top: 1.5rem;
-	padding-bottom: 1.5rem;
+	padding: 1.5rem;
 	[type=submit] {
 		display: inline-block;
 	}
