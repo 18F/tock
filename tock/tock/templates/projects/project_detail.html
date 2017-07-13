@@ -2,7 +2,7 @@
 {% load project_tags %}
 
 {% block content %}
-<div class="usa-grid usa-section">
+
 <h1><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h1>
 
 <ul>
@@ -116,5 +116,5 @@ $(document).ready(function() {
   new $.fn.dataTable.FixedColumns($table);
 });
 </script>
-</div>
+
 {% endblock %}

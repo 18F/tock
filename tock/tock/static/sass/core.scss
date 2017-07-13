@@ -7,7 +7,6 @@
 @import "entries";
 @import "utils";
 @import "alert";
-@import "checkbox";
 
 // generic web component styles
 @import "components";
@@ -74,6 +73,7 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
     tr:nth-child(odd) td {
   background-color: $color-gray-lightest !important;
 }
+caption {display: block;}
   }
 
 
@@ -99,7 +99,8 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
         content: attr(data-title);
         font-weight: 700;
         display: inline-block;
-        min-width: 25%;
+        //min-width: 33%;
+        margin-right: 1rem;
 
     }
 
@@ -118,4 +119,14 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
     .table-responsive-reflow td:empty {
         display: none;
     }
+}
+
+.clearfix {
+  clear: both;
+    content: "";
+    display: block;
+}
+.usa-grid .usa-grid {
+  padding-left: 0;
+  padding-right: 0;
 }

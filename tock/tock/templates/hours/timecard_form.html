@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="usa-grid usa-section">
+
 <h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
 
 <div class="usa-alert usa-alert-info">
@@ -34,7 +34,6 @@
     </div>
   </div>
   {% endif %}
-</div>
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
@@ -100,27 +99,26 @@
     {% endfor %}
   </div>
   {% endif %}
-  <div class="usa-grid">
-  <div class="entries-add-more usa-grid">
-
-    <button type="button" class="add-timecard-entry usa-button-outline">Add another item</button>
-
-
-
-  </div>
-  </div>
-    <div class="usa-grid usa-section">
-<div class="usa-grid submit-form">
-  <div class="usa-width-two-thirds">
-  <button type="button" class="usa-button-outline" id="save-timecard">Save time card</button>
-  <button type="submit" class="usa-button-primary">Submit time card</button>
+  <div class="timecard-footer">
+    <div class="usa-grid">
+      <div class="entries-total usa-grid">
+          <div class="usa-width-two-thirds">
+        <button type="button" class="add-timecard-entry usa-button-gray">Add item</button>
+      </div
+        </div>
+        <div class="usa-width-one-third">Total hours
+            <span class="entries-total-reported-amount">0</span>
+        </div>
+      </div>
     </div>
-    <div class="usa-width-one-third">Total hours
-        <span class="entries-total-reported-amount">0</span>
+    <div class="usa-grid">
+      <div class="usa-grid submit-form">
+          <button type="button" class="usa-button-outline save-timecard" id="save-timecard">Save time card</button>
+          <button type="submit" class="usa-button-primary">Submit time card</button>
+      </div>
     </div>
-</div>
-</div>
- </form>
+  </div>
+</form>
 
 
  <script>

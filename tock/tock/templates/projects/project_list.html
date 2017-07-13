@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="usa-grid usa-section">
 <h1>Tock Projects</h1>
 
 <figure class="chart chart--utilization">
@@ -17,9 +16,10 @@
   </utilization-chart>
 </figure>
 
-<h3> Active Projects </h3>
+
 
 <table class="table-responsive-reflow">
+  <caption><h3>Active Projects</h3></caption>
   <thead>
   <tr class="report_table__header-row">
     <th>Project</th>
@@ -34,7 +34,7 @@
   {% for project in object_list %}
     {% if project.active %}
   <tr class="report_table__row">
-    <td data-title="Project">
+    <td>
       <a href="/projects/{{ project.id }}">{{ project.name }}</a>
     </td>
     <td data-title="ID">{{ project.id }}</td>
@@ -60,10 +60,11 @@
 </tbody>
 </table>
 
-<br />
-<h3> Inactive Projects </h3>
+
+
 
 <table class="table-minimal report_table table-responsive-reflow">
+  <caption><h3>Inactive Projects</h3></caption>
   <thead>
   <tr class="report_table__header-row">
     <th>Project</th>
@@ -104,5 +105,4 @@
   {% endfor %}
 </tbody>
 </table>
-</div>
 {% endblock %}

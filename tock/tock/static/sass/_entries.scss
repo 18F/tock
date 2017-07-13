@@ -1,6 +1,6 @@
 .entries {
 	.entry:last-child {
-		border-bottom: 2px solid $color-gray-lighter;
+		border-bottom: 2px solid $color-gray-light;
 	}
 	select {
 		width:100%;
@@ -14,17 +14,6 @@
 		width: 65%;
 		display:inline;
 	}
-
-	/*label {
-		border: 0;
-	  clip: rect(0 0 0 0);
-	  height: 1px;
-	  margin: -1px;
-	  overflow: hidden;
-	  padding: 0;
-	  position: absolute;
-	  width: 1px;
-	}*/
 	ul.entries-header {
 		font-weight: 900;
 		font-size: 0.8em;
@@ -164,7 +153,6 @@
 .entries-add-more {
 	padding-bottom: 1.5rem;
 	padding-top: 1.5rem;
-	background: $color-gray-lightest;
 }
 
 .entries-total-reported-amount {
@@ -190,14 +178,15 @@ background-color: $color-green-lightest;
 }
 
 .entries-total {
-
-	padding-bottom: 1.5rem;
+	background: $color-primary-alt-light;
 	padding-top: 1.5rem;
+	padding-bottom: 1.5rem;
+	.add-timecard-entry,
+	.add-timecard-entry:first-child  {
+		margin-top: 1.7rem;
+	}
 	.entries-total-reported {
-
-
 		text-align:left;
-
     .usa-button-outline {
       float: left;
 
@@ -230,10 +219,12 @@ background-color: $color-green-lightest;
 
 }
 .submit-form {
-	padding-bottom: 3rem;
-	padding-top: 3rem;
-	background-color: $color-gray-lighter;
+	padding-top: 1.5rem;
+	padding-bottom: 1.5rem;
 	[type=submit] {
 		display: inline-block;
 	}
+}
+.timecard-footer {
+	margin-bottom: 6rem;
 }

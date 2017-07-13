@@ -2,13 +2,11 @@
 {% load has_submitted_timesheet %}
 
 {% block content %}
-<div class="usa-grid usa-section">
+
 <h1>Reporting Period: {{ reporting_period.start_date }} to {{ reporting_period.end_date }}</h1>
 <a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">Download Full CSV Report</a>
 
-<br><br>
-
-<table>
+<table class="table-responsive-reflow">
   <caption>
     <h2>Users Who Have Not Filed a Timecard!</h2>
   </caption>
@@ -19,19 +17,19 @@
       <th>Email</th>
     </tr>
   </thead>
-  {% for user in users_without_filed_timecards %}
   <tbody>
+  {% for user in users_without_filed_timecards %}
     <tr>
-      <td>{{ user.first_name }}</td>
-      <td>{{ user.last_name }}</td>
+      <td data-title="First name">{{ user.first_name }}</td>
+      <td data-title="Last name">{{ user.last_name }}</td>
       <td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
     </tr>
-  </tbody>
   {% endfor %}
+  </tbody>
 </table>
 <br><br>
 
-<table>
+<table class="table-responsive-reflow">
   <caption>
     <h2>Users Who Have Filed a Timecard!</h2>
   </caption>
@@ -42,15 +40,15 @@
       <th>View Timecard</th>
     </tr>
   </thead>
-  {% for timecard in timecard_list %}
   <tbody>
+  {% for timecard in timecard_list %}
     <tr>
-      <td>{{ timecard.user.first_name }}</td>
-      <td>{{ timecard.user.last_name }}</td>
+      <td data-title="First name">{{ timecard.user.first_name }}</td>
+      <td data-title="Last name">{{ timecard.user.last_name }}</td>
       <td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
     </tr>
-  </tbody>
   {% endfor %}
+  </tbody>
 </table>
-</div>
+
 {% endblock %}
