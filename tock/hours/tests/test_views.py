@@ -19,9 +19,7 @@ from employees.models import UserData
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
 from tock.settings import base, dev
-from hours.views import GeneralSnippetsTimecardSerializer
-import hours.models
-import hours.views
+©import hours.views
 import projects.models
 
 FIXTURES = [
@@ -976,7 +974,7 @@ class ReportTests(WebTest):
         not_filed_time = tables[0]
         filed_time = tables[1]
         self.assertEqual(
-            len(not_filed_time.find_all('tbody')), 0
+            len(not_filed_time.find_all('tr')), 0
         )
         self.assertEqual(
             len(filed_time.find_all('tbody')), 2
@@ -1025,6 +1023,6 @@ class ReportTests(WebTest):
             )
         )
         self.assertEqual(
-            len(response.html.find_all('tbody')), 3
+            len(response.html.find_all('tr')), 3
         )
         self.former_employee
