@@ -1,5 +1,6 @@
 import collections
 import datetime
+from decimal import Decimal
 
 from django.http import HttpResponse
 from django.db import connection
@@ -7,6 +8,8 @@ from django.db.models import Sum
 
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from projects.models import Project
 from hours.models import TimecardObject, Timecard, ReportingPeriod
@@ -142,6 +145,76 @@ class ReportingPeriodAudit(generics.ListAPIView):
             .exclude(id__in=filed_users) \
             .filter(user_data__current_employee=True) \
             .order_by('last_name', 'first_name')
+
+class AddHours(generics.CreateAPIView):
+    queryset = Timecard.objects.all()
+    serializer_class = TimecardSerializer
+
+    def obj_does_not_exist_error(self, object_type, attribute, failing_value):
+        res = HttpResponse(
+            '{} with {} {} does not exist.'.format(
+                object_type,
+                attribute,
+                failing_value))
+        res.status_code = 400
+        return res
+
+    def create(self, request):
+        self.data = request.data
+        try: # Check that reporting period exists, error out if not.
+            reporting_period = ReportingPeriod.objects.get(
+                end_date=self.data['end_date'])
+        except ObjectDoesNotExist:
+            return obj_does_not_exist_error(
+                'ReportingPeriod',
+                'end_date',
+                self.data['end_date'])
+        try: # Check that user exists, error out if not.
+            user = User.objects.get(username=self.data['username'])
+        except ObjectDoesNotExist:
+            return obj_does_not_exist_error(
+                'User',
+                'username',
+                self.data['username'])
+        try: # Check that project exists, error out if not.
+            project = Project.objects.get(pk=self.data['id'])
+        except ObjectDoesNotExist:
+            return obj_does_not_exist_error(
+                'Project',
+                'id',
+                self.data['id'])
+        # If POST data all valid, get or create Timecard.
+        timecard, created = Timecard.objects.get_or_create(
+            reporting_period=reporting_period,
+            user=user
+        )
+        # If a single TimecardObject with a project matching the POST
+        # data exists, update that TimecardObject.
+        try:
+            tco = TimecardObject.objects.get(
+                timecard=timecard, project=project)
+            tco.hours_spent += Decimal(self.data['hours_spent'])
+            tco.save()
+        # If multiple TimecardObject's with a project matching the POST
+        # data exist, add another.
+        except MultipleObjectsReturned:
+            tco = TimecardObject.objects.create(
+                timecard=timecard,
+                project=project,
+                hours_spent=self.data['hours_spent']
+            )
+        # Provide requestor success info.
+        res = HttpResponse(
+            'Success. Updated {}\'s timecard for period ' \
+            'ending {} with {} hours on {} - {}.'.format(
+                user.username,
+                reporting_period.end_date,
+                tco.hours_spent,
+                project.id,
+                project.name
+            ))
+        res.status_code = 200
+        return res
 
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """

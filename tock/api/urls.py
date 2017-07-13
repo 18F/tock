@@ -19,4 +19,5 @@ urlpatterns = [
     url(r'^hours/by_quarter.json$', views.hours_by_quarter, name='HoursByQuarter'),
     url(r'^hours/by_quarter_by_user.json$', views.hours_by_quarter_by_user, name='HoursByQuarterByUser'),
     url(r'^user_data.json$', views.UserDataView.as_view(), name='UserDataView'),
+    url(r'^add$', views.AddHours.as_view(), name='AddHoursView'),
 ]
