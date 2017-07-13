@@ -14,6 +14,8 @@ from projects.factories import AccountingCodeFactory, ProjectFactory
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
 )
+from hours.models import Timecard, TimecardObject
+from projects.models import Project
 
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
@@ -36,8 +38,85 @@ def client(self):
 FIXTURES = [
     'tock/fixtures/prod_user.json',
     'projects/fixtures/projects.json',
-    'hours/fixtures/timecards.json'
+    'hours/fixtures/timecards.json',
+    'employees/fixtures/user_data.json'
 ]
+
+class AddHoursTests(WebTest):
+    fixtures = FIXTURES
+
+    def setUp(self):
+        self.payload = {'username': 'aaron.snow',
+                    'end_date': '2015-06-08',
+                    'id': '2',
+                    'hours_spent': '10'}
+
+    def test_error_on_bad_rp(self):
+        """ Test for handling of an incorrect reporting period."""
+        test_payload = self.payload
+        test_payload['end_date'] = '1999-12-31'
+        response = client(self).post(reverse('AddHoursView'), test_payload)
+        self.assertContains(response, 'ReportingPeriod', status_code=400)
+
+    def test_error_on_bad_project(self):
+        """ Test for handling of an incorrect project."""
+        test_payload = self.payload
+        test_payload['id'] = '12345'
+        response = client(self).post(reverse('AddHoursView'), test_payload)
+        self.assertContains(response, 'Project', status_code=400)
+
+    def test_error_on_bad_user(self):
+        """ Test for handling of an incorrect user."""
+        test_payload = self.payload
+        test_payload['username'] = 'barry.bonds'
+        response = client(self).post(reverse('AddHoursView'), test_payload)
+        self.assertContains(response, 'User', status_code=400)
+
+    def test_successful_add_none_existing(self):
+        """ Test that a new TimecardObject is created if there is no
+        existing TimecardObject with the same project info. """
+        timecard = Timecard.objects.get(
+            user__username=self.payload['username'],
+            reporting_period__end_date=self.payload['end_date']
+            )
+        tcos = TimecardObject.objects.filter(
+            timecard=timecard).values_list('project', flat=True)
+        self.assertFalse(self.payload['id'] in tcos)
+        response = client(self).post(reverse('AddHoursView'), self.payload)
+        self.assertContains(response, '10 hours', status_code=200)
+        self.assertTrue(self.payload['id'] not in tcos)
+
+    def test_successful_add_with_single_existing(self):
+        """ Test that an existing single TimecardObject with project info
+        matching the request project info is updated with additional hours. """
+        test_payload = self.payload
+        test_payload['id'] = '1'
+        timecard = Timecard.objects.get(
+            user__username=test_payload['username'],
+            reporting_period__end_date=test_payload['end_date']
+            )
+        old_tcos = len(TimecardObject.objects.filter(timecard=timecard))
+        response = client(self).post(reverse('AddHoursView'), test_payload)
+        new_tcos = len(TimecardObject.objects.filter(timecard=timecard))
+        self.assertTrue(old_tcos == new_tcos)
+        self.assertContains(response, '10 hours', status_code=200)
+
+    def test_successful_add_with_multiple_existing(self):
+        """ Test that a new TimecardObject is created if there are already
+        multiple TimecardObjects with the same project info as the request. """
+        test_payload = self.payload
+        test_payload['id'] = '1'
+        project = Project.objects.get(id='1')
+        timecard = Timecard.objects.get(
+            user__username=test_payload['username'],
+            reporting_period__end_date=test_payload['end_date']
+            )
+        TimecardObject.objects.create(
+            timecard=timecard, project=project, hours_spent=10)
+        response = client(self).post(reverse('AddHoursView'), test_payload)
+        tcos = TimecardObject.objects.filter(timecard=timecard).count()
+        self.assertContains(response, '10 hours', status_code=200)
+        self.assertEqual(tcos, 3)
 
 class ProjectsAPITests(TestCase):
     fixtures = FIXTURES

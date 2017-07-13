@@ -165,21 +165,21 @@ class AddHours(generics.CreateAPIView):
             reporting_period = ReportingPeriod.objects.get(
                 end_date=self.data['end_date'])
         except ObjectDoesNotExist:
-            return obj_does_not_exist_error(
+            return self.obj_does_not_exist_error(
                 'ReportingPeriod',
                 'end_date',
                 self.data['end_date'])
         try: # Check that user exists, error out if not.
             user = User.objects.get(username=self.data['username'])
         except ObjectDoesNotExist:
-            return obj_does_not_exist_error(
+            return self.obj_does_not_exist_error(
                 'User',
                 'username',
                 self.data['username'])
         try: # Check that project exists, error out if not.
             project = Project.objects.get(pk=self.data['id'])
-        except ObjectDoesNotExist:
-            return obj_does_not_exist_error(
+        except ObjectDoesNotExist as e:
+            return self.obj_does_not_exist_error(
                 'Project',
                 'id',
                 self.data['id'])
@@ -197,7 +197,7 @@ class AddHours(generics.CreateAPIView):
             tco.save()
         # If multiple TimecardObject's with a project matching the POST
         # data exist, add another.
-        except MultipleObjectsReturned:
+        except (MultipleObjectsReturned, ObjectDoesNotExist):
             tco = TimecardObject.objects.create(
                 timecard=timecard,
                 project=project,
@@ -209,7 +209,7 @@ class AddHours(generics.CreateAPIView):
             'ending {} with {} hours on {} - {}.'.format(
                 user.username,
                 reporting_period.end_date,
-                tco.hours_spent,
+                self.data['hours_spent'],
                 project.id,
                 project.name
             ))
