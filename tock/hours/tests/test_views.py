@@ -974,7 +974,7 @@ class ReportTests(WebTest):
         not_filed_time = tables[0]
         filed_time = tables[1]
         self.assertEqual(
-            len(not_filed_time.find_all('tr')), 0
+            len(not_filed_time.find_all('tbody')), 0
         )
         self.assertEqual(
             len(filed_time.find_all('tbody')), 2
@@ -1023,6 +1023,6 @@ class ReportTests(WebTest):
             )
         )
         self.assertEqual(
-            len(response.html.find_all('tr')), 3
+            len(response.html.find_all('tbody')), 3
         )
         self.former_employee
