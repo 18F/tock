@@ -19,7 +19,9 @@ from employees.models import UserData
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
 from tock.settings import base, dev
-©import hours.views
+from hours.views import GeneralSnippetsTimecardSerializer
+import hours.models
+import hours.views
 import projects.models
 
 FIXTURES = [
