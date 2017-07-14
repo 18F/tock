@@ -975,11 +975,12 @@ class ReportTests(WebTest):
         tables = response.html.find_all('table')
         not_filed_time = tables[0]
         filed_time = tables[1]
+        print(tables)
         self.assertEqual(
-            len(not_filed_time.find_all('tbody')), 0
+            len(not_filed_time.find_all('td')), 0
         )
         self.assertEqual(
-            len(filed_time.find_all('tbody')), 2
+            len(filed_time.find_all('td')), 6
         )
 
 
@@ -1024,7 +1025,5 @@ class ReportTests(WebTest):
                 kwargs={'reporting_period': '2015-01-01'},
             )
         )
-        self.assertEqual(
-            len(response.html.find_all('tbody')), 3
-        )
-        self.former_employee
+        self.assertContains(response,
+            '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')
