@@ -978,7 +978,7 @@ class ReportTests(WebTest):
         self.assertEqual(
             len(not_filed_time.find_all('td')), 0
         )
-        self.assertEqual
+        self.assertEqual(
             len(filed_time.find_all('td')), 6
         )
 
