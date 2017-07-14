@@ -975,11 +975,10 @@ class ReportTests(WebTest):
         tables = response.html.find_all('table')
         not_filed_time = tables[0]
         filed_time = tables[1]
-        print(tables)
         self.assertEqual(
             len(not_filed_time.find_all('td')), 0
         )
-        self.assertEqual(
+        self.assertEqual
             len(filed_time.find_all('td')), 6
         )
 
