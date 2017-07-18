@@ -131,6 +131,7 @@ class UserViewTests(WebTest):
 
     def test_UserFormViewPostForAdmin(self):
         """ Ensure that an admin can submit data via the form """
+        header = {'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         form = self.app.get(
             reverse('employees:UserFormView', args=['regular.user']),
             headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'},
@@ -141,7 +142,7 @@ class UserViewTests(WebTest):
         form['end_date'] = '2014-01-01'
         form['current_employee'] = False
         response = form.submit(
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}).follow()
+            headers=header).follow(headers=header)
         # Check if errors occured at submission
         self.assertEqual(response.status_code, 200)
         # Check if data was changed
@@ -153,6 +154,7 @@ class UserViewTests(WebTest):
 
     def test_UserFormViewPostForSelf(self):
         """ Check that a user can change thier own data via the form """
+        header = {'X_AUTH_USER': 'regular.user@gsa.gov'}
         form = self.app.get(
             reverse('employees:UserFormView', args=['regular.user']),
             headers={'X_AUTH_USER': 'regular.user@gsa.gov'},
@@ -160,18 +162,17 @@ class UserViewTests(WebTest):
         form['first_name'] = 'Regular'
         form['last_name'] = 'User'
         form['start_date'] = '2015-01-01'
-        form['end_date'] = '2017-01-01'
-        form['current_employee'] = False
-        response = form.submit(
-            headers={'X_AUTH_USER': 'regular.user@gsa.gov'}).follow()
+        form['end_date'] = '2020-01-01'
+        form['current_employee'] = True
+        response = form.submit(headers=header).follow(headers=header)
         # Check if errors occured at submission
         self.assertEqual(response.status_code, 200)
         # Check if data was changed
         # Check that data was changed
         user_data = UserData.objects.first()
         self.assertEqual(user_data.start_date, datetime.date(2015, 1, 1))
-        self.assertEqual(user_data.end_date, datetime.date(2017, 1, 1))
-        self.assertFalse(user_data.current_employee)
+        self.assertEqual(user_data.end_date, datetime.date(2020, 1, 1))
+        self.assertTrue(user_data.current_employee)
 
     def test_UserFormViewPostForUser(self):
         """ Check that a user cannot change another users data """

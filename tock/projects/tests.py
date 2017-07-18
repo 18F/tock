@@ -190,7 +190,10 @@ class ProjectsTest(WebTest):
         listed.
         """
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(
+            reverse('ProjectListView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
         anchor = response.html.find(
             'a',
             href='/projects/{0}'.format(self.project.id)
@@ -211,7 +214,10 @@ class ProjectsTest(WebTest):
 
         self.project.alerts.add(project_alert)
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(
+            reverse('ProjectListView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
         span = response.html.find('span')
 
         self.assertIsNotNone(span)
@@ -231,7 +237,10 @@ class ProjectsTest(WebTest):
 
         self.project.alerts.add(project_alert)
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(
+            reverse('ProjectListView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
         anchor = response.html.find(
             'a',
             href='http://www.gsa.gov/'
@@ -256,7 +265,8 @@ class ProjectsTest(WebTest):
         self.project.alerts.add(project_alert)
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('ProjectView', kwargs={'pk': self.project.id}),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
 
         span = response.html.find('span')
@@ -279,7 +289,8 @@ class ProjectsTest(WebTest):
         self.project.alerts.add(project_alert)
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('ProjectView', kwargs={'pk': self.project.id}),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
 
         anchor = response.html.find(
@@ -305,7 +316,8 @@ class ProjectsTest(WebTest):
 
     def test_agreement_url_displays_correctly(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('ProjectView', kwargs={'pk': self.project.id}),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
 
         url = response.html.find('a', href=self.project.agreement_URL)
@@ -313,14 +325,16 @@ class ProjectsTest(WebTest):
 
     def test_no_agreement_url(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project_no_url.id})
+            reverse('ProjectView', kwargs={'pk': self.project_no_url.id}),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
         test_string = 'No agreement URL available'
         self.assertContains(response, test_string)
 
     def test_no_project_lead(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project_no_lead.id})
+            reverse('ProjectView', kwargs={'pk': self.project_no_lead.id}),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
         test_string = 'No project lead available'
         self.assertContains(response, test_string)
@@ -460,7 +474,9 @@ class TestProjectTimeline(WebTest):
         self.assertEqual(len(list(res['groups'].values())[0]), len(self.objs))
 
     def test_project_timeline_view(self):
-        response = self.app.get(reverse('ProjectView', args=[self.project.pk]))
+        response = self.app.get(
+            reverse('ProjectView', args=[self.project.pk]),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'})
         table = response.html.find('table')
         self.assertEqual(
             [each.text for each in table.find_all('th')[1:]],
@@ -505,7 +521,7 @@ class ProjectViewTests(WebTest):
 
         response = self.app.get(
             reverse('ProjectView', kwargs={'pk': '1'}),
-            headers={'X-FORWARDED-EMAIL': 'aaron.snow@gsa.gov'}
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
         )
 
         self.assertEqual(float(response.html.select('#totalHoursAll')[0].string), 15)
