@@ -900,12 +900,9 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
         context['reporting_period'] = reporting_period
         return context
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def ReportingPeriodCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
-    if not request.user.is_authenticated:
-        res = HttpResponse('<h1>403 Forbidden</h1>')
-        res.status_code = 403
-        return res
     response = HttpResponse(content_type='text/csv')
     disposition = 'attachment; filename="{0}.csv"'.format(reporting_period)
     response['Content-Disposition'] = disposition
