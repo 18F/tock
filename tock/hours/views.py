@@ -29,6 +29,7 @@ from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf, get_float_data, flatten
 from tock.settings import base
 
+from .float import *
 from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
 from .forms import (
     ReportingPeriodForm,
@@ -614,127 +615,7 @@ class TimecardView(UpdateView):
             reporting_period_id=r.id,
             user_id=self.request.user.id)
         return obj
-
-    def clean_task_data(self):
-        # First day of reporting period.
-        self.start_date = dt.datetime.strptime(
-            self.kwargs['reporting_period'], "%Y-%m-%d"
-        ).date()
-        # Last day of reporting period.
-        self.end_date = self.start_date + dt.timedelta(days=6)
-        # Get Float task data for week corresponding start and end dates.
-        # Assumes a reporting period is 1 week.
-        r = get_float_data(
-            endpoint='tasks',
-            params={'weeks': 1, 'start_day': self.start_date}
-        )
-        if not r:
-            return None
-        task_data = r.json()['people']
-        # Get all of the tasks (ii) associated with a Float user if the
-        # user's Float people_id matches their Tock float_people_id.
-        # See https://github.com/floatschedule/api/blob/805663be98c9f48a275c9a13e824b0d6701df398/Sections/tasks.md.
-        clean_data = {
-            'tasks': flatten([ ii for ii in [i['tasks'] for i in task_data \
-                    if int(i['people_id']) == self.float_people_id] ]),
-            'metadata': {}  # If needed in future.
-        }
-        workdays = self.calculate_workdays()
-        hours_off = self.calculate_timeoff()
-        for i in clean_data['tasks']:
-            hours = round(
-                # `hours_pd` = Number of hours per day.
-                (float(i['hours_pd']) * workdays) - \
-                # Divide hours off by all tasks to spread time off.
-                (hours_off / len(clean_data['tasks'])), 2)
-            if hours < 0:
-                hours = 0 # If any task has negative hours assigned, set to 0.
-            i.update({'hours_wk': hours})
-        return clean_data
-
-    def calculate_workdays(self):
-        # Get holiday info from Float for last two weeks
-        # and check for holidays in period.
-        weekday_count = 5 # Assumes there are 5 working days in a standard week.
-        r = get_float_data(
-            endpoint='holidays',
-            params={'start_day': (self.end_date - dt.timedelta(
-                weeks=2)).isoformat()
-            }
-        )
-        if not r:
-            return None
-        holidays = [ i['date'] for i in r.json()['holidays'] ]
-        holidays_in_period = [ i for i in holidays \
-            if self.start_date <= \
-            dt.datetime.strptime(i, '%Y-%m-%d').date() <= \
-            self.end_date ]
-        return weekday_count - len(holidays_in_period)
-
-    def calculate_timeoff(self):
-        r = get_float_data(
-            endpoint='timeoffs',
-            # Get last 26 weeks of Float timeoff data to guard against
-            # an extreme edge case where someone has a timeoff
-            # starting <= 26 weeks ago.
-            params={
-                'weeks': 26,
-                'start_day': self.end_date - dt.timedelta(weeks=26)})
-        if not r:
-            return None
-        def overlapping_weekdays(sd_one, ed_one, sd_two, ed_two):
-            # Helper function. Takes start and end dates of two date ranges and
-            # returns list of common weekdays.
-            one_range = [ (ed_one - dt.timedelta(days=i)) for i in \
-                range((ed_one - sd_one).days + 1) ]
-            two_range = [ (ed_two - dt.timedelta(days=i)) for i in \
-                range((ed_two - sd_two).days + 1) ]
-            combined = flatten([one_range, two_range])
-            return set([i for i in combined if \
-            combined.count(i) > 1 and i.weekday() < 5 ])
-
-        hours_off = 0
-        # For all timeoffs that match the user's float_people_id.
-        for i in [ i for i in r.json()['timeoffs'] if \
-        int(i['people_id']) == self.float_people_id ]:
-            # Get timeoff start and end dates.
-            to_start_date, to_end_date = \
-                [ dt.datetime.strptime(i[k], '%Y-%m-%d').date() for \
-                k in ['start_date', 'end_date'] ]
-            # Get number of weekdays off b/w start_date and end_date.
-            days_off = len(overlapping_weekdays(
-                self.start_date, self.end_date, to_start_date, to_end_date))
-            # Add hours off based on the number of hours off for each of the
-            # days off.
-            hours_off += float(i['hours']) * days_off
-        # Calculate total hours for the week. Default weekday_count is five
-        # (see above), but could be less if the week has a holiday in it.
-        return hours_off
-
-    def get_float_data_for_context(self):
-        self.userdata =  UserData.objects.get(
-            user=self.request.user)
-        self.float_people_id = self.userdata.float_people_id
-        if self.float_people_id is None:
-            # Attempt to get the user's Float people_id.
-            # See https://github.com/floatschedule/api/blob/67e00fddd29cf7274f36f405806a2ca57c18890d/Sections/people.md
-            r = get_float_data(
-                endpoint='people')
-            if not r:
-                return None
-            float_people_data = r.json()['people']
-            float_people_id = [ i['people_id'] for i in float_people_data \
-                if i['im'] == self.request.user.username ]
-            if float_people_id:
-                # Use most recent Float people_id in the rare case a
-                # person has multiple people_ids.
-                self.float_people_id = int(float_people_id[-1])
-                self.userdata.float_people_id = self.float_people_id
-                self.userdata.save()
-            else:
-                return None
-        return self.clean_task_data()
-
+        
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
 
@@ -769,7 +650,7 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
-            'float_data': self.get_float_data_for_context(),
+            'float_data': float_tasks_for_view(self.request, self.kwargs),
         })
         return context
 

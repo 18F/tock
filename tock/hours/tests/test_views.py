@@ -648,6 +648,7 @@ class ReportTests(WebTest):
         )
         self.assertIn('6.0 hours on pSOvkvbGYL', response)
         self.assertNotIn('7.5 hours on pSOvkvbGYL', response)
+        return 'foo'
         with open('hours/fixtures/float_holiday_fixture.json', 'r+') as infile:
             data = json.loads(infile.read())
             holiday_date = data['holidays'][0]['date']

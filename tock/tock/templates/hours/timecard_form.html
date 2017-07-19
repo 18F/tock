@@ -10,7 +10,7 @@
     </p>
   </div>
 </div>
-{% if float_data.tasks %}
+{% if float_data %}
   <div class="usa-alert usa-alert-error">
     <div class="usa-alert-body">
       <p class="usa-alert-text">
@@ -21,7 +21,7 @@
         </strong>
       </p>
       <ul style="list-style-type:disc">
-        {% for i in float_data.tasks %}
+        {% for i in float_data %}
          <li>
            {{ i.hours_wk }} hours on {{ i.project_name }}
            {% if i.task_name %}
