@@ -195,7 +195,7 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
+        self.assertContains(response, '<td data-title="Variance">$-2 (-100.00%)</td>')
 
     def test_no_reporting_period(self):
         """Tests errors are handled when there is no matching reporting
