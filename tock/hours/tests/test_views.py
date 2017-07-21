@@ -269,10 +269,14 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td data-title="Variance">$4,500</td>')
-        self.assertContains(response, '<td>13.0 (650.00%)</td>')
-        self.assertContains(response, '<td>$1,498 (59900.00%)</td>')
-        self.assertNotContains(response, '<td>$-2 (-100.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="FYTD Performance">$4,500</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">13.0 (650.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">$1,498 (59900.00%)</td>')
+        self.assertNotContains(
+            response, '<td data-title="Variance">$-2 (-100.00%)</td>')
 
         # Test that units are correctly excluded.
         self.ud.unit = 4
@@ -284,8 +288,10 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
-        self.assertNotContains(response, '<td>$1,498 (59900.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">$-2 (-100.00%)</td>')
+        self.assertNotContains(
+            response, '<td data-title="Variance">$1,498 (59900.00%)</td>')
 
         """self.ud.unit = 13
         self.ud.save()
