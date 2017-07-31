@@ -2,7 +2,8 @@
 {% load project_tags %}
 
 {% block content %}
-<h2><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h2>
+
+<h1><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h1>
 
 <ul>
   <li>
@@ -67,7 +68,7 @@ Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_
 <br />
 <br />
 
-<h3 class="chart__title">Lifetime Hours Logged</h3>
+<h2 class="chart__title">Lifetime Hours Logged</h2>
 <figure class="chart chart--utilization">
   <utilization-chart
     class="timeline timeline--project"

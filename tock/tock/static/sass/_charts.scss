@@ -1,7 +1,8 @@
 .chart {
   margin: 0;
   padding: 1em;
-  background: #f9f9f9;
+  background: $color-gray-lightest;
+  border-bottom: 4px solid $color-gray-lighter;
 
   .chart__title {
     margin-top: 0;

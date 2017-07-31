@@ -195,7 +195,7 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
+        self.assertContains(response, '<td data-title="Variance">$-2 (-100.00%)</td>')
 
     def test_no_reporting_period(self):
         """Tests errors are handled when there is no matching reporting
@@ -269,10 +269,14 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$4,500</td>')
-        self.assertContains(response, '<td>13.0 (650.00%)</td>')
-        self.assertContains(response, '<td>$1,498 (59900.00%)</td>')
-        self.assertNotContains(response, '<td>$-2 (-100.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="FYTD Performance">$4,500</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">13.0 (650.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">$1,498 (59900.00%)</td>')
+        self.assertNotContains(
+            response, '<td data-title="Variance">$-2 (-100.00%)</td>')
 
         # Test that units are correctly excluded.
         self.ud.unit = 4
@@ -284,8 +288,10 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
-        self.assertNotContains(response, '<td>$1,498 (59900.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">$-2 (-100.00%)</td>')
+        self.assertNotContains(
+            response, '<td data-title="Variance">$1,498 (59900.00%)</td>')
 
         """self.ud.unit = 13
         self.ud.save()
@@ -1082,10 +1088,10 @@ class ReportTests(WebTest):
         not_filed_time = tables[0]
         filed_time = tables[1]
         self.assertEqual(
-            len(not_filed_time.find_all('tbody')), 0
+            len(not_filed_time.find_all('td')), 0
         )
         self.assertEqual(
-            len(filed_time.find_all('tbody')), 2
+            len(filed_time.find_all('td')), 6
         )
 
 
@@ -1130,7 +1136,5 @@ class ReportTests(WebTest):
                 kwargs={'reporting_period': '2015-01-01'},
             )
         )
-        self.assertEqual(
-            len(response.html.find_all('tbody')), 3
-        )
-        self.former_employee
+        self.assertContains(response,
+            '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')

@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h2>
+
+<h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
 
 <div class="usa-alert usa-alert-info">
   <div class="usa-alert-body">
@@ -33,48 +34,47 @@
     </div>
   </div>
   {% endif %}
-<form class="form-horizontal form-inline" method="post">
+<form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
-  <div class="entries">
-    <ul class="entries-header">
-      <li>PROJECTS</li>
-      <li>HOURS</li>
-      {% if unsubmitted %}<li>DELETE?</li>{% endif %}
-    </ul>
+  <div class="entries usa-grid">
     {% for project_entry in formset %}
       <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
-        <div class="entry-project">
-          {{ project_entry.project.label_tag }}
-          {{ project_entry.project }}
-          </select>
-        </div>
-        <div class="entry-amount">
-          {{ project_entry.hours_spent.label_tag }}
-          {{ project_entry.hours_spent }}
-        </div>
-        {% if unsubmitted %}
-        <div class="entry-delete">
-          {{ project_entry.DELETE.label_tag }}
-          {{ project_entry.DELETE }}
-        </div>
-        {% endif %}
         <div class="entry-hidden">
           {{ project_entry.timecard }}
           {{ project_entry.id }}
         </div>
-        <div class="entry-alerts" id="entry-alerts">
+        <div class="usa-grid">
+          <div class="entry-alerts" id="entry-alerts"></div>
         </div>
-        <div class="entry-hidden" id="entry-notes">
-          {{ project_entry.notes.label_tag }}
-          {{ project_entry.notes.help_text }}
-          {% if project_entry.notes.errors %}
-            <div class="invalid">
-              {{ project_entry.notes.errors }}
+        <div class="usa-grid">
+          <div class="entry-project usa-width-two-thirds">
+            {{ project_entry.project.label_tag }}
+            {{ project_entry.project }}
+            <div class="entry-hidden" id="entry-notes">
+              {{ project_entry.notes.label_tag }}
+              {{ project_entry.notes.help_text }}
+              {% if project_entry.notes.errors %}
+                <div class="invalid">
+                  {{ project_entry.notes.errors }}
+                </div>
+              {% endif %}
+              {{ project_entry.notes }}
             </div>
-          {% endif %}
-          {{ project_entry.notes }}
+          </div>
+          <div class="entry-amount usa-width-one-third">
+            {{ project_entry.hours_spent.label_tag }}
+            {{ project_entry.hours_spent }}
+          </div>
         </div>
+      <div class="usa-grid">
+      {% if unsubmitted %}
+      <div class="entry-delete usa-width-two-thirds">
+        {{ project_entry.DELETE }}
+        <label>Delete this item</label>
+      </div>
+      {% endif %}
+    </div>
       </div>
     {% endfor %}
   </div>
@@ -86,6 +86,7 @@
     </div>
   {% endif %}
   {% if messages %}
+    <div class="usa-grid">
     {% for message in messages %}
     <div class="usa-alert usa-alert-info">
       <div class="usa-alert-body">
@@ -93,21 +94,28 @@
       </div>
     </div>
     {% endfor %}
+  </div>
   {% endif %}
-  <div class="entries-total">
-    <div class="entries-add-more"></br>
-      <button type="button" class="add-timecard-entry">Add More Items</a>
-      </button>
-    </div>
-    <div class="entries-total-reported">
-      <div class="entries-total-reported-wrapper">
-        Total: <span class="entries-total-reported-amount">0</span> hours
+  <div class="timecard-footer">
+    <div class="entries-total">
+      <div class="usa-grid">
+          <div class="usa-width-two-thirds">
+        <button type="button" class="add-timecard-entry usa-button-gray">Add item</button>
+      </div
+        </div>
+        <div class="usa-width-one-third">Total hours
+            <span class="entries-total-reported-amount">0</span>
+        </div>
       </div>
-      <button type="button" class="usa-button-outline" id="save-timecard">Save</button>
-      <button type="submit">Submit</button>
+    </div>
+    <div class="submit-form">
+      <div class="usa-grid">
+          <button type="button" class="usa-button-outline save-timecard" id="save-timecard">Save time card</button>
+          <button type="submit" class="usa-button-primary">Submit time card</button>
+      </div>
     </div>
   </div>
- </form>
+</form>
 
 
  <script>

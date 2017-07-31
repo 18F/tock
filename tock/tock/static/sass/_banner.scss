@@ -1,12 +1,30 @@
 .banner {
-	@include span-columns(2);
 
   a {
-    color: $color-medium;
+
     text-decoration: none;
 
     &:hover {
-      color: $color-medium-hover;
+
+    }
+  }
+}
+
+.usa-logo {
+  a {
+    vertical-align: middle;
+	}
+}
+
+.usa-logo-text {
+  img {
+    display: inline-block;
+    height: 28px;
+    vertical-align: middle;
+	}
+  @include media($nav-width) {
+    img {
+      height: 50px;
     }
   }
 }
