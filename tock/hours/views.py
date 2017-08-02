@@ -545,7 +545,7 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         new_start not in self.disallowed_dates(latest_rp.end_date):
             ReportingPeriod.objects.create(
                 start_date=new_start,
-                end_date=new_start + datetime.timedelta(days=7),
+                end_date=new_start + datetime.timedelta(days=6),
                 max_working_hours=40,
                 min_working_hours=40,
                 exact_working_hours=40

@@ -619,6 +619,12 @@ class ReportTests(WebTest):
             new_rps.first().start_date,
             (self.reporting_period.end_date + datetime.timedelta(days=1))
         )
+        self.assertEqual(
+            new_rps.first().end_date,
+            (self.reporting_period.end_date +  \
+             datetime.timedelta(days=1)) + \
+             datetime.timedelta(days=6)
+        )
 
     def test_auto_create_reporting_period_fy_end(self):
         """ Check that a reporting period is NOT automatically created if
