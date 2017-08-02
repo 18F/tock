@@ -1,5 +1,5 @@
 import csv, json
-import datetime
+import datetime as dt
 import io
 from itertools import chain
 from operator import attrgetter
@@ -29,6 +29,7 @@ from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf, get_float_data, flatten
 from tock.settings import base
 
+from .float import *
 from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
 from .forms import (
     ReportingPeriodForm,
@@ -46,8 +47,8 @@ class DashboardReportsList(ListView):
 
     def get_queryset(self):
         available_reports = ReportingPeriod.objects.filter(
-            start_date__gte=datetime.date(2016, 10, 1),
-            end_date__lt=datetime.date.today()
+            start_date__gte=dt.date(2016, 10, 1),
+            end_date__lt=dt.date.today()
         )
         return available_reports
 
@@ -86,7 +87,7 @@ class DashboardView(TemplateView):
         unit_param = None #get_params('unit')
 
         # Get requested date and corresponding reporting period.
-        requested_date = datetime.datetime.strptime(
+        requested_date = dt.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
         try:
@@ -94,7 +95,7 @@ class DashboardView(TemplateView):
                 start_date__lte=requested_date,
                 end_date__gte=requested_date
             )
-            rp_selected.future_date = rp_selected.end_date + datetime.timedelta(
+            rp_selected.future_date = rp_selected.end_date + dt.timedelta(
                 weeks=13
             )
         except ReportingPeriod.DoesNotExist:
@@ -643,7 +644,7 @@ class TimecardView(UpdateView):
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        self.report_date = datetime.datetime.strptime(
+        self.report_date = dt.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
         r = ReportingPeriod.objects.get(start_date=self.report_date)
@@ -651,68 +652,6 @@ class TimecardView(UpdateView):
             reporting_period_id=r.id,
             user_id=self.request.user.id)
         return obj
-
-    def clean_task_data(self, float_people_id):
-        # First day of reporting period.
-        start_date = datetime.datetime.strptime(
-            self.kwargs['reporting_period'], "%Y-%m-%d"
-        ).date()
-        # Last day of reporting period.
-        end_date = start_date + datetime.timedelta(days=6)
-        # Get Float task data for week corresponding start and end dates.
-        # Assumes a reporting period is 1 week.
-        r = get_float_data(
-            endpoint='tasks',
-            params={
-                'weeks': 1,
-                'start_day': start_date
-            }
-        )
-        if not r:
-            return None
-        task_data = r.json()['people']
-        clean_data = {
-            # Get all of the tasks (ii) associated with a Float user if the
-            # user's Float people_id matches their Tock float_people_id.
-            # See https://github.com/floatschedule/api/blob/805663be98c9f48a275c9a13e824b0d6701df398/Sections/tasks.md.
-            'tasks': flatten(
-                [ ii for ii in [i['tasks'] for i in task_data \
-                    if int(i['people_id']) == float_people_id] ]
-            ),
-            'metadata': {} # If needed in future.
-        }
-        # Calculate estimated hours per week. Assumes there are 5 workdays
-        # per week.
-        # Need to take into account holidays and timeoff in future build.
-        for i in clean_data['tasks']:
-            i.update(
-                {'hours_wk': float(i['hours_pd']) * 5}
-            )
-        return clean_data
-
-    def get_float_data_for_context(self):
-        userdata = UserData.objects.get(user=self.request.user)
-        float_people_id = userdata.float_people_id
-        if float_people_id is None:
-            # Attempt to get the user's Float people_id.
-            # See https://github.com/floatschedule/api/blob/67e00fddd29cf7274f36f405806a2ca57c18890d/Sections/people.md
-            r = get_float_data(
-                endpoint='people')
-            if not r:
-                return None
-            float_people_data = r.json()['people']
-            float_people_id = [ i['people_id'] for i in float_people_data \
-                if i['im'] == self.request.user.username ]
-            if float_people_id:
-                # Use most recent Float people_id in the rare case a
-                # person has multiple people_ids.
-                userdata.float_people_id = int(float_people_id[-1])
-                userdata.save()
-                return self.clean_task_data(int(float_people_id[-1]))
-            else:
-                return None
-        else:
-            return self.clean_task_data(float_people_id)
 
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
@@ -751,7 +690,8 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
-            'float_data': self.get_float_data_for_context(),
+            'float_data': float_tasks_for_view(
+                self.request.user, base_reporting_period)
         })
         return context
 
@@ -859,7 +799,7 @@ class ReportingPeriodDetailView(ListView):
 
     def get_queryset(self):
         return Timecard.objects.filter(
-            reporting_period__start_date=datetime.datetime.strptime(
+            reporting_period__start_date=dt.datetime.strptime(
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
             submitted=True,
@@ -873,7 +813,7 @@ class ReportingPeriodDetailView(ListView):
         context = super(
             ReportingPeriodDetailView, self).get_context_data(**kwargs)
         reporting_period = ReportingPeriod.objects.get(
-            start_date=datetime.datetime.strptime(
+            start_date=dt.datetime.strptime(
                 self.kwargs['reporting_period'], "%Y-%m-%d").date())
         filed_users = list(
             Timecard.objects.filter(

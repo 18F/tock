@@ -1,0 +1,12 @@
+{
+    "status": 200,
+    "holidays": [
+        {
+            "holiday_name": "Fake Federal Holiday",
+            "end_date": "2016-10-03",
+            "date_doy": "282",
+            "holiday_id": "28653",
+            "date": "2016-10-03"
+        }
+    ]
+}

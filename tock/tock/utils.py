@@ -1,6 +1,9 @@
 import functools
 import requests
+
 import sys, os
+
+from httmock import urlmatch, HTTMock, all_requests, response
 
 from httmock import urlmatch, HTTMock, all_requests, response
 
@@ -70,6 +73,16 @@ def get_float_data(endpoint, params=None):
             elif endpoint == 'tasks':
                 content = get_mock_content(
                     'hours/fixtures/float_task_fixture.json')
+                return response(200, content, headers, None, 5, request)
+
+            elif endpoint == 'holidays':
+                content = get_mock_content(
+                    'hours/fixtures/float_holiday_fixture.json')
+                return response(200, content, headers, None, 5, request)
+
+            elif endpoint == 'timeoffs':
+                content = get_mock_content(
+                    'hours/fixtures/float_timeoffs_fixture.json')
                 return response(200, content, headers, None, 5, request)
 
         with HTTMock(float_mock):
