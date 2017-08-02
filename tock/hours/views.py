@@ -525,9 +525,9 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         # working week days that span two fiscal years.
         if date.month not in [9, 10]:
             return []
-        fy_start_date = datetime.date(year=date.year, month=10, day=1)
+        fy_start_date = dt.date(year=date.year, month=10, day=1)
         if fy_start_date.weekday() not in [5, 6, 1]:
-            return [ fy_start_date + datetime.timedelta(days=i) for i in \
+            return [ fy_start_date + dt.timedelta(days=i) for i in \
                 range(-7, 7) ] # A disallow dates a week before and after.
         else:
             return []
@@ -540,13 +540,13 @@ class ReportingPeriodListView(PermissionMixin, ListView):
             return None # In case there are no reporting periods created yet.
 
         latest_end = latest_rp.end_date
-        new_start = latest_end + datetime.timedelta(days=1)
+        new_start = latest_end + dt.timedelta(days=1)
 
-        if latest_end <= datetime.datetime.utcnow().date() and \
+        if latest_end <= dt.datetime.utcnow().date() and \
         new_start not in self.disallowed_dates(latest_rp.end_date):
             ReportingPeriod.objects.create(
                 start_date=new_start,
-                end_date=new_start + datetime.timedelta(days=6),
+                end_date=new_start + dt.timedelta(days=6),
                 max_working_hours=40,
                 min_working_hours=40,
                 exact_working_hours=40
