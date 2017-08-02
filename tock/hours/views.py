@@ -615,7 +615,7 @@ class TimecardView(UpdateView):
             reporting_period_id=r.id,
             user_id=self.request.user.id)
         return obj
-        
+
     def get_context_data(self, **kwargs):
         context = super(TimecardView, self).get_context_data(**kwargs)
 
@@ -650,7 +650,8 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
-            'float_data': float_tasks_for_view(self.request, self.kwargs),
+            'float_data': float_tasks_for_view(
+                self.request.user, base_reporting_period)
         })
         return context
 

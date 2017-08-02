@@ -10,44 +10,46 @@ BASE_HOURS_PER_WEEK = 32.5
 BASE_HOURS_PER_DAY = 6.5
 BASE_DAYS_PER_WEEK = 5
 
-def float_tasks_for_view(request, kwargs):
-    rp = ReportingPeriod.objects.get(start_date=kwargs['reporting_period'])
-    userdata = UserData.objects.get(user=request.user)
+def float_tasks_for_view(user, rp):
+    userdata = UserData.objects.get(user=user)
     float_people_id = get_float_people_id(userdata)
-    if float_people_id:
-        float_tasks = get_float_tasks(
-            start_date=rp.start_date,
-            float_people_id=float_people_id,
-            weeks=1
-        )
-        float_holidays = get_float_holidays(
-            start_date=rp.start_date,
-            weeks=2
-        )
-        float_timeoffs = get_float_timeoffs(
-            end_date=rp.end_date,
-            float_people_id=float_people_id,
-            weeks=26
-        )
-        work_days = get_work_days(
-            holidays=float_holidays,
-            start_date=rp.start_date,
-            end_date=rp.end_date
-        )
-        work_hours = get_work_hours(
-            start_date=rp.start_date,
-            end_date=rp.end_date,
-            timeoffs=float_timeoffs,
-            work_days=work_days
-        )
-        return get_tasks(
-            start_date=rp.start_date,
-            end_date=rp.end_date,
-            tasks=float_tasks,
-            work_days=work_days,
-            work_hours=work_hours
-        )
-    return None
+
+    if not float_people_id:
+        return None
+
+    float_tasks = get_float_tasks(
+        start_date=rp.start_date,
+        float_people_id=float_people_id,
+        weeks=1
+    )
+    float_holidays = get_float_holidays(
+        start_date=rp.start_date,
+        weeks=2
+    )
+    float_timeoffs = get_float_timeoffs(
+        end_date=rp.end_date,
+        float_people_id=float_people_id,
+        weeks=26
+    )
+    work_days = get_work_days(
+        holidays=float_holidays,
+        start_date=rp.start_date,
+        end_date=rp.end_date
+    )
+    work_hours = get_work_hours(
+        start_date=rp.start_date,
+        end_date=rp.end_date,
+        timeoffs=float_timeoffs,
+        work_days=work_days
+    )
+
+    return get_tasks(
+        start_date=rp.start_date,
+        end_date=rp.end_date,
+        tasks=float_tasks,
+        work_days=work_days,
+        work_hours=work_hours
+    )
 
 def get_tasks(start_date, end_date, tasks, work_days, work_hours):
     for i in tasks:
@@ -59,8 +61,10 @@ def get_tasks(start_date, end_date, tasks, work_days, work_hours):
             (t_start_date, t_end_date)
         ))
         i['hours_wk'] = float(i['hours_pd']) * task_days
+
     all_task_hours = sum([ float(i['hours_wk']) for i in tasks ])
     tasks_to_hours = all_task_hours / work_hours
+
     if tasks_to_hours > 1.0:
         for i in tasks:
             week_hours = i['hours_wk'] * (work_hours / all_task_hours)
@@ -78,6 +82,7 @@ def get_work_hours(start_date, end_date, timeoffs, work_days):
             (to_start_date, to_end_date)
         ))
         hours_off += float(i['hours']) * days_off
+
     return (work_days * BASE_HOURS_PER_DAY) - hours_off
 
 def get_work_days(holidays, start_date, end_date):
@@ -110,16 +115,18 @@ def get_float_holidays(start_date, weeks=2):
 
 def get_float_people_id(userdata):
     if userdata.float_people_id:
-        print('foo')
         return userdata.float_people_id
+
     float_people_id = [ i['people_id'] for i in \
         get_float_data(endpoint='people').json()['people'] if \
         i['im'] == userdata.user.username ]
+
     if float_people_id:
         # Use most recent Float people_id in the rare case a
         # person has multiple people_ids.
         userdata.float_people_id = int(float_people_id[-1])
         return userdata.float_people_id
+
     return None
 
 def get_float_tasks(start_date, float_people_id, weeks=1):
@@ -131,6 +138,7 @@ def get_float_tasks(start_date, float_people_id, weeks=1):
         endpoint='tasks',
         params={'weeks': weeks, 'start_day': start_date}
     ).json()['people']
+
     return flatten(
         [ ii for ii in [i['tasks'] for i in all_tasks \
             if int(i['people_id']) == float_people_id ] ]
@@ -144,4 +152,5 @@ def find_common_weekdays(range_one, range_two):
     diff = (first_end - last_start).days + 1
     days = [ last_start + dt.timedelta(days=i) for i in \
         range(diff) ]
+
     return [ d for d in days if d.weekday() < 5 ]
