@@ -23,7 +23,7 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 1. Run:
 
   ```shell
-  $ cp .env.sample .env
+  $ cp tock/.env.sample .env
   $ docker-compose build
   $ docker-compose run app python manage.py migrate
   $ docker-compose run app python manage.py loaddata test_data/data-update.json
