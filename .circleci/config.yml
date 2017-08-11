@@ -17,7 +17,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       - image: circleci/postgres:9.5
         environment:
-          - POSTGRES_USER=postgres
+          - POSTGRES_USER=circleci
           - POSTGRES_DB=tock-test
 
     working_directory: ~/repo
@@ -25,17 +25,21 @@ jobs:
     steps:
       - checkout
 
+      - run:
+          name: install nodejs
+          command: |
+            sudo apt-get update && curl -sL https://deb.nodesource.com/setup_6.x | sudo bash - && sudo apt-get install -y nodejs
+
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
       - run:
           name: install dependencies
           command: |
-            sudo apt-get update && curl -sL https://deb.nodesource.com/setup_6.x | sudo bash - && sudo apt-get install -y nodejs
             python3 -m venv venv
             . venv/bin/activate
             pip install codecov
@@ -45,7 +49,8 @@ jobs:
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}
+            - ./node_modules
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}
         
       # run tests!
       - run:
