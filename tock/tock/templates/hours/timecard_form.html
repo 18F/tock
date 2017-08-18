@@ -71,7 +71,7 @@
       {% if unsubmitted %}
       <div class="entry-delete usa-width-two-thirds">
         {{ project_entry.DELETE }}
-        <label>Delete this item</label>
+        <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
       </div>
       {% endif %}
     </div>
