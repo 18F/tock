@@ -44,7 +44,7 @@ class IsSuperUserOrSelf(BasePermission):
 
 def is_running_test_suite():
     return (os.path.basename(sys.argv[0]) == 'manage.py' and
-            len(sys.argv) > 1 and sys.argv[1] == 'test')
+            len(sys.argv) > 1 and sys.argv[1] == 'test') or base.FLOAT_API_KEY == ''
 
 def get_float_data(endpoint, params=None):
     """Fetch Float data from given endpoint with given params. Different request
