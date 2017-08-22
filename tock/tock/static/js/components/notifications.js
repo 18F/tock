@@ -1,4 +1,4 @@
-(function setup_notifications() {
+(function setupNotifications() {
   if("Notification" in window) {
     Notification.requestPermission().then(function(result) {
       // If the user grants permission, or has granted permission in the past,
@@ -45,6 +45,8 @@
       };
 
       setTimer();
+    }).catch(function(error) {
+      console.error('error:', error);
     });
   }
 })();
