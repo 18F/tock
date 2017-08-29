@@ -23,19 +23,18 @@ class FloatTests(TestCase):
         float_people_id = 755802
         self.assertEqual(len(get_float_tasks(start_date, float_people_id)), 2)
 
-    def test_get_float_people_id(self):
+    def test_get_float_people_id_by_userdata(self):
         user = User.objects.create(username='6cfl4j.c4drwz')
         userdata = UserData.objects.create(user=user)
-        # Test get from Float by Tock username.
+
         self.assertEqual(get_float_people_id(userdata), 755802)
         self.assertEqual(userdata.float_people_id, 755802)
-        # Test get directly from UserData object.
-        self.assertEqual(get_float_people_id(userdata), 755802)
-        # Test return none.
+
+    def test_get_float_people_id_returns_none(self):
         user = User.objects.create(username='tom.jones')
         userdata = UserData.objects.create(user=user)
-        self.assertEqual(get_float_people_id(userdata), None)
 
+        self.assertEqual(get_float_people_id(userdata), None)
 
     def test_get_float_holidays(self):
         self.assertEqual(len(get_float_holidays(dt.date(2016, 10, 1))), 1)
@@ -44,12 +43,16 @@ class FloatTests(TestCase):
         self.assertEqual(
             len(get_float_timeoffs(dt.date(2016, 10, 15), 755802)), 1)
 
-    def test_get_work_days(self):
+    def test_get_work_days_without_holidays(self):
         holidays = []
         start_date = dt.date(2016, 10, 2)
         end_date = dt.date(2016, 10, 8)
         self.assertEqual(get_work_days(holidays, start_date, end_date), 5)
+
+    def test_get_work_days_with_holidays(self):
         holidays = get_float_holidays(dt.date(2016, 10, 1))
+        start_date = dt.date(2016, 10, 2)
+        end_date = dt.date(2016, 10, 8)
         self.assertEqual(get_work_days(holidays, start_date, end_date), 4)
 
     def test_get_work_hours_without_timeoffs_without_holidays(self):

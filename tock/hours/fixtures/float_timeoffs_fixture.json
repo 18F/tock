@@ -1,19 +1,19 @@
 {
     "timeoffs": [
         {
-            "end_date": "2016-10-13",
             "timeoff_notes": "",
-            "modified": "2017-02-21 00:00:00",
-            "created_by": "101445",
             "hours": "6.5",
-            "repeat_end": "0000-00-00",
-            "full_day": "1",
-            "modified_by": "0",
-            "people_id": "755802",
+            "created_by": "101445",
             "created": "2017-02-21 00:00:00",
             "timeoff_type_id": "5119",
+            "repeat_end": "0000-00-00",
             "timeoff_id": "2389",
             "repeat_state": "0",
+            "full_day": "1",
+            "people_id": "755802",
+            "end_date": "2016-10-13",
+            "modified_by": "0",
+            "modified": "2017-02-21 00:00:00",
             "start_date": "2016-10-11"
         }
     ],
