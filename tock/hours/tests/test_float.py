@@ -41,7 +41,7 @@ class FloatTests(TestCase):
 
     def test_get_float_timeoffs(self):
         self.assertEqual(
-            len(get_float_timeoffs(dt.date(2016, 10, 15), 755802)), 1)
+            len(get_float_timeoffs(dt.date(2016, 10, 15), 755802)), 2)
 
     def test_get_work_days_without_holidays(self):
         holidays = []
@@ -146,3 +146,16 @@ class FloatTests(TestCase):
 
         result = get_tasks(start_date, end_date, tasks, work_days, work_hours)
         self.assertEqual(sum([ i['hours_wk'] for i in result ]), 13.0)
+
+    def test_get_tasks_without_holidays_with_timeoffs_zero_work_hours(self):
+        start_date = dt.date(2016, 10, 20)
+        end_date = dt.date(2016, 10, 27)
+        float_people_id = 755802
+        tasks = get_float_tasks(start_date, float_people_id)
+        holidays = []
+        work_days = get_work_days(holidays, start_date, end_date)
+        timeoffs = get_float_timeoffs(dt.date(2016, 10, 20), 755802)
+        work_hours = get_work_hours(start_date, end_date, timeoffs, work_days)
+
+        result = get_tasks(start_date, end_date, tasks, work_days, work_hours)
+        self.assertEqual(sum([ i['hours_wk'] for i in result ]), 39.0)
