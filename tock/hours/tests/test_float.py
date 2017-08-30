@@ -23,59 +23,79 @@ class FloatTests(TestCase):
         float_people_id = 755802
         self.assertEqual(len(get_float_tasks(start_date, float_people_id)), 2)
 
-    def test_get_float_people_id(self):
+    def test_get_float_people_id_by_userdata(self):
         user = User.objects.create(username='6cfl4j.c4drwz')
         userdata = UserData.objects.create(user=user)
-        # Test get from Float by Tock username.
+
         self.assertEqual(get_float_people_id(userdata), 755802)
         self.assertEqual(userdata.float_people_id, 755802)
-        # Test get directly from UserData object.
-        self.assertEqual(get_float_people_id(userdata), 755802)
-        # Test return none.
+
+    def test_get_float_people_id_returns_none(self):
         user = User.objects.create(username='tom.jones')
         userdata = UserData.objects.create(user=user)
-        self.assertEqual(get_float_people_id(userdata), None)
 
+        self.assertEqual(get_float_people_id(userdata), None)
 
     def test_get_float_holidays(self):
         self.assertEqual(len(get_float_holidays(dt.date(2016, 10, 1))), 1)
 
     def test_get_float_timeoffs(self):
         self.assertEqual(
-            len(get_float_timeoffs(dt.date(2016, 10, 15), 755802)), 1)
+            len(get_float_timeoffs(dt.date(2016, 10, 15), 755802)), 2)
 
-    def test_get_work_days(self):
+    def test_get_work_days_without_holidays(self):
         holidays = []
         start_date = dt.date(2016, 10, 2)
         end_date = dt.date(2016, 10, 8)
         self.assertEqual(get_work_days(holidays, start_date, end_date), 5)
+
+    def test_get_work_days_with_holidays(self):
         holidays = get_float_holidays(dt.date(2016, 10, 1))
+        start_date = dt.date(2016, 10, 2)
+        end_date = dt.date(2016, 10, 8)
         self.assertEqual(get_work_days(holidays, start_date, end_date), 4)
 
-    def test_get_work_hours(self):
+    def test_get_work_hours_without_timeoffs_without_holidays(self):
         start_date = dt.date(2016, 10, 9)
         end_date = dt.date(2016, 10, 15)
         holidays = []
         work_days = get_work_days(holidays, start_date, end_date)
         timeoffs = []
-        # Test with no timeoffs and no holidays.
+
         self.assertEqual(
             get_work_hours(start_date, end_date, timeoffs, work_days), 32.5)
-        # Test with timeoffs and no holidays.
+
+    def test_get_work_hours_with_timeoffs_without_holidays(self):
+        start_date = dt.date(2016, 10, 9)
+        end_date = dt.date(2016, 10, 15)
+        holidays = []
+        work_days = get_work_days(holidays, start_date, end_date)
         timeoffs = get_float_timeoffs(dt.date(2016, 10, 15), 755802)
+
         self.assertEqual(
             get_work_hours(start_date, end_date, timeoffs, work_days), 13.0)
-        # Test with timeoffs and holidays.
+
+    def test_get_work_hours_with_timeoffs_with_holidays(self):
+        start_date = dt.date(2016, 10, 9)
+        end_date = dt.date(2016, 10, 15)
         holidays = [{'date': '2016-10-10'}]
         work_days = get_work_days(holidays, start_date, end_date)
+        timeoffs = get_float_timeoffs(dt.date(2016, 10, 15), 755802)
+
         self.assertEqual(
             get_work_hours(start_date, end_date, timeoffs, work_days), 6.5)
-        # Test with holidays and no timeoffs.
+
+    def test_get_work_hours_without_timeoffs_with_holidays(self):
+        start_date = dt.date(2016, 10, 9)
+        end_date = dt.date(2016, 10, 15)
+        holidays = [{'date': '2016-10-10'}]
+        work_days = get_work_days(holidays, start_date, end_date)
         timeoffs = []
+
         self.assertEqual(
             get_work_hours(start_date, end_date, timeoffs, work_days), 26.0)
 
-    def test_get_tasks(self):
+    def test_get_tasks_without_holidays_without_timeoffs(self):
         start_date = dt.date(2016, 10, 9)
         end_date = dt.date(2016, 10, 15)
         float_people_id = 755802
@@ -84,23 +104,58 @@ class FloatTests(TestCase):
         work_days = get_work_days(holidays, start_date, end_date)
         timeoffs = []
         work_hours = get_work_hours(start_date, end_date, timeoffs, work_days)
-        # Test with no holidays and no timeoffs.
+
         result = get_tasks(start_date, end_date, tasks, work_days, work_hours)
         self.assertEqual(sum([ i['hours_wk'] for i in result ]), 32.5)
-        # Test with holiday and no timeoffs.
+
+    def test_get_tasks_with_holidays_without_timeoffs(self):
+        start_date = dt.date(2016, 10, 9)
+        end_date = dt.date(2016, 10, 15)
+        float_people_id = 755802
+        tasks = get_float_tasks(start_date, float_people_id)
         holidays = [{'date': '2016-10-10'}]
         work_days = get_work_days(holidays, start_date, end_date)
+        timeoffs = []
         work_hours = get_work_hours(start_date, end_date, timeoffs, work_days)
+
         result = get_tasks(start_date, end_date, tasks, work_days, work_hours)
         self.assertEqual(sum([ i['hours_wk'] for i in result ]), 26.0)
-        # Test with holiday and timeoffs.
+
+    def test_get_tasks_with_holidays_with_timeoffs(self):
+        start_date = dt.date(2016, 10, 9)
+        end_date = dt.date(2016, 10, 15)
+        float_people_id = 755802
+        tasks = get_float_tasks(start_date, float_people_id)
+        holidays = [{'date': '2016-10-10'}]
+        work_days = get_work_days(holidays, start_date, end_date)
         timeoffs = get_float_timeoffs(dt.date(2016, 10, 15), 755802)
         work_hours = get_work_hours(start_date, end_date, timeoffs, work_days)
+
         result = get_tasks(start_date, end_date, tasks, work_days, work_hours)
         self.assertEqual(sum([ i['hours_wk'] for i in result ]), 6.5)
-        # Test with timeoffs and no holiday.
+
+    def test_get_tasks_without_holidays_with_timeoffs(self):
+        start_date = dt.date(2016, 10, 9)
+        end_date = dt.date(2016, 10, 15)
+        float_people_id = 755802
+        tasks = get_float_tasks(start_date, float_people_id)
         holidays = []
         work_days = get_work_days(holidays, start_date, end_date)
+        timeoffs = get_float_timeoffs(dt.date(2016, 10, 15), 755802)
         work_hours = get_work_hours(start_date, end_date, timeoffs, work_days)
+
         result = get_tasks(start_date, end_date, tasks, work_days, work_hours)
         self.assertEqual(sum([ i['hours_wk'] for i in result ]), 13.0)
+
+    def test_get_tasks_without_holidays_with_timeoffs_zero_work_hours(self):
+        start_date = dt.date(2016, 10, 20)
+        end_date = dt.date(2016, 10, 27)
+        float_people_id = 755802
+        tasks = get_float_tasks(start_date, float_people_id)
+        holidays = []
+        work_days = get_work_days(holidays, start_date, end_date)
+        timeoffs = get_float_timeoffs(dt.date(2016, 10, 20), 755802)
+        work_hours = get_work_hours(start_date, end_date, timeoffs, work_days)
+
+        result = get_tasks(start_date, end_date, tasks, work_days, work_hours)
+        self.assertEqual(sum([ i['hours_wk'] for i in result ]), 39.0)

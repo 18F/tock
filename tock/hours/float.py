@@ -62,13 +62,16 @@ def get_tasks(start_date, end_date, tasks, work_days, work_hours):
         ))
         i['hours_wk'] = float(i['hours_pd']) * task_days
 
-    all_task_hours = sum([ float(i['hours_wk']) for i in tasks ])
-    tasks_to_hours = all_task_hours / work_hours
+    # Prevent a divide by zero error in the case of work hours being 0.
+    if work_hours > 0:
+        all_task_hours = sum([ float(i['hours_wk']) for i in tasks ])
+        tasks_to_hours = all_task_hours / work_hours
 
-    if tasks_to_hours > 1.0:
-        for i in tasks:
-            week_hours = i['hours_wk'] * (work_hours / all_task_hours)
-            i.update({'hours_wk': round(week_hours, 2)})
+        if tasks_to_hours > 1.0:
+            for i in tasks:
+                week_hours = i['hours_wk'] * (work_hours / all_task_hours)
+                i.update({'hours_wk': round(week_hours, 2)})
+
     return tasks
 
 def get_work_hours(start_date, end_date, timeoffs, work_days):
@@ -83,7 +86,8 @@ def get_work_hours(start_date, end_date, timeoffs, work_days):
         ))
         hours_off += float(i['hours']) * days_off
 
-    return (work_days * BASE_HOURS_PER_DAY) - hours_off
+    work_hours = (work_days * BASE_HOURS_PER_DAY) - hours_off
+    return work_hours
 
 def get_work_days(holidays, start_date, end_date):
     # Get holiday info from Float for last two weeks
