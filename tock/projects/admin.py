@@ -73,7 +73,6 @@ class ProjectForm(forms.ModelForm):
 
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
-    search_fields = ['name',]
     fields = [
         'name',
         'mbnumber',
@@ -89,6 +88,9 @@ class ProjectAdmin(admin.ModelAdmin):
         'notes_required',
         'notes_displayed',
     ]
+    list_display = ('name', 'mbnumber', 'accounting_code', 'project_lead', 'start_date', 'end_date', 'active', 'notes_displayed', 'notes_required',)
+    list_filter = ('active', 'notes_displayed', 'notes_required',)
+    search_fields = ('name', 'accounting_code__code', 'mbnumber',)
 
 class ProjectAlertAdmin(admin.ModelAdmin):
     search_fields = ['title',]
