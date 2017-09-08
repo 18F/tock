@@ -32,7 +32,7 @@ web:
   ports:
     - "${EXTERNAL_PORT}:${EXTERNAL_PORT}"
 sass:
-  image: node:6.3
+  image: node:8.4.0
   volumes:
     - .:/tock
     - /tock/node_modules
