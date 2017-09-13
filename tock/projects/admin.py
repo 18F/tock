@@ -17,14 +17,15 @@ class ProfitLossAccountForm(forms.ModelForm):
         model = ProfitLossAccount
         exclude = []
     def clean(self):
-        if self.cleaned_data.get(
-            'as_start_date'
-        ) > self.cleaned_data.get(
-            'as_end_date'
-        ):
-            raise forms.ValidationError(
-                'Start date cannot occur before the end date.'
-            )
+        start_date = self.cleaned_data.get('as_start_date', None)
+        end_date = self.cleaned_data.get('as_end_date', None)
+
+        if start_date and end_date:
+            if start_date > end_date:
+                raise forms.ValidationError(
+                    'Start date cannot occur after the end date.'
+                )
+
         return self.cleaned_data
 
 class ProfitLossAccountAdmin(admin.ModelAdmin):
