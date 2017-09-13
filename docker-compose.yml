@@ -14,12 +14,12 @@ app:
 
   command: "python manage.py runserver 0.0.0.0:1234"
 db:
-  image: postgres:9.5.4
+  image: postgres:9.5.9
   environment:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
 web:
-  image: nginx:1.11.3
+  image: nginx:1.13.5
   volumes:
     - ./provision/dev/nginx_site_docker.template:/etc/nginx/conf.d/nginx_site_docker.template
   command: /bin/bash -c "envsubst '$$EXTERNAL_PORT $$DJANGO_SERVER $$USER_EMAIL' < /etc/nginx/conf.d/nginx_site_docker.template > /etc/nginx/conf.d/nginx_site_docker.conf && exec nginx -g 'daemon off;'"
@@ -32,7 +32,7 @@ web:
   ports:
     - "${EXTERNAL_PORT}:${EXTERNAL_PORT}"
 sass:
-  image: node:8.4.0
+  image: node:8.5.0
   volumes:
     - .:/tock
     - /tock/node_modules

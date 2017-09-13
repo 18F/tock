@@ -145,7 +145,7 @@
   }
 
   function toggleNotesField(selectBox) {
-    var $fieldset = $(selectBox).parent().parent(),
+    var $fieldset = $(selectBox).parents('.entry-project'),
         $selected = $(selectBox).find(':selected'),
         $notes = $fieldset.find('#entry-notes'),
         notesDisplayed = $selected.data('notes-displayed'),
@@ -159,7 +159,7 @@
   }
 
   function displayAlerts(selectBox) {
-    var $fieldset = $(selectBox).parent().parent().parent(),
+    var $fieldset = $(selectBox).parents('.entry-project'),
         $selected = $(selectBox).find(':selected'),
         $alerts = $fieldset.find('#entry-alerts'),
         all_alerts = $selected.data('alerts'),
