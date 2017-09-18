@@ -45,12 +45,10 @@
           {{ project_entry.id }}
         </div>
         <div class="usa-grid">
-          <div class="entry-alerts" id="entry-alerts"></div>
-        </div>
-        <div class="usa-grid">
           <div class="entry-project usa-width-two-thirds">
             {{ project_entry.project.label_tag }}
             {{ project_entry.project }}
+            <div class="entry-alerts" id="entry-alerts"></div>
             <div class="entry-hidden" id="entry-notes">
               {{ project_entry.notes.label_tag }}
               {{ project_entry.notes.help_text }}
@@ -147,7 +145,7 @@
   }
 
   function toggleNotesField(selectBox) {
-    var $fieldset = $(selectBox).parent().parent(),
+    var $fieldset = $(selectBox).parents('.entry-project'),
         $selected = $(selectBox).find(':selected'),
         $notes = $fieldset.find('#entry-notes'),
         notesDisplayed = $selected.data('notes-displayed'),
@@ -161,7 +159,7 @@
   }
 
   function displayAlerts(selectBox) {
-    var $fieldset = $(selectBox).parent().parent(),
+    var $fieldset = $(selectBox).parents('.entry-project'),
         $selected = $(selectBox).find(':selected'),
         $alerts = $fieldset.find('#entry-alerts'),
         all_alerts = $selected.data('alerts'),
@@ -273,6 +271,19 @@ $( document ).ready(function() {
     // Force an update to each project selection menu in case a notes field
     // needs to be re-displayed.
     $('.entry-project select').trigger('change');
+
+    // Disable scrolling in numeric input form fields from the mouse
+    // wheel or touchpad.
+    // Adapted from https://stackoverflow.com/questions/9712295/disable-scrolling-on-input-type-number
+    $('form').on('focus', 'input[type=number]', function (e) {
+        $(this).on('mousewheel.disableScroll', function (e) {
+            e.preventDefault();
+        });
+    });
+
+    $('form').on('blur', 'input[type=number]', function (e) {
+        $(this).off('mousewheel.disableScroll');
+    });
 });
  </script>
 {% endblock %}

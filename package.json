@@ -8,10 +8,13 @@
     "predeploy": "npm install --silent && npm run build-css"
   },
   "engines": {
-    "node": "6.3.1"
+    "node": "8.5.0"
   },
   "dependencies": {
-    "node-sass": "^3.9.3",
+    "chosen-js": "1.8.2",
+    "jquery": "3.2.1",
+    "node-sass": "4.5.3",
+    "underscore": "1.8.3",
     "uswds": "^1.2.0"
   }
 }
