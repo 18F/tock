@@ -7,59 +7,130 @@
     <title>Tock</title>
 
     {% load staticfiles %}
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
     <link rel="stylesheet" href="{% static 'css/dist/core.css' %}">
     <link rel="stylesheet" href="{% static 'css/vendor/jquery-ui.min.css' %}">
-    <link rel="stylesheet" href="{% static 'js/chosen/chosen.min.css' %}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
-    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
-    <script src="{% static 'js/chosen/chosen.jquery.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'js/vendor/chosen/chosen.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vendor/font-awesome.min.css' %}">
+    <script src="{% static 'js/vendor/jquery.min.js' %}" ></script>
+    <script src="{% static 'js/vendor/chosen/chosen.jquery.min.js' %}"></script>
+    <script src="{% static 'js/vendor/jquery-ui.min.js' %}"></script>
+    <script src="{% static 'js/uswds.min.js' %}"></script>
 
     <!-- charting dependencies -->
     <script src="{% static 'js/vendor/d3.min.js' %}"></script>
     <script src="{% static 'js/vendor/datalib.min.js' %}"></script>
     <script src="{% static 'js/vendor/document-register-element.js' %}"></script>
     <script src="{% static 'js/components/utilization-chart.js' %}"></script>
+    <script src="{% static 'js/components/notifications.js' %}"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js" ></script>
+    <script src="{% static 'js/vendor/underscore-min.js' %}" ></script>
+
+
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-48605964-39', 'auto');
+  ga('set', 'anonymizeIp', true);
+  ga('set', 'forceSSL', true);
+  ga('send', 'pageview');
+    </script>
+
 
   </head>
   <body>
-  <div class="container">
-    <header class="banner">
-      <a href="/">
-        <img src="{% static 'img/18F-Logo.svg' %}" alt="18F logo" />
-      </a>
-      <hr>
-      <ul>
-        <li><a href="{% url 'ProjectListView' %}">Projects</a></li>
-        <li><a href="{% url 'reports:ListReports' %}">Reports</a></li>
-        <li><a href="{% url 'employees:UserListView' %}">Users</a></li>
-        <br>
-        <li><b>Beta:</b></li>
-        <li><a href="https://login.float.com/?people={{ user.first_name}}+{{user.last_name}}" target="_blank">View Float assigments</a></li>
-        {% if request.user.is_superuser %}
-        <br>
-        <li><b>Admin:</b></li>
-        <li><a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Add reporting period</a></li>
-        <li><a href="/admin">Admin panel</a>
-        <li><a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
-        {% endif %}
-        {% if request.user.is_staff %}
-        <br />
-        <br />
-        <li><b>Supervisor:</b></li>
-        <li><a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a></li>
-        {% endif %}
-        <hr>
-      </ul>
-    </header>
-    <div class="content">
-    {% block content %}
-    {% endblock %}
-    {% block js %}
-    {% endblock js %}
-    </div>
-  </div>
+    <header class="usa-header usa-header-extended">
+        <div class="usa-navbar">
+          <button class="usa-menu-btn">Menu</button>
+          <div class="usa-logo" id="logo">
+            <em class="usa-logo-text">
+              <img src="{% static 'img/18F-Logo.svg' %}" alt="18F logo" />
+              <a href="/" accesskey="1" title="Home" aria-label="Home">Tock</a>
+            </em>
+          </div>
+        </div>
+        <nav role="navigation" class="usa-nav">
+          <div class="usa-nav-inner">
+            <button class="usa-nav-close">
+              <img src="/static/img/uswds/close.svg" alt="close">
+            </button>
+            <ul class="usa-nav-primary usa-accordion">
+              <li>
+                <a href="{% url 'ProjectListView' %}" class="usa-nav-link">
+                  <span>Projects</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'reports:ListReports' %}" class="usa-nav-link">
+                  <span>Reports</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'reports:DashboardReportsList' %}" class="usa-nav-link">
+                  <span>Operations Dashboard</span>
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'employees:UserListView' %}" class="usa-nav-link">
+                  <span>Users</span>
+                </a>
+              </li>
+              <li>
+                <button class="
+                usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-1">
+                  <span>Beta</span>
+                </button>
+                <ul id="side-nav-1" class="usa-nav-submenu" aria-hidden="true">
+                  <li>
+                  <a href="https://login.float.com/?people={{ user.first_name}}+{{user.last_name}}" target="_blank">View Float assignments</a>
+                  </li>
+                </ul>
+              </li>
+              {% if request.user.is_superuser %}
+              <li>
+                <button class="
+                usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-2">
+                  <span>Admin</span>
+                </button>
+                <ul id="side-nav-2" class="usa-nav-submenu" aria-hidden="true">
+                  <li>
+                  <a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Create reporting period</a>
+                  </li>
+                  <li>
+                  <a href="/admin">Admin panel</a>
+                  </li>
+                  <li>
+                  <a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
+                  </li>
+                </ul>
+              </li>
+                {% endif %}
+                {% if request.user.is_staff %}
+                <li>
+                  <button class="
+                  usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-3">
+                    <span>Supervisor</span>
+                  </button>
+                  <ul id="side-nav-3" class="usa-nav-submenu" aria-hidden="true">
+                    <li>
+                  <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
+                    </li>
+                  </ul>
+                </li>
+                {% endif %}
+            </ul>
+          </div>
+        </nav>
+</header>
+
+<div class="usa-grid usa-content usa-section">
+      {% block content %}
+      {% endblock %}
+      {% block js %}
+      {% endblock js %}
+<div>
   </body>
 </html>

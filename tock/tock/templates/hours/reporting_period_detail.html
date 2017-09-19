@@ -3,40 +3,52 @@
 
 {% block content %}
 
-<h2>Reporting Period: {{ reporting_period.start_date }} to {{ reporting_period.end_date }}</h2>
+<h1>Reporting Period: {{ reporting_period.start_date }} to {{ reporting_period.end_date }}</h1>
 <a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">Download Full CSV Report</a>
 
-<br><br>
-<h3>Users Who Have Not Filed a Timecard!</h3>
-<table>
-<tr>
-	<th>First Name</th>
-	<th>Last Name</th>
-	<th>Email</th>
-</tr>
-{% for user in users_without_filed_timecards %}
-<tr class='user'>
-	<td>{{ user.first_name }}</td>
-	<td>{{ user.last_name }}</td>
-	<td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
-</tr>
-{% endfor %}
+<table class="table-responsive-reflow">
+  <caption>
+    <h2>Users Who Have Not Filed a Timecard!</h2>
+  </caption>
+  <thead>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for user in users_without_filed_timecards %}
+    <tr>
+      <td data-title="First name">{{ user.first_name }}</td>
+      <td data-title="Last name">{{ user.last_name }}</td>
+      <td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
 </table>
 <br><br>
-<h3>Users Who Have Filed a Timecard!</h3>
-<table>
-<tr>
-	<th>First Name</th>
-	<th>Last Name</th>
-	<th>View Timecard</th>
-</tr>
-{% for timecard in timecard_list %}
-<tr class='user'>
-	<td>{{ timecard.user.first_name }}</td>
-	<td>{{ timecard.user.last_name }}</td>
-	<td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
-</tr>
-{% endfor %}
+
+<table class="table-responsive-reflow">
+  <caption>
+    <h2>Users Who Have Filed a Timecard!</h2>
+  </caption>
+  <thead>
+    <tr>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>View Timecard</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for timecard in timecard_list %}
+    <tr>
+      <td data-title="First name">{{ timecard.user.first_name }}</td>
+      <td data-title="Last name">{{ timecard.user.last_name }}</td>
+      <td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
 </table>
 
 {% endblock %}

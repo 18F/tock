@@ -136,6 +136,7 @@ class TestAggregates(WebTest):
     def setUp(self):
         super(TestAggregates, self).setUp()
         self.user = UserFactory()
+        self.userdata = UserData.objects.create(user=self.user)
         self.billable_code = AccountingCodeFactory(billable=True)
         self.nonbillable_code = AccountingCodeFactory(billable=False)
         self.billable_project = ProjectFactory(accounting_code=self.billable_code)

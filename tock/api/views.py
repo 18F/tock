@@ -31,8 +31,10 @@ class ProjectSerializer(serializers.ModelSerializer):
             'start_date',
             'end_date',
             'active',
+            'profit_loss_account',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
+    profit_loss_account = serializers.CharField(source='profit_loss_account.name')
     client = serializers.StringRelatedField(source='accounting_code')
 
 class UserSerializer(serializers.ModelSerializer):
@@ -71,6 +73,7 @@ class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
     project_id = serializers.CharField(source='project.id')
     project_name = serializers.CharField(source='project.name')
+    profit_loss_account = serializers.CharField(source='project.profit_loss_account.name')
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
@@ -78,6 +81,18 @@ class TimecardSerializer(serializers.Serializer):
     agency = serializers.CharField(source='project.accounting_code.agency.name')
     flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
     notes = serializers.CharField()
+    revenue_profit_loss_account = serializers.CharField(
+        source='revenue_profit_loss_account.accounting_string'
+    )
+    revenue_profit_loss_account_name = serializers.CharField(
+        source='revenue_profit_loss_account.name'
+    )
+    expense_profit_loss_account = serializers.CharField(
+        source='expense_profit_loss_account.accounting_string'
+    )
+    expense_profit_loss_account_name = serializers.CharField(
+        source='expense_profit_loss_account.name'
+    )
 
 # API Views
 
@@ -206,7 +221,7 @@ def get_timecards(queryset, params=None):
         queryset = queryset.filter(
             project__accounting_code__billable=billable
         )
-        
+
     return queryset
 
 

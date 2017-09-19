@@ -1,25 +1,19 @@
 table {
-  @include font-feature-settings("kern", "liga", "tnum");
   border-collapse: collapse;
-  margin: $small-spacing 0;
   table-layout: fixed;
   width: 100%;
+  caption {
+    text-align: left;
+    h1 {
+      margin-top: 0;
+    }
+  }
 }
 
-th {
-  border-bottom: 1px solid darken($base-border-color, 15%);
-  font-weight: 600;
-  padding: $small-spacing 0;
-  text-align: left;
-}
+// Custom table styles
+.table-subtext {
+  color: $color-gray;
 
-td {
-  border-bottom: $base-border;
-  padding: $small-spacing 0;
-}
+  font-style: italic;
 
-tr,
-td,
-th {
-  vertical-align: middle;
 }
