@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load project_tags %}
+{% load staticfiles %}
 
 {% block content %}
 
@@ -102,9 +103,9 @@ Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_
   </tbody>
 </table>
 
-<link rel="stylesheet" href="//cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css" />
-<script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-<script src="https://www.datatables.net/release-datatables/extensions/FixedColumns/js/dataTables.fixedColumns.js"></script>
+<link rel="stylesheet" href="{% static 'css/vendor/jquery.dataTables.min.css' %}" />
+<script src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'js/vendor/dataTables.fixedColumns.min.js' %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
   var $table = $('#dataTable').dataTable({

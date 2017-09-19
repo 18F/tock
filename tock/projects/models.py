@@ -148,13 +148,26 @@ class ProfitLossAccount(models.Model):
     )
 
     def __str__(self):
-        return '{} - {} ({}/{} - {}/{})'.format(
+        start_date = 'N/A'
+        end_date = 'N/A'
+
+        if self.as_start_date:
+            start_date = '{}/{}'.format(
+                self.as_start_date.month,
+                self.as_start_date.year
+            )
+
+        if self.as_end_date:
+            end_date = '{}/{}'.format(
+                self.as_end_date.month,
+                self.as_end_date.year
+            )
+
+        return '{} - {} ({} - {})'.format(
             self.name,
             self.account_type,
-            self.as_start_date.month,
-            self.as_start_date.year,
-            self.as_end_date.month,
-            self.as_end_date.year
+            start_date,
+            end_date
         )
 
 class Project(models.Model):

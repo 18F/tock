@@ -11,7 +11,7 @@ jobs:
       - image: circleci/python:3.5.3
         environment:
           - TZ=America/New_York
-      
+
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
@@ -28,7 +28,7 @@ jobs:
       - run:
           name: install nodejs
           command: |
-            sudo apt-get update && curl -sL https://deb.nodesource.com/setup_6.x | sudo bash - && sudo apt-get install -y nodejs
+            sudo apt-get update && curl -sL https://deb.nodesource.com/setup_8.x | sudo bash - && sudo apt-get install -y nodejs
 
       # Download and cache dependencies
       - restore_cache:
@@ -51,7 +51,7 @@ jobs:
             - ./venv
             - ./node_modules
           key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}
-        
+
       # run tests!
       - run:
           name: run tests
@@ -66,4 +66,4 @@ jobs:
       - store_artifacts:
           path: test-reports
           destination: test-reports
-          
+
