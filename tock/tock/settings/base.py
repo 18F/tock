@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import json
 
 from django.utils.crypto import get_random_string
 
@@ -18,6 +19,19 @@ DATABASES = {}
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', get_random_string(50))
+
+# Float (external workforce scheduling service) variables.
+# See README.md for description.
+def get_cups_key(keyname):
+    if os.environ.get('VCAP_SERVICES'):
+        key = str(json.loads(os.environ.get(
+            'VCAP_SERVICES'))['user-provided'][0]['credentials'][keyname])
+        return key
+    else:
+        return ''
+FLOAT_API_KEY = get_cups_key('float-key')
+FLOAT_API_URL_BASE = 'https://api.float.com/api/v1'
+FLOAT_API_HEADER = {'Authorization': 'Bearer ' + FLOAT_API_KEY}
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
@@ -31,6 +45,7 @@ INSTALLED_APPS = (
     'hours',
     'employees',
     'api',
+    'utilization',
     'rest_framework.authtoken',
 )
 
@@ -73,7 +88,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'US/Eastern'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True

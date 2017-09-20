@@ -1,5 +1,5 @@
-import csv
-import datetime
+import csv, json
+import datetime as dt
 import io
 from itertools import chain
 from operator import attrgetter
@@ -7,11 +7,13 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Prefetch, Q, Sum
 from django.contrib.auth.decorators import user_passes_test
@@ -24,9 +26,11 @@ from api.renderers import stream_csv
 from employees.models import UserData
 from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
-from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from tock.utils import PermissionMixin, IsSuperUserOrSelf, get_float_data, flatten
+from tock.settings import base
 
-from .models import ReportingPeriod, Timecard, TimecardObject, Project
+from .float import *
+from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
 from .forms import (
     ReportingPeriodForm,
     ReportingPeriodImportForm,
@@ -35,7 +39,292 @@ from .forms import (
     TimecardFormSet,
     timecard_formset_factory
 )
+from utilization.utils import calculate_utilization, get_fy_first_day
+from employees.models import UserData
 
+class DashboardReportsList(ListView):
+    template_name = 'hours/dashboard_list.html'
+
+    def get_queryset(self):
+        available_reports = ReportingPeriod.objects.filter(
+            start_date__gte=dt.date(2016, 10, 1),
+            end_date__lt=dt.date.today()
+        )
+        return available_reports
+
+class DashboardView(TemplateView):
+    template_name = 'hours/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+
+        # Helper functions.
+        def clean_result(result):
+            if result:
+                pass
+            else:
+                result = 0
+            return result
+
+        def calc_result(performance, target):
+            try:
+                variance = float(performance) - float(target)
+                p_variance = variance / target
+                return variance, p_variance
+            except ZeroDivisionError:
+                return 0, 0
+
+        def get_params(key):
+            try:
+                param = self.request.GET[key]
+            except KeyError:
+                param = None
+            return param
+
+        # Get base context.
+        context = super(DashboardView, self).get_context_data(**kwargs)
+
+        # Get unit param.
+        unit_param = None #get_params('unit')
+
+        # Get requested date and corresponding reporting period.
+        requested_date = dt.datetime.strptime(
+            self.kwargs['reporting_period'], "%Y-%m-%d"
+        ).date()
+        try:
+            rp_selected = ReportingPeriod.objects.get(
+                start_date__lte=requested_date,
+                end_date__gte=requested_date
+            )
+            rp_selected.future_date = rp_selected.end_date + dt.timedelta(
+                weeks=13
+            )
+        except ReportingPeriod.DoesNotExist:
+            context.update(
+                {
+                    'error':'No reporting period available for {}.'\
+                    .format(self.kwargs['reporting_period'])
+                }
+            )
+            return context
+
+        # Get all current employees.
+        employees = UserData.objects.filter(
+            is_18f_employee=True,
+            current_employee=True
+        ).exclude(unit__in=[4, 9, 14, 15])
+        units = []
+        missing_units = []
+        for e in employees:
+            if e.unit:
+                units.append(
+                    (e.unit, e.get_unit_display())
+                )
+            else:
+                missing_units.append(e)
+
+        units = sorted(set(units), key=lambda x: x[1])
+
+        # Narrow to unit employees, if applicable.
+        if unit_param:
+            all_count = employees.count()
+            employees = employees.filter(unit=unit_param)
+            org_proportion = employees.count() / all_count
+        else:
+            org_proportion = 1
+
+        # Get calendar info.
+        fytd_start_date = get_fy_first_day(requested_date)
+        percent_of_year = ((requested_date - fytd_start_date).days) / 365
+
+        # Get initial targets.
+        try:
+            target = Targets.objects.get(
+                start_date__lte=rp_selected.start_date,
+                end_date__gte=rp_selected.end_date
+            )
+        except Targets.DoesNotExist:
+            context.update(
+                {
+                    'error':'No target information available for {}.'\
+                    .format(self.kwargs['reporting_period'])
+                }
+            )
+            return context
+
+        # Calculated targets.
+        hours_required_cr_fytd = \
+            target.hours_target_cr * percent_of_year * org_proportion
+        hours_required_plan_fytd = \
+            target.hours_target_plan * percent_of_year * org_proportion
+        revenue_required_cr_fytd = \
+            target.revenue_target_cr * percent_of_year * org_proportion
+        revenue_required_plan_fytd = \
+            target.revenue_target_plan * percent_of_year * org_proportion
+        hours_required_cr_weekly = \
+            (target.hours_target_cr / target.periods) * org_proportion
+        hours_required_plan_weekly = \
+            (target.hours_target_plan / target.periods) * org_proportion
+        revenue_required_cr_weekly = \
+            (target.revenue_target_cr / target.periods) * org_proportion
+        revenue_required_plan_weekly = \
+            (target.revenue_target_plan / target.periods) * org_proportion
+
+        # Get hours billed for fiscal year to date and clean result.
+        hours_billed_fytd = clean_result(TimecardObject.objects.filter(
+            timecard__reporting_period__start_date__gte=fytd_start_date,
+            timecard__reporting_period__end_date__lte=requested_date,
+            project__accounting_code__billable=True,
+            timecard__user__user_data__in=employees
+        ).exclude(
+            project__profit_loss_account__name='FY17 Acquisition Svcs Billable'
+        ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
+        rev_fytd = hours_billed_fytd * target.labor_rate
+
+        # Get data for reporting period and clean result.
+        hours_billed_weekly = clean_result(TimecardObject.objects.filter(
+            timecard__reporting_period__start_date=\
+                rp_selected.start_date.strftime('%Y-%m-%d'),
+            project__accounting_code__billable=True,
+            timecard__user__user_data__in=employees
+        ).exclude(
+            project__profit_loss_account__name='FY17 Acquisition Svcs Billable'
+        ).aggregate(Sum('hours_spent'))['hours_spent__sum'])
+        rev_weekly = hours_billed_weekly * target.labor_rate
+
+        variance_cr_ytd, p_variance_cr_fytd = calc_result(
+            hours_billed_fytd, hours_required_cr_fytd
+        )
+        variance_plan_fytd, p_variance_plan_fytd = calc_result(
+            hours_billed_fytd, hours_required_plan_fytd
+        )
+        variance_cr_weekly, p_variance_cr_weekly = calc_result(
+            hours_billed_weekly, hours_required_cr_weekly
+        )
+        variance_plan_weekly, p_variance_plan_weekly = calc_result(
+            hours_billed_weekly, hours_required_plan_weekly
+        )
+        variance_rev_cr_ytd, p_variance_rev_cr_ytd = calc_result(
+            rev_fytd, revenue_required_cr_fytd
+        )
+        variance_rev_plan_ytd, p_variance_rev_plan_ytd = calc_result(
+            rev_fytd, revenue_required_plan_fytd
+        )
+        variance_rev_cr_weekly, p_variance_rev_cr_weekly = calc_result(
+            rev_weekly, revenue_required_cr_weekly
+        )
+        variance_rev_plan_weekly, p_variance_rev_plan_weekly = calc_result(
+            rev_weekly, revenue_required_plan_weekly
+        )
+
+        # Update context.
+        context.update(
+            {   # Unit data.
+                'units':units,
+                'missing_units':missing_units,
+                # Target info.
+                'revenue_target_cr':'${:,}'.format(
+                    target.revenue_target_cr
+                ),
+                'revenue_target_plan':'${:,}'.format(
+                    target.revenue_target_plan
+                ),
+                # Rate info.
+                'labor_rate':'${:,}'.format(
+                    target.labor_rate
+                ),
+                # Temporal info.
+                'rp_selected':rp_selected,
+                'fytd_start_date':fytd_start_date,
+                # Annual performance
+                'hours_required_cr_fytd':'{:,}'.format(
+                    round(hours_required_cr_fytd,2)
+                ),
+                'hours_required_plan_fytd':'{:,}'.format(
+                    round(hours_required_plan_fytd,2)
+                ),
+                'hours_billed_fytd':'{:,}'.format(
+                    round(hours_billed_fytd,2)
+                ),
+                'variance_cr_ytd':'{:,}'.format(
+                    round(variance_cr_ytd,2)
+                ),
+                'variance_plan_fytd':'{:,}'.format(
+                    round(variance_plan_fytd,2)
+                ),
+                'p_variance_cr_fytd':'{0:.2%}'.format(
+                    p_variance_cr_fytd
+                ),
+                'p_variance_plan_fytd':'{0:.2%}'.format(
+                    p_variance_plan_fytd
+                ),
+                'revenue_required_cr_fytd':'${:,}'.format(
+                    round(revenue_required_cr_fytd)
+                ),
+                'revenue_required_plan_fytd':'${:,}'.format(
+                    round(revenue_required_plan_fytd)
+                ),
+                'rev_fytd':'${:,}'.format(
+                    round(rev_fytd)
+                ),
+                'variance_rev_cr_ytd':'${:,}'.format(
+                    round(variance_rev_cr_ytd)
+                ),
+                'variance_rev_plan_ytd':'${:,}'.format(
+                    round(variance_rev_plan_ytd)
+                ),
+                'p_variance_rev_cr_ytd':'{0:.2%}'.format(
+                    p_variance_rev_cr_ytd
+                ),
+                'p_variance_rev_plan_ytd':'{0:.2%}'.format(
+                    p_variance_rev_plan_ytd
+                ),
+                # Weekly performance.
+                'hours_required_cr_weekly':'{:,}'.format(
+                    round(hours_required_cr_weekly,2)
+                ),
+                'hours_required_plan_weekly':'{:,}'.format(
+                    round(hours_required_plan_weekly,2)
+                ),
+                'hours_billed_weekly':'{:,}'.format(
+                    round(hours_billed_weekly,2)
+                ),
+                'variance_cr_weekly':'{:,}'.format(
+                    round(variance_cr_weekly,2)
+                ),
+                'variance_plan_weekly':'{:,}'.format(
+                    round(variance_plan_weekly,2)
+                ),
+                'p_variance_cr_weekly':'{0:.2%}'.format(
+                    p_variance_cr_weekly
+                ),
+                'p_variance_plan_weekly':'{0:.2%}'.format(
+                    p_variance_plan_weekly
+                ),
+                'revenue_required_cr_weekly':'${:,}'.format(
+                    round(revenue_required_cr_weekly)
+                ),
+                'revenue_required_plan_weekly':'${:,}'.format(
+                    round(revenue_required_plan_weekly)
+                ),
+                'rev_weekly':'${:,}'.format(
+                    round(rev_weekly)
+                ),
+                'variance_rev_cr_weekly':'${:,}'.format(
+                    round(variance_rev_cr_weekly)
+                ),
+                'variance_rev_plan_weekly':'${:,}'.format(
+                    round(variance_rev_plan_weekly)
+                ),
+                'p_variance_rev_cr_weekly':'{0:.2%}'.format(
+                    p_variance_rev_cr_weekly
+                ),
+                'p_variance_rev_plan_weekly':'{0:.2%}'.format(
+                    p_variance_rev_plan_weekly
+                ),
+
+            }
+        )
+        return context
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
@@ -50,9 +339,38 @@ class BulkTimecardSerializer(serializers.Serializer):
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
+    revenue_profit_loss_account = serializers.CharField(
+        source='revenue_profit_loss_account.accounting_string'
+    )
+    revenue_profit_loss_account_name = serializers.CharField(
+        source='revenue_profit_loss_account.name'
+    )
+    expense_profit_loss_account = serializers.CharField(
+        source='expense_profit_loss_account.accounting_string'
+    )
+    expense_profit_loss_account_name = serializers.CharField(
+        source='expense_profit_loss_account.name'
+    )
+class GeneralSnippetsTimecardSerializer(serializers.Serializer):
+    project_name = serializers.CharField(source='project.name')
+    employee = serializers.StringRelatedField(source='timecard.user')
+    unit = serializers.CharField(source='timecard.user.user_data.unit')
+    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
+    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    notes = serializers.CharField()
+    unit = serializers.SerializerMethodField()
+
+    def get_unit(self,obj):
+        try:
+            unit = obj.timecard.user.user_data.get_unit_display()
+        except ObjectDoesNotExist:
+            unit = ''
+        return unit
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
+    project_id = serializers.CharField(source='project.id')
     employee = serializers.StringRelatedField(source='timecard.user')
     start_date = serializers.DateField(source='timecard.reporting_period.start_date')
     end_date = serializers.DateField(source='timecard.reporting_period.end_date')
@@ -74,6 +392,19 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
     grade = serializers.CharField(source='grade.grade')
+    revenue_profit_loss_account = serializers.CharField(
+        source='revenue_profit_loss_account.accounting_string'
+    )
+    revenue_profit_loss_account_name = serializers.CharField(
+        source='revenue_profit_loss_account.name'
+    )
+    expense_profit_loss_account = serializers.CharField(
+        source='expense_profit_loss_account.accounting_string'
+    )
+    expense_profit_loss_account_name = serializers.CharField(
+        source='expense_profit_loss_account.name'
+    )
+
 
 def user_data_csv(request):
     """
@@ -105,6 +436,18 @@ def slim_bulk_timecard_list(request):
     """
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = SlimBulkTimecardSerializer()
+    return stream_csv(queryset, serializer)
+
+def general_snippets_only_timecard_list(request):
+    """
+    Stream all timecard data that is for General and has a snippet.
+    """
+    objects = TimecardObject.objects.filter(
+        project__name='General',
+        notes__isnull=False
+    )
+    queryset = get_timecards(objects, request.GET)
+    serializer = GeneralSnippetsTimecardSerializer()
     return stream_csv(queryset, serializer)
 
 def timeline_view(request, value_fields=(), **field_alias):
@@ -170,17 +513,53 @@ class ReportingPeriodListView(PermissionMixin, ListView):
     """ Currently the home view that lists the completed and missing time
     periods """
     context_object_name = "incomplete_reporting_periods"
-    queryset = ReportingPeriod.objects.all()
+    queryset = ReportingPeriod.objects.all().order_by('-start_date')
     template_name = "hours/reporting_period_list.html"
     permission_classes = (IsAuthenticated, )
+
+    def disallowed_dates(self, date):
+        # If the end of the fiscal year is not on a weekend, then create
+        # a list of dates around (the buffer) the end of the fiscal year
+        # where a reporting period will not be automatically created. This
+        # prevents the automatic creation of a reporting period that has
+        # working week days that span two fiscal years.
+        if date.month not in [9, 10]:
+            return []
+        fy_start_date = dt.date(year=date.year, month=10, day=1)
+        if fy_start_date.weekday() not in [5, 6, 1]:
+            return [ fy_start_date + dt.timedelta(days=i) for i in \
+                range(-7, 7) ] # A disallow dates a week before and after.
+        else:
+            return []
+
+    def create_reporting_period_if_missing(self):
+        # Automatically creates a new reporting period if the latest reporting
+        # period has concluded.
+        latest_rp = self.queryset.first()
+        if not latest_rp:
+            return None # In case there are no reporting periods created yet.
+
+        latest_end = latest_rp.end_date
+        new_start = latest_end + dt.timedelta(days=1)
+
+        if latest_end <= dt.datetime.utcnow().date() and \
+        new_start not in self.disallowed_dates(latest_rp.end_date):
+            ReportingPeriod.objects.create(
+                start_date=new_start,
+                end_date=new_start + dt.timedelta(days=6),
+                max_working_hours=40,
+                min_working_hours=40,
+                exact_working_hours=40
+            )
 
     def get_context_data(self, **kwargs):
         context = super(
             ReportingPeriodListView, self).get_context_data(**kwargs)
+        self.create_reporting_period_if_missing()
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__submitted=True,
             timecard__user=self.request.user.id
-        ).distinct().order_by('-start_date')[:5]
+        ).distinct()[:5]
 
         try:
             unstarted_reporting_periods = self.queryset.exclude(
@@ -265,7 +644,7 @@ class TimecardView(UpdateView):
     template_name = 'hours/timecard_form.html'
 
     def get_object(self, queryset=None):
-        self.report_date = datetime.datetime.strptime(
+        self.report_date = dt.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
         r = ReportingPeriod.objects.get(start_date=self.report_date)
@@ -279,8 +658,11 @@ class TimecardView(UpdateView):
 
         base_reporting_period = ReportingPeriod.objects.get(
             start_date=self.kwargs['reporting_period'])
+        aws_eligible = UserData.objects.get(
+            user=self.request.user).is_aws_eligible
 
         formset = self.get_formset()
+        formset.set_is_aws_eligible(aws_eligible)
         formset.set_exact_working_hours(base_reporting_period.exact_working_hours)
         formset.set_max_working_hours(base_reporting_period.max_working_hours)
         formset.set_min_working_hours(base_reporting_period.min_working_hours)
@@ -308,8 +690,9 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
+            'float_data': float_tasks_for_view(
+                self.request.user, base_reporting_period)
         })
-
         return context
 
     def get_formset(self):
@@ -318,11 +701,8 @@ class TimecardView(UpdateView):
         if post:
             return TimecardFormSet(post, instance=self.object)
 
-        if self.object.timecardobject_set.count() == 0:
-            last_tc = self.last_timecard()
-            if last_tc:
-                return self.prefilled_formset(last_tc)
-
+        if self.object.timecardobjects.count() == 0:
+            return self.prefilled_formset()
         return TimecardFormSet(instance=self.object)
 
     def last_timecard(self):
@@ -334,17 +714,31 @@ class TimecardView(UpdateView):
             '-reporting_period__start_date',
         ).first()
 
-    def prefilled_formset(self, timecard):
-        project_ids = set(
-            tco.project_id for tco in
-            timecard.timecardobject_set.all()
-        )
-        extra = len(project_ids) + 1
+    def prefilled_formset(self):
+        timecard = self.last_timecard()
+        project_ids, extra = [], 1
+        if timecard:
+            project_ids = set(
+                tco.project_id for tco in
+                timecard.timecardobjects.all()
+            )
+            extra = len(project_ids) + 1
+
+        rp = ReportingPeriod.objects \
+            .prefetch_related('holiday_prefills__project') \
+            .get(start_date=self.kwargs['reporting_period'])
+
+        init = []
+        if rp.holiday_prefills:
+            init += [
+                {'hours_spent': hp.hours_per_period, 'project': hp.project.id}
+                for hp in rp.holiday_prefills.all()
+            ]
+        init += [{'hours_spent': None, 'project': pid} for pid in project_ids]
+
         formset = timecard_formset_factory(extra=extra)
-        return formset(initial=[
-            {'hours_spent': None, 'project': pid}
-            for pid in project_ids
-        ])
+        return formset(initial=init)
+
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -405,7 +799,7 @@ class ReportingPeriodDetailView(ListView):
 
     def get_queryset(self):
         return Timecard.objects.filter(
-            reporting_period__start_date=datetime.datetime.strptime(
+            reporting_period__start_date=dt.datetime.strptime(
                 self.kwargs['reporting_period'],
                 "%Y-%m-%d").date(),
             submitted=True,
@@ -419,7 +813,7 @@ class ReportingPeriodDetailView(ListView):
         context = super(
             ReportingPeriodDetailView, self).get_context_data(**kwargs)
         reporting_period = ReportingPeriod.objects.get(
-            start_date=datetime.datetime.strptime(
+            start_date=dt.datetime.strptime(
                 self.kwargs['reporting_period'], "%Y-%m-%d").date())
         filed_users = list(
             Timecard.objects.filter(
@@ -464,7 +858,7 @@ def ReportingPeriodCSVView(request, reporting_period):
                 timecard_object.timecard.reporting_period.start_date,
                 timecard_object.timecard.reporting_period.end_date),
              timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
-             timecard_object.timecard.user.email, timecard_object.project,
+             timecard_object.timecard.user.username, timecard_object.project,
              timecard_object.hours_spent])
 
     return response
@@ -475,8 +869,43 @@ class ReportingPeriodUserDetailView(DetailView):
     template_name = "hours/reporting_period_user_detail.html"
 
     def get_object(self):
-        return get_object_or_404(
-            Timecard,
+        obj = Timecard.objects.prefetch_related(
+            'timecardobjects__project',
+            'timecardobjects__project__accounting_code'
+        ).get(
             reporting_period__start_date=self.kwargs['reporting_period'],
             user__username=self.kwargs['username']
         )
+        return obj
+
+    def get_context_data(self, **kwargs):
+        user_billable_hours = TimecardObject.objects.filter(
+            timecard__reporting_period__start_date=\
+                self.kwargs['reporting_period'],
+            timecard__user__username=self.kwargs['username'],
+            project__accounting_code__billable=True
+        ).aggregate(
+            (
+                Sum('hours_spent')
+            )
+        )['hours_spent__sum']
+
+        user_all_hours = TimecardObject.objects.filter(
+            timecard__reporting_period__start_date=\
+                self.kwargs['reporting_period'],
+            timecard__user__username=self.kwargs['username'],
+        ).aggregate(
+            (
+                Sum('hours_spent')
+            )
+        )['hours_spent__sum']
+
+        context = super(
+            ReportingPeriodUserDetailView, self).get_context_data(**kwargs)
+        context['user_billable_hours'] = user_billable_hours
+        context['user_all_hours'] = user_all_hours
+        context['user_utilization'] = calculate_utilization(
+            context['user_billable_hours'],
+            context['user_all_hours']
+        )
+        return context

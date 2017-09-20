@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Let's Tock about {{ object.user.first_name }} {{ object.user.last_name }}!</h2>
-
+<h1>Let's Tock about {{ object.user.first_name }} {{ object.user.last_name }}!</h1>
 <figure class="chart chart--utilization">
-  <h3 class="chart__title">Project Hours Over Time</h3>
+  <h2 class="chart__title">Project Hours Over Time</h2>
   <utilization-chart
     class="timeline timeline--project"
     data-url="/reports/project_timeline.csv?user={{ object.user.username }}"

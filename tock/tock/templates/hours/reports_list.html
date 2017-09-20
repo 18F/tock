@@ -1,29 +1,58 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<h2>Reports</h2>
+<h1>Tock Reports</h1>
 <!--TODO: use URLconf to link to the API URLs as opposed to hard coding. -->
+<div class="usa-grid">
+	<div class="usa-width-one-half">
+		<h2>Regular Reports</h2>
+	<ul>
+		<li>Complete timecard data:
+			<a href="{% url 'reports:BulkTimecardList' %}">All</a>
+			<a href="{% url 'reports:BulkTimecardList' %}?after=2016-10-02">FY2017</a>
+		</li>
+		<li>Complete timecard data with fewer fields:
+			<a href="{% url 'reports:SlimBulkTimecardList' %}">All</a>
+			<a href="{% url 'reports:SlimBulkTimecardList' %}?after=2016-10-02">FY2017</a>
+		</li>
+		<li>Complete snippet data for 'General':
+				<a href="{% url 'reports:GeneralSnippetsView' %}">All</a>
+				<a href="{% url 'reports:GeneralSnippetsView' %}?after=2016-10-02">FY2017</a>
+		</li>
+		<li>Aggregate hourly data by project and reporting period:
+			<a href="{% url 'reports:ProjectTimelineView' %}">All</a>
+			<a href="{% url 'reports:ProjectTimelineView' %}?after=2016-10-02">FY2017</a>
+		</li>
+		<li>Aggregate hourly data by user, reporting period, and project billable status:
+			<a href="{% url 'reports:UserTimelineView' %}">All</a>
+			<a href="{% url 'reports:UserTimelineView' %}?after=2016-10-02">FY2017</a>
+		</li>
+		<li><a href="{% url 'reports:ProjectList' %}">Download list of all projects</a></li>
+		<li><a href="{% url 'reports:UserDataView' %}">Download list of all users</a></li>
+	</ul>
+	</div>
+	<div class="usa-width-one-half">
+		{% if user.is_superuser %}
+		<div class="usa-alert usa-alert-info">
+  <div class="usa-alert-body">
+    <h2 class="usa-alert-heading">Superuser Reports</h2>
+    <p class="usa-alert-text">Complete timecard data with grade info:<br>
+				<a href="{% url 'reports:AdminBulkTimecardList' %}">All</a>
+				<a href="{% url 'reports:AdminBulkTimecardList' %}?after=2016-10-01">FY2017</a></p>
+  </div>
+</div>
 
-<h3> Raw data in .csv </h3>
-<ul>
-	{% if user.is_superuser %}
-	<i>Superuser Reports</i>
-	<li><a href="{% url 'reports:AdminBulkTimecardList' %}">Complete timecard data with grade info</a></li>
-	<br />
-	<i>Regular Reports</i>
 	{% endif %}
-	<li><a href="{% url 'reports:BulkTimecardList' %}">Complete timecard data</a></li>
-	<li><a href="{% url 'reports:SlimBulkTimecardList' %}">Complete timecard data with fewer fields</a></li>
-	<li><a href="{% url 'reports:ProjectTimelineView' %}">Aggregate hourly data by project and reporting period</a></li>
-	<li><a href="{% url 'reports:UserTimelineView' %}">Aggregate hourly data by user, reporting period, and project billable status</a></li>
-	<li><a href="{% url 'reports:ProjectList' %}">List of all projects</a></li>
-	<li><a href="{% url 'reports:UserDataView' %}">List of all users</a></li>
+	</div>
+</div>
 
-<div class="reporting-periods">
-	<h3>Reports by weekly reporting period</h3>
+
+
+
+<div class="reporting-periods clearfix">
+	<h2>Reports by weekly reporting period</h2>
 	{% for fiscal_year, reporting_periods in object_list %}
-	Fiscal Year {{ fiscal_year }}
+	<h3>Fiscal Year {{ fiscal_year }}</h3>
 	<ul>
 	{% for reporting_period in reporting_periods %}
 	    <li><a href="{% url 'reports:ReportingPeriodDetailView' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> (<em><a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">CSV</a></em>)</li>

@@ -160,7 +160,7 @@ class TimecardObjectForm(forms.ModelForm):
         min_value=0,
         required=False,
         widget=forms.NumberInput(attrs={
-            'step': '0.25'
+            'step': '0.50'
         })
     )
 
@@ -184,21 +184,25 @@ class TimecardObjectForm(forms.ModelForm):
 
     def clean(self):
         super(TimecardObjectForm, self).clean()
-
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
                 tags=[],
                 strip=True
             )
-
-            if self.cleaned_data['project'].notes_required and self.cleaned_data['notes'] == '':
-                self.add_error(
-                    'notes',
-                    forms.ValidationError('Please enter a snippet for this item.')
-                )
-            elif not self.cleaned_data['project'].notes_displayed:
-                del self.cleaned_data['notes']
+            if 'save_only' in self.data.keys():
+                pass
+            else:
+                if self.cleaned_data['project'].notes_required and \
+                    self.cleaned_data['notes'] == '':
+                    self.add_error(
+                        'notes',
+                        forms.ValidationError(
+                            'Please enter a snippet for this item.'
+                        )
+                    )
+                elif not self.cleaned_data['project'].notes_displayed:
+                    del self.cleaned_data['notes']
 
         return self.cleaned_data
 
@@ -209,6 +213,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
         super(TimecardInlineFormSet, self).__init__(*args, **kwargs)
         self.save_only = False
+        self.aws_eligible = False
 
     def set_exact_working_hours(self, exact_working_hours):
         """ Set the number of hours employees should work """
@@ -237,10 +242,11 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         if it exists, otherwise assumes 40 """
         return getattr(self, 'min_working_hours', 40)
 
+    def set_is_aws_eligible(self, aws_eligible):
+        self.aws_eligible = aws_eligible
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
-
         total_hrs = 0
         for form in self.forms:
             if form.cleaned_data:
@@ -252,15 +258,24 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         'cannot be blank.'
                     )
                 total_hrs += form.cleaned_data.get('hours_spent')
-
         if not self.save_only:
-
-            if total_hrs > self.get_max_working_hours():
+            for form in self.forms:
+                try:
+                    if form.cleaned_data['hours_spent'] == 0:
+                        form.cleaned_data.update({'DELETE': True})
+                except KeyError:
+                    pass
+            if len(self._errors[0].keys()) > 0:
+                raise forms.ValidationError(
+                    'Timecard not submitted because one or more of your '\
+                    'entries has an error!'
+                )
+            if total_hrs > self.get_max_working_hours() and not self.aws_eligible:
                 raise forms.ValidationError('You may not submit more than %s '
                     'hours for this period. To report additional hours'
                     ', please contact your supervisor.' % self.get_max_working_hours())
 
-            if total_hrs < self.get_min_working_hours():
+            if total_hrs < self.get_min_working_hours() and not self.aws_eligible:
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 

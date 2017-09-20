@@ -1,14 +1,75 @@
 import datetime
 
 from .utils import ValidateOnSaveMixin
-from projects.models import Project
+from projects.models import Project, ProfitLossAccount
 
 from django.contrib.auth.models import User
 from employees.models import EmployeeGrade
 from django.core.validators import MaxValueValidator
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q, Max
 
+
+class HolidayPrefills(models.Model):
+    """For use with ReportingPeriods to prefill timecards."""
+    project = models.ForeignKey(Project)
+    hours_per_period = models.PositiveSmallIntegerField(default=8)
+
+    def __str__(self):
+        return '{} ({} hrs.)'.format(self.project.name, self.hours_per_period)
+
+    class Meta:
+        verbose_name = 'Holiday Prefills'
+        verbose_name_plural = 'Holiday Prefills'
+        unique_together = ['project', 'hours_per_period']
+        ordering = ['project__name']
+
+class Targets(models.Model):
+    name = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    start_date = models.DateField(
+        unique=True
+    )
+    end_date = models.DateField(
+        unique=True
+    )
+    hours_target_cr = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Hours target for cost recovery'
+    )
+    hours_target_plan = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Hours target for financial plan'
+    )
+    revenue_target_cr = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Revenue target for financial plan'
+    )
+    revenue_target_plan = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Revenue target for financial plan',
+    )
+    periods = models.PositiveSmallIntegerField(
+        default=52,
+    )
+    labor_rate = models.PositiveSmallIntegerField(
+        default=1
+    )
+
+    def fiscal_year(self):
+        return ReportingPeriod.get_fiscal_year(self)
+
+    def __str__(self):
+        return '{} (FY{})'.format(self.name, self.fiscal_year())
+
+    class Meta:
+        unique_together = ("start_date", "end_date")
+        verbose_name = 'Target'
+        verbose_name_plural = 'Targets'
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     """Reporting period model details"""
@@ -18,6 +79,12 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         default=40)
     max_working_hours = models.PositiveSmallIntegerField(default=60)
     min_working_hours = models.PositiveSmallIntegerField(default=40)
+    holiday_prefills = models.ManyToManyField(
+        HolidayPrefills,
+        blank=True,
+        help_text='Select items to prefill in timecards for this period. To '\
+        'create additional items, click the green "+" sign.'
+    )
     message = models.TextField(
         help_text='A message to provide at the top of the reporting period.',
         blank=True)
@@ -64,7 +131,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 
 class Timecard(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, related_name="timecards")
     reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
@@ -80,7 +147,7 @@ class Timecard(models.Model):
 
 
 class TimecardObject(models.Model):
-    timecard = models.ForeignKey(Timecard)
+    timecard = models.ForeignKey(Timecard, related_name="timecardobjects")
     project = models.ForeignKey(Project)
     hours_spent = models.DecimalField(decimal_places=2,
                                       max_digits=5,
@@ -99,6 +166,18 @@ class TimecardObject(models.Model):
         help_text='Please provide details about how you spent your time.'
     )
     submitted = models.BooleanField(default=False)
+    revenue_profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        blank=True,
+        null=True,
+        related_name='revenue_profit_loss_account_'
+    )
+    expense_profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        blank=True,
+        null=True,
+        related_name='expense_profit_loss_account_'
+    )
 
     def project_alerts(self):
         return self.project.alerts.all()
@@ -119,5 +198,27 @@ class TimecardObject(models.Model):
         )
 
         self.submitted = self.timecard.submitted
+
+        p_pl = self.project.profit_loss_account # Project PL info.
+        u_pl = self.timecard.user.user_data.profit_loss_account # User PL info.
+        rp = self.timecard.reporting_period # TimecardObject reporting period.
+
+        if p_pl and \
+        p_pl.account_type == 'Revenue' and \
+        p_pl.as_start_date < rp.end_date and \
+        p_pl.as_end_date > rp.end_date:
+            self.revenue_profit_loss_account = p_pl
+        else:
+            self.revenue_profit_loss_account = None
+
+        if u_pl and \
+        u_pl.account_type == 'Expense' and \
+        u_pl.as_start_date < rp.end_date and \
+        u_pl.as_end_date > rp.end_date:
+
+            self.expense_profit_loss_account = u_pl
+        else:
+            self.expense_profit_loss_account = None
+
 
         super(TimecardObject, self).save(*args, **kwargs)

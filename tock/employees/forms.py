@@ -12,7 +12,7 @@ class UserForm(forms.Form):
         required=False, label="Employment End Date",
         widget=forms.TextInput(attrs={'class': "datepicker"}))
     current_employee = forms.BooleanField(
-        required=False, label="Is this person a current TTS employee?"
+        required=False, label="This person is a current TTS employee."
     )
 
     def clean(self):

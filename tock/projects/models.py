@@ -1,5 +1,8 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 
 class Agency(models.Model):
@@ -124,6 +127,49 @@ class ProjectAlert(models.Model):
 
         super(ProjectAlert, self).save(*args, **kwargs)
 
+class ProfitLossAccount(models.Model):
+    """ The profit and loss account where revenue is counted"""
+    name = models.CharField(
+        max_length=200
+    )
+    accounting_string = models.CharField(
+        max_length=200, verbose_name='Accounting String'
+    )
+    as_start_date = models.DateField(
+        blank=True, null=True, verbose_name='Start Date'
+    )
+    as_end_date = models.DateField(
+        blank=True, null=True, verbose_name='End Date'
+    )
+    account_type = models.CharField(
+        choices=[('Revenue','Revenue'), ('Expense', 'Expense')],
+        default='Revenue',
+        max_length=200
+    )
+
+    def __str__(self):
+        start_date = 'N/A'
+        end_date = 'N/A'
+
+        if self.as_start_date:
+            start_date = '{}/{}'.format(
+                self.as_start_date.month,
+                self.as_start_date.year
+            )
+
+        if self.as_end_date:
+            end_date = '{}/{}'.format(
+                self.as_end_date.month,
+                self.as_end_date.year
+            )
+
+        return '{} - {} ({} - {})'.format(
+            self.name,
+            self.account_type,
+            start_date,
+            end_date
+        )
+
 class Project(models.Model):
     """ Stores information about a specific project"""
     name = models.CharField(max_length=200)
@@ -148,6 +194,11 @@ class Project(models.Model):
         help_text='Attach one or more alerts to be displayed with this project if need be.'
     )
     agreement_URL = models.URLField(blank=True, max_length=1000, verbose_name="Link to Agreement Folder")
+    profit_loss_account = models.ForeignKey(
+        ProfitLossAccount,
+        null=True,
+        verbose_name='Profit/loss Accounting String'
+    )
     project_lead = models.ForeignKey(User, null=True)
 
     class Meta:
@@ -160,6 +211,9 @@ class Project(models.Model):
 
     def is_billable(self):
         return self.accounting_code.billable
+
+    def get_profit_loss_account(self):
+        return self.profit_loss_account.name
 
     def save(self, *args, **kwargs):
         if self.notes_required:

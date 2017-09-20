@@ -1,0 +1,40 @@
+{
+   "people":[
+      {
+         "department_filter_id":null,
+         "auto_email":-1,
+         "contractor":0,
+         "department":{
+            "id":"39809",
+            "name":"Customer Partner Solutions"
+         },
+         "im":"6cfl4j.c4drwz",
+         "job_title":"Product Lead",
+         "access_id":85920,
+         "description":"",
+         "created":"2015-12-10",
+         "wk_day_hrs":null,
+         "people_id":"755802",
+         "email":null,
+         "avatar_file":null,
+         "active":1,
+         "employee_type":1,
+         "mobile":"",
+         "skills":[
+            {
+               "level":3,
+               "name":"nyc"
+            },
+            {
+               "level":2,
+               "name":"Product Management"
+            }
+         ],
+         "telephone":null,
+         "access_rights":2,
+         "non_wk_days":null,
+         "name":null
+      }
+   ],
+   "count":221
+}
