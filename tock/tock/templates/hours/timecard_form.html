@@ -37,7 +37,42 @@
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
+  <style type="text/css">
+    .research-exposure-hours{
+      margin-top: 1em !important;
+      margin-bottom: 1em !important;  
+    }
+
+    .research-exposure-hours .usa-width-two-thirds strong,
+    .research-exposure-hours .usa-width-two-thirds p{ margin-left: 72px !important; }
+
+    .research-exposure-hours .usa-width-two-thirds strong{ margin-left: 16px !important; }
+
+
+    .research-exposure-hours img{
+      float: left;
+      width: 48px;
+      height: 48px;
+      position: relative;
+      margin-left: 8px;
+      top: 8px;
+    }
+
+    .research-exposure-hours p{ font-size: 14px; }
+  </style>
   <div class="entries usa-grid">
+    <div class="usa-grid research-exposure-hours">
+      <div class="entry-project usa-width-two-thirds">
+        <img src="/static/img/interview.png" alt="Interview" />
+        <strong>How many hours did you interact with users this week?</strong>
+        <p>You can derive this number by counting any time you spent conducting <a href="#">stakeholder interviews</a>, <a href="#">contextual inquiries</a>, and <a href="#">usability tests</a>. Workshop hours count if they were spent actively engaged with the users of the thing you&rsquo;re designing/building. Do not multiply your hours for taking with multiple users at the same time (&ldquo;no focus group bonus&rdquo;).</p>
+      </div>
+      <div class="entry-amount usa-width-one-third">
+        <label for="">Hours spent:</label>
+        <input step="0.50" type="number">
+      </div>
+    </div>
+
     {% for project_entry in formset %}
       <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
         <div class="entry-hidden">
