@@ -132,7 +132,7 @@
 
   function populateHourTotals(){
     // Save hours to localStorage, if available
-    i(window.localStorage) {
+    if(window.localStorage) {
       var hoursAsEntered = { };
       $('.entries .entry').each(function(i, entry) {
         entry = $(entry);
