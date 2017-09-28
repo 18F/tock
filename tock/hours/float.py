@@ -1,9 +1,13 @@
 import datetime as dt
+import logging
+import sys
 
 from .models import ReportingPeriod
 
 from employees.models import UserData
 from tock.utils import get_float_data, flatten
+
+logger = logging.getLogger(__name__)
 
 # Variables.
 BASE_HOURS_PER_WEEK = 32.5
@@ -13,43 +17,76 @@ BASE_DAYS_PER_WEEK = 5
 def float_tasks_for_view(user, rp):
     userdata = UserData.objects.get(user=user)
     float_people_id = get_float_people_id(userdata)
+    error_state = False
+    tasks = []
 
     if not float_people_id:
         return None
 
-    float_tasks = get_float_tasks(
-        start_date=rp.start_date,
-        float_people_id=float_people_id,
-        weeks=1
-    )
-    float_holidays = get_float_holidays(
-        start_date=rp.start_date,
-        weeks=2
-    )
-    float_timeoffs = get_float_timeoffs(
-        end_date=rp.end_date,
-        float_people_id=float_people_id,
-        weeks=26
-    )
-    work_days = get_work_days(
-        holidays=float_holidays,
-        start_date=rp.start_date,
-        end_date=rp.end_date
-    )
-    work_hours = get_work_hours(
-        start_date=rp.start_date,
-        end_date=rp.end_date,
-        timeoffs=float_timeoffs,
-        work_days=work_days
-    )
+    try:
+        float_tasks = get_float_tasks(
+            start_date=rp.start_date,
+            float_people_id=float_people_id,
+            weeks=1
+        )
+    except:
+        logger.error(sys.exc_info()[0])
+        error_state = True
 
-    return get_tasks(
-        start_date=rp.start_date,
-        end_date=rp.end_date,
-        tasks=float_tasks,
-        work_days=work_days,
-        work_hours=work_hours
-    )
+    try:
+        float_holidays = get_float_holidays(
+            start_date=rp.start_date,
+            weeks=2
+        )
+    except:
+        logger.error(sys.exc_info()[0])
+        error_state = True
+
+    try:
+        float_timeoffs = get_float_timeoffs(
+            end_date=rp.end_date,
+            float_people_id=float_people_id,
+            weeks=26
+        )
+    except:
+        logger.error(sys.exc_info()[0])
+        error_state = True
+
+    try:
+        work_days = get_work_days(
+            holidays=float_holidays,
+            start_date=rp.start_date,
+            end_date=rp.end_date
+        )
+    except:
+        logger.error(sys.exc_info()[0])
+        error_state = True
+
+    try:
+        work_hours = get_work_hours(
+            start_date=rp.start_date,
+            end_date=rp.end_date,
+            timeoffs=float_timeoffs,
+            work_days=work_days
+        )
+    except:
+        logger.error(sys.exc_info()[0])
+        error_state = True
+
+    if not error_state:
+        try:
+            tasks = get_tasks(
+                start_date=rp.start_date,
+                end_date=rp.end_date,
+                tasks=float_tasks,
+                work_days=work_days,
+                work_hours=work_hours
+            )
+        except:
+            logger.error(sys.exc_info()[0])
+
+    return tasks
+
 
 def get_tasks(start_date, end_date, tasks, work_days, work_hours):
     for i in tasks:

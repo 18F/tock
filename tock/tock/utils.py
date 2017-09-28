@@ -1,4 +1,5 @@
 import functools
+import logging
 import os
 import sys
 
@@ -10,8 +11,9 @@ from rest_framework.permissions import BasePermission
 
 from tock.settings import base
 
-class PermissionMixin(object):
+logger = logging.getLogger(__name__)
 
+class PermissionMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(PermissionMixin, cls).as_view(**initkwargs)
@@ -52,7 +54,7 @@ def get_float_data(endpoint, params=None):
 
     # If testing, get mock response.
     if is_running_test_suite():
-        print('Fetching data from mock Float API server via {}...'.format(url))
+        logger.info('Fetching data from mock Float API server via {}...'.format(url))
 
         def get_mock_content(path_to_content):
             with open(path_to_content) as infile:
@@ -88,7 +90,7 @@ def get_float_data(endpoint, params=None):
 
     # Otherwise get real data from Float API.
     else:
-        print('Fetching data from real Float API server via {}...'.format(url))
+        logger.info('Fetching data from real Float API server via {}...'.format(url))
         r = requests.get(
             url=url,
             headers=base.FLOAT_API_HEADER,
@@ -99,7 +101,7 @@ def get_float_data(endpoint, params=None):
     if r.status_code == 200:
         return r
     else:
-        print('Failed call to Float with {}. Response:\n\n{}'.format(
+        logger.error('Failed call to Float with {}. Response:\n\n{}'.format(
             r.url, r.content))
         return None
 
