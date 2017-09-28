@@ -11,7 +11,7 @@
     </p>
   </div>
 </div>
-{% if float_data %}
+{% if float_data is not None %}
   <div class="usa-alert usa-alert-error">
     <div class="usa-alert-body">
       <p class="usa-alert-text">
@@ -28,7 +28,13 @@
            {% if i.task_name %}
             assigned to {{ i.task_name }}
            {% endif %}
-        </li>
+         </li>
+        {% empty %}
+         <li>We're sorry, there was an error retrieving your data from Float.
+            <strong><a href="https://18f.float.com/">Please visit Float directly to see your information</a></strong> while the Tock admins work to resolve this.  Thank you for your patience!
+         </li>
+         <li>You can also <strong><a href="http://status.float.com/">check the Float service Status page</a></strong> if you're curious to see if there might be an outage.
+         </li>
         {% endfor %}
       </ul>
     </div>
