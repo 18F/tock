@@ -18,9 +18,6 @@ INTERNAL_IPS = [
     '::1',
 ]
 
-FLOAT_API_URL_BASE = 'http://localhost'
-FLOAT_API_HEADER = {}
-
 DATABASES['default'] = dj_database_url.config(
     default='postgres://tock:tock@localhost/tock'
 )

@@ -13,8 +13,10 @@ import os
 import pwd
 import subprocess
 
+from tock.settings.env import env
+
 HOST_UID = os.stat('/tock').st_uid
-HOST_USER = os.environ.get('HOST_USER', 'tock_user')
+HOST_USER = env.get_credential('HOST_USER', 'tock_user')
 
 
 def does_username_exist(username):

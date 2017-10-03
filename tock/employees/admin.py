@@ -42,9 +42,9 @@ class UserDataForm(forms.ModelForm):
 
 class UserDataAdmin(admin.ModelAdmin):
     form = UserDataForm
-    list_display = ('user', 'float_people_id', 'start_date', 'end_date', 'unit_info', 'current_employee', 'is_18f_employee', 'is_billable', 'is_aws_eligible')
-    list_filter = ('current_employee', 'is_18f_employee', 'is_billable', 'is_aws_eligible')
-    search_fields = ('user__username', 'float_people_id')
+    list_display = ('user', 'start_date', 'end_date', 'unit_info', 'current_employee', 'is_18f_employee', 'is_billable', 'is_aws_eligible',)
+    list_filter = ('current_employee', 'is_18f_employee', 'is_billable', 'is_aws_eligible',)
+    search_fields = ('user__username',)
 
     def unit_info(self, obj):
         return obj.get_unit_display()
