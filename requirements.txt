@@ -10,5 +10,5 @@ bleach==1.4.3
 requests==2.11.1
 httmock==1.2.6
 # Cloud.gov specific
-newrelic==2.92.0.78
+newrelic==2.94.0.79
 cfenv==0.5.3

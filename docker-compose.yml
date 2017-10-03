@@ -11,6 +11,7 @@ app:
     - DATABASE_URL=postgres://tock_user@db/tock
     - RUNNING_IN_DOCKER=yup
     - DJANGO_SETTINGS_MODULE=tock.settings.dev
+    # - NEW_RELIC_LICENSE_KEY=get-from-vcap-user-provided-service (not to be used for local development)
 
   command: "python manage.py runserver 0.0.0.0:1234"
 db:
@@ -32,7 +33,7 @@ web:
   ports:
     - "${EXTERNAL_PORT}:${EXTERNAL_PORT}"
 sass:
-  image: node:8.5.0
+  image: node:8.6.0
   volumes:
     - .:/tock
     - /tock/node_modules

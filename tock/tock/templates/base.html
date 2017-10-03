@@ -78,17 +78,6 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                   <span>Users</span>
                 </a>
               </li>
-              <li>
-                <button class="
-                usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-1">
-                  <span>Beta</span>
-                </button>
-                <ul id="side-nav-1" class="usa-nav-submenu" aria-hidden="true">
-                  <li>
-                  <a href="https://login.float.com/?people={{ user.first_name}}+{{user.last_name}}" target="_blank">View Float assignments</a>
-                  </li>
-                </ul>
-              </li>
               {% if request.user.is_superuser %}
               <li>
                 <button class="
