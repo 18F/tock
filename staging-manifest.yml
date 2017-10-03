@@ -1,7 +1,4 @@
 ---
-# all applications use these settings and services
-memory: 512m
-instances: 1
 applications:
 - name: tock-staging
   path: .
@@ -9,3 +6,11 @@ applications:
   timeout: 180
   services:
     - tock-staging-2
+buildpack: python_buildpack
+env:
+  NEW_RELIC_APP_NAME: Tock (Staging)
+  NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
+  NEW_RELIC_ENV: staging
+  NEW_RELIC_LOG: stdout
+instances: 1
+memory: 512M

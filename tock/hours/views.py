@@ -26,10 +26,9 @@ from api.renderers import stream_csv
 from employees.models import UserData
 from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
-from tock.utils import PermissionMixin, IsSuperUserOrSelf, get_float_data, flatten
+from tock.utils import PermissionMixin, IsSuperUserOrSelf, flatten
 from tock.settings import base
 
-from .float import *
 from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
 from .forms import (
     ReportingPeriodForm,
@@ -690,8 +689,6 @@ class TimecardView(UpdateView):
             'formset': formset,
             'messages': messages.get_messages(self.request),
             'unsubmitted': not self.object.submitted,
-            'float_data': float_tasks_for_view(
-                self.request.user, base_reporting_period)
         })
         return context
 

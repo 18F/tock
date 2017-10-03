@@ -113,18 +113,3 @@ To access similar data in CSV format from within Tock, please visit the [/report
 [http://localhost:8000/]: http://localhost:8000/
 [Sass]: http://sass-lang.com/
 [Node]: https://nodejs.org/en/
-
-## External services
-
-Tock relies on the following external services:
-
-### Float
-
-We use [Float](https://float.com) to schedule our team and manage availability. This data may be populated in Tock via
-the [Float API](https://github.com/floatschedule/api). The following variables should be set:
-
-```python
-FLOAT_API_KEY = # Via the 'float-key' CUPS service if using cloud.gov.
-FLOAT_API_URL_BASE = 'https://api.float.com/api/v1' # Default.
-FLOAT_API_HEADER = {'Authorization': 'Bearer ' + FLOAT_API_KEY} # Default.
-```
