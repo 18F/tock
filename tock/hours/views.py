@@ -29,7 +29,14 @@ from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf, flatten
 from tock.settings import base
 
-from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
+from .models import (
+    Project,
+    ReportingPeriod,
+    Targets,
+    Timecard,
+    TimecardNote,
+    TimecardObject
+)
 from .forms import (
     ReportingPeriodForm,
     ReportingPeriodImportForm,
@@ -688,6 +695,7 @@ class TimecardView(UpdateView):
             'max_working_hours': base_reporting_period.max_working_hours,
             'formset': formset,
             'messages': messages.get_messages(self.request),
+            'timecard_notes': TimecardNote.objects.enabled(),
             'unsubmitted': not self.object.submitted,
         })
         return context

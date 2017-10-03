@@ -4,7 +4,14 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
-from .models import ReportingPeriod, Timecard, TimecardObject, Targets, HolidayPrefills
+from .models import (
+    HolidayPrefills,
+    ReportingPeriod,
+    Targets,
+    Timecard,
+    TimecardNote,
+    TimecardObject
+)
 from employees.models import UserData
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
@@ -77,7 +84,18 @@ class TimecardAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
 
 
+class TimecardNoteAdmin(admin.ModelAdmin):
+    actions_on_bottom = True
+    fields = ('title', 'body', 'style', 'enabled',)
+    list_display = ('title', 'enabled', 'style', 'created', 'modified')
+    list_editable = ('enabled', 'style',)
+    list_filter = ('enabled', 'style',)
+    readonly_fields = ('created', 'modified',)
+
+
+
 admin.site.register(HolidayPrefills)
 admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
-admin.site.register(Timecard, TimecardAdmin)
 admin.site.register(Targets)
+admin.site.register(Timecard, TimecardAdmin)
+admin.site.register(TimecardNote, TimecardNoteAdmin)
