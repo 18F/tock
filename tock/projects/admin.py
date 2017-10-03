@@ -17,14 +17,15 @@ class ProfitLossAccountForm(forms.ModelForm):
         model = ProfitLossAccount
         exclude = []
     def clean(self):
-        if self.cleaned_data.get(
-            'as_start_date'
-        ) > self.cleaned_data.get(
-            'as_end_date'
-        ):
-            raise forms.ValidationError(
-                'Start date cannot occur before the end date.'
-            )
+        start_date = self.cleaned_data.get('as_start_date', None)
+        end_date = self.cleaned_data.get('as_end_date', None)
+
+        if start_date and end_date:
+            if start_date > end_date:
+                raise forms.ValidationError(
+                    'Start date cannot occur after the end date.'
+                )
+
         return self.cleaned_data
 
 class ProfitLossAccountAdmin(admin.ModelAdmin):
@@ -73,7 +74,6 @@ class ProjectForm(forms.ModelForm):
 
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
-    search_fields = ['name',]
     fields = [
         'name',
         'mbnumber',
@@ -89,6 +89,9 @@ class ProjectAdmin(admin.ModelAdmin):
         'notes_required',
         'notes_displayed',
     ]
+    list_display = ('name', 'mbnumber', 'accounting_code', 'project_lead', 'start_date', 'end_date', 'active', 'notes_displayed', 'notes_required',)
+    list_filter = ('active', 'notes_displayed', 'notes_required',)
+    search_fields = ('name', 'accounting_code__code', 'mbnumber',)
 
 class ProjectAlertAdmin(admin.ModelAdmin):
     search_fields = ['title',]

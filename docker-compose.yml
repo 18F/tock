@@ -11,28 +11,29 @@ app:
     - DATABASE_URL=postgres://tock_user@db/tock
     - RUNNING_IN_DOCKER=yup
     - DJANGO_SETTINGS_MODULE=tock.settings.dev
+    # - NEW_RELIC_LICENSE_KEY=get-from-vcap-user-provided-service (not to be used for local development)
 
   command: "python manage.py runserver 0.0.0.0:1234"
 db:
-  image: postgres:9.5.4
+  image: postgres:9.5.9
   environment:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
 web:
-  image: nginx:1.11.3
+  image: nginx:1.13.5
   volumes:
     - ./provision/dev/nginx_site_docker.template:/etc/nginx/conf.d/nginx_site_docker.template
   command: /bin/bash -c "envsubst '$$EXTERNAL_PORT $$DJANGO_SERVER $$USER_EMAIL' < /etc/nginx/conf.d/nginx_site_docker.template > /etc/nginx/conf.d/nginx_site_docker.conf && exec nginx -g 'daemon off;'"
   environment:
     - EXTERNAL_PORT=${EXTERNAL_PORT}
     - DJANGO_SERVER=http://app:1234
-    - USER_EMAIL=patrick.bateman@gsa.gov
+    - USER_EMAIL=aaron.snow@gsa.gov
   links:
     - app
   ports:
     - "${EXTERNAL_PORT}:${EXTERNAL_PORT}"
 sass:
-  image: node:6.3
+  image: node:8.6.0
   volumes:
     - .:/tock
     - /tock/node_modules

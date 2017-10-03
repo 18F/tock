@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-<table class="report_table">
+<table class="table-responsive-reflow">
   <caption>
-    <h2>Tock Users</h2>
+    <h1>Tock Users</h1>
   </caption>
   <thead>
     <tr>
@@ -15,8 +14,8 @@
       <th>End Date</th>
     </tr>
   </thead>
-  {% for user in object_list %}
   <tbody>
+  {% for user in object_list %}
     <tr>
       <td>
       {% if request.user.is_superuser %}
@@ -27,13 +26,13 @@
         <a href="/employees/{{ user.username }}">{{ user.username }}</a>
       {% endif %}
       </td>
-      <td>{{ user.first_name }}</td>
-      <td>{{ user.last_name }}</td>
-      <td>{{ user.user_data.start_date }}</td>
-      <td>{{ user.user_data.end_date }}</td>
+      <td data-title="First name">{{ user.first_name }}</td>
+      <td data-title="Last name">{{ user.last_name }}</td>
+      <td data-title="Start date">{{ user.user_data.start_date }}</td>
+      <td data-title="End date">{{ user.user_data.end_date }}</td>
     </tr>
-  </tbody>
   {% endfor %}
+  </tbody>
 </table>
 
 {% endblock %}

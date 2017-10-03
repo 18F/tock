@@ -1,6 +1,7 @@
 import datetime
 import csv
 import requests
+import json
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
@@ -197,7 +198,7 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
+        self.assertContains(response, '<td data-title="Variance">$-2 (-100.00%)</td>')
 
     def test_no_reporting_period(self):
         """Tests errors are handled when there is no matching reporting
@@ -271,10 +272,14 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$4,500</td>')
-        self.assertContains(response, '<td>13.0 (650.00%)</td>')
-        self.assertContains(response, '<td>$1,498 (59900.00%)</td>')
-        self.assertNotContains(response, '<td>$-2 (-100.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="FYTD Performance">$4,500</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">13.0 (650.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">$1,498 (59900.00%)</td>')
+        self.assertNotContains(
+            response, '<td data-title="Variance">$-2 (-100.00%)</td>')
 
         # Test that units are correctly excluded.
         self.ud.unit = 4
@@ -286,8 +291,10 @@ class DashboardViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        self.assertContains(response, '<td>$-2 (-100.00%)</td>')
-        self.assertNotContains(response, '<td>$1,498 (59900.00%)</td>')
+        self.assertContains(
+            response, '<td data-title="Variance">$-2 (-100.00%)</td>')
+        self.assertNotContains(
+            response, '<td data-title="Variance">$1,498 (59900.00%)</td>')
 
         """self.ud.unit = 13
         self.ud.save()
@@ -637,6 +644,12 @@ class ReportTests(WebTest):
             new_rps.first().start_date,
             (self.reporting_period.end_date + datetime.timedelta(days=1))
         )
+        self.assertEqual(
+            new_rps.first().end_date,
+            (self.reporting_period.end_date +  \
+             datetime.timedelta(days=1)) + \
+             datetime.timedelta(days=6)
+        )
 
     def test_auto_create_reporting_period_fy_end(self):
         """ Check that a reporting period is NOT automatically created if
@@ -728,7 +741,6 @@ class ReportTests(WebTest):
         )
         self.assertIsNotNone(hours.models.ReportingPeriod.objects.all())
 
-
     def test_reportperiod_updatetimesheet_self(self):
         """
         Test that users can access their own timesheets update forms
@@ -742,23 +754,6 @@ class ReportTests(WebTest):
             headers={'X_AUTH_USER': self.regular_user.email},
         )
         self.assertEqual(response.status_code, 200)
-
-    def test_float_data_is_correct(self):
-        """Check that correct Float data is delivered to timecard_form
-        template."""
-        new_reporting_period = self.reporting_period
-        new_reporting_period.start_date = datetime.date(2016, 5, 1)
-        new_reporting_period.end_date = datetime.date(2016, 5, 8)
-        new_reporting_period.save()
-        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
-        response = self.app.get(
-            reverse(
-                'reportingperiod:UpdateTimesheet',
-                kwargs={'reporting_period': date}
-            ),
-            headers={'X_AUTH_USER': '6cfl4j.c4drwz@gsa.gov'},
-        )
-        self.assertIn('7.5 hours on NYbNJGuffc', response)
 
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is
@@ -1111,10 +1106,10 @@ class ReportTests(WebTest):
         not_filed_time = tables[0]
         filed_time = tables[1]
         self.assertEqual(
-            len(not_filed_time.find_all('tbody')), 0
+            len(not_filed_time.find_all('td')), 0
         )
         self.assertEqual(
-            len(filed_time.find_all('tbody')), 2
+            len(filed_time.find_all('td')), 6
         )
 
 
@@ -1161,7 +1156,5 @@ class ReportTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.regular_user.email}
         )
-        self.assertEqual(
-            len(response.html.find_all('tbody')), 3
-        )
-        self.former_employee
+        self.assertContains(response,
+            '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')

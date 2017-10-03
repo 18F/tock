@@ -1,6 +1,6 @@
-Django==1.10.7
-dj-database-url==0.4.1
-psycopg2==2.6.2
+Django==1.10.8
+dj-database-url==0.4.2
+psycopg2==2.7.3.1
 model-mommy==1.3.0
 waitress==1.0.0
 whitenoise==3.2.1
@@ -10,5 +10,5 @@ bleach==1.4.3
 requests==2.11.1
 httmock==1.2.6
 # Cloud.gov specific
-newrelic==2.78.0.57
-cfenv==0.5.2
+newrelic==2.94.0.79
+cfenv==0.5.3
