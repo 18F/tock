@@ -146,6 +146,76 @@ class Timecard(models.Model):
         return "%s - %s" % (self.user, self.reporting_period.start_date)
 
 
+class TimecardNoteManager(models.Manager):
+    def enabled(self):
+        return super(TimecardNoteManager, self).get_queryset().filter(enabled=True)
+
+    def disabled(self):
+        return super(TimecardNoteManager, self).get_queryset().filter(enabled=False)
+
+
+class TimecardNote(models.Model):
+    # Alerts will be displayed in the Timecard form using the USWDS themes,
+    # which are found here:  https://standards.usa.gov/components/alerts/
+    USWDS_ALERT_SUCCESS = 'success'
+    USWDS_ALERT_WARNING = 'warning'
+    USWDS_ALERT_ERROR = 'error'
+    USWDS_ALERT_INFO = 'info'
+
+    USWDS_ALERT_CHOICES = (
+        (USWDS_ALERT_INFO, 'Blue (Info)'),
+        (USWDS_ALERT_SUCCESS, 'Green (Success)',),
+        (USWDS_ALERT_WARNING, 'Yellow (Warning)'),
+        (USWDS_ALERT_ERROR, 'Red (Error)'),
+    )
+
+    title = models.CharField(
+        max_length=140,
+        help_text='The heading that will appear above the note when displayed in a timecard.'
+    )
+    body = models.TextField(
+        help_text='The body of the note that will appear when displayed in a timecard.'
+    )
+    enabled = models.BooleanField(
+        default=True,
+        help_text='Toggle whether or not the note is displayed in a timecard.'
+    )
+    style = models.CharField(
+        choices=USWDS_ALERT_CHOICES,
+        default=USWDS_ALERT_INFO,
+        max_length=32,
+        help_text='The style in which to display the note in a timecard.'
+    )
+    created = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Created on'
+    )
+    modified = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Last modified'
+    )
+
+    objects = TimecardNoteManager()
+
+    class Meta:
+        verbose_name = 'Timecard Note'
+        verbose_name_plural = 'Timecard Notes'
+
+
+    def get_enabled_display(self):
+        if not self.enabled:
+            return 'Disabled'
+
+        return 'Enabled'
+
+    def __str__(self):
+        return '{title} ({enabled} / {style})'.format(
+            title=self.title,
+            enabled=self.get_enabled_display(),
+            style=self.get_style_display()
+        )
+
+
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard, related_name="timecardobjects")
     project = models.ForeignKey(Project)

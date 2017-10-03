@@ -6,11 +6,22 @@
 
 <div class="usa-alert usa-alert-info">
   <div class="usa-alert-body">
+    <h3 class="usa-alert-heading">When to submit your time card</h3>
     <p class="usa-alert-text">
       <strong>Submit your time card for the week</strong> by the end of the day on Friday (or the last business day of the week). If you are authorized to work on Saturday for any reason, enter and submit your time by the end of the day on Saturday.
     </p>
   </div>
 </div>
+{% for timecard_note in timecard_notes %}
+  <div class="usa-alert usa-alert-{{ timecard_note.style }}">
+    <div class="usa-alert-body">
+      <h3 class="usa-alert-heading">{{ timecard_note.title }}</h3>
+      <p class="usa-alert-text">
+        {{ timecard_note.body }}
+      </p>
+    </div>
+  </div>
+{% endfor %}
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
