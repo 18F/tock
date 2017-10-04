@@ -127,7 +127,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         unique_together = ('start_date', 'end_date',)
         ordering = ['-start_date']
 
-    def get_enabled_display(self):
+    def get_message_enabled_display(self):
         if not self.message_enabled:
             return 'Message Disabled'
 
