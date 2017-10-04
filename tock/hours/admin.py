@@ -62,7 +62,8 @@ class TimecardObjectFormset(BaseInlineFormSet):
 
 
 class ReportingPeriodAdmin(admin.ModelAdmin):
-    list_display = ('start_date', 'end_date',)
+    list_display = ('start_date', 'end_date', 'exact_working_hours', 'max_working_hours', 'min_working_hours', 'has_holiday_prefills', 'message_enabled',)
+    list_editable = ('exact_working_hours', 'max_working_hours', 'min_working_hours', 'message_enabled',)
     filter_horizontal = ['holiday_prefills', ]
 
 

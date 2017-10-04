@@ -169,9 +169,11 @@ class TimecardNoteTests(TestCase):
 
     def test_get_only_enabled_timecard_notes(self):
         """Ensure that we are only returning enabled timecard notes."""
+        # NOTE:  There is a migration for an initial timecard note that is
+        # enabled, so we must account for its presence.
         enabled_timecard_notes = TimecardNote.objects.enabled()
-        self.assertEqual(enabled_timecard_notes.count(), 1)
-        self.assertEqual(enabled_timecard_notes.first(), self.timecard_note_enabled)
+        self.assertEqual(enabled_timecard_notes.count(), 2)
+        self.assertEqual(enabled_timecard_notes.last(), self.timecard_note_enabled)
 
     def test_get_only_disabled_timecard_notes(self):
         """Ensure that we are only returning disabled timecard notes."""
