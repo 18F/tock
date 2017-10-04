@@ -72,6 +72,18 @@ class Targets(models.Model):
         verbose_name_plural = 'Targets'
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
+    USWDS_ALERT_SUCCESS = 'success'
+    USWDS_ALERT_WARNING = 'warning'
+    USWDS_ALERT_ERROR = 'error'
+    USWDS_ALERT_INFO = 'info'
+
+    USWDS_ALERT_CHOICES = (
+        (USWDS_ALERT_INFO, 'Blue (Info)'),
+        (USWDS_ALERT_SUCCESS, 'Green (Success)',),
+        (USWDS_ALERT_WARNING, 'Yellow (Warning)'),
+        (USWDS_ALERT_ERROR, 'Red (Error)'),
+    )
+
     """Reporting period model details"""
     start_date = models.DateField(unique=True)
     end_date = models.DateField(unique=True)
@@ -86,18 +98,40 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         'create additional items, click the green "+" sign.'
     )
     message = models.TextField(
-        help_text='A message to provide at the top of the reporting period.',
-        blank=True)
+        help_text='A message to provide at the top of the reporting period. This will appear above any Timecard Notes in a Timecard.',
+        blank=True
+    )
+    message_style = models.CharField(
+        choices=USWDS_ALERT_CHOICES,
+        default=USWDS_ALERT_INFO,
+        max_length=32,
+        help_text='The style in which to display the message in a reporting period.'
+    )
+    message_title = models.CharField(
+        blank=True,
+        max_length=140,
+        help_text='An optional title to appear with the message.'
+    )
+    message_enabled = models.BooleanField(
+        default=False,
+        help_text='Toggle whether or not the message is displayed for the specific reporting period and visible in a Timecard.'
+    )
 
     def __str__(self):
         return str(self.start_date)
 
     class Meta:
-        verbose_name = "Reporting Period"
-        verbose_name_plural = "Reporting Periods"
-        get_latest_by = "start_date"
-        unique_together = ("start_date", "end_date")
+        verbose_name = 'Reporting Period'
+        verbose_name_plural = 'Reporting Periods'
+        get_latest_by = 'start_date'
+        unique_together = ('start_date', 'end_date',)
         ordering = ['-start_date']
+
+    def get_enabled_display(self):
+        if not self.message_enabled:
+            return 'Message Disabled'
+
+        return 'Message Enabled'
 
     def get_fiscal_year(self):
         """Determines the Fiscal Year (Oct 1 - Sept 31) of a given
@@ -128,6 +162,10 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
                 | Q(end_date__isnull=True)
             )
         )
+
+    def has_holiday_prefills(self):
+        return self.holiday_prefills.exists()
+    has_holiday_prefills.boolean = True
 
 
 class Timecard(models.Model):
