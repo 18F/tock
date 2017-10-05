@@ -194,6 +194,43 @@
     }
   }
 
+  function addTockLines(tockLines) {
+    // Pop off the top of the array
+    var line = tockLines.shift();
+
+    if(line) {
+      if(!line.project) {
+        addTockLines(tockLines);
+        return;
+      }
+
+      // If the last entry box isn't empty, add a new one
+      if($('div.entry:last .entry-project select').val() !== '') {
+        $(".add-timecard-entry").click();
+      }
+
+      // Wait a tick so the DOM can be updated, in case a new
+      // line item entry had to be created
+      setTimeout(function() {
+        // Set the project and trigger a GUI update
+        $("div.entry:last .entry-project select").val(line.project);
+        $("div.entry:last .entry-project select").trigger("chosen:updated");
+
+        // Set the hours and trigger a data update
+        $("div.entry:last .entry-amount input").val(line.hours);
+        $("div.entry:last .entry-amount input").change();
+
+        // Go again with the remaining tock lines
+        addTockLines(tockLines);
+      }, 20);
+    } else {
+      // If we're finished processing the list of tock lines,
+      // trigger a change event to update the hours total and
+      // re-sync any local storage.
+      $("div.entry:last select").change();
+    }
+  }
+
   // When you change the hours, redo the totals
   $( "body" ).on( "keyup", ".entry-amount input", function() {
     populateHourTotals();
@@ -289,8 +326,15 @@ $( document ).ready(function() {
 
           if(storageIndex >= 0) {
             $('.entry-amount input', entry).val(Number(fromStorage[storageIndex].hours));
+            fromStorage.splice(storageIndex, 1);
           }
         });
+
+        // Anything still represented in "fromStorage" is a line
+        // that was added to the timesheet but not saved, meaning
+        // there's not a GUI element for it already. We should
+        // restore those lines now.
+        addTockLines(fromStorage);
       }
     }
 
