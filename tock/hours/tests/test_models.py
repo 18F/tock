@@ -7,7 +7,14 @@ from django.contrib.auth.models import User
 
 import datetime
 
-from hours.models import ReportingPeriod, TimecardObject, Timecard, Targets, HolidayPrefills
+from hours.models import (
+    HolidayPrefills,
+    ReportingPeriod,
+    Targets,
+    Timecard,
+    TimecardNote,
+    TimecardObject
+)
 from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade, UserData
 
@@ -143,6 +150,37 @@ class TimecardTests(TestCase):
     def test_timecardobject_hours(self):
         """Test the TimeCardObject hours method."""
         self.assertEqual(self.timecard_object_1.hours(), 12)
+
+
+class TimecardNoteTests(TestCase):
+    def setUp(self):
+        self.timecard_note_enabled = TimecardNote(
+            title='Enabled test note',
+            body='This is a test note that is enabled.'
+        )
+        self.timecard_note_enabled.save()
+
+        self.timecard_note_disabled = TimecardNote(
+            title='Disabled test note',
+            body='This is a test note that is disabled.',
+            enabled=False
+        )
+        self.timecard_note_disabled.save()
+
+    def test_get_only_enabled_timecard_notes(self):
+        """Ensure that we are only returning enabled timecard notes."""
+        # NOTE:  There is a migration for an initial timecard note that is
+        # enabled, so we must account for its presence.
+        enabled_timecard_notes = TimecardNote.objects.enabled()
+        self.assertEqual(enabled_timecard_notes.count(), 2)
+        self.assertEqual(enabled_timecard_notes.last(), self.timecard_note_enabled)
+
+    def test_get_only_disabled_timecard_notes(self):
+        """Ensure that we are only returning disabled timecard notes."""
+        disabled_timecard_notes = TimecardNote.objects.disabled()
+        self.assertEqual(disabled_timecard_notes.count(), 1)
+        self.assertEqual(disabled_timecard_notes.first(), self.timecard_note_disabled)
+
 
 class TimecardObjectTests(TestCase):
     fixtures = [

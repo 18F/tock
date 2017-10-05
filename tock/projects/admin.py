@@ -29,8 +29,11 @@ class ProfitLossAccountForm(forms.ModelForm):
         return self.cleaned_data
 
 class ProfitLossAccountAdmin(admin.ModelAdmin):
+    actions_on_bottom = True
     form = ProfitLossAccountForm
-    search_fields = ['name',]
+    list_display = ('name', 'accounting_string', 'as_start_date', 'as_end_date', 'account_type',)
+    list_editable = ('accounting_string', 'account_type',)
+    search_fields = ('name', 'accounting_string',)
 
 class ProjectForm(forms.ModelForm):
     class Meta:
