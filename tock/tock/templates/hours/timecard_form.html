@@ -127,12 +127,14 @@
   function populateHourTotals(){
     // Save hours to localStorage, if available
     if(window.localStorage) {
-      var hoursAsEntered = { };
+      var hoursAsEntered = [ ];
       $('.entries .entry').each(function(i, entry) {
         entry = $(entry);
         var project = $('.entry-project select', entry).val();
         var hours = $('.entry-amount input', entry).val();
-        hoursAsEntered[project] = hours;
+        if(project) {
+          hoursAsEntered.push({ project: project, hours: hours });
+        }
       });
       window.localStorage.setItem('tock-entered-hours', JSON.stringify(hoursAsEntered));
     }
@@ -274,14 +276,19 @@ $( document ).ready(function() {
     // If there's localStorage, get hours from it and
     // populate the form
     if(window.localStorage) {
-      var entered = window.localStorage.getItem('tock-entered-hours');
-      if(entered) {
-        entered = JSON.parse(entered);
+      var fromStorage = window.localStorage.getItem('tock-entered-hours');
+      if(fromStorage) {
+        fromStorage = JSON.parse(fromStorage);
+
         $('.entries .entry').each(function(i, entry) {
           entry = $(entry);
           var project = $('.entry-project select', entry).val();
-          if(entered[project]) {
-            $('.entry-amount input', entry).val(Number(entered[project]));
+          var storageIndex = fromStorage.findIndex(function(storedProject) {
+            return storedProject.project === project;
+          });
+
+          if(storageIndex >= 0) {
+            $('.entry-amount input', entry).val(Number(fromStorage[storageIndex].hours));
           }
         });
       }
