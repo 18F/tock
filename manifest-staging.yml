@@ -1,0 +1,16 @@
+---
+inherit: base-manifest.yml
+
+applications:
+- name: tock
+  routes:
+  - route: tock.app.cloud.gov
+  - route: tock.app.cloud.gov/api
+  env:
+    NEW_RELIC_APP_NAME: Tock (Staging)
+    NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
+    NEW_RELIC_ENV: staging
+    NEW_RELIC_LOG: stdout
+  services:
+  - tock-database
+  - tock-credentials
