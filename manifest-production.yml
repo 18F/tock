@@ -1,0 +1,18 @@
+---
+inherit: base-manifest.yml
+
+applications:
+- name: tock
+  routes:
+  - route: tock.18f.gov
+  - route: tock.18f.gov/api
+  env:
+    NEW_RELIC_APP_NAME: Tock (Production)
+    NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
+    NEW_RELIC_ENV: production
+    NEW_RELIC_LOG: stdout
+    WEB_CONCURRENCY: 4
+  instances: 4
+  services:
+  - tockdb
+  - tock-creds-prod
