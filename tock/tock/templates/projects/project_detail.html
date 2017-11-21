@@ -68,6 +68,7 @@ Total hours saved, but not submitted: <span id="totalHoursSaved">{{ total_hours_
 <b>Total hours, combined:<span id="totalHoursAll"> {{ total_hours_all }}</span></b>
 <br />
 <br />
+<a href="{% url 'reports:BulkTimecardList' %}?project={{ object.id }}">All hours in a CSV</a>
 
 <h2 class="chart__title">Lifetime Hours Logged</h2>
 <figure class="chart chart--utilization">
