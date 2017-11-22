@@ -114,7 +114,7 @@
  function clearLocalStorage() {
    // Clear anything saved locally.
    if(window.localStorage) {
-     window.localStorage.removeItem('tock-entered-hours');
+     window.localStorage.removeItem('tock-entered-hours-{{ object.id }}');
    }
  }
 
@@ -143,7 +143,7 @@
           hoursAsEntered.push({ project: project, hours: hours });
         }
       });
-      window.localStorage.setItem('tock-entered-hours', JSON.stringify(hoursAsEntered));
+      window.localStorage.setItem('tock-entered-hours-{{ object.id }}', JSON.stringify(hoursAsEntered));
     }
 
     // Populate The Bottom Addon Items with Totals
@@ -326,7 +326,7 @@ $( document ).ready(function() {
     // If there's localStorage, get hours from it and
     // populate the form
     if(window.localStorage) {
-      var fromStorage = window.localStorage.getItem('tock-entered-hours');
+      var fromStorage = window.localStorage.getItem('tock-entered-hours-{{ object.id }}');
       if(fromStorage) {
         fromStorage = JSON.parse(fromStorage);
 
