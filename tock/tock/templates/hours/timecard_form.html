@@ -103,7 +103,7 @@
     <div class="submit-form">
       <div class="usa-grid">
           <button type="button" class="usa-button-outline save-timecard" id="save-timecard">Save time card</button>
-          <button type="submit" class="usa-button-primary">Submit time card</button>
+          <button type="button" class="usa-button-primary" id="submit-timecard">Submit time card</button>
       </div>
     </div>
   </div>
@@ -111,6 +111,13 @@
 
 
  <script>
+ function clearLocalStorage() {
+   // Clear anything saved locally.
+   if(window.localStorage) {
+     window.localStorage.removeItem('tock-entered-hours-{{ object.id }}');
+   }
+ }
+
  function getHourTotals() {
     // Get the total of all timecard object entries
     var hoursTotal = 0;
@@ -125,6 +132,20 @@
   }
 
   function populateHourTotals(){
+    // Save hours to localStorage, if available
+    if(window.localStorage) {
+      var hoursAsEntered = [ ];
+      $('.entries .entry').each(function(i, entry) {
+        entry = $(entry);
+        var project = $('.entry-project select', entry).val();
+        var hours = $('.entry-amount input', entry).val();
+        if(project) {
+          hoursAsEntered.push({ project: project, hours: hours });
+        }
+      });
+      window.localStorage.setItem('tock-entered-hours-{{ object.id }}', JSON.stringify(hoursAsEntered));
+    }
+
     // Populate The Bottom Addon Items with Totals
     var totals = getHourTotals();
     $('.entries-total-reported-amount').html();
@@ -180,6 +201,43 @@
     }
   }
 
+  function addTockLines(tockLines) {
+    // Pop off the top of the array
+    var line = tockLines.shift();
+
+    if(line) {
+      if(!line.project) {
+        addTockLines(tockLines);
+        return;
+      }
+
+      // If the last entry box isn't empty, add a new one
+      if($('div.entry:last .entry-project select').val() !== '') {
+        $(".add-timecard-entry").click();
+      }
+
+      // Wait a tick so the DOM can be updated, in case a new
+      // line item entry had to be created
+      setTimeout(function() {
+        // Set the project and trigger a GUI update
+        $("div.entry:last .entry-project select").val(line.project);
+        $("div.entry:last .entry-project select").trigger("chosen:updated");
+
+        // Set the hours and trigger a data update
+        $("div.entry:last .entry-amount input").val(line.hours);
+        $("div.entry:last .entry-amount input").change();
+
+        // Go again with the remaining tock lines
+        addTockLines(tockLines);
+      }, 20);
+    } else {
+      // If we're finished processing the list of tock lines,
+      // trigger a change event to update the hours total and
+      // re-sync any local storage.
+      $("div.entry:last select").change();
+    }
+  }
+
   // When you change the hours, redo the totals
   $( "body" ).on( "keyup", ".entry-amount input", function() {
     populateHourTotals();
@@ -202,12 +260,24 @@ $( document ).ready(function() {
     };
 
     $("#save-timecard").on("click", function() {
+      // Clear anything saved locally.  The server is the
+      // source of truth.
+      clearLocalStorage();
+
       var form = $('form'),
           save_input = '<input type="hidden" name="save_only" value="1"/>';
 
       form.append(save_input);
       form.submit();
     });
+
+    $("#submit-timecard").on("click", function() {
+      // Clear anything saved locally.  The server is the
+      // source of truth.
+      clearLocalStorage();
+
+      $('form').submit();
+    })
 
     $(".add-timecard-entry").on( "click", function() {
         $('div.entry:last').clone().each(function(i) {
@@ -252,6 +322,34 @@ $( document ).ready(function() {
         // Increment the TOTAL_FORMS
         $('#id_timecardobjects-TOTAL_FORMS').val(parseInt($('#id_timecardobjects-TOTAL_FORMS').val()) + 1);
     });
+
+    // If there's localStorage, get hours from it and
+    // populate the form
+    if(window.localStorage) {
+      var fromStorage = window.localStorage.getItem('tock-entered-hours-{{ object.id }}');
+      if(fromStorage) {
+        fromStorage = JSON.parse(fromStorage);
+
+        $('.entries .entry').each(function(i, entry) {
+          entry = $(entry);
+          var project = $('.entry-project select', entry).val();
+          var storageIndex = fromStorage.findIndex(function(storedProject) {
+            return storedProject.project === project;
+          });
+
+          if(storageIndex >= 0) {
+            $('.entry-amount input', entry).val(Number(fromStorage[storageIndex].hours));
+            fromStorage.splice(storageIndex, 1);
+          }
+        });
+
+        // Anything still represented in "fromStorage" is a line
+        // that was added to the timesheet but not saved, meaning
+        // there's not a GUI element for it already. We should
+        // restore those lines now.
+        addTockLines(fromStorage);
+      }
+    }
 
     // Run on initial load
     populateHourTotals();
