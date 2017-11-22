@@ -103,7 +103,7 @@
     <div class="submit-form">
       <div class="usa-grid">
           <button type="button" class="usa-button-outline save-timecard" id="save-timecard">Save time card</button>
-          <button type="submit" class="usa-button-primary">Submit time card</button>
+          <button type="button" class="usa-button-primary" id="submit-timecard">Submit time card</button>
       </div>
     </div>
   </div>
@@ -111,6 +111,13 @@
 
 
  <script>
+ function clearLocalStorage() {
+   // Clear anything saved locally.
+   if(window.localStorage) {
+     window.localStorage.removeItem('tock-entered-hours');
+   }
+ }
+
  function getHourTotals() {
     // Get the total of all timecard object entries
     var hoursTotal = 0;
@@ -255,9 +262,7 @@ $( document ).ready(function() {
     $("#save-timecard").on("click", function() {
       // Clear anything saved locally.  The server is the
       // source of truth.
-      if(window.localStorage) {
-        window.localStorage.removeItem('tock-entered-hours');
-      }
+      clearLocalStorage();
 
       var form = $('form'),
           save_input = '<input type="hidden" name="save_only" value="1"/>';
@@ -265,6 +270,14 @@ $( document ).ready(function() {
       form.append(save_input);
       form.submit();
     });
+
+    $("#submit-timecard").on("click", function() {
+      // Clear anything saved locally.  The server is the
+      // source of truth.
+      clearLocalStorage();
+
+      $('form').submit();
+    })
 
     $(".add-timecard-entry").on( "click", function() {
         $('div.entry:last').clone().each(function(i) {
