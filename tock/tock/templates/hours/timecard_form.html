@@ -300,15 +300,22 @@ $( document ).ready(function() {
           nextNumber % 2 == 0 ? entry.addClass('even').removeClass('odd') :
             entry.addClass('odd').removeClass('even');
 
-          entry.find('input, select, textarea').each(function(i) {
+          entry.find('input, select, textarea, label').each(function(i) {
             var formItem = $(this);
-            var formerID = formItem.attr('id');
-            var nextID = formerID.replace(previousNumber, nextNumber);
-            formItem.attr('id', nextID);
 
-            var formerName = formItem.attr('name');
-            var nextName = formerName.replace(previousNumber, nextNumber);
-            formItem.attr('name', nextName);
+            if (formItem[0].tagName.toLowerCase() !== 'label') {
+                var formerID = formItem.attr('id');
+                var nextID = formerID.replace(previousNumber, nextNumber);
+                formItem.attr('id', nextID);
+
+                var formerName = formItem.attr('name');
+                var nextName = formerName.replace(previousNumber, nextNumber);
+                formItem.attr('name', nextName);
+            } else {
+                var formerFor = formItem.attr('for');
+                var nextFor = formerFor.replace(previousNumber, nextNumber);
+                formItem.attr('for', nextFor);
+            }
           });
         }).appendTo('.entries');
 
