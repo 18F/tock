@@ -170,6 +170,20 @@ class ProfitLossAccount(models.Model):
             end_date
         )
 
+
+class ProjectManager(models.Manager):
+    """Provides convenience methods for filtering Project models.
+
+    Also, not to be confused with a human in a similarly named role. :-)
+    """
+
+    def active(self):
+        return self.get_queryset().filter(active=True)
+
+    def inactive(self):
+        return self.get_queryset().filter(active=False)
+
+
 class Project(models.Model):
     """ Stores information about a specific project"""
     name = models.CharField(max_length=200)
@@ -200,6 +214,8 @@ class Project(models.Model):
         verbose_name='Profit/loss Accounting String'
     )
     project_lead = models.ForeignKey(User, null=True)
+
+    objects = ProjectManager()
 
     class Meta:
         verbose_name = "Project"
