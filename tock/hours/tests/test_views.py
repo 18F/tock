@@ -737,7 +737,7 @@ class ReportTests(WebTest):
         """
         Tests that a 404 is raised when a reporting period is not found.
         """
-        date = datetime.date(2017, 10, 1)
+        date = datetime.date(1980, 10, 1)
 
         response = self.app.get(
             reverse(
