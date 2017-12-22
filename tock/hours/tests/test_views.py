@@ -739,15 +739,15 @@ class ReportTests(WebTest):
         """
         date = datetime.date(2017, 10, 1)
 
-        with self.assertRaises(Http404):
-            response = self.app.get(
-                reverse(
-                    'reportingperiod:UpdateTimesheet',
-                    kwargs={'reporting_period': date}
-                ),
-                headers={'X_AUTH_USER': self.regular_user.email},
-                expect_errors=True
-            )
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
+            expect_errors=True
+        )
+        self.assertEqual(response.status_code, 404)
 
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is
