@@ -735,7 +735,7 @@ class ReportTests(WebTest):
 
     def test_reportperiod_updatetimesheet_no_reportperiod(self):
         """
-        Tests that a 404 is returned when a reporting period is not found.
+        Tests that a 404 is raised when a reporting period is not found.
         """
         date = datetime.date(2017, 10, 1)
 
@@ -746,6 +746,7 @@ class ReportTests(WebTest):
                     kwargs={'reporting_period': date}
                 ),
                 headers={'X_AUTH_USER': self.regular_user.email},
+                expect_errors=True
             )
 
     def test_holiday_prefill(self):
