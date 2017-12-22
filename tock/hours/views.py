@@ -1,6 +1,8 @@
-import csv, json
+import csv
 import datetime as dt
 import io
+import json
+
 from itertools import chain
 from operator import attrgetter
 

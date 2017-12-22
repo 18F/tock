@@ -278,13 +278,13 @@ class TimecardObject(models.Model):
         ProfitLossAccount,
         blank=True,
         null=True,
-        related_name='revenue_profit_loss_account_'
+        related_name='revenue_profit_loss_account'
     )
     expense_profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         blank=True,
         null=True,
-        related_name='expense_profit_loss_account_'
+        related_name='expense_profit_loss_account'
     )
 
     def project_alerts(self):
