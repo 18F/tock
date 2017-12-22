@@ -4,6 +4,7 @@ import requests
 import json
 
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -738,14 +739,14 @@ class ReportTests(WebTest):
         """
         date = datetime.date(2017, 10, 1)
 
-        response = self.app.get(
-            reverse(
-                'reportingperiod:UpdateTimesheet',
-                kwargs={'reporting_period': date}
-            ),
-            headers={'X_AUTH_USER': self.regular_user.email},
-        )
-        self.assertEqual(response.status_code, 404)
+        with self.assertRaises(Http404):
+            response = self.app.get(
+                reverse(
+                    'reportingperiod:UpdateTimesheet',
+                    kwargs={'reporting_period': date}
+                ),
+                headers={'X_AUTH_USER': self.regular_user.email},
+            )
 
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is
