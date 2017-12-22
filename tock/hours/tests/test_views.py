@@ -732,6 +732,21 @@ class ReportTests(WebTest):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_reportperiod_updatetimesheet_no_reportperiod(self):
+        """
+        Tests that a 404 is returned when a reporting period is not found.
+        """
+        date = datetime.date(2017, 10, 1)
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
+        )
+        self.assertEqual(response.status_code, 404)
+
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is
         contained in the timecard formset."""

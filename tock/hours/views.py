@@ -10,10 +10,9 @@ from operator import attrgetter
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
@@ -655,10 +654,16 @@ class TimecardView(UpdateView):
         self.report_date = dt.datetime.strptime(
             self.kwargs['reporting_period'], "%Y-%m-%d"
         ).date()
-        r = ReportingPeriod.objects.get(start_date=self.report_date)
+
+        try:
+            r = ReportingPeriod.objects.get(start_date=self.report_date)
+        except ObjectDoesNotExist:
+            raise Http404('The requested reporting period does not exist.')
+
         obj, created = Timecard.objects.get_or_create(
             reporting_period_id=r.id,
             user_id=self.request.user.id)
+
         return obj
 
     def get_context_data(self, **kwargs):
