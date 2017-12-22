@@ -177,6 +177,9 @@ class ProjectManager(models.Manager):
     Also, not to be confused with a human in a similarly named role. :-)
     """
 
+    def get_queryset(self):
+        return super().get_queryset().order_by('name')
+
     def active(self):
         return self.get_queryset().filter(active=True)
 
