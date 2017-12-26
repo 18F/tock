@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
+from organizations.models import Organization
+
 
 class Agency(models.Model):
     """ Stores Agency name """
@@ -200,6 +202,7 @@ class Project(models.Model):
         verbose_name='Profit/loss Accounting String'
     )
     project_lead = models.ForeignKey(User, null=True)
+    organization = models.ForeignKey(Organization, null=True)
 
     class Meta:
         verbose_name = "Project"
