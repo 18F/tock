@@ -2,8 +2,10 @@ from django.db import models
 
 
 class Organization(models.Model):
-    """For use with identifying what organization manages/owns/controls
-    something."""
+    """
+    For use with identifying what organization manages/owns/controls
+    something.
+    """
 
     name = models.CharField(max_length=512, verbose_name='Organization Name')
     description = models.TextField(blank=True, null=True)

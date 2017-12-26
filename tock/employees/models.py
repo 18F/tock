@@ -109,7 +109,7 @@ class UserData(models.Model):
         default=False,
         verbose_name='Is alternative work schedule eligible'
     )
-    organization = models.ForeignKey(Organization, null=True)
+    organization = models.ForeignKey(Organization, blank=True, null=True)
 
     class Meta:
         verbose_name='Employee'

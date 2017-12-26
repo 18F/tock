@@ -202,7 +202,7 @@ class Project(models.Model):
         verbose_name='Profit/loss Accounting String'
     )
     project_lead = models.ForeignKey(User, null=True)
-    organization = models.ForeignKey(Organization, null=True)
+    organization = models.ForeignKey(Organization, blank=True, null=True)
 
     class Meta:
         verbose_name = "Project"
