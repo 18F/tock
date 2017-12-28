@@ -118,6 +118,17 @@ class UserData(models.Model):
     def __str__(self):
         return '{0}'.format(self.user)
 
+    @property
+    def organization_name(self):
+        """
+        Returns the organization name associated with the employee or an
+        empty string if no organization is set.
+        """
+        if self.organization is not None:
+            return self.organization.name
+
+        return ''
+
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""
         user = User.objects.get(username=self.user)
