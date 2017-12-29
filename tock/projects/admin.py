@@ -3,7 +3,7 @@ from django.forms.models import BaseInlineFormSet
 from django import forms
 
 from .models import Agency, Project, ProfitLossAccount, ProjectAlert, AccountingCode
-
+from hours.admin import TimecardPrefillDataInline
 
 class AgencyAdmin(admin.ModelAdmin):
     search_fields = ['name',]
@@ -77,6 +77,7 @@ class ProjectForm(forms.ModelForm):
 
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
+    inlines = (TimecardPrefillDataInline,)
     fields = [
         'name',
         'mbnumber',

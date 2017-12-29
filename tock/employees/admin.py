@@ -3,6 +3,7 @@ from django.forms.models import BaseInlineFormSet
 from django import forms
 
 from .models import UserData, EmployeeGrade
+from hours.admin import TimecardPrefillDataInline
 
 
 class UserDataForm(forms.ModelForm):
@@ -43,6 +44,7 @@ class UserDataForm(forms.ModelForm):
 
 class UserDataAdmin(admin.ModelAdmin):
     form = UserDataForm
+    # inlines = (TimecardPrefillDataInline,)
     list_display = (
         'user',
         'start_date',
@@ -73,6 +75,9 @@ class UserDataAdmin(admin.ModelAdmin):
 
         return '-'
     get_organization_name.short_description = 'Organization Name'
+
+class UserDataInline(admin.StackedInline):
+    model = UserData
 
 class EmployeeGradeAdmin(admin.ModelAdmin):
     search_fields = ('employee__username',)
