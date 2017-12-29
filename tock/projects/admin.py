@@ -92,9 +92,32 @@ class ProjectAdmin(admin.ModelAdmin):
         'notes_required',
         'notes_displayed',
     ]
-    list_display = ('name', 'mbnumber', 'accounting_code', 'project_lead', 'start_date', 'end_date', 'active', 'notes_displayed', 'notes_required',)
-    list_filter = ('active', 'notes_displayed', 'notes_required',)
+    list_display = (
+        'name',
+        'mbnumber',
+        'accounting_code',
+        'get_organization_name',
+        'project_lead',
+        'start_date',
+        'end_date',
+        'active',
+        'notes_displayed',
+        'notes_required',
+    )
+    list_filter = (
+        'active',
+        'notes_displayed',
+        'notes_required',
+        'organization__name'
+    )
     search_fields = ('name', 'accounting_code__code', 'mbnumber',)
+
+    def get_organization_name(self, obj):
+        if obj.organization is not None:
+            return obj.organization.name
+
+        return '-'
+    get_organization_name.short_description = 'Organization Name'
 
 class ProjectAlertAdmin(admin.ModelAdmin):
     search_fields = ['title',]

@@ -32,10 +32,12 @@ class ProjectSerializer(serializers.ModelSerializer):
             'end_date',
             'active',
             'profit_loss_account',
+            'organization',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
     profit_loss_account = serializers.CharField(source='profit_loss_account.name')
     client = serializers.StringRelatedField(source='accounting_code')
+    organization = serializers.StringRelatedField()
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,6 +56,7 @@ class UserDataSerializer(serializers.Serializer):
     is_18f_employee = serializers.BooleanField()
     is_billable = serializers.BooleanField()
     unit = serializers.SerializerMethodField()
+    organization = serializers.StringRelatedField()
 
     def get_unit(self,obj):
         return obj.get_unit_display()
@@ -73,13 +76,25 @@ class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
     project_id = serializers.CharField(source='project.id')
     project_name = serializers.CharField(source='project.name')
-    profit_loss_account = serializers.CharField(source='project.profit_loss_account.name')
+    profit_loss_account = serializers.CharField(
+        source='project.profit_loss_account.name'
+    )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
-    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
-    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
-    billable = serializers.BooleanField(source='project.accounting_code.billable')
-    agency = serializers.CharField(source='project.accounting_code.agency.name')
-    flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
+    start_date = serializers.DateField(
+        source='timecard.reporting_period.start_date'
+    )
+    end_date = serializers.DateField(
+        source='timecard.reporting_period.end_date'
+    )
+    billable = serializers.BooleanField(
+        source='project.accounting_code.billable'
+    )
+    agency = serializers.CharField(
+        source='project.accounting_code.agency.name'
+    )
+    flat_rate = serializers.BooleanField(
+        source='project.accounting_code.flat_rate'
+    )
     notes = serializers.CharField()
     revenue_profit_loss_account = serializers.CharField(
         source='revenue_profit_loss_account.accounting_string'
@@ -92,6 +107,12 @@ class TimecardSerializer(serializers.Serializer):
     )
     expense_profit_loss_account_name = serializers.CharField(
         source='expense_profit_loss_account.name'
+    )
+    employee_organization = serializers.CharField(
+        source='timecard.user.user_data.organization_name'
+    )
+    project_organization = serializers.CharField(
+        source='project.organization_name'
     )
 
 # API Views

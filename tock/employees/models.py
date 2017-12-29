@@ -4,6 +4,8 @@ from django.db.models import Q, Max
 
 from tock.settings import base
 from rest_framework.authtoken.models import Token
+
+from organizations.models import Organization
 from projects.models import ProfitLossAccount
 
 class EmployeeGrade(models.Model):
@@ -103,7 +105,11 @@ class UserData(models.Model):
         verbose_name='Profit/loss Accounting String'
     )
 
-    is_aws_eligible = models.BooleanField(default=False, verbose_name='Is alternative work schedule eligible')
+    is_aws_eligible = models.BooleanField(
+        default=False,
+        verbose_name='Is alternative work schedule eligible'
+    )
+    organization = models.ForeignKey(Organization, blank=True, null=True)
 
     class Meta:
         verbose_name='Employee'
@@ -111,6 +117,17 @@ class UserData(models.Model):
 
     def __str__(self):
         return '{0}'.format(self.user)
+
+    @property
+    def organization_name(self):
+        """
+        Returns the organization name associated with the employee or an
+        empty string if no organization is set.
+        """
+        if self.organization is not None:
+            return self.organization.name
+
+        return ''
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""
