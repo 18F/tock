@@ -348,6 +348,8 @@ class TimecardPrefillData(models.Model):
 
     class Meta:
         unique_together = ('user', 'project')
+        verbose_name = 'Timecard Prefill Data'
+        verbose_name_plural = 'Timecard Prefill Data'
 
     def __str__(self):
         return '{} - {} ({})'.format(self.user, self.project, self.hours)
