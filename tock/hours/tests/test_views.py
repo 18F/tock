@@ -701,9 +701,8 @@ class ReportTests(WebTest):
     def test_dont_auto_create_rp(self):
         """ Check that a new reporting period is NOT created if the current
         reporting period has not ended. """
-        # NOTE:  This test seems to break at the end of the day.
         ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
-        today = datetime.date.today()
+        today = datetime.date(2017, 12, 24)
         end_date = today + datetime.timedelta(days=1)
         self.reporting_period.start_date = today
         self.reporting_period.end_date = today + datetime.timedelta(days=1)
