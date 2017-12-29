@@ -702,7 +702,7 @@ class ReportTests(WebTest):
         """ Check that a new reporting period is NOT created if the current
         reporting period has not ended. """
         ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
-        today = datetime.date(2017, 12, 24)
+        today = datetime.datetime.utcnow().date()
         end_date = today + datetime.timedelta(days=1)
         self.reporting_period.start_date = today
         self.reporting_period.end_date = today + datetime.timedelta(days=1)
