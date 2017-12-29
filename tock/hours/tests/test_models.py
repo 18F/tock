@@ -338,3 +338,44 @@ class TimecardObjectTests(TestCase):
         )
 
         self.assertFalse(tco.grade)
+
+
+class ProjectTests(TestCase):
+    fixtures = [
+        'projects/fixtures/projects.json',
+    ]
+
+    def setUp(self):
+        self.project_1 = Project.objects.get(name='openFEC')
+        self.project_2 = Project.objects.get(name='Peace Corps')
+
+        self.project_1.active = False
+        self.project_2.active = False
+
+        self.project_1.save()
+        self.project_2.save()
+
+    def test_active_projects_model_manager(self):
+        """Test that only active projects are returned by the active() model
+        manager method."""
+
+        projects = list(Project.objects.active())
+        project_count = len(projects)
+        total_project_count = Project.objects.count()
+
+        self.assertNotIn(self.project_1, projects)
+        self.assertNotIn(self.project_2, projects)
+        self.assertEqual(project_count, total_project_count - 2)
+
+    def test_inactive_projects_model_manager(self):
+        """Test that only active projects are returned by the active() model
+        manager method."""
+
+        projects = list(Project.objects.inactive())
+        project_count = len(projects)
+        total_project_count = Project.objects.count()
+
+        self.assertIn(self.project_1, projects)
+        self.assertIn(self.project_2, projects)
+        self.assertEqual(project_count, 2)
+        self.assertNotEqual(project_count, total_project_count)
