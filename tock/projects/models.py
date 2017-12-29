@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
+from organizations.models import Organization
+
 
 class Agency(models.Model):
     """ Stores Agency name """
@@ -217,6 +219,7 @@ class Project(models.Model):
         verbose_name='Profit/loss Accounting String'
     )
     project_lead = models.ForeignKey(User, null=True)
+    organization = models.ForeignKey(Organization, blank=True, null=True)
 
     objects = ProjectManager()
 
@@ -233,6 +236,17 @@ class Project(models.Model):
 
     def get_profit_loss_account(self):
         return self.profit_loss_account.name
+
+    @property
+    def organization_name(self):
+        """
+        Returns the organization name associated with the employee or an
+        empty string if no organization is set.
+        """
+        if self.organization is not None:
+            return self.organization.name
+
+        return ''
 
     def save(self, *args, **kwargs):
         if self.notes_required:

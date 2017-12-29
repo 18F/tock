@@ -4,6 +4,7 @@ from django import forms
 
 from .models import UserData, EmployeeGrade
 
+
 class UserDataForm(forms.ModelForm):
     class Meta:
         model = UserData
@@ -42,13 +43,36 @@ class UserDataForm(forms.ModelForm):
 
 class UserDataAdmin(admin.ModelAdmin):
     form = UserDataForm
-    list_display = ('user', 'start_date', 'end_date', 'unit_info', 'current_employee', 'is_18f_employee', 'is_billable', 'is_aws_eligible',)
-    list_filter = ('current_employee', 'is_18f_employee', 'is_billable', 'is_aws_eligible',)
+    list_display = (
+        'user',
+        'start_date',
+        'end_date',
+        'get_organization_name',
+        'unit_info',
+        'current_employee',
+        'is_18f_employee',
+        'is_billable',
+        'is_aws_eligible',
+    )
+    list_filter = (
+        'current_employee',
+        'is_18f_employee',
+        'is_billable',
+        'is_aws_eligible',
+        'organization__name',
+    )
     search_fields = ('user__username',)
 
     def unit_info(self, obj):
         return obj.get_unit_display()
     unit_info.short_description = 'Unit'
+
+    def get_organization_name(self, obj):
+        if obj.organization is not None:
+            return obj.organization.name
+
+        return '-'
+    get_organization_name.short_description = 'Organization Name'
 
 class EmployeeGradeAdmin(admin.ModelAdmin):
     search_fields = ('employee__username',)

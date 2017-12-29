@@ -1,0 +1,32 @@
+[
+   {
+      "model":"organizations.organization",
+      "fields":{
+         "name":"18F"
+      },
+      "pk":1
+   },
+   {
+      "model":"organizations.organization",
+      "fields":{
+         "name":"PIF",
+         "description":"Presidential Innovation Fellows"
+      },
+      "pk":2
+   },
+   {
+      "model":"organizations.organization",
+      "fields":{
+         "name":"OPP",
+         "description":"Office of Products and Platforms"
+      },
+      "pk":3
+   },
+   {
+      "model":"organizations.organization",
+      "fields":{
+         "name":"Acquisitions"
+      },
+      "pk":4
+   }
+]

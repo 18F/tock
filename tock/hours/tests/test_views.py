@@ -30,6 +30,7 @@ FIXTURES = [
     'projects/fixtures/projects.json',
     'hours/fixtures/timecards.json',
     'employees/fixtures/user_data.json',
+    'organizations/fixtures/organizations.json',
 ]
 
 def decode_streaming_csv(response, **reader_options):
@@ -412,7 +413,9 @@ class BulkTimecardsTests(TestCase):
             'revenue_profit_loss_account',
             'revenue_profit_loss_account_name',
             'expense_profit_loss_account',
-            'expense_profit_loss_account_name'
+            'expense_profit_loss_account_name',
+            'employee_organization',
+            'project_organization',
         ))
         rows_read = 0
         for row in rows:
@@ -433,6 +436,8 @@ class BulkTimecardsTests(TestCase):
             'end_date',
             'hours_spent',
             'mbnumber',
+            'employee_organization',
+            'project_organization',
         ))
         rows_read = 0
         for row in rows:
@@ -469,7 +474,9 @@ class TestAdminBulkTimecards(TestCase):
             'revenue_profit_loss_account',
             'revenue_profit_loss_account_name',
             'expense_profit_loss_account',
-            'expense_profit_loss_account_name'
+            'expense_profit_loss_account_name',
+            'employee_organization',
+            'project_organization',
         ))
         for row in rows:
             self.assertEqual(set(row.keys()), expected_fields)
@@ -480,7 +487,7 @@ class ProjectTimelineTests(WebTest):
     def test_project_timeline(self):
         res = client(self).get(reverse('reports:UserTimelineView'))
         self.assertIn(
-            'aaron.snow,2015-06-01,2015-06-08,False,20.00', str(res.content))
+            'aaron.snow,,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
 class UtilTests(TestCase):
 
@@ -694,9 +701,8 @@ class ReportTests(WebTest):
     def test_dont_auto_create_rp(self):
         """ Check that a new reporting period is NOT created if the current
         reporting period has not ended. """
-        # NOTE:  This test seems to break at the end of the day.
         ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
-        today = datetime.date.today()
+        today = datetime.datetime.utcnow().date()
         end_date = today + datetime.timedelta(days=1)
         self.reporting_period.start_date = today
         self.reporting_period.end_date = today + datetime.timedelta(days=1)
@@ -1006,7 +1012,7 @@ class ReportTests(WebTest):
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
-        result = '2015-01-01 - 2015-01-07,{0},aaron.snow,Peace Corps,28.00'
+        result = '2015-01-01 - 2015-01-07,{0},aaron.snow,Peace Corps,28.00,,'
         self.assertEqual(
             result.format(
                 self.timecard.modified.strftime('%Y-%m-%d %H:%M:%S')
