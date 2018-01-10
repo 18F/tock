@@ -97,13 +97,15 @@ class TimecardNoteAdmin(admin.ModelAdmin):
 
 class TimecardPrefillDataAdmin(admin.ModelAdmin):
     actions_on_bottom = True
-    list_display = ('user', 'project', 'hours', 'notes')
+    list_display = ('employee', 'project', 'hours', 'notes')
     list_editable = ('hours',)
     list_filter = ('project__active',)
-    search_fields = ['user__username', 'project__name', 'project__mbnumber',]
+    search_fields = ['employee__user__username', 'project__name', 'project__mbnumber',]
+
 
 class TimecardPrefillDataInline(admin.TabularInline):
     model = TimecardPrefillData
+    extra = 1
 
 
 admin.site.register(HolidayPrefills)

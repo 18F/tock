@@ -77,7 +77,7 @@ class ProjectForm(forms.ModelForm):
 
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
-    inlines = (TimecardPrefillDataInline,)
+    # inlines = (TimecardPrefillDataInline,) This is too slow. Will fix.
     fields = [
         'name',
         'mbnumber',

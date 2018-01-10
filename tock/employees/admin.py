@@ -44,7 +44,7 @@ class UserDataForm(forms.ModelForm):
 
 class UserDataAdmin(admin.ModelAdmin):
     form = UserDataForm
-    # inlines = (TimecardPrefillDataInline,)
+    inlines = (TimecardPrefillDataInline,)
     list_display = (
         'user',
         'start_date',
@@ -76,8 +76,6 @@ class UserDataAdmin(admin.ModelAdmin):
         return '-'
     get_organization_name.short_description = 'Organization Name'
 
-class UserDataInline(admin.StackedInline):
-    model = UserData
 
 class EmployeeGradeAdmin(admin.ModelAdmin):
     search_fields = ('employee__username',)

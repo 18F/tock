@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Q, Max
 
-from employees.models import EmployeeGrade
+from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
 from .utils import ValidateOnSaveMixin
 
@@ -287,6 +287,9 @@ class TimecardObject(models.Model):
         related_name='expense_profit_loss_account'
     )
 
+    class Meta:
+        unique_together = ('timecard', 'project')
+
     def project_alerts(self):
         return self.project.alerts.all()
 
@@ -333,7 +336,7 @@ class TimecardObject(models.Model):
 
 
 class TimecardPrefillData(models.Model):
-    user = models.ForeignKey(User, related_name='timecard_prefill_data')
+    employee = models.ForeignKey(UserData, related_name='timecard_prefill_data')
     project = models.ForeignKey(Project, related_name='timecard_prefill_data')
     hours = models.DecimalField(
         decimal_places=2,
@@ -347,9 +350,9 @@ class TimecardPrefillData(models.Model):
     )
 
     class Meta:
-        unique_together = ('user', 'project')
+        unique_together = ('employee', 'project')
         verbose_name = 'Timecard Prefill Data'
         verbose_name_plural = 'Timecard Prefill Data'
 
     def __str__(self):
-        return '{} - {} ({})'.format(self.user, self.project, self.hours)
+        return '{} - {} ({})'.format(self.employee, self.project, self.hours)

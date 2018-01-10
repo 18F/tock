@@ -10,6 +10,7 @@ from operator import attrgetter
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
@@ -36,7 +37,8 @@ from .models import (
     Targets,
     Timecard,
     TimecardNote,
-    TimecardObject
+    TimecardObject,
+    TimecardPrefillData
 )
 from .forms import (
     ReportingPeriodForm,
@@ -800,26 +802,30 @@ class TimecardView(UpdateView):
 
     def prefilled_formset(self):
         timecard = self.last_timecard()
-        project_ids, extra = [], 1
+        prefills = dict(TimecardPrefillData.objects.filter(
+            employee=self.request.user.user_data).values_list(
+            'project', 'hours'))
+        project_ids = []
+        extra = 1
         if timecard:
-            project_ids = set(
+            project_ids = [
                 tco.project_id for tco in
                 timecard.timecardobjects.all()
-            )
+            ]
             extra = len(project_ids) + 1
 
         rp = ReportingPeriod.objects \
             .prefetch_related('holiday_prefills__project') \
             .get(start_date=self.kwargs['reporting_period'])
 
-        init = []
         if rp.holiday_prefills:
-            init += [
-                {'hours_spent': hp.hours_per_period, 'project': hp.project.id}
-                for hp in rp.holiday_prefills.all()
-            ]
-        init += [{'hours_spent': None, 'project': pid} for pid in project_ids]
+            for hp in rp.holiday_prefills.all():
+                prefills[hp.project.id] = hp.hours_per_period
+        for pid in project_ids:
+            prefills[pid] = prefills.get(pid, None)
 
+        init = [{'hours_spent': hrs, 'project': proj}
+                for proj, hrs in prefills.items()]
         formset = timecard_formset_factory(extra=extra)
         return formset(initial=init)
 
