@@ -200,12 +200,20 @@ class TimecardObjectTests(TestCase):
             g_start_date=datetime.date(2016, 1, 1)
         )
         self.reporting_period = ReportingPeriod.objects.create(
+            start_date=datetime.date.today() - datetime.timedelta(days=14),
+            end_date=datetime.date.today() - datetime.timedelta(days=7)
+        )
+        self.reporting_period2 = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=7),
             end_date=datetime.date.today()
         )
         self.timecard = Timecard.objects.create(
             user=self.user[0],
             reporting_period=self.reporting_period
+        )
+        self.timecard2 = Timecard.objects.create(
+            user=self.user[0],
+            reporting_period=self.reporting_period2
         )
         self.pl_acct = ProfitLossAccount.objects.create(
             name='PL',
@@ -263,7 +271,7 @@ class TimecardObjectTests(TestCase):
         self.project[0].profit_loss_account = self.pl_acct
         self.project[0].save()
         tco_new = TimecardObject.objects.create(
-            timecard=self.timecard,
+            timecard=self.timecard2,
             project=self.project[0],
             hours_spent=11
         )

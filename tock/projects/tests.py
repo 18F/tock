@@ -497,7 +497,7 @@ class ProjectViewTests(WebTest):
             hours_spent= 10
         )
         timecard_object_saved = TimecardObject.objects.create(
-            timecard = Timecard.objects.get(pk=1),
+            timecard = Timecard.objects.get(pk=2),
             project=Project.objects.get(pk=1),
             submitted = False,
             hours_spent= 5

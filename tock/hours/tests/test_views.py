@@ -1017,7 +1017,7 @@ class ReportTests(WebTest):
             result.format(
                 self.timecard.modified.strftime('%Y-%m-%d %H:%M:%S')
             ),
-            lines[1],
+            lines[2],
         )
 
     def test_ReportingPeriodCSVView_add_additional_row(self):
