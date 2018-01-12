@@ -1150,3 +1150,89 @@ class ReportTests(WebTest):
         )
         self.assertContains(response,
             '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')
+
+class PrefillDataViewTests(WebTest):
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'projects/fixtures/projects.json',
+        'employees/fixtures/user_data.json'
+    ]
+
+    def setUp(self):
+        self.user = User.objects.first()
+        self.ud = UserData.objects.first()
+        self.ud.user = self.user
+        self.ud.unit = 0
+        self.ud.save()
+        self.rp_1 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 1),
+            end_date=datetime.date(2016, 10, 7),
+            exact_working_hours=40
+        )
+        self.rp_2 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 8),
+            end_date=datetime.date(2016, 10, 14),
+            exact_working_hours=40
+        )
+        self.timecard_1 = hours.models.Timecard.objects.create(
+            reporting_period=self.rp_1,
+            user=self.user
+        )
+        self.timecard_2 = hours.models.Timecard.objects.create(
+            reporting_period=self.rp_2,
+            user=self.user
+        )
+
+        self.project_1 = projects.models.Project.objects.first()
+        self.project_1.save()
+        self.project_2 = projects.models.Project.objects.last()
+        self.project_2.save()
+
+        self.pfd1 = hours.models.TimecardPrefillData.objects.create(
+            employee=self.ud,
+            project=self.project_2,
+            hours=10.4
+        )
+        self.pfd1.save()
+
+        to_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1
+        )
+        to_2 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_2,
+            project=self.project_1
+        )
+
+    def test_prefills_added_to_timecard(self):
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_1.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+        # line_items = response.html.find_all('div', {'class': 'entry'})
+        # input_amounts = response.html.find_all('div', {'class': 'entry-amount'})
+
+        print(self.pfd1.project)
+        print("I am printing formset.forms dir!")
+        print(dir(response.context['formset']))
+
+        for tco in response.context['formset'].queryset:
+            print(tco.project)
+
+        self.assertEqual(2, 2)
+
+
+        # for form in response.context['formset'].forms:
+            # print(form.fields['hours_spent']['widget'].__dict__)
+"""
+        for k, v in response.context['formset'].__dict__.items():
+            print('key:')
+            print(k)
+            print('value:')
+            print(v)
+            print('value dir:')
+            print(dir(v))
+"""
