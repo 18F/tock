@@ -3,6 +3,8 @@ import csv
 import requests
 import json
 
+from decimal import Decimal
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
@@ -1191,18 +1193,9 @@ class PrefillDataViewTests(WebTest):
         self.pfd1 = hours.models.TimecardPrefillData.objects.create(
             employee=self.ud,
             project=self.project_2,
-            hours=10.4
+            hours=Decimal('10.40')
         )
         self.pfd1.save()
-
-        to_1 = hours.models.TimecardObject.objects.create(
-            timecard=self.timecard_1,
-            project=self.project_1
-        )
-        to_2 = hours.models.TimecardObject.objects.create(
-            timecard=self.timecard_2,
-            project=self.project_1
-        )
 
     def test_prefills_added_to_timecard(self):
         response = self.app.get(
@@ -1212,27 +1205,118 @@ class PrefillDataViewTests(WebTest):
             ),
             headers={'X_AUTH_USER': self.user.email},
         )
-        # line_items = response.html.find_all('div', {'class': 'entry'})
-        # input_amounts = response.html.find_all('div', {'class': 'entry-amount'})
 
-        print(self.pfd1.project)
-        print("I am printing formset.forms dir!")
-        print(dir(response.context['formset']))
+        # Only our prefilled object should appear in this form.
+        self.assertEqual(len(response.context['formset'].forms), 1)
 
-        for tco in response.context['formset'].queryset:
-            print(tco.project)
+        form = response.context['formset'].forms[0]
 
-        self.assertEqual(2, 2)
+        # Check that our prefill information is what we expect it to be.
+        self.assertEqual(form.initial['project'], self.pfd1.project.id)
+        self.assertEqual(
+            form.initial['hours_spent'],
+            self.pfd1.hours
+        )
+
+    def test_prefills_added_to_timecard_pulling_existing_timecard_info(self):
+        tco = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1,
+            hours_spent=Decimal('25.00')
+        )
+        self.timecard_1.submitted = True
+        self.timecard_1.save()
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_2.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Only our prefilled object should appear in this form.
+        self.assertEqual(len(response.context['formset'].forms), 2)
+
+        prefill = response.context['formset'].forms[0]
+        previous = response.context['formset'].forms[1]
+
+        # Check that our prefill information is what we expect it to be.
+        self.assertEqual(prefill.initial['project'], self.pfd1.project.id)
+        self.assertEqual(
+            prefill.initial['hours_spent'],
+            self.pfd1.hours
+        )
+
+        # Check that our previous timecard entry is carried over as well, but
+        # without any hours.
+        self.assertEqual(previous.initial['project'], tco.project.id)
+        self.assertEqual(previous.initial['hours_spent'], None)
+
+    def test_prefills_fill_in_hours_from_previous_timecard(self):
+        tco_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1,
+            hours_spent=Decimal('25.00')
+        )
+        tco_2 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_2,
+            hours_spent=Decimal('15.00')
+        )
+        self.timecard_1.submitted = True
+        self.timecard_1.save()
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_2.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Only our prefilled object should appear in this form.
+        # NOTE:  includes empty form
+        self.assertEqual(len(response.context['formset'].forms), 3)
+
+        prefill = response.context['formset'].forms[0]
+        previous = response.context['formset'].forms[1]
+
+        # Check that our prefill information is what we expect it to be.
+        self.assertEqual(prefill.initial['project'], self.pfd1.project.id)
+        self.assertEqual(
+            prefill.initial['hours_spent'],
+            self.pfd1.hours
+        )
+
+        # Check that our previous timecard entry is carried over as well, but
+        # without any hours.
+        self.assertEqual(previous.initial['project'], tco_1.project.id)
+        self.assertEqual(previous.initial['hours_spent'], None)
 
 
-        # for form in response.context['formset'].forms:
-            # print(form.fields['hours_spent']['widget'].__dict__)
-"""
-        for k, v in response.context['formset'].__dict__.items():
-            print('key:')
-            print(k)
-            print('value:')
-            print(v)
-            print('value dir:')
-            print(dir(v))
-"""
+    def test_prefills_not_added_to_existing_timecards(self):
+        tco = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1,
+            hours_spent=Decimal('25.00')
+        )
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_1.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Only the existing timecard object should appear in this form; no
+        # prefill data
+        # NOTE:  includes empty form
+        self.assertEqual(len(response.context['formset'].forms), 2)
+
+        form = response.context['formset'].forms[0]
+
+        # Check that our existing information is what we expect it to be.
+        self.assertEqual(form.initial['project'], tco.project.id)
+        self.assertEqual(form.initial['hours_spent'], tco.hours_spent)
