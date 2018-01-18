@@ -192,10 +192,10 @@ class TimecardObjectTests(TestCase):
         """Set up includes deletion of all existing timecards loaded from
         fixtures to eliminate the possibility of a unique_together error."""
         Timecard.objects.filter().delete()
-        self.user = User.objects.get_or_create(id=1)
-        self.userdata = UserData.objects.create(user=self.user[0])
+        self.user = User.objects.get_or_create(id=1)[0]
+        self.userdata = UserData.objects.create(user=self.user)
         self.grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
+            employee=self.user,
             grade=15,
             g_start_date=datetime.date(2016, 1, 1)
         )
@@ -208,11 +208,11 @@ class TimecardObjectTests(TestCase):
             end_date=datetime.date.today()
         )
         self.timecard = Timecard.objects.create(
-            user=self.user[0],
+            user=self.user,
             reporting_period=self.reporting_period
         )
         self.timecard2 = Timecard.objects.create(
-            user=self.user[0],
+            user=self.user,
             reporting_period=self.reporting_period2
         )
         self.pl_acct = ProfitLossAccount.objects.create(
@@ -239,10 +239,10 @@ class TimecardObjectTests(TestCase):
 
         self.project = Project.objects.get_or_create(
             pk=1
-        )
+        )[0]
 
-        self.project[0].profit_loss_account = self.pl_acct
-        self.project[0].save()
+        self.project.profit_loss_account = self.pl_acct
+        self.project.save()
 
         self.hours_spent = 10
 
@@ -253,26 +253,26 @@ class TimecardObjectTests(TestCase):
         # Test that a valid profit/loss code is appended.
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=13
         )
         self.assertEqual(tco.revenue_profit_loss_account, self.pl_acct)
 
         # After adding invalid profit/loss code, test that the incorrect
         # code is not appended.
-        self.project[0].profit_loss_account = self.pl_acct_2
-        self.project[0].save()
+        self.project.profit_loss_account = self.pl_acct_2
+        self.project.save()
         tco.save()
         self.assertFalse(tco.revenue_profit_loss_account)
 
         # Test that a profit / loss code previously appended to a TimecardObject
         # persists when updating the profit / loss code for the project related
         # to the TimecardObject.
-        self.project[0].profit_loss_account = self.pl_acct
-        self.project[0].save()
+        self.project.profit_loss_account = self.pl_acct
+        self.project.save()
         tco_new = TimecardObject.objects.create(
             timecard=self.timecard2,
-            project=self.project[0],
+            project=self.project,
             hours_spent=11
         )
         self.assertNotEqual(
@@ -297,7 +297,7 @@ class TimecardObjectTests(TestCase):
         """Checks that employee grade is appended to timecard object on save."""
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
@@ -307,13 +307,13 @@ class TimecardObjectTests(TestCase):
         """Checks that latest grade is appended to the timecard object on
         save."""
         new_grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
+            employee=self.user,
             grade=13,
             g_start_date=datetime.date(2016, 1, 2)
         )
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
@@ -321,10 +321,10 @@ class TimecardObjectTests(TestCase):
 
     def test_if_grade_is_none(self):
         """Checks that no grade is appended if no grade exists."""
-        EmployeeGrade.objects.filter(employee=self.user[0]).delete()
+        EmployeeGrade.objects.filter(employee=self.user).delete()
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
@@ -333,15 +333,15 @@ class TimecardObjectTests(TestCase):
     def test_future_grade_only(self):
         """Checks that no grade is appended if the only EmployeeGrade object has
          a g_start_date that is after the end date of the reporting period."""
-        EmployeeGrade.objects.filter(employee=self.user[0]).delete()
+        EmployeeGrade.objects.filter(employee=self.user).delete()
         newer_grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
+            employee=self.user,
             grade=13,
             g_start_date=self.reporting_period.end_date + datetime.timedelta(days=1)
         )
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
