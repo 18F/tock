@@ -26,7 +26,7 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
   $ cp .env.sample .env
   $ docker-compose build
   $ docker-compose run app python manage.py migrate
-  $ docker-compose run app python manage.py loaddata test_data/data-update.json
+  $ docker-compose run app python manage.py loaddata test_data/data-update-deduped.json
   ```
 
 1. Once the above commands are successful, run:
