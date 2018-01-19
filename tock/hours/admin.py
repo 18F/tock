@@ -10,7 +10,8 @@ from .models import (
     Targets,
     Timecard,
     TimecardNote,
-    TimecardObject
+    TimecardObject,
+    TimecardPrefillData
 )
 from employees.models import UserData
 
@@ -94,9 +95,22 @@ class TimecardNoteAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified',)
 
 
+class TimecardPrefillDataAdmin(admin.ModelAdmin):
+    actions_on_bottom = True
+    list_display = ('employee', 'project', 'hours', 'notes')
+    list_editable = ('hours',)
+    list_filter = ('project__active',)
+    search_fields = ['employee__user__username', 'project__name', 'project__mbnumber',]
+
+
+class TimecardPrefillDataInline(admin.TabularInline):
+    model = TimecardPrefillData
+    extra = 1
+
 
 admin.site.register(HolidayPrefills)
 admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
 admin.site.register(Targets)
 admin.site.register(Timecard, TimecardAdmin)
 admin.site.register(TimecardNote, TimecardNoteAdmin)
+admin.site.register(TimecardPrefillData, TimecardPrefillDataAdmin)

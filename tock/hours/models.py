@@ -1,14 +1,14 @@
 import datetime
 
-from .utils import ValidateOnSaveMixin
-from projects.models import Project, ProfitLossAccount
-
 from django.contrib.auth.models import User
-from employees.models import EmployeeGrade
-from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Q, Max
+
+from employees.models import EmployeeGrade, UserData
+from projects.models import ProfitLossAccount, Project
+from .utils import ValidateOnSaveMixin
 
 
 class HolidayPrefills(models.Model):
@@ -169,7 +169,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 
 class Timecard(models.Model):
-    user = models.ForeignKey(User, related_name="timecards")
+    user = models.ForeignKey(User, related_name='timecards')
     reporting_period = models.ForeignKey(ReportingPeriod)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
@@ -178,7 +178,7 @@ class Timecard(models.Model):
 
     class Meta:
         unique_together = ('user', 'reporting_period')
-        get_latest_by = "reporting_period__start_date"
+        get_latest_by = 'reporting_period__start_date'
 
     def __str__(self):
         return "%s - %s" % (self.user, self.reporting_period.start_date)
@@ -255,7 +255,7 @@ class TimecardNote(models.Model):
 
 
 class TimecardObject(models.Model):
-    timecard = models.ForeignKey(Timecard, related_name="timecardobjects")
+    timecard = models.ForeignKey(Timecard, related_name='timecardobjects')
     project = models.ForeignKey(Project)
     hours_spent = models.DecimalField(decimal_places=2,
                                       max_digits=5,
@@ -286,6 +286,9 @@ class TimecardObject(models.Model):
         null=True,
         related_name='expense_profit_loss_account'
     )
+
+    class Meta:
+        unique_together = ('timecard', 'project')
 
     def project_alerts(self):
         return self.project.alerts.all()
@@ -330,3 +333,26 @@ class TimecardObject(models.Model):
 
 
         super(TimecardObject, self).save(*args, **kwargs)
+
+
+class TimecardPrefillData(models.Model):
+    employee = models.ForeignKey(UserData, related_name='timecard_prefill_data')
+    project = models.ForeignKey(Project, related_name='timecard_prefill_data')
+    hours = models.DecimalField(
+        decimal_places=2,
+        max_digits=5,
+        help_text='The amount of hours this user is assigned to this project.'
+    )
+    notes = models.TextField(
+        blank=True,
+        default='',
+        help_text='Any additional notes specific to this assignment.'
+    )
+
+    class Meta:
+        unique_together = ('employee', 'project')
+        verbose_name = 'Timecard Prefill Data'
+        verbose_name_plural = 'Timecard Prefill Data'
+
+    def __str__(self):
+        return '{} - {} ({})'.format(self.employee, self.project, self.hours)

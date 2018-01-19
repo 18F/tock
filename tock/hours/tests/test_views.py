@@ -3,6 +3,8 @@ import csv
 import requests
 import json
 
+from decimal import Decimal
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
@@ -1017,7 +1019,7 @@ class ReportTests(WebTest):
             result.format(
                 self.timecard.modified.strftime('%Y-%m-%d %H:%M:%S')
             ),
-            lines[1],
+            lines[2],
         )
 
     def test_ReportingPeriodCSVView_add_additional_row(self):
@@ -1150,3 +1152,171 @@ class ReportTests(WebTest):
         )
         self.assertContains(response,
             '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')
+
+class PrefillDataViewTests(WebTest):
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'projects/fixtures/projects.json',
+        'employees/fixtures/user_data.json'
+    ]
+
+    def setUp(self):
+        self.user = User.objects.first()
+        self.ud = UserData.objects.first()
+        self.ud.user = self.user
+        self.ud.unit = 0
+        self.ud.save()
+        self.rp_1 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 1),
+            end_date=datetime.date(2016, 10, 7),
+            exact_working_hours=40
+        )
+        self.rp_2 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2016, 10, 8),
+            end_date=datetime.date(2016, 10, 14),
+            exact_working_hours=40
+        )
+        self.timecard_1 = hours.models.Timecard.objects.create(
+            reporting_period=self.rp_1,
+            user=self.user
+        )
+        self.timecard_2 = hours.models.Timecard.objects.create(
+            reporting_period=self.rp_2,
+            user=self.user
+        )
+
+        self.project_1 = projects.models.Project.objects.first()
+        self.project_1.save()
+        self.project_2 = projects.models.Project.objects.last()
+        self.project_2.save()
+
+        self.pfd1 = hours.models.TimecardPrefillData.objects.create(
+            employee=self.ud,
+            project=self.project_2,
+            hours=Decimal('10.40')
+        )
+        self.pfd1.save()
+
+    def test_prefills_added_to_timecard(self):
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_1.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Only our prefilled object should appear in this form.
+        self.assertEqual(len(response.context['formset'].forms), 1)
+
+        form = response.context['formset'].forms[0]
+
+        # Check that our prefill information is what we expect it to be.
+        self.assertEqual(form.initial['project'], self.pfd1.project.id)
+        self.assertEqual(
+            form.initial['hours_spent'],
+            self.pfd1.hours
+        )
+
+    def test_prefills_added_to_timecard_pulling_existing_timecard_info(self):
+        tco = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1,
+            hours_spent=Decimal('25.00')
+        )
+        self.timecard_1.submitted = True
+        self.timecard_1.save()
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_2.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Only our prefilled object should appear in this form.
+        self.assertEqual(len(response.context['formset'].forms), 2)
+
+        prefill = response.context['formset'].forms[0]
+        previous = response.context['formset'].forms[1]
+
+        # Check that our prefill information is what we expect it to be.
+        self.assertEqual(prefill.initial['project'], self.pfd1.project.id)
+        self.assertEqual(
+            prefill.initial['hours_spent'],
+            self.pfd1.hours
+        )
+
+        # Check that our previous timecard entry is carried over as well, but
+        # without any hours.
+        self.assertEqual(previous.initial['project'], tco.project.id)
+        self.assertEqual(previous.initial['hours_spent'], None)
+
+    def test_prefills_fill_in_hours_from_previous_timecard(self):
+        tco_1 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1,
+            hours_spent=Decimal('25.00')
+        )
+        tco_2 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_2,
+            hours_spent=Decimal('15.00')
+        )
+        self.timecard_1.submitted = True
+        self.timecard_1.save()
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_2.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Only our prefilled object should appear in this form.
+        # NOTE:  includes empty form
+        self.assertEqual(len(response.context['formset'].forms), 3)
+
+        prefill = response.context['formset'].forms[0]
+        previous = response.context['formset'].forms[1]
+
+        # Check that our prefill information is what we expect it to be.
+        self.assertEqual(prefill.initial['project'], self.pfd1.project.id)
+        self.assertEqual(
+            prefill.initial['hours_spent'],
+            self.pfd1.hours
+        )
+
+        # Check that our previous timecard entry is carried over as well, but
+        # without any hours.
+        self.assertEqual(previous.initial['project'], tco_1.project.id)
+        self.assertEqual(previous.initial['hours_spent'], None)
+
+
+    def test_prefills_not_added_to_existing_timecards(self):
+        tco = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard_1,
+            project=self.project_1,
+            hours_spent=Decimal('25.00')
+        )
+
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': self.rp_1.start_date}
+            ),
+            headers={'X_AUTH_USER': self.user.email},
+        )
+
+        # Only the existing timecard object should appear in this form; no
+        # prefill data
+        # NOTE:  includes empty form
+        self.assertEqual(len(response.context['formset'].forms), 2)
+
+        form = response.context['formset'].forms[0]
+
+        # Check that our existing information is what we expect it to be.
+        self.assertEqual(form.initial['project'], tco.project.id)
+        self.assertEqual(form.initial['hours_spent'], tco.hours_spent)

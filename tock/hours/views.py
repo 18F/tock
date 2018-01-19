@@ -10,6 +10,7 @@ from operator import attrgetter
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
@@ -36,7 +37,8 @@ from .models import (
     Targets,
     Timecard,
     TimecardNote,
-    TimecardObject
+    TimecardObject,
+    TimecardPrefillData
 )
 from .forms import (
     ReportingPeriodForm,
@@ -800,25 +802,57 @@ class TimecardView(UpdateView):
 
     def prefilled_formset(self):
         timecard = self.last_timecard()
-        project_ids, extra = [], 1
+        timecard_prefills = dict(
+            TimecardPrefillData.objects.filter(
+                employee=self.request.user.user_data).values_list(
+                    'project', 'hours'
+                )
+        )
+        project_ids = []
+        extra = 1
+
+        # Check to see if we have a timecard from a previous reporting period.
+        # If we do, pull all of the project IDs from it and set our extra
+        # amount to be amount of existing project IDs + 1 to account for the
+        # form construction.
         if timecard:
-            project_ids = set(
-                tco.project_id for tco in
-                timecard.timecardobjects.all()
+            project_ids = timecard.timecardobjects.values_list(
+                'project_id',
+                flat=True
             )
             extra = len(project_ids) + 1
 
-        rp = ReportingPeriod.objects \
-            .prefetch_related('holiday_prefills__project') \
-            .get(start_date=self.kwargs['reporting_period'])
+        reporting_period = ReportingPeriod.objects.prefetch_related(
+            'holiday_prefills__project'
+        ).get(start_date=self.kwargs['reporting_period'])
 
-        init = []
-        if rp.holiday_prefills:
-            init += [
-                {'hours_spent': hp.hours_per_period, 'project': hp.project.id}
-                for hp in rp.holiday_prefills.all()
-            ]
-        init += [{'hours_spent': None, 'project': pid} for pid in project_ids]
+        # Check to see if there are hoilday prefills for the reporting period.
+        # If there are, add them to the existing timecard prefill dictionary
+        # we setup so that they are accounted for in addition to any other
+        # prefills we need to add to the timecard.
+        if reporting_period.holiday_prefills:
+            for holiday_prefill in reporting_period.holiday_prefills.all():
+                timecard_prefills[holiday_prefill.project.id] = holiday_prefill.hours_per_period
+
+        # For each project we were able to pull from the previous timecard,
+        # make sure it is added to the timecard prefill information we have
+        # and set the hours according to the prefill data - if there is none
+        # for that project, then leave the hours blank (in which case we're
+        # just pulling the Tock line from the previous timecard for
+        # convenience).
+        for project_id in project_ids:
+            timecard_prefills[project_id] = timecard_prefills.get(project_id, None)
+
+        # Set the initial data containing all of the prefill information for
+        # the formset to be structured in the way the form expects it:
+        # {
+        #     'hours_spent': hours,
+        #     'project': project # Project ID
+        # }
+        init = [
+            {'hours_spent': hours, 'project': project_id}
+            for project_id, hours in timecard_prefills.items()
+        ]
 
         formset = timecard_formset_factory(extra=extra)
         return formset(initial=init)
