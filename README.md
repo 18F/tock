@@ -1,6 +1,6 @@
 # tock
 
-We use Tock to track our time. You can read more about Tock in this [blog post](https://18f.gsa.gov/2015/05/21/tockingtime/) about its features.
+We use Tock to track our time. You can read more about Tock in this [blog post](https://18f.gsa.gov/2015/05/21/tockingtime/) about its features and the [handbook page](https://handbook.18f.gov/tock/) for guidance and instructions.
 
 [![CircleCI](https://circleci.com/gh/18F/tock.svg?style=svg)](https://circleci.com/gh/18F/tock)
 
