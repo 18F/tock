@@ -4,7 +4,15 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
-from .models import ReportingPeriod, Timecard, TimecardObject, Targets, HolidayPrefills
+from .models import (
+    HolidayPrefills,
+    ReportingPeriod,
+    Targets,
+    Timecard,
+    TimecardNote,
+    TimecardObject,
+    TimecardPrefillData
+)
 from employees.models import UserData
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
@@ -55,7 +63,8 @@ class TimecardObjectFormset(BaseInlineFormSet):
 
 
 class ReportingPeriodAdmin(admin.ModelAdmin):
-    list_display = ('start_date', 'end_date',)
+    list_display = ('start_date', 'end_date', 'exact_working_hours', 'max_working_hours', 'min_working_hours', 'has_holiday_prefills', 'message_enabled',)
+    list_editable = ('exact_working_hours', 'max_working_hours', 'min_working_hours', 'message_enabled',)
     filter_horizontal = ['holiday_prefills', ]
 
 
@@ -77,7 +86,31 @@ class TimecardAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
 
 
+class TimecardNoteAdmin(admin.ModelAdmin):
+    actions_on_bottom = True
+    fields = ('title', 'body', 'style', 'enabled',)
+    list_display = ('title', 'enabled', 'style', 'created', 'modified')
+    list_editable = ('enabled', 'style',)
+    list_filter = ('enabled', 'style',)
+    readonly_fields = ('created', 'modified',)
+
+
+class TimecardPrefillDataAdmin(admin.ModelAdmin):
+    actions_on_bottom = True
+    list_display = ('employee', 'project', 'hours', 'notes')
+    list_editable = ('hours',)
+    list_filter = ('project__active',)
+    search_fields = ['employee__user__username', 'project__name', 'project__mbnumber',]
+
+
+class TimecardPrefillDataInline(admin.TabularInline):
+    model = TimecardPrefillData
+    extra = 1
+
+
 admin.site.register(HolidayPrefills)
 admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
-admin.site.register(Timecard, TimecardAdmin)
 admin.site.register(Targets)
+admin.site.register(Timecard, TimecardAdmin)
+admin.site.register(TimecardNote, TimecardNoteAdmin)
+admin.site.register(TimecardPrefillData, TimecardPrefillDataAdmin)

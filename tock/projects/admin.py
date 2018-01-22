@@ -3,7 +3,7 @@ from django.forms.models import BaseInlineFormSet
 from django import forms
 
 from .models import Agency, Project, ProfitLossAccount, ProjectAlert, AccountingCode
-
+from hours.admin import TimecardPrefillDataInline
 
 class AgencyAdmin(admin.ModelAdmin):
     search_fields = ['name',]
@@ -29,8 +29,11 @@ class ProfitLossAccountForm(forms.ModelForm):
         return self.cleaned_data
 
 class ProfitLossAccountAdmin(admin.ModelAdmin):
+    actions_on_bottom = True
     form = ProfitLossAccountForm
-    search_fields = ['name',]
+    list_display = ('name', 'accounting_string', 'as_start_date', 'as_end_date', 'account_type',)
+    list_editable = ('accounting_string', 'account_type',)
+    search_fields = ('name', 'accounting_string',)
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -74,6 +77,7 @@ class ProjectForm(forms.ModelForm):
 
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
+    # inlines = (TimecardPrefillDataInline,) This is too slow. Will fix.
     fields = [
         'name',
         'mbnumber',
@@ -89,9 +93,32 @@ class ProjectAdmin(admin.ModelAdmin):
         'notes_required',
         'notes_displayed',
     ]
-    list_display = ('name', 'mbnumber', 'accounting_code', 'project_lead', 'start_date', 'end_date', 'active', 'notes_displayed', 'notes_required',)
-    list_filter = ('active', 'notes_displayed', 'notes_required',)
+    list_display = (
+        'name',
+        'mbnumber',
+        'accounting_code',
+        'get_organization_name',
+        'project_lead',
+        'start_date',
+        'end_date',
+        'active',
+        'notes_displayed',
+        'notes_required',
+    )
+    list_filter = (
+        'active',
+        'notes_displayed',
+        'notes_required',
+        'organization__name'
+    )
     search_fields = ('name', 'accounting_code__code', 'mbnumber',)
+
+    def get_organization_name(self, obj):
+        if obj.organization is not None:
+            return obj.organization.name
+
+        return '-'
+    get_organization_name.short_description = 'Organization Name'
 
 class ProjectAlertAdmin(admin.ModelAdmin):
     search_fields = ['title',]

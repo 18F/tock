@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 
+from organizations.models import Organization
+
 
 class Agency(models.Model):
     """ Stores Agency name """
@@ -170,6 +172,23 @@ class ProfitLossAccount(models.Model):
             end_date
         )
 
+
+class ProjectManager(models.Manager):
+    """Provides convenience methods for filtering Project models.
+
+    Also, not to be confused with a human in a similarly named role. :-)
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().order_by('name')
+
+    def active(self):
+        return self.get_queryset().filter(active=True)
+
+    def inactive(self):
+        return self.get_queryset().filter(active=False)
+
+
 class Project(models.Model):
     """ Stores information about a specific project"""
     name = models.CharField(max_length=200)
@@ -200,6 +219,9 @@ class Project(models.Model):
         verbose_name='Profit/loss Accounting String'
     )
     project_lead = models.ForeignKey(User, null=True)
+    organization = models.ForeignKey(Organization, blank=True, null=True)
+
+    objects = ProjectManager()
 
     class Meta:
         verbose_name = "Project"
@@ -214,6 +236,17 @@ class Project(models.Model):
 
     def get_profit_loss_account(self):
         return self.profit_loss_account.name
+
+    @property
+    def organization_name(self):
+        """
+        Returns the organization name associated with the employee or an
+        empty string if no organization is set.
+        """
+        if self.organization is not None:
+            return self.organization.name
+
+        return ''
 
     def save(self, *args, **kwargs):
         if self.notes_required:

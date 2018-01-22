@@ -1,6 +1,8 @@
-import csv, json
+import csv
 import datetime as dt
 import io
+import json
+
 from itertools import chain
 from operator import attrgetter
 
@@ -8,10 +10,10 @@ from operator import attrgetter
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.forms.models import model_to_dict
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
@@ -29,7 +31,15 @@ from tock.remote_user_auth import email_to_username
 from tock.utils import PermissionMixin, IsSuperUserOrSelf, flatten
 from tock.settings import base
 
-from .models import ReportingPeriod, Timecard, TimecardObject, Project, Targets
+from .models import (
+    Project,
+    ReportingPeriod,
+    Targets,
+    Timecard,
+    TimecardNote,
+    TimecardObject,
+    TimecardPrefillData
+)
 from .forms import (
     ReportingPeriodForm,
     ReportingPeriodImportForm,
@@ -41,6 +51,7 @@ from .forms import (
 from utilization.utils import calculate_utilization, get_fy_first_day
 from employees.models import UserData
 
+
 class DashboardReportsList(PermissionMixin, ListView):
     template_name = 'hours/dashboard_list.html'
     permission_classes = (IsAuthenticated,)
@@ -51,6 +62,7 @@ class DashboardReportsList(PermissionMixin, ListView):
             end_date__lt=dt.date.today()
         )
         return available_reports
+
 
 class DashboardView(PermissionMixin, TemplateView):
     template_name = 'hours/dashboard.html'
@@ -102,7 +114,7 @@ class DashboardView(PermissionMixin, TemplateView):
         except ReportingPeriod.DoesNotExist:
             context.update(
                 {
-                    'error':'No reporting period available for {}.'\
+                    'error': 'No reporting period available for {}.'\
                     .format(self.kwargs['reporting_period'])
                 }
             )
@@ -146,7 +158,7 @@ class DashboardView(PermissionMixin, TemplateView):
         except Targets.DoesNotExist:
             context.update(
                 {
-                    'error':'No target information available for {}.'\
+                    'error': 'No target information available for {}.'\
                     .format(self.kwargs['reporting_period'])
                 }
             )
@@ -218,125 +230,135 @@ class DashboardView(PermissionMixin, TemplateView):
         )
 
         # Update context.
-        context.update(
-            {   # Unit data.
-                'units':units,
-                'missing_units':missing_units,
-                # Target info.
-                'revenue_target_cr':'${:,}'.format(
-                    target.revenue_target_cr
-                ),
-                'revenue_target_plan':'${:,}'.format(
-                    target.revenue_target_plan
-                ),
-                # Rate info.
-                'labor_rate':'${:,}'.format(
-                    target.labor_rate
-                ),
-                # Temporal info.
-                'rp_selected':rp_selected,
-                'fytd_start_date':fytd_start_date,
-                # Annual performance
-                'hours_required_cr_fytd':'{:,}'.format(
-                    round(hours_required_cr_fytd,2)
-                ),
-                'hours_required_plan_fytd':'{:,}'.format(
-                    round(hours_required_plan_fytd,2)
-                ),
-                'hours_billed_fytd':'{:,}'.format(
-                    round(hours_billed_fytd,2)
-                ),
-                'variance_cr_ytd':'{:,}'.format(
-                    round(variance_cr_ytd,2)
-                ),
-                'variance_plan_fytd':'{:,}'.format(
-                    round(variance_plan_fytd,2)
-                ),
-                'p_variance_cr_fytd':'{0:.2%}'.format(
-                    p_variance_cr_fytd
-                ),
-                'p_variance_plan_fytd':'{0:.2%}'.format(
-                    p_variance_plan_fytd
-                ),
-                'revenue_required_cr_fytd':'${:,}'.format(
-                    round(revenue_required_cr_fytd)
-                ),
-                'revenue_required_plan_fytd':'${:,}'.format(
-                    round(revenue_required_plan_fytd)
-                ),
-                'rev_fytd':'${:,}'.format(
-                    round(rev_fytd)
-                ),
-                'variance_rev_cr_ytd':'${:,}'.format(
-                    round(variance_rev_cr_ytd)
-                ),
-                'variance_rev_plan_ytd':'${:,}'.format(
-                    round(variance_rev_plan_ytd)
-                ),
-                'p_variance_rev_cr_ytd':'{0:.2%}'.format(
-                    p_variance_rev_cr_ytd
-                ),
-                'p_variance_rev_plan_ytd':'{0:.2%}'.format(
-                    p_variance_rev_plan_ytd
-                ),
-                # Weekly performance.
-                'hours_required_cr_weekly':'{:,}'.format(
-                    round(hours_required_cr_weekly,2)
-                ),
-                'hours_required_plan_weekly':'{:,}'.format(
-                    round(hours_required_plan_weekly,2)
-                ),
-                'hours_billed_weekly':'{:,}'.format(
-                    round(hours_billed_weekly,2)
-                ),
-                'variance_cr_weekly':'{:,}'.format(
-                    round(variance_cr_weekly,2)
-                ),
-                'variance_plan_weekly':'{:,}'.format(
-                    round(variance_plan_weekly,2)
-                ),
-                'p_variance_cr_weekly':'{0:.2%}'.format(
-                    p_variance_cr_weekly
-                ),
-                'p_variance_plan_weekly':'{0:.2%}'.format(
-                    p_variance_plan_weekly
-                ),
-                'revenue_required_cr_weekly':'${:,}'.format(
-                    round(revenue_required_cr_weekly)
-                ),
-                'revenue_required_plan_weekly':'${:,}'.format(
-                    round(revenue_required_plan_weekly)
-                ),
-                'rev_weekly':'${:,}'.format(
-                    round(rev_weekly)
-                ),
-                'variance_rev_cr_weekly':'${:,}'.format(
-                    round(variance_rev_cr_weekly)
-                ),
-                'variance_rev_plan_weekly':'${:,}'.format(
-                    round(variance_rev_plan_weekly)
-                ),
-                'p_variance_rev_cr_weekly':'{0:.2%}'.format(
-                    p_variance_rev_cr_weekly
-                ),
-                'p_variance_rev_plan_weekly':'{0:.2%}'.format(
-                    p_variance_rev_plan_weekly
-                ),
+        context.update({
+            # Unit data.
+            'units': units,
+            'missing_units': missing_units,
+            # Target info.
+            'revenue_target_cr': '${:,}'.format(
+                target.revenue_target_cr
+            ),
+            'revenue_target_plan': '${:,}'.format(
+                target.revenue_target_plan
+            ),
+            # Rate info.
+            'labor_rate': '${:,}'.format(
+                target.labor_rate
+            ),
+            # Temporal info.
+            'rp_selected': rp_selected,
+            'fytd_start_date': fytd_start_date,
+            # Annual performance
+            'hours_required_cr_fytd': '{:,}'.format(
+                round(hours_required_cr_fytd,2)
+            ),
+            'hours_required_plan_fytd': '{:,}'.format(
+                round(hours_required_plan_fytd,2)
+            ),
+            'hours_billed_fytd': '{:,}'.format(
+                round(hours_billed_fytd,2)
+            ),
+            'variance_cr_ytd': '{:,}'.format(
+                round(variance_cr_ytd,2)
+            ),
+            'variance_plan_fytd': '{:,}'.format(
+                round(variance_plan_fytd,2)
+            ),
+            'p_variance_cr_fytd': '{0:.2%}'.format(
+                p_variance_cr_fytd
+            ),
+            'p_variance_plan_fytd': '{0:.2%}'.format(
+                p_variance_plan_fytd
+            ),
+            'revenue_required_cr_fytd': '${:,}'.format(
+                round(revenue_required_cr_fytd)
+            ),
+            'revenue_required_plan_fytd': '${:,}'.format(
+                round(revenue_required_plan_fytd)
+            ),
+            'rev_fytd': '${:,}'.format(
+                round(rev_fytd)
+            ),
+            'variance_rev_cr_ytd': '${:,}'.format(
+                round(variance_rev_cr_ytd)
+            ),
+            'variance_rev_plan_ytd': '${:,}'.format(
+                round(variance_rev_plan_ytd)
+            ),
+            'p_variance_rev_cr_ytd': '{0:.2%}'.format(
+                p_variance_rev_cr_ytd
+            ),
+            'p_variance_rev_plan_ytd': '{0:.2%}'.format(
+                p_variance_rev_plan_ytd
+            ),
+            # Weekly performance.
+            'hours_required_cr_weekly': '{:,}'.format(
+                round(hours_required_cr_weekly,2)
+            ),
+            'hours_required_plan_weekly': '{:,}'.format(
+                round(hours_required_plan_weekly,2)
+            ),
+            'hours_billed_weekly': '{:,}'.format(
+                round(hours_billed_weekly,2)
+            ),
+            'variance_cr_weekly': '{:,}'.format(
+                round(variance_cr_weekly,2)
+            ),
+            'variance_plan_weekly': '{:,}'.format(
+                round(variance_plan_weekly,2)
+            ),
+            'p_variance_cr_weekly': '{0:.2%}'.format(
+                p_variance_cr_weekly
+            ),
+            'p_variance_plan_weekly': '{0:.2%}'.format(
+                p_variance_plan_weekly
+            ),
+            'revenue_required_cr_weekly': '${:,}'.format(
+                round(revenue_required_cr_weekly)
+            ),
+            'revenue_required_plan_weekly': '${:,}'.format(
+                round(revenue_required_plan_weekly)
+            ),
+            'rev_weekly': '${:,}'.format(
+                round(rev_weekly)
+            ),
+            'variance_rev_cr_weekly': '${:,}'.format(
+                round(variance_rev_cr_weekly)
+            ),
+            'variance_rev_plan_weekly': '${:,}'.format(
+                round(variance_rev_plan_weekly)
+            ),
+            'p_variance_rev_cr_weekly': '{0:.2%}'.format(
+                p_variance_rev_cr_weekly
+            ),
+            'p_variance_rev_plan_weekly': '{0:.2%}'.format(
+                p_variance_rev_plan_weekly
+            ),
+        })
 
-            }
-        )
         return context
+
 
 class BulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     project_id = serializers.CharField(source='project.id')
     employee = serializers.StringRelatedField(source='timecard.user')
-    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
-    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    start_date = serializers.DateField(
+        source='timecard.reporting_period.start_date'
+    )
+    end_date = serializers.DateField(
+        source='timecard.reporting_period.end_date'
+    )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
-    billable = serializers.BooleanField(source='project.accounting_code.billable')
-    agency = serializers.CharField(source='project.accounting_code.agency.name')
-    flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
+    billable = serializers.BooleanField(
+        source='project.accounting_code.billable'
+    )
+    agency = serializers.CharField(
+        source='project.accounting_code.agency.name'
+    )
+    flat_rate = serializers.BooleanField(
+        source='project.accounting_code.flat_rate'
+    )
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
@@ -352,43 +374,85 @@ class BulkTimecardSerializer(serializers.Serializer):
     expense_profit_loss_account_name = serializers.CharField(
         source='expense_profit_loss_account.name'
     )
+    employee_organization = serializers.CharField(
+        source='timecard.user.user_data.organization_name'
+    )
+    project_organization = serializers.CharField(
+        source='project.organization_name'
+    )
+
+
 class GeneralSnippetsTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     employee = serializers.StringRelatedField(source='timecard.user')
     unit = serializers.CharField(source='timecard.user.user_data.unit')
-    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
-    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    start_date = serializers.DateField(
+        source='timecard.reporting_period.start_date'
+    )
+    end_date = serializers.DateField(
+        source='timecard.reporting_period.end_date'
+    )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     notes = serializers.CharField()
     unit = serializers.SerializerMethodField()
+    employee_organization = serializers.CharField(
+        source='timecard.user.user_data.organization_name'
+    )
+    project_organization = serializers.CharField(
+        source='project.organization_name'
+    )
 
-    def get_unit(self,obj):
+    def get_unit(self, obj):
         try:
             unit = obj.timecard.user.user_data.get_unit_display()
         except ObjectDoesNotExist:
             unit = ''
         return unit
 
+
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     project_id = serializers.CharField(source='project.id')
     employee = serializers.StringRelatedField(source='timecard.user')
-    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
-    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    start_date = serializers.DateField(
+        source='timecard.reporting_period.start_date'
+    )
+    end_date = serializers.DateField(
+        source='timecard.reporting_period.end_date'
+    )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
-    billable = serializers.BooleanField(source='project.accounting_code.billable')
+    billable = serializers.BooleanField(
+        source='project.accounting_code.billable'
+    )
     mbnumber = serializers.CharField(source='project.mbnumber')
+    employee_organization = serializers.CharField(
+        source='timecard.user.user_data.organization_name'
+    )
+    project_organization = serializers.CharField(
+        source='project.organization_name'
+    )
+
 
 class AdminBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
     project_id = serializers.CharField(source='project.id')
     employee = serializers.StringRelatedField(source='timecard.user')
-    start_date = serializers.DateField(source='timecard.reporting_period.start_date')
-    end_date = serializers.DateField(source='timecard.reporting_period.end_date')
+    start_date = serializers.DateField(
+        source='timecard.reporting_period.start_date'
+    )
+    end_date = serializers.DateField(
+        source='timecard.reporting_period.end_date'
+    )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
-    billable = serializers.BooleanField(source='project.accounting_code.billable')
-    agency = serializers.CharField(source='project.accounting_code.agency.name')
-    flat_rate = serializers.BooleanField(source='project.accounting_code.flat_rate')
+    billable = serializers.BooleanField(
+        source='project.accounting_code.billable'
+    )
+    agency = serializers.CharField(
+        source='project.accounting_code.agency.name'
+    )
+    flat_rate = serializers.BooleanField(
+        source='project.accounting_code.flat_rate'
+    )
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
@@ -404,6 +468,12 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     )
     expense_profit_loss_account_name = serializers.CharField(
         source='expense_profit_loss_account.name'
+    )
+    employee_organization = serializers.CharField(
+        source='timecard.user.user_data.organization_name'
+    )
+    project_organization = serializers.CharField(
+        source='project.organization_name'
     )
 
 @user_passes_test(lambda u: u.is_authenticated, login_url='/')
@@ -463,7 +533,7 @@ def timeline_view(request, value_fields=(), **field_alias):
     fields = list(value_fields) + [
         'timecard__reporting_period__start_date',
         'timecard__reporting_period__end_date',
-        'project__accounting_code__billable'
+        'project__accounting_code__billable',
     ]
 
     field_map = {
@@ -471,10 +541,9 @@ def timeline_view(request, value_fields=(), **field_alias):
         'timecard__reporting_period__end_date': 'end_date',
         'project__accounting_code__billable': 'billable',
     }
+
     field_map.update(field_alias)
-
     data = queryset.values(*fields).annotate(hours_spent=Sum('hours_spent'))
-
     fields.append('hours_spent')
 
     data = [
@@ -490,25 +559,36 @@ def timeline_view(request, value_fields=(), **field_alias):
     fieldnames = [field_map.get(field, field) for field in fields]
     writer = csv.DictWriter(response, fieldnames=fieldnames)
     writer.writeheader()
+
     for row in data:
         writer.writerow(row)
+
     return response
 
 @user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def project_timeline_view(request):
     return timeline_view(
         request,
-        value_fields=['project__id', 'project__name'],
+        value_fields=[
+            'project__id',
+            'project__name',
+            'project__organization__name'
+        ],
         project__id='project_id',
         project__name='project_name',
+        project__organization__name='organization'
     )
 
 @user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def user_timeline_view(request):
     return timeline_view(
         request,
-        value_fields=['timecard__user__username'],
+        value_fields=[
+            'timecard__user__username',
+            'timecard__user__user_data__organization__name',
+        ],
         timecard__user__username='user',
+        timecard__user__user_data__organization__name='organization'
     )
 
 @user_passes_test(lambda u: u.is_superuser, login_url='/')
@@ -517,12 +597,13 @@ def admin_bulk_timecard_list(request):
     serializer = AdminBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
+
 class ReportingPeriodListView(PermissionMixin, ListView):
     """ Currently the home view that lists the completed and missing time
     periods """
-    context_object_name = "incomplete_reporting_periods"
+    context_object_name = 'incomplete_reporting_periods'
     queryset = ReportingPeriod.objects.all().order_by('-start_date')
-    template_name = "hours/reporting_period_list.html"
+    template_name = 'hours/reporting_period_list.html'
     permission_classes = (IsAuthenticated, )
 
     def disallowed_dates(self, date):
@@ -596,7 +677,7 @@ class ReportingPeriodCreateView(PermissionMixin, CreateView):
     permission_classes = (IsSuperUserOrSelf, )
 
     def get_success_url(self):
-        return reverse("ListReportingPeriods")
+        return reverse('ListReportingPeriods')
 
 
 class ReportingPeriodBulkImportView(PermissionMixin, FormView):
@@ -644,7 +725,7 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
         return super(ReportingPeriodBulkImportView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("ListReportingPeriods")
+        return reverse('ListReportingPeriods')
 
 
 class TimecardView(PermissionMixin, UpdateView):
@@ -654,12 +735,19 @@ class TimecardView(PermissionMixin, UpdateView):
 
     def get_object(self, queryset=None):
         self.report_date = dt.datetime.strptime(
-            self.kwargs['reporting_period'], "%Y-%m-%d"
+            self.kwargs['reporting_period'],
+            '%Y-%m-%d'
         ).date()
-        r = ReportingPeriod.objects.get(start_date=self.report_date)
+
+        try:
+            r = ReportingPeriod.objects.get(start_date=self.report_date)
+        except ObjectDoesNotExist:
+            raise Http404('The requested reporting period does not exist.')
+
         obj, created = Timecard.objects.get_or_create(
             reporting_period_id=r.id,
             user_id=self.request.user.id)
+
         return obj
 
     def get_context_data(self, **kwargs):
@@ -698,6 +786,7 @@ class TimecardView(PermissionMixin, UpdateView):
             'max_working_hours': base_reporting_period.max_working_hours,
             'formset': formset,
             'messages': messages.get_messages(self.request),
+            'timecard_notes': TimecardNote.objects.enabled(),
             'unsubmitted': not self.object.submitted,
         })
         return context
@@ -723,25 +812,57 @@ class TimecardView(PermissionMixin, UpdateView):
 
     def prefilled_formset(self):
         timecard = self.last_timecard()
-        project_ids, extra = [], 1
+        timecard_prefills = dict(
+            TimecardPrefillData.objects.filter(
+                employee=self.request.user.user_data).values_list(
+                    'project', 'hours'
+                )
+        )
+        project_ids = []
+        extra = 1
+
+        # Check to see if we have a timecard from a previous reporting period.
+        # If we do, pull all of the project IDs from it and set our extra
+        # amount to be amount of existing project IDs + 1 to account for the
+        # form construction.
         if timecard:
-            project_ids = set(
-                tco.project_id for tco in
-                timecard.timecardobjects.all()
+            project_ids = timecard.timecardobjects.values_list(
+                'project_id',
+                flat=True
             )
             extra = len(project_ids) + 1
 
-        rp = ReportingPeriod.objects \
-            .prefetch_related('holiday_prefills__project') \
-            .get(start_date=self.kwargs['reporting_period'])
+        reporting_period = ReportingPeriod.objects.prefetch_related(
+            'holiday_prefills__project'
+        ).get(start_date=self.kwargs['reporting_period'])
 
-        init = []
-        if rp.holiday_prefills:
-            init += [
-                {'hours_spent': hp.hours_per_period, 'project': hp.project.id}
-                for hp in rp.holiday_prefills.all()
-            ]
-        init += [{'hours_spent': None, 'project': pid} for pid in project_ids]
+        # Check to see if there are hoilday prefills for the reporting period.
+        # If there are, add them to the existing timecard prefill dictionary
+        # we setup so that they are accounted for in addition to any other
+        # prefills we need to add to the timecard.
+        if reporting_period.holiday_prefills:
+            for holiday_prefill in reporting_period.holiday_prefills.all():
+                timecard_prefills[holiday_prefill.project.id] = holiday_prefill.hours_per_period
+
+        # For each project we were able to pull from the previous timecard,
+        # make sure it is added to the timecard prefill information we have
+        # and set the hours according to the prefill data - if there is none
+        # for that project, then leave the hours blank (in which case we're
+        # just pulling the Tock line from the previous timecard for
+        # convenience).
+        for project_id in project_ids:
+            timecard_prefills[project_id] = timecard_prefills.get(project_id, None)
+
+        # Set the initial data containing all of the prefill information for
+        # the formset to be structured in the way the form expects it:
+        # {
+        #     'hours_spent': hours,
+        #     'project': project # Project ID
+        # }
+        init = [
+            {'hours_spent': hours, 'project': project_id}
+            for project_id, hours in timecard_prefills.items()
+        ]
 
         formset = timecard_formset_factory(extra=extra)
         return formset(initial=init)
@@ -855,20 +976,33 @@ def ReportingPeriodCSVView(request, reporting_period):
         'project',
     )
 
-    writer.writerow(["Reporting Period", "Last Modified", "User", "Project",
-                     "Number of Hours"])
+    writer.writerow([
+        'Reporting Period',
+        'Last Modified',
+        'User',
+        'Project',
+        'Number of Hours',
+        'Employee Organization',
+        'Project Organization',
+    ])
+
     for timecard_object in timecard_objects:
         # skip entries if timecard not submitted yet
         if not timecard_object.timecard.submitted:
             continue
 
-        writer.writerow(
-            ["{0} - {1}".format(
+        writer.writerow([
+            "{0} - {1}".format(
                 timecard_object.timecard.reporting_period.start_date,
-                timecard_object.timecard.reporting_period.end_date),
-             timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
-             timecard_object.timecard.user.username, timecard_object.project,
-             timecard_object.hours_spent])
+                timecard_object.timecard.reporting_period.end_date
+            ),
+            timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
+            timecard_object.timecard.user.username,
+            timecard_object.project,
+            timecard_object.hours_spent,
+            timecard_object.timecard.user.user_data.organization_name,
+            timecard_object.project.organization_name
+        ])
 
     return response
 

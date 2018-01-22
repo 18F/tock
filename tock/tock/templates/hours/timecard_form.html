@@ -4,13 +4,38 @@
 
 <h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
 
+{% if object.reporting_period.message_enabled and object.reporting_period.message %}
+  <div class="usa-alert usa-alert-{{ object.reporting_period.message_style }}">
+    <div class="usa-alert-body">
+      {% if object.reporting_period.message_title %}
+        <h3 class="usa-alert-heading">{{ object.reporting_period.message_title }}</h3>
+      {% endif %}
+      <p class="usa-alert-text">
+        {{ object.reporting_period.message }}
+      </p>
+    </div>
+  </div>
+{% endif %}
+
+{% for timecard_note in timecard_notes %}
+  <div class="usa-alert usa-alert-{{ timecard_note.style }}">
+    <div class="usa-alert-body">
+      <h3 class="usa-alert-heading">{{ timecard_note.title }}</h3>
+      <p class="usa-alert-text">
+        {{ timecard_note.body }}
+      </p>
+    </div>
+  </div>
+{% endfor %}
+
 <div class="usa-alert usa-alert-info">
   <div class="usa-alert-body">
     <p class="usa-alert-text">
-      <strong>Submit your time card for the week</strong> by the end of the day on Friday (or the last business day of the week). If you are authorized to work on Saturday for any reason, enter and submit your time by the end of the day on Saturday.
+      For additional help and guidance with using Tock and entering hours, please consult the <a href="https://handbook.18f.gov/tock/">TTS Handbook page on Tock</a>.
     </p>
   </div>
 </div>
+
 <form method="post">
   {% csrf_token %}
   {{ formset.management_form }}
@@ -86,7 +111,7 @@
     <div class="submit-form">
       <div class="usa-grid">
           <button type="button" class="usa-button-outline save-timecard" id="save-timecard">Save time card</button>
-          <button type="submit" class="usa-button-primary">Submit time card</button>
+          <button type="button" class="usa-button-primary" id="submit-timecard">Submit time card</button>
       </div>
     </div>
   </div>
@@ -94,6 +119,13 @@
 
 
  <script>
+ function clearLocalStorage() {
+   // Clear anything saved locally.
+   if(window.localStorage) {
+     window.localStorage.removeItem('tock-entered-hours-{{ object.id }}');
+   }
+ }
+
  function getHourTotals() {
     // Get the total of all timecard object entries
     var hoursTotal = 0;
@@ -108,6 +140,20 @@
   }
 
   function populateHourTotals(){
+    // Save hours to localStorage, if available
+    if(window.localStorage) {
+      var hoursAsEntered = [ ];
+      $('.entries .entry').each(function(i, entry) {
+        entry = $(entry);
+        var project = $('.entry-project select', entry).val();
+        var hours = $('.entry-amount input', entry).val();
+        if(project) {
+          hoursAsEntered.push({ project: project, hours: hours });
+        }
+      });
+      window.localStorage.setItem('tock-entered-hours-{{ object.id }}', JSON.stringify(hoursAsEntered));
+    }
+
     // Populate The Bottom Addon Items with Totals
     var totals = getHourTotals();
     $('.entries-total-reported-amount').html();
@@ -163,6 +209,43 @@
     }
   }
 
+  function addTockLines(tockLines) {
+    // Pop off the top of the array
+    var line = tockLines.shift();
+
+    if(line) {
+      if(!line.project) {
+        addTockLines(tockLines);
+        return;
+      }
+
+      // If the last entry box isn't empty, add a new one
+      if($('div.entry:last .entry-project select').val() !== '') {
+        $(".add-timecard-entry").click();
+      }
+
+      // Wait a tick so the DOM can be updated, in case a new
+      // line item entry had to be created
+      setTimeout(function() {
+        // Set the project and trigger a GUI update
+        $("div.entry:last .entry-project select").val(line.project);
+        $("div.entry:last .entry-project select").trigger("chosen:updated");
+
+        // Set the hours and trigger a data update
+        $("div.entry:last .entry-amount input").val(line.hours);
+        $("div.entry:last .entry-amount input").change();
+
+        // Go again with the remaining tock lines
+        addTockLines(tockLines);
+      }, 20);
+    } else {
+      // If we're finished processing the list of tock lines,
+      // trigger a change event to update the hours total and
+      // re-sync any local storage.
+      $("div.entry:last select").change();
+    }
+  }
+
   // When you change the hours, redo the totals
   $( "body" ).on( "keyup", ".entry-amount input", function() {
     populateHourTotals();
@@ -185,12 +268,24 @@ $( document ).ready(function() {
     };
 
     $("#save-timecard").on("click", function() {
+      // Clear anything saved locally.  The server is the
+      // source of truth.
+      clearLocalStorage();
+
       var form = $('form'),
           save_input = '<input type="hidden" name="save_only" value="1"/>';
 
       form.append(save_input);
       form.submit();
     });
+
+    $("#submit-timecard").on("click", function() {
+      // Clear anything saved locally.  The server is the
+      // source of truth.
+      clearLocalStorage();
+
+      $('form').submit();
+    })
 
     $(".add-timecard-entry").on( "click", function() {
         $('div.entry:last').clone().each(function(i) {
@@ -213,15 +308,22 @@ $( document ).ready(function() {
           nextNumber % 2 == 0 ? entry.addClass('even').removeClass('odd') :
             entry.addClass('odd').removeClass('even');
 
-          entry.find('input, select, textarea').each(function(i) {
+          entry.find('input, select, textarea, label').each(function(i) {
             var formItem = $(this);
-            var formerID = formItem.attr('id');
-            var nextID = formerID.replace(previousNumber, nextNumber);
-            formItem.attr('id', nextID);
 
-            var formerName = formItem.attr('name');
-            var nextName = formerName.replace(previousNumber, nextNumber);
-            formItem.attr('name', nextName);
+            if (formItem[0].tagName.toLowerCase() !== 'label') {
+                var formerID = formItem.attr('id');
+                var nextID = formerID.replace(previousNumber, nextNumber);
+                formItem.attr('id', nextID);
+
+                var formerName = formItem.attr('name');
+                var nextName = formerName.replace(previousNumber, nextNumber);
+                formItem.attr('name', nextName);
+            } else {
+                var formerFor = formItem.attr('for');
+                var nextFor = formerFor.replace(previousNumber, nextNumber);
+                formItem.attr('for', nextFor);
+            }
           });
         }).appendTo('.entries');
 
@@ -235,6 +337,34 @@ $( document ).ready(function() {
         // Increment the TOTAL_FORMS
         $('#id_timecardobjects-TOTAL_FORMS').val(parseInt($('#id_timecardobjects-TOTAL_FORMS').val()) + 1);
     });
+
+    // If there's localStorage, get hours from it and
+    // populate the form
+    if(window.localStorage) {
+      var fromStorage = window.localStorage.getItem('tock-entered-hours-{{ object.id }}');
+      if(fromStorage) {
+        fromStorage = JSON.parse(fromStorage);
+
+        $('.entries .entry').each(function(i, entry) {
+          entry = $(entry);
+          var project = $('.entry-project select', entry).val();
+          var storageIndex = fromStorage.findIndex(function(storedProject) {
+            return storedProject.project === project;
+          });
+
+          if(storageIndex >= 0) {
+            $('.entry-amount input', entry).val(Number(fromStorage[storageIndex].hours));
+            fromStorage.splice(storageIndex, 1);
+          }
+        });
+
+        // Anything still represented in "fromStorage" is a line
+        // that was added to the timesheet but not saved, meaning
+        // there's not a GUI element for it already. We should
+        // restore those lines now.
+        addTockLines(fromStorage);
+      }
+    }
 
     // Run on initial load
     populateHourTotals();

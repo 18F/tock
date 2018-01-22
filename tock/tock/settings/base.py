@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     'projects',
     'hours',
     'employees',
+    'organizations',
     'api',
     'utilization',
     'rest_framework.authtoken',

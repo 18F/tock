@@ -7,7 +7,14 @@ from django.contrib.auth.models import User
 
 import datetime
 
-from hours.models import ReportingPeriod, TimecardObject, Timecard, Targets, HolidayPrefills
+from hours.models import (
+    HolidayPrefills,
+    ReportingPeriod,
+    Targets,
+    Timecard,
+    TimecardNote,
+    TimecardObject
+)
 from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade, UserData
 
@@ -144,6 +151,37 @@ class TimecardTests(TestCase):
         """Test the TimeCardObject hours method."""
         self.assertEqual(self.timecard_object_1.hours(), 12)
 
+
+class TimecardNoteTests(TestCase):
+    def setUp(self):
+        self.timecard_note_enabled = TimecardNote(
+            title='Enabled test note',
+            body='This is a test note that is enabled.'
+        )
+        self.timecard_note_enabled.save()
+
+        self.timecard_note_disabled = TimecardNote(
+            title='Disabled test note',
+            body='This is a test note that is disabled.',
+            enabled=False
+        )
+        self.timecard_note_disabled.save()
+
+    def test_get_only_enabled_timecard_notes(self):
+        """Ensure that we are only returning enabled timecard notes."""
+        # NOTE:  There is a migration for an initial timecard note that is
+        # enabled, so we must account for its presence.
+        enabled_timecard_notes = TimecardNote.objects.enabled()
+        self.assertEqual(enabled_timecard_notes.count(), 2)
+        self.assertEqual(enabled_timecard_notes.last(), self.timecard_note_enabled)
+
+    def test_get_only_disabled_timecard_notes(self):
+        """Ensure that we are only returning disabled timecard notes."""
+        disabled_timecard_notes = TimecardNote.objects.disabled()
+        self.assertEqual(disabled_timecard_notes.count(), 1)
+        self.assertEqual(disabled_timecard_notes.first(), self.timecard_note_disabled)
+
+
 class TimecardObjectTests(TestCase):
     fixtures = [
         'tock/fixtures/prod_user.json',
@@ -154,20 +192,28 @@ class TimecardObjectTests(TestCase):
         """Set up includes deletion of all existing timecards loaded from
         fixtures to eliminate the possibility of a unique_together error."""
         Timecard.objects.filter().delete()
-        self.user = User.objects.get_or_create(id=1)
-        self.userdata = UserData.objects.create(user=self.user[0])
+        self.user = User.objects.get_or_create(id=1)[0]
+        self.userdata = UserData.objects.create(user=self.user)
         self.grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
+            employee=self.user,
             grade=15,
             g_start_date=datetime.date(2016, 1, 1)
         )
         self.reporting_period = ReportingPeriod.objects.create(
+            start_date=datetime.date.today() - datetime.timedelta(days=14),
+            end_date=datetime.date.today() - datetime.timedelta(days=7)
+        )
+        self.reporting_period2 = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=7),
             end_date=datetime.date.today()
         )
         self.timecard = Timecard.objects.create(
-            user=self.user[0],
+            user=self.user,
             reporting_period=self.reporting_period
+        )
+        self.timecard2 = Timecard.objects.create(
+            user=self.user,
+            reporting_period=self.reporting_period2
         )
         self.pl_acct = ProfitLossAccount.objects.create(
             name='PL',
@@ -193,10 +239,10 @@ class TimecardObjectTests(TestCase):
 
         self.project = Project.objects.get_or_create(
             pk=1
-        )
+        )[0]
 
-        self.project[0].profit_loss_account = self.pl_acct
-        self.project[0].save()
+        self.project.profit_loss_account = self.pl_acct
+        self.project.save()
 
         self.hours_spent = 10
 
@@ -207,26 +253,26 @@ class TimecardObjectTests(TestCase):
         # Test that a valid profit/loss code is appended.
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=13
         )
         self.assertEqual(tco.revenue_profit_loss_account, self.pl_acct)
 
         # After adding invalid profit/loss code, test that the incorrect
         # code is not appended.
-        self.project[0].profit_loss_account = self.pl_acct_2
-        self.project[0].save()
+        self.project.profit_loss_account = self.pl_acct_2
+        self.project.save()
         tco.save()
         self.assertFalse(tco.revenue_profit_loss_account)
 
         # Test that a profit / loss code previously appended to a TimecardObject
         # persists when updating the profit / loss code for the project related
         # to the TimecardObject.
-        self.project[0].profit_loss_account = self.pl_acct
-        self.project[0].save()
+        self.project.profit_loss_account = self.pl_acct
+        self.project.save()
         tco_new = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project[0],
+            timecard=self.timecard2,
+            project=self.project,
             hours_spent=11
         )
         self.assertNotEqual(
@@ -251,7 +297,7 @@ class TimecardObjectTests(TestCase):
         """Checks that employee grade is appended to timecard object on save."""
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
@@ -261,13 +307,13 @@ class TimecardObjectTests(TestCase):
         """Checks that latest grade is appended to the timecard object on
         save."""
         new_grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
+            employee=self.user,
             grade=13,
             g_start_date=datetime.date(2016, 1, 2)
         )
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
@@ -275,10 +321,10 @@ class TimecardObjectTests(TestCase):
 
     def test_if_grade_is_none(self):
         """Checks that no grade is appended if no grade exists."""
-        EmployeeGrade.objects.filter(employee=self.user[0]).delete()
+        EmployeeGrade.objects.filter(employee=self.user).delete()
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
@@ -287,16 +333,57 @@ class TimecardObjectTests(TestCase):
     def test_future_grade_only(self):
         """Checks that no grade is appended if the only EmployeeGrade object has
          a g_start_date that is after the end date of the reporting period."""
-        EmployeeGrade.objects.filter(employee=self.user[0]).delete()
+        EmployeeGrade.objects.filter(employee=self.user).delete()
         newer_grade = EmployeeGrade.objects.create(
-            employee=self.user[0],
+            employee=self.user,
             grade=13,
             g_start_date=self.reporting_period.end_date + datetime.timedelta(days=1)
         )
         tco = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=self.project[0],
+            project=self.project,
             hours_spent=self.hours_spent
         )
 
         self.assertFalse(tco.grade)
+
+
+class ProjectTests(TestCase):
+    fixtures = [
+        'projects/fixtures/projects.json',
+    ]
+
+    def setUp(self):
+        self.project_1 = Project.objects.get(name='openFEC')
+        self.project_2 = Project.objects.get(name='Peace Corps')
+
+        self.project_1.active = False
+        self.project_2.active = False
+
+        self.project_1.save()
+        self.project_2.save()
+
+    def test_active_projects_model_manager(self):
+        """Test that only active projects are returned by the active() model
+        manager method."""
+
+        projects = list(Project.objects.active())
+        project_count = len(projects)
+        total_project_count = Project.objects.count()
+
+        self.assertNotIn(self.project_1, projects)
+        self.assertNotIn(self.project_2, projects)
+        self.assertEqual(project_count, total_project_count - 2)
+
+    def test_inactive_projects_model_manager(self):
+        """Test that only active projects are returned by the active() model
+        manager method."""
+
+        projects = list(Project.objects.inactive())
+        project_count = len(projects)
+        total_project_count = Project.objects.count()
+
+        self.assertIn(self.project_1, projects)
+        self.assertIn(self.project_2, projects)
+        self.assertEqual(project_count, 2)
+        self.assertNotEqual(project_count, total_project_count)
