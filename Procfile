@@ -1,1 +1,1 @@
-web: cd tock && python manage.py migrate --settings=tock.settings.production --noinput && python manage.py collectstatic --settings=tock.settings.production --noinput && waitress-serve --port=$PORT tock.wsgi:application
+web: cd tock && python manage.py migrate --settings=tock.settings.production --noinput && python manage.py collectstatic --settings=tock.settings.production --noinput && gunicorn -k gevent -w 2 tock.wsgi:application
