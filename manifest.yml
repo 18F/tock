@@ -2,6 +2,9 @@
 applications:
 - name: tock
   instances: 4
+  routes:
+  - route: tock.18f.gov
+  - route: tock.18f.gov/api
 buildpack: python_buildpack
 env:
   NEW_RELIC_APP_NAME: Tock (Production)
