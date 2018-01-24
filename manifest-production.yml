@@ -1,5 +1,9 @@
 ---
-inherit: base-manifest.yml
+buildpack: python_buildpack
+memory: 512M
+path: .
+stack: cflinuxfs2
+timeout: 180
 
 applications:
 - name: tock

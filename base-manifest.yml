@@ -1,7 +1,0 @@
----
-buildpack: python_buildpack
-instances: 1
-memory: 512M
-path: .
-stack: cflinuxfs2
-timeout: 180

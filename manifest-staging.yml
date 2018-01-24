@@ -1,5 +1,9 @@
 ---
-inherit: base-manifest.yml
+buildpack: python_buildpack
+memory: 512M
+path: .
+stack: cflinuxfs2
+timeout: 180
 
 applications:
 - name: tock
@@ -11,6 +15,7 @@ applications:
     NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
     NEW_RELIC_ENV: staging
     NEW_RELIC_LOG: stdout
+  instances: 1
   services:
   - tock-database
   - tock-credentials
