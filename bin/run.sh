@@ -12,4 +12,4 @@ then
 fi
 
 python manage.py collectstatic --settings=tock.settings.production --noinput
-gunicorn -k gevent -w 2 tock.wsgi:application
+gunicorn -t 120 -k gevent -w 2 tock.wsgi:application
