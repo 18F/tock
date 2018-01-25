@@ -63,8 +63,10 @@ jobs:
           destination: test-reports
 
   deploy_to_staging:
-    machine:
-      enabled: true
+    docker:
+      - image: 18fgsa/cloud-foundry-cli
+        environment:
+          - TZ=America/New_York
     working_directory: ~/repo
 
     steps:
