@@ -82,6 +82,6 @@ workflows:
       - deploy_to_staging:
           requires:
             - build
-            filters:
-              branches:
-                only: master
+          filters:
+            branches:
+              only: continuous-is-the-strategy
