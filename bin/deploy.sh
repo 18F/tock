@@ -27,10 +27,28 @@ esac
 # Update this version number for what's found on the Release page for Autopilot
 # e.g. https://github.com/contraband/autopilot/releases/latest
 autopilot_version="0.0.4"
-local_os_type=$(
-  echo "${OSTYPE}" | grep -o '[a-z]\+' | head -n 1
-)
+case $(uname) in
+  Linux)
+    local_os_type='linux'
+    local_release_type='linux64-binary'
+    ;;
+  Darwin)
+    local_os_type='darwin'
+    local_release_type='macosx64-binary'
+    ;;
+  *)
+    echo "Unsupported operating system"
+    exit 99
+    ;;
+esac
+
 github_release_autopilot_url="https://github.com/contraband/autopilot/releases/download/${autopilot_version}/autopilot-${local_os_type}"
+
+if ! which cf > /dev/null
+then
+  echo "Installing Cloud Foundry CLI for ${OSTYPE}."
+  curl -L "https://cli.run.pivotal.io/stable?release=${local_release_type}&source=github" | tar xzv -C /usr/local/bin cf
+fi
 
 if ! cf plugins | grep autopilot > /dev/null
 then
