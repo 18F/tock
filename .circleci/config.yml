@@ -62,3 +62,26 @@ jobs:
           path: test-reports
           destination: test-reports
 
+  deploy_to_staging:
+    machine:
+      enabled: true
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run:
+          name: deploy Tock Staging to cloud.gov
+          command: |
+            bin/deploy.sh staging
+
+workflows:
+  version: 2
+  build_and_deploy_staging:
+    jobs:
+      - build
+      - deploy_to_staging:
+          requires:
+            - build
+            filters:
+              branches:
+                only: master
