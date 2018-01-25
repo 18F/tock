@@ -9,11 +9,13 @@ fi
 
 case $1 in
   stag*)
-    cf_space_name='staging'
+    cf_user="${CF_DEPLOYER_USERNAME_STAGING}"
+    cf_password="${CF_DEPLOYER_PASSWORD_STAGING}"
     manifest_name='manifest-staging.yml'
     ;;
   prod*)
-    cf_space_name='prod'
+    cf_user="${CF_DEPLOYER_USERNAME_PRODUCTION}"
+    cf_password="${CF_DEPLOYER_PASSWORD_PRODUCTION}"
     manifest_name='manifest-production.yml'
     ;;
   *)
@@ -36,8 +38,14 @@ then
   cf install-plugin "${github_release_autopilot_url}" -f
 fi
 
-cf login -a https://api.fr.cloud.gov -u "${CF_DEPLOYER_USERNAME}" -p "${CF_DEPLOYER_PASSWORD}" -o "${cf_organization_name}" -s "${cf_space_name}"
+# Disable interactive mode by removing stdin
+cf login -a https://api.fr.cloud.gov -u "${cf_user}" -p "${cf_password}" <&-
 
-cf target -o "${cf_organization_name}" -s "${cf_space_name}"
+if [ "$?" -gt 0 ]
+then
+  echo "There was an issue authenticating with cloud.gov."
+  echo "Please verify the Service Account Deployer Credentials are correct."
+else
+  cf zero-downtime-push tock -f "${manifest_name}"
+fi
 
-cf zero-downtime-push tock -f "${manifest_name}"
