@@ -9,6 +9,12 @@ cd tock
 if [[ -v CF_INSTANCE_INDEX && $CF_INSTANCE_INDEX == 0 ]]
 then
   python manage.py migrate --settings=tock.settings.production --noinput
+else
+  echo "Migrations did not run."
+  if [[ -v CF_INSTANCE_INDEX ]]
+  then
+    echo "CF Instance Index is ${CF_INSTANCE_INDEX}."
+  fi
 fi
 
 python manage.py collectstatic --settings=tock.settings.production --noinput
