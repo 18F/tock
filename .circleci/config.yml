@@ -62,6 +62,68 @@ jobs:
           path: test-reports
           destination: test-reports
 
+  build_for_production:
+    docker:
+      # specify the version you desire here
+      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
+      - image: circleci/python:3.6.4-jessie-node-browsers
+        environment:
+          - TZ=America/New_York
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      - image: circleci/postgres:9.6.6
+        environment:
+          - POSTGRES_USER=circleci
+          - POSTGRES_DB=tock-test
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run:
+        name: checkout latest tag
+        command: |
+          git checkout $( git tag | sort | tail -n 1 )
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install codecov
+            pip install -r requirements.txt -r requirements-dev.txt
+            npm install
+
+      - save_cache:
+          paths:
+            - ./venv
+            - ./node_modules
+          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}
+
+      # run tests!
+      - run:
+          name: run tests
+          command: |
+            . venv/bin/activate
+            npm run build-css
+            cd tock
+            python manage.py migrate --noinput --settings=tock.settings.test
+            python manage.py test --noinput --settings=tock.settings.test
+            codecov
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
+
   deploy_to_staging:
     docker:
       - image: 18fgsa/cloud-foundry-cli
@@ -79,6 +141,27 @@ jobs:
             export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_STAGING
             cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
+  deploy_to_production:
+    docker:
+      - image: 18fgsa/cloud-foundry-cli
+        environment:
+          - TZ=America/New_York
+          - CF_API: https://api.fr.cloud.gov
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+      - run:
+        name: checkout latest tag
+        command: |
+          git checkout $( git tag | sort | tail -n 1 )
+      - run:
+          name: deploy Tock Production to cloud.gov
+          command: |
+            export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_STAGING
+            export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_STAGING
+            cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
+
 workflows:
   version: 2
   build_and_deploy_staging:
@@ -90,3 +173,19 @@ workflows:
           filters:
             branches:
               only: continuous-is-the-strategy
+  build_and_deploy_production:
+    jobs:
+      - build_for_production:
+        filters:
+          tags:
+            only: /v20[1-9][0-9][0-9]+\.[0-9]+/
+          branches:
+            ignore: /.*/
+      - deploy_to_production:
+          requires:
+            - build_for_production
+          filters:
+            tags:
+              only: /v20[1-9][0-9][0-9]+\.[0-9]+/
+            branches:
+              ignore: /.*/
