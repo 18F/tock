@@ -67,14 +67,16 @@ jobs:
       - image: 18fgsa/cloud-foundry-cli
         environment:
           - TZ=America/New_York
+          - CF_API: https://api.fr.cloud.gov
+          - CF_DEPLOY_USER: $CF_DEPLOYER_USERNAME_STAGING
+          - CF_DEPLOY_PASSWORD: $CF_DEPLOYER_PASSWORD_STAGING
     working_directory: ~/repo
 
     steps:
       - checkout
       - run:
           name: deploy Tock Staging to cloud.gov
-          command: |
-            bin/deploy.sh staging
+          command: cf_deploy.sh tock gsa-18f-tock staging
 
 workflows:
   version: 2
