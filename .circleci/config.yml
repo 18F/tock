@@ -90,9 +90,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: checkout latest tag
-          command: bin/get-latest-tag.sh
-      - run:
           name: deploy Tock Production to cloud.gov
           command: |
             export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_STAGING
