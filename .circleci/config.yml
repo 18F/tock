@@ -83,9 +83,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: checkout latest tag
-        command: |
-          git checkout $( git tag | sort | tail -n 1 )
+          name: checkout latest tag
+          command: bin/get-latest-tag.sh
 
       # Download and cache dependencies
       - restore_cache:
@@ -152,9 +151,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: checkout latest tag
-        command: |
-          git checkout $( git tag | sort | tail -n 1 )
+          name: checkout latest tag
+          command: bin/get-latest-tag.sh
       - run:
           name: deploy Tock Production to cloud.gov
           command: |
