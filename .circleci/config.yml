@@ -71,7 +71,6 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      - checkout
       - run:
           name: deploy Tock Staging to cloud.gov
           command: |
@@ -88,7 +87,6 @@ jobs:
     working_directory: ~/repo
 
     steps:
-      - checkout
       - run:
           name: deploy Tock Production to cloud.gov
           command: |
