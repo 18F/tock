@@ -76,7 +76,7 @@ jobs:
       - checkout
       - run:
           name: deploy Tock Staging to cloud.gov
-          command: cf_deploy.sh tock gsa-18f-tock staging
+          command: cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
 workflows:
   version: 2
