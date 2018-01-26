@@ -101,7 +101,7 @@ jobs:
 
 workflows:
   version: 2
-  build_and_deploy:
+  build_and_deploy_staging:
     jobs:
       - build
       - deploy_to_staging:
@@ -110,6 +110,9 @@ workflows:
           filters:
             branches:
               only: continuous-is-the-strategy
+  build_an_deploy_production:
+    jobs:
+      - build
       - deploy_to_production:
           requires:
             - build
