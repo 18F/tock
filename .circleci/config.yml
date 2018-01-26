@@ -101,7 +101,7 @@ jobs:
 
 workflows:
   version: 2
-  build_and_deploy_staging:
+  build_and_deploy:
     jobs:
       - build
       - deploy_to_staging:
@@ -110,17 +110,9 @@ workflows:
           filters:
             branches:
               only: continuous-is-the-strategy
-  build_and_deploy_production:
-    jobs:
-      - build_for_production:
-          filters:
-            tags:
-              only: /v20[1-9][0-9][0-9]+\.[0-9]+/
-            branches:
-              ignore: /.*/
       - deploy_to_production:
           requires:
-            - build_for_production
+            - build
           filters:
             tags:
               only: /v20[1-9][0-9][0-9]+\.[0-9]+/
