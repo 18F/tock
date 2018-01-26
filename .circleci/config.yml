@@ -112,7 +112,12 @@ workflows:
               only: continuous-is-the-strategy
   build_an_deploy_production:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only: /v20[1-9][0-9][0-9]+\.[0-9]+/
+            branches:
+              ignore: /.*/
       - deploy_to_production:
           requires:
             - build
