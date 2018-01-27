@@ -62,21 +62,43 @@ jobs:
           path: test-reports
           destination: test-reports
 
+      - run:
+          name: store application to workspace
+          command: |
+            mkdir -p cf_app
+            cp -vr about.yml api-docs manifest-* newrelic.ini Procfile provision requirements.txt runtime.txt tock cf_app
+
+      - persist_to_workspace:
+          root: cf_app
+          paths:
+            - about.yml
+            - api-docs/*
+            - manifest-*
+            - newrelic.ini
+            - Procfile
+            - provision/*
+            - requirements.txt
+            - runtime.txt
+            - tock/*
+
   deploy_to_staging:
     docker:
       - image: 18fgsa/cloud-foundry-cli
         environment:
           - TZ=America/New_York
           - CF_API: https://api.fr.cloud.gov
-    working_directory: ~/repo
 
+    working_directory: ~/repo
     steps:
+      - attach_to_workspace:
+          at: ~/repo/cf_app
       - run:
           name: deploy Tock Staging to cloud.gov
           command: |
             export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_STAGING
             export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_STAGING
-            cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
+            cd cf_app
+            ../cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
   deploy_to_production:
     docker:
@@ -87,12 +109,16 @@ jobs:
     working_directory: ~/repo
 
     steps:
+      - attach_to_workspace:
+          at: ~/repo/cf_app
       - run:
           name: deploy Tock Production to cloud.gov
           command: |
             export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_STAGING
             export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_STAGING
             cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
+            cd cf_app
+            ../cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
 workflows:
   version: 2
