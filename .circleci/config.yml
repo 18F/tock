@@ -116,7 +116,6 @@ jobs:
           command: |
             export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_STAGING
             export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_STAGING
-            cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
             cd cf_app
             cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
