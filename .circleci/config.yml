@@ -131,7 +131,7 @@ workflows:
           filters:
             branches:
               only: continuous-is-the-strategy
-  build_an_deploy_production:
+  build_and_deploy_production:
     jobs:
       - build:
           filters:
