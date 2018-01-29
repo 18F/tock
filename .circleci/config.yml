@@ -66,13 +66,14 @@ jobs:
           name: store application to workspace
           command: |
             mkdir -p cf_app
-            cp -vr about.yml api-docs manifest-* newrelic.ini Procfile provision requirements.txt runtime.txt tock cf_app
+            cp -vr about.yml api-docs bin manifest-* newrelic.ini Procfile provision requirements.txt runtime.txt tock cf_app
 
       - persist_to_workspace:
           root: cf_app
           paths:
             - about.yml
             - api-docs/*
+            - bin/*
             - manifest-*
             - newrelic.ini
             - Procfile
