@@ -1197,7 +1197,15 @@ class PrefillDataViewTests(WebTest):
         )
         self.pfd1.save()
 
-    def test_prefills_added_to_timecard(self):
+        self.pfd2 = hours.models.TimecardPrefillData.objects.create(
+            employee=self.ud,
+            project=self.project_1,
+            hours=Decimal('10.40'),
+            is_active=False
+        )
+        self.pfd2.save()
+
+    def test_active_prefills_added_to_timecard(self):
         response = self.app.get(
             reverse(
                 'reportingperiod:UpdateTimesheet',
@@ -1218,7 +1226,7 @@ class PrefillDataViewTests(WebTest):
             self.pfd1.hours
         )
 
-    def test_prefills_added_to_timecard_pulling_existing_timecard_info(self):
+    def test_active_prefills_added_to_timecard_pulling_existing_timecard_info(self):
         tco = hours.models.TimecardObject.objects.create(
             timecard=self.timecard_1,
             project=self.project_1,
@@ -1253,7 +1261,7 @@ class PrefillDataViewTests(WebTest):
         self.assertEqual(previous.initial['project'], tco.project.id)
         self.assertEqual(previous.initial['hours_spent'], None)
 
-    def test_prefills_fill_in_hours_from_previous_timecard(self):
+    def test_active_prefills_fill_in_hours_from_previous_timecard(self):
         tco_1 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard_1,
             project=self.project_1,
@@ -1295,7 +1303,7 @@ class PrefillDataViewTests(WebTest):
         self.assertEqual(previous.initial['hours_spent'], None)
 
 
-    def test_prefills_not_added_to_existing_timecards(self):
+    def test_active_prefills_not_added_to_existing_timecards(self):
         tco = hours.models.TimecardObject.objects.create(
             timecard=self.timecard_1,
             project=self.project_1,

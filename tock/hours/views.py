@@ -803,7 +803,7 @@ class TimecardView(UpdateView):
     def prefilled_formset(self):
         timecard = self.last_timecard()
         timecard_prefills = dict(
-            TimecardPrefillData.objects.filter(
+            TimecardPrefillData.objects.active().filter(
                 employee=self.request.user.user_data).values_list(
                     'project', 'hours'
                 )
