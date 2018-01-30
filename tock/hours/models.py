@@ -335,6 +335,18 @@ class TimecardObject(models.Model):
         super(TimecardObject, self).save(*args, **kwargs)
 
 
+class TimecardPrefillDataManager(models.Manager):
+    def active(self):
+        return super(TimecardPrefillDataManager, self).get_queryset().filter(
+            is_active=True
+        )
+
+    def inactive(self):
+        return super(TimecardPrefillDataManager, self).get_queryset().filter(
+            is_active=False
+        )
+
+
 class TimecardPrefillData(models.Model):
     employee = models.ForeignKey(UserData, related_name='timecard_prefill_data')
     project = models.ForeignKey(Project, related_name='timecard_prefill_data')
@@ -348,6 +360,24 @@ class TimecardPrefillData(models.Model):
         default='',
         help_text='Any additional notes specific to this assignment.'
     )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Toggle whether or not this record is active and used.'
+    )
+    start_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Start Date',
+        help_text='Optional start date for when this record should be used.'
+    )
+    end_date = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='End Date',
+        help_text='Optional end date for when this record should no longer be used.'
+    )
+
+    objects = TimecardPrefillDataManager()
 
     class Meta:
         unique_together = ('employee', 'project')
