@@ -99,9 +99,9 @@ jobs:
       - run:
           name: deploy Tock Production to cloud.gov
           command: |
-            export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_STAGING
-            export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_STAGING
-            cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
+            export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_PRODUCTION
+            export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_PRODUCTION
+            cf_deploy.sh tock gsa-18f-tock staging manifest-production.yml
 
 workflows:
   version: 2
@@ -113,7 +113,7 @@ workflows:
             - build
           filters:
             branches:
-              only: continuous-is-the-strategy
+              only: master
   build_and_deploy_production:
     jobs:
       - build:
