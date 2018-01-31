@@ -105,6 +105,12 @@ jobs:
 
 workflows:
   version: 2
+  build_pull_requests:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: /.*/
   build_and_deploy_staging:
     jobs:
       - build
