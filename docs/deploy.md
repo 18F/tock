@@ -44,7 +44,6 @@ only production dependencies will be installed.
     - `tock`
 - Routes:
   - tock.app.cloud.gov -> `staging` space, `tock-staging` app
-  - calc-staging.app.cloud.gov -> `staging` space, `calc-staging` app
   - tock.18f.gov -> `prod` space, `tock` app
 
 ### Services
@@ -150,18 +149,18 @@ breaks the current version of Tock, we'll need to have a (hopefully short) amoun
 We have a very simple maintenance page application that uses the CloudFoundry staticfiles
 buildpack. This app is in the [maintenance_page](../maintenance_page/) subdirectory.
 
-If `calc-maintenance` is not running or has not been deployed yet:
+If `<APP_NAME>-maintenance` is not running or has not been deployed yet:
 
 ```sh
 cd maintenance_page
 cf push
 ```
 
-Once `calc-maintenance` is running:
+Once `<APP_NAME>-maintenance` is running:
 
 ```sh
-cf map-route calc-maintenance calc.gsa.gov
-cf unmap-route calc-prod
+cf map-route <APP_NAME>-maintenance tock.18f.gov
+cf unmap-route <APP_NAME>-prod
 ```
 
 And then deploy the production app:
@@ -173,8 +172,8 @@ cf push -f manifests/manifest-prod.yml
 One the deploy is successful:
 
 ```sh
-cf map-route calc-prod calc.gsa.gov
-cf unmap-route calc-maintenance
+cf map-route <APP_NAME>-prod tock.18f.gov
+cf unmap-route <APP_NAME>-maintenance
 ```
 -->
 
