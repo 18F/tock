@@ -49,9 +49,6 @@ only production dependencies will be installed.
 ### Services
 
 #### User Provided Service (UPS)
-tockdb                            aws-rds                     shared-psql      tock         update succeeded
-tockdb-new                        aws-rds                     shared-psql                   delete failed
-tock-creds-prod                   user-provided                                tock
 
 For cloud.gov deployments, this project makes use of a [User Provided Service (UPS)][UPS] to get its configuration
 variables, instead of using the local environment (except for [New Relic-related environment variables](#new-relic-environment-variables)).
@@ -181,9 +178,6 @@ cf unmap-route <APP_NAME>-maintenance
 
 Logs in cloud.gov-deployed applications are generally viewable by running
 `cf logs <APP_NAME> --recent`
-
-Note that the web application and the `rq` worker application have separate
-logs, so you will need to look at each individually.
 
 [UPS]: https://docs.cloudfoundry.org/devguide/services/user-provided.html
 [`README.md`]: https://github.com/18F/tock#readme
