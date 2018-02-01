@@ -139,6 +139,9 @@ cf zero-downtime-push tock -f manifest-production.yml
 ```
 
 <!--
+Please ignore the following as it won't be rendered. This is a placeholder for
+me to review after this lands on `master`.
+
 If a breaking database migration needs to be done, things get a little trickier because
 the database service is actually shared between the two production apps. If the migration
 breaks the current version of Tock, we'll need to have a (hopefully short) amount of downtime.
