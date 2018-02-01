@@ -111,7 +111,7 @@ Should you need to, you can push directly to tock.app.cloud.gov with:
 
 ```sh
 cf target -o gsa-18f-tock -s staging
-cf push -f manifest-staging.yml
+cf zero-downtime-push tock-staging -f manifest-staging.yml
 ```
 
 ### Production servers
