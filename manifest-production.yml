@@ -1,0 +1,21 @@
+---
+buildpack: python_buildpack
+memory: 512M
+path: .
+stack: cflinuxfs2
+timeout: 180
+
+applications:
+- name: tock
+  routes:
+  - route: tock.18f.gov
+  - route: tock.18f.gov/api
+  env:
+    NEW_RELIC_APP_NAME: Tock (Production)
+    NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
+    NEW_RELIC_ENV: production
+    NEW_RELIC_LOG: stdout
+  instances: 4
+  services:
+  - tockdb
+  - tock-creds-prod
