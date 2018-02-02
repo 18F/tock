@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models, IntegrityError
 from django.db.models import Q, Max
+from django.apps import apps
 
 from tock.settings import base
 from rest_framework.authtoken.models import Token
@@ -44,30 +45,17 @@ class EmployeeGrade(models.Model):
     def __str__(self):
         return '{0} - {1} (Starting: {2})'.format(self.employee, self.grade, self.g_start_date)
 
-    def get_grade(end_date, user):
-        """Gets grade information based on a date and user. Original use of
-        function is to append correct grade information to each
-        TimecardObject."""
-        queryset = EmployeeGrade.objects.filter(
-                Q(employee = user)
-                & Q(g_start_date__lte = end_date)
-                ).all()
-        if queryset:
-            return queryset.latest('g_start_date')
-        else:
-            return None
-
     def save(self, *args, **kwargs):
-        queryset = EmployeeGrade.objects.filter(
-            employee=self.employee,
-            g_start_date=self.g_start_date
-        )
-        if queryset:
-            raise IntegrityError(
-                'Employee cannot have multiple EmployeeGrade objects with the '\
-                'same g_start_date.'
-            )
+        if EmployeeGrade.objects.filter(g_start_date=self.g_start_date):
+            raise IntegrityError
         super(EmployeeGrade, self).save(*args, **kwargs)
+        # Lazily load the TimecardObject model, find pertinent objects and save
+        # to update w/ relevant grade info.
+        update = [ t.save() for t in \
+            apps.get_model('hours', 'TimecardObject').objects.filter(
+                timecard__user=self.employee,
+                timecard__reporting_period__start_date__gte=self.g_start_date
+        ) ]
 
 class UserData(models.Model):
 

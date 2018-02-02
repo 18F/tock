@@ -10,16 +10,60 @@ from tock.settings import base, dev
 from employees.models import UserData
 from rest_framework.authtoken.models import Token
 from employees.models import EmployeeGrade, UserData
+from hours.models import ReportingPeriod, Timecard, TimecardObject
+from projects.models import Project
 
 class EmployeeGradeTests(TestCase):
-    fixtures = ['tock/fixtures/prod_user.json']
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'projects/fixtures/projects.json',
+        'employees/fixtures/user_data.json'
+    ]
 
     def setUp(self):
         self.employeegrade = EmployeeGrade.objects.create(
             employee=User.objects.get(pk=1),
             grade=8,
-            g_start_date=datetime.date.today()
+            g_start_date=datetime.datetime.utcnow().date()
         )
+        self.rp = ReportingPeriod.objects.create(
+            start_date='1999-12-31',
+            end_date='2000-01-06'
+        )
+        self.timecard = Timecard.objects.create(
+            reporting_period=self.rp,
+            user=self.employeegrade.employee,
+            submitted=True
+        )
+        self.new_grade = EmployeeGrade.objects.create(
+            employee=User.objects.get(pk=1),
+            grade=8,
+            g_start_date='1999-12-30'
+        )
+
+    def test_timecard_gets_grade_when_saved(self):
+        tco = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=Project.objects.get(pk=1),
+            hours_spent=40,
+        )
+        self.assertEqual(tco.grade, self.new_grade)
+    def test_backwards_tco_update_w_grade_save(self):
+        tco = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=Project.objects.get(pk=1),
+            hours_spent=40,
+        )
+        new_grade = EmployeeGrade.objects.create(
+            employee=User.objects.get(pk=1),
+            grade=13,
+            g_start_date='1999-12-31'
+        )
+        tco = TimecardObject.objects.get(
+            timecard=self.timecard
+        ).grade
+        self.assertEqual(tco.grade, new_grade.grade)
+
     def test_unique_with_g_start_date(self):
         """Check that multiple EmployeeGrade objects with the same g_start_date
         cannot be saved for the same employee."""
@@ -27,7 +71,7 @@ class EmployeeGradeTests(TestCase):
             another_employeegrade = EmployeeGrade.objects.create(
             employee=User.objects.get(pk=1),
             grade=9,
-            g_start_date=datetime.date.today()
+            g_start_date=datetime.datetime.utcnow().date()
         )
 
     def test_string_method(self):
@@ -37,7 +81,6 @@ class EmployeeGradeTests(TestCase):
             self.employeegrade.grade,
             self.employeegrade.g_start_date
         )
-
         self.assertEqual(expected_string, str(self.employeegrade))
 
 class UserDataTests(TestCase):
