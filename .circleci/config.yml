@@ -101,7 +101,7 @@ jobs:
           command: |
             export CF_DEPLOY_USER=$CF_DEPLOYER_USERNAME_PRODUCTION
             export CF_DEPLOY_PASSWORD=$CF_DEPLOYER_PASSWORD_PRODUCTION
-            cf_deploy.sh tock gsa-18f-tock staging manifest-production.yml
+            cf_deploy.sh tock gsa-18f-tock prod manifest-production.yml
 
 workflows:
   version: 2
