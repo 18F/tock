@@ -55,6 +55,7 @@ TEMPLATES =  [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
+                'tock.context_processors.version_url',
             ],
         },
     },
@@ -104,3 +105,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
+
+VERSION = env.get_credential('CIRCLE_TAG', 'master')
