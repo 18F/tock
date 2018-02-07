@@ -132,6 +132,15 @@ Now, if you don't already have the autopilot plugin, you can install it by runni
 cf install-plugin autopilot -f -r CF-Community
 ```
 
+Open the `manifest-production.yml` file and add a `CIRCLE_TAG` value under
+`env:` which matches the release that you're manually deploying to production.
+
+```yaml
+env:
+  # other variables
+  CIRCLE_TAG: v20180202.1
+```
+
 Then use the autopilot plugin's `zero-downtime-push` command to deploy:
 
 ```sh
