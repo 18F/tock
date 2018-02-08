@@ -113,7 +113,10 @@ workflows:
               only: /.*/
   build_and_deploy_staging:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only: master
       - deploy_to_staging:
           requires:
             - build
