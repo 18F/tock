@@ -1,6 +1,8 @@
+import re
+from django.conf import settings
+
+
 def version_url(request):
-    import re
-    from django.conf import settings
     base_url = 'https://github.com/18F/tock/'
     name = settings.VERSION
     response = {
