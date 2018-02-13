@@ -69,12 +69,14 @@ MIDDLEWARE_CLASSES = (
     'tock.remote_user_auth.EmailHeaderMiddleware',
     'tock.remote_user_auth.UserDataMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'uaa_client.middleware.UaaRefreshMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
     'tock.remote_user_auth.TockUserBackend',
+    'uaa_client.authentication.UaaBackend',
 )
 
 LANGUAGE_CODE = 'en-us'
