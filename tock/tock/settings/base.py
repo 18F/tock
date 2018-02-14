@@ -28,6 +28,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'uaa_client',
     'tock',
     'projects',
     'hours',
@@ -66,7 +67,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'tock.remote_user_auth.EmailHeaderMiddleware',
     'tock.remote_user_auth.UserDataMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'uaa_client.middleware.UaaRefreshMiddleware',
@@ -76,7 +76,6 @@ MIDDLEWARE_CLASSES = (
 
 AUTHENTICATION_BACKENDS = (
     'tock.remote_user_auth.TockUserBackend',
-    'uaa_client.authentication.UaaBackend',
 )
 
 LANGUAGE_CODE = 'en-us'

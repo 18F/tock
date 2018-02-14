@@ -1,8 +1,8 @@
 import datetime
 
-from django.contrib.auth.backends import RemoteUserBackend
-from django.contrib.auth.middleware import RemoteUserMiddleware
+from uaa_client.authentication import UaaBackend
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -64,7 +64,7 @@ def email_to_username(email):
     return email_list[0][:30]
 
 
-class TockUserBackend(RemoteUserBackend):
+class TockUserBackend(UaaBackend):
 
     def clean_username(self, email_address):
         """
@@ -74,10 +74,6 @@ class TockUserBackend(RemoteUserBackend):
         By default, returns the username unchanged.
         """
         return email_to_username(email_address)
-
-
-class EmailHeaderMiddleware(RemoteUserMiddleware):
-    header = 'HTTP_X_AUTH_USER'
 
 
 class UserDataMiddleware(object):
