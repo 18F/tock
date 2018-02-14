@@ -9,45 +9,6 @@ from django.contrib.auth.models import User
 from employees.models import UserData
 
 
-def get_auth_url(request):
-    if settings.DEBUG and settings.UAA_AUTH_URL == 'fake:':
-        return request.build_absolute_uri(reverse('fake_uaa_provider:uaa'))
-    return settings.UAA_AUTH_URL
-
-
-def get_token_url(request):
-    if settings.DEBUG and settings.UAA_TOKEN_URL == 'fake:':
-        return request.build_absolute_uri(reverse('fake_uaa_provider:token'))
-    return settings.UAA_TOKEN_URL
-
-
-def exchange_code_for_access_token(request, code):
-    payload = {
-        'grant_type': 'authoriation_code',
-        'code': code,
-        'response_type': 'token',
-        'client_id': settings.UAA_CLIENT_ID,
-        'client_secret': settings.UAA_CLIENT_SECRET,
-    }
-
-    token_url = get_token_url(request)
-    token_request = request.post(token_url, data=payload)
-
-    if token_request.status_code != 200:
-        logger.warn('POST %s returned %s '
-                    'w/ content %s' % (
-                        token_url,
-                        token_request.status_code,
-                        repr(token_request.content)
-                    ))
-        return None
-
-    response = token.request.json()
-    request.session.set_expiry(response['expires_in'])
-
-    return response['access_token']
-
-
 def email_to_username(email):
     """Converts a given email address to a Django compliant username"""
     email_list = email.lower().split('@')
