@@ -5,6 +5,9 @@ import sys
 
 from django.core.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
+from django.shortcuts import redirect
+
+# from uaa_client.authentication import UaaBackend
 
 from tock.settings import base
 
@@ -20,12 +23,18 @@ class PermissionMixin(object):
             self = cls(**initkwargs)
             if hasattr(self, 'get') and not hasattr(self, 'head'):
                 self.head = self.get
+            print("Self")
+            print(self)
             self.request = request
             self.args = args
             self.kwargs = kwargs
             for permission_class in getattr(cls, 'permission_classes', ()):
                 if not permission_class().has_permission(request, self):
-                    raise PermissionDenied
+                    print("Can't log you in.")
+                    print("Permission Class %s" % (permission_class))
+                    # Check to see if the permission_class isAuthenticated here.
+                    # You don't want people to have to login if they're checking if they're a super user
+                    return redirect('/auth/login')
             return view(request, args, **kwargs)
         return wrapped
 
