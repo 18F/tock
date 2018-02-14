@@ -53,6 +53,6 @@ class UserDataMiddleware(object):
                 new_obj = User.objects.get(username=request.user)
                 first_name = str(request.user).split('.')[0].title()
                 last_name = str(request.user).split('.')[1].title()
-                new_obj.first_name=first_name
-                new_obj.last_name=last_name
+                new_obj.first_name = first_name
+                new_obj.last_name = last_name
                 new_obj.save()
