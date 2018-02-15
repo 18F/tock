@@ -66,6 +66,26 @@ can just run `python manage.py` directly from outside the container--the
 `manage.py` script has been modified to run itself in a Docker container
 if it detects that Django isn't installed.
 
+#### Running `pdb` within the Docker container
+
+Once you have a running set containers, you should be able to attach to the
+`tock_app` CONTAINER_ID using the following command.
+
+```sh
+docker attach $(docker container ps | grep -E 'tock_app' | awk '{ print $1 }')
+```
+
+This will drop you into the `tock_app` container. Now you can use `pdb` in your
+local code and have a Python Debugger.
+
+##### Exiting the debugger
+
+To properly exit the debugger, use the following keyboard commands within the
+container: `Control + p, Control + q` one after another.
+
+If you mistakenly hit `Control + c` you will kill the `tock_app` container! In
+that case, restart the `tock_app` container with a `docker-compose up` command.
+
 ### Making CSS changes
 
 `docker-compose up` will also launch a [Node] machine that compiles the [Sass]
