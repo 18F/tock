@@ -19,3 +19,8 @@ MIDDLEWARE_CLASSES += ('nplusone.ext.django.NPlusOneMiddleware', )
 NPLUSONE_RAISE = True
 
 MEDIA_ROOT = './media/'
+
+UAA_CLIENT_ID = 'testtesttesttesttesttesttesttesttesttesttest'
+UAA_CLIENT_SECRET = 'testtesttesttesttesttesttesttesttesttest'
+UAA_AUTH_URL = 'fake:'
+UAA_TOKEN_URL = 'fake:'
