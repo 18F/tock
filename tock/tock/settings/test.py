@@ -6,6 +6,9 @@ from .base import (INSTALLED_APPS, MIDDLEWARE_CLASSES)
 
 SECRET_KEY = get_random_string(50)
 
+# Needed for CG Django UAA to leverage internal cloud.fake service
+DEBUG = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
