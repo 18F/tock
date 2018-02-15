@@ -14,6 +14,8 @@ app:
     # - NEW_RELIC_LICENSE_KEY=get-from-vcap-user-provided-service (not to be used for local development)
 
   command: "python manage.py runserver 0.0.0.0:1234"
+  stdin_open: true
+  tty: true
 db:
   image: postgres:9.6.6
   environment:
