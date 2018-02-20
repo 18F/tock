@@ -68,3 +68,8 @@ local_settings.py
 .env
 docker-compose.yml
 Dockerfile
+
+# Node related dependencies
+node_modules/
+package.json
+package-lock.json

@@ -8,9 +8,9 @@
     "predeploy": "npm install --silent && npm run build-css"
   },
   "engines": {
-    "node": "8.6.0"
+    "node": ">=8.6.0"
   },
-  "devDependencies": {
+  "dependencies": {
     "chosen-js": "1.8.2",
     "jquery": "3.2.1",
     "node-sass": "4.7.x",
