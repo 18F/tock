@@ -1,7 +1,6 @@
 import os
 import sys
 import dj_database_url
-import json
 
 from .base import *  # noqa
 # spell out explicit variable dependencies

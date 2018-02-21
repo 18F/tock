@@ -3,10 +3,7 @@ import logging
 import os
 import sys
 
-import requests
-
 from django.core.exceptions import PermissionDenied
-from httmock import urlmatch, HTTMock, all_requests, response
 from rest_framework.permissions import BasePermission
 
 from tock.settings import base

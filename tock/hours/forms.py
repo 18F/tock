@@ -11,8 +11,6 @@ from django.db.models import Prefetch
 
 from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
-from django.db.models import Q
-from datetime import datetime, timedelta, time
 
 class ReportingPeriodForm(forms.ModelForm):
     """Form for creating new reporting periods"""

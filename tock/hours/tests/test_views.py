@@ -1,7 +1,5 @@
 import datetime
 import csv
-import requests
-import json
 
 from decimal import Decimal
 
@@ -11,17 +9,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django_webtest import WebTest
 
-from api.renderers import stream_csv
-
-from rest_framework.test import APIClient
-from rest_framework.authtoken.models import Token
-
 from api.tests import client
 from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
-from tock.settings import base, dev
 from hours.views import GeneralSnippetsTimecardSerializer
 import hours.models
 import hours.views

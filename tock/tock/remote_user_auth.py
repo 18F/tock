@@ -2,7 +2,7 @@ import datetime
 
 from django.contrib.auth.backends import RemoteUserBackend
 from django.contrib.auth.middleware import RemoteUserMiddleware
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth.models import User
 

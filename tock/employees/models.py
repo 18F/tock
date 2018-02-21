@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models, IntegrityError
-from django.db.models import Q, Max
+from django.db.models import Q
 
-from tock.settings import base
 from rest_framework.authtoken.models import Token
 
 from organizations.models import Organization

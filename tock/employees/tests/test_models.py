@@ -1,12 +1,9 @@
 import datetime
-import requests
 
 from django.test import TestCase
 from django.db import IntegrityError
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 
-from tock.settings import base, dev
 from rest_framework.authtoken.models import Token
 from employees.models import EmployeeGrade, UserData
 

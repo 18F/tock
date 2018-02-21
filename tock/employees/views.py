@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
-from django.shortcuts import get_object_or_404
 
 
 from tock.utils import PermissionMixin, IsSuperUserOrSelf

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import csv
 import datetime
 import json
 
@@ -9,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django_webtest import WebTest
 
-from api.views import get_timecards, TimecardList, ProjectList, TimecardSerializer
+from api.views import get_timecards, TimecardList
 from projects.factories import AccountingCodeFactory, ProjectFactory
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
@@ -21,7 +20,6 @@ from employees.models import UserData, EmployeeGrade
 
 from rest_framework.authtoken.models import Token
 
-from django.test.client import Client
 from rest_framework.test import APIClient
 
 # common client for all API tests
