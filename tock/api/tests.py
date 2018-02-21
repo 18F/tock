@@ -248,7 +248,7 @@ class ReportingPeriodList(WebTest):
         res = client(self).get(reverse('ReportingPeriodList')).data
         self.assertEqual(res.json['count'], 1)
 
-    def test_ReportingPeriodList_json(self):
+    def test_ReportingPeriodList_json_empty(self):
         """ Check that the ReportingPeriodList is empty when all users
         have filled out thier time cards"""
         reporting_periods = client(self).get(reverse('ReportingPeriodList')).data

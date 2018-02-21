@@ -49,7 +49,6 @@ from .forms import (
     timecard_formset_factory
 )
 from utilization.utils import calculate_utilization, get_fy_first_day
-from employees.models import UserData
 
 
 class DashboardReportsList(ListView):

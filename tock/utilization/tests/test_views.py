@@ -8,7 +8,6 @@ from django.test.client import Client
 from django_webtest import WebTest
 
 
-from ..views import get_fy_first_day, get_dates
 from ..utils import get_fy_first_day, get_dates, calculate_utilization
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.models import Project, AccountingCode, Agency
