@@ -27,15 +27,16 @@ def email_to_username(email):
 
 class TockUserBackend(UaaBackend):
 
-    def clean_username(self, email_address):
-        """
-        Performs any cleaning on the "username" prior to using it to get or
-        create the user object.  Returns the cleaned username.
+    def should_create_user_for_email(email):
+        APPROVED_DOMAINS = getattr(settings, 'ALLOWED_EMAIL_DOMAINS', [])
 
-        By default, returns the username unchanged.
-        """
-        return email_to_username(email_address)
+        email_pieces = email.split('@')
+        return email_pieces[1] in APPROVED_DOMAINS
 
+    def create_user_with_email(email):
+        username = email_to_username(email)
+        User.objects.create_user(username, email)
+        return User.objects.get(email__iexact=email)
 
 class UserDataMiddleware(object):
 

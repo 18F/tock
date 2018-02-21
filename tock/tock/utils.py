@@ -23,8 +23,6 @@ class PermissionMixin(object):
             self = cls(**initkwargs)
             if hasattr(self, 'get') and not hasattr(self, 'head'):
                 self.head = self.get
-            print("Self")
-            print(self)
             self.request = request
             self.args = args
             self.kwargs = kwargs
