@@ -424,7 +424,7 @@ class TestProjectTimeline(WebTest):
                     ),
                 ),
                 project=self.project,
-                hours_spent=random.randint(5, 35),
+                hours_spent=random.randint(5, 35), # nosec
             )
             for date in self.dates
         ]
