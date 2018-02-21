@@ -128,25 +128,25 @@ class DashboardViewTests(WebTest):
         self.project_2.accounting_code = ac_2
         self.project_2.save()
 
-        to_1 = hours.models.TimecardObject.objects.create(
+        hours.models.TimecardObject.objects.create(
             timecard=self.timecard_1,
             project=self.project_1,
             hours_spent=30,
             submitted=True
         )
-        to_2 = hours.models.TimecardObject.objects.create(
+        hours.models.TimecardObject.objects.create(
             timecard=self.timecard_1,
             project=self.project_2,
             hours_spent=10,
             submitted=True
         )
-        to_3 = hours.models.TimecardObject.objects.create(
+        hours.models.TimecardObject.objects.create(
             timecard=self.timecard_2,
             project=self.project_1,
             hours_spent=15,
             submitted=True
         )
-        to_4 = hours.models.TimecardObject.objects.create(
+        hours.models.TimecardObject.objects.create(
             timecard=self.timecard_2,
             project=self.project_2,
             hours_spent=25,
@@ -619,7 +619,7 @@ class ReportTests(WebTest):
         """ Check that a reporting period is automatically created if the
         previous reporting period has ended. """
         existing_rps = hours.models.ReportingPeriod.objects.all()
-        response = self.app.get(
+        self.app.get(
             reverse('ListReportingPeriods'),
             headers={'X_AUTH_USER': self.regular_user.email},
         )
@@ -643,7 +643,7 @@ class ReportTests(WebTest):
             year=2015, month=9, day=30)
         self.reporting_period.save()
         existing_rps = hours.models.ReportingPeriod.objects.all()
-        response = self.app.get(
+        self.app.get(
             reverse('ListReportingPeriods'),
             headers={'X_AUTH_USER': self.regular_user.email},
         )
@@ -660,7 +660,7 @@ class ReportTests(WebTest):
             self.reporting_period.end_date = datetime.date(
                 year=i[0], month=i[1], day=i[2])
             self.reporting_period.save()
-            response = self.app.get(
+            self.app.get(
                 reverse('ListReportingPeriods'),
                 headers={'X_AUTH_USER': self.regular_user.email},
             )
@@ -677,7 +677,7 @@ class ReportTests(WebTest):
             self.reporting_period.end_date = datetime.date(
                 year=i[0], month=i[1], day=i[2])
             self.reporting_period.save()
-            response = self.app.get(
+            self.app.get(
                 reverse('ListReportingPeriods'),
                 headers={'X_AUTH_USER': self.regular_user.email},
             )
@@ -693,7 +693,7 @@ class ReportTests(WebTest):
             self.reporting_period.end_date = datetime.date(
                 year=i[0], month=i[1], day=i[2])
             self.reporting_period.save()
-            response = self.app.get(
+            self.app.get(
                 reverse('ListReportingPeriods'),
                 headers={'X_AUTH_USER': self.regular_user.email},
             )
@@ -705,11 +705,10 @@ class ReportTests(WebTest):
         reporting period has not ended. """
         ct_existing_rps = len(hours.models.ReportingPeriod.objects.all())
         today = datetime.datetime.utcnow().date()
-        end_date = today + datetime.timedelta(days=1)
         self.reporting_period.start_date = today
         self.reporting_period.end_date = today + datetime.timedelta(days=1)
         self.reporting_period.save()
-        response = self.app.get(
+        self.app.get(
             reverse('ListReportingPeriods'),
             headers={'X_AUTH_USER': self.regular_user.email},
         )
@@ -720,7 +719,7 @@ class ReportTests(WebTest):
         """ Check that no attempt to auto-create a reporting period is made
         if no reporting periods exist. """
         self.reporting_period.delete()
-        response = self.app.get(
+        self.app.get(
             reverse('ListReportingPeriods'),
             headers={'X_AUTH_USER': self.regular_user.email},
         )
@@ -1267,7 +1266,7 @@ class PrefillDataViewTests(WebTest):
             project=self.project_1,
             hours_spent=Decimal('25.00')
         )
-        tco_2 = hours.models.TimecardObject.objects.create(
+        hours.models.TimecardObject.objects.create(
             timecard=self.timecard_1,
             project=self.project_2,
             hours_spent=Decimal('15.00')

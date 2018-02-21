@@ -48,7 +48,7 @@ class UserDataMiddleware(object):
         """
         if request.user.is_authenticated():
             try:
-                user = UserData.objects.get(user=request.user)
+                UserData.objects.get(user=request.user)
             except UserData.DoesNotExist:
                 UserData.objects.create(
                     user=request.user,

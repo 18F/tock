@@ -23,11 +23,11 @@ class EmployeeGradeTests(TestCase):
         """Check that multiple EmployeeGrade objects with the same g_start_date
         cannot be saved for the same employee."""
         with self.assertRaises(IntegrityError):
-            another_employeegrade = EmployeeGrade.objects.create(
-            employee=User.objects.get(pk=1),
-            grade=9,
-            g_start_date=datetime.date.today()
-        )
+            EmployeeGrade.objects.create(
+                employee=User.objects.get(pk=1),
+                grade=9,
+                g_start_date=datetime.date.today()
+            )
 
     def test_string_method(self):
         """Check that string method override works correctly."""

@@ -5,7 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 def forward(apps, schema_editor):
-    TimecardObject = apps.get_model('hours', 'TimecardObject')
     Timecard = apps.get_model('hours', 'Timecard')
     for tc in Timecard.objects.all():
         tcos = tc.timecardobjects.all()

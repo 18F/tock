@@ -490,13 +490,13 @@ class ProjectViewTests(WebTest):
         """
         TimecardObject.objects.filter().delete()
         Timecard.objects.get(pk=1).submitted=True
-        timecard_object_submitted = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard = Timecard.objects.get(pk=1),
             project=Project.objects.get(pk=1),
             submitted = True,
             hours_spent= 10
         )
-        timecard_object_saved = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard = Timecard.objects.get(pk=2),
             project=Project.objects.get(pk=1),
             submitted = False,

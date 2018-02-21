@@ -756,8 +756,6 @@ class TimecardView(UpdateView):
         reporting_period = ReportingPeriod.objects.get(pk=self.object.reporting_period_id)
 
 
-        accounting_codes = []
-
         # TODO: This is inefficient because we're writing over the
         # already-generated choices. Ideally we should be passing these
         # into the formset constructor.

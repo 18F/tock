@@ -334,7 +334,7 @@ class TimecardObjectTests(TestCase):
         """Checks that no grade is appended if the only EmployeeGrade object has
          a g_start_date that is after the end date of the reporting period."""
         EmployeeGrade.objects.filter(employee=self.user).delete()
-        newer_grade = EmployeeGrade.objects.create(
+        EmployeeGrade.objects.create(
             employee=self.user,
             grade=13,
             g_start_date=self.reporting_period.end_date + datetime.timedelta(days=1)
