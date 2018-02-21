@@ -3,6 +3,8 @@ import os
 import dj_database_url
 
 from .base import *  # noqa
+# spell out explicit variable dependencies
+from .base import DATABASES
 
 
 USE_X_FORWARDED_HOST = True
@@ -34,6 +36,6 @@ LOGGING = {
 
 
 try:
-  from .local_settings import *
+  from .local_settings import *     # noqa
 except ImportError:
   pass

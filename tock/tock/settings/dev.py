@@ -4,6 +4,8 @@ import dj_database_url
 import json
 
 from .base import *  # noqa
+# spell out explicit variable dependencies
+from .base import (DATABASES, INSTALLED_APPS, MIDDLEWARE_CLASSES, TEMPLATES)
 
 DEBUG = True
 
@@ -62,6 +64,6 @@ DEBUG_TOOLBAR_CONFIG = {
 USE_X_FORWARDED_HOST = True
 
 try:
-  from .local_settings import *
+  from .local_settings import *     # noqa
 except ImportError:
   pass
