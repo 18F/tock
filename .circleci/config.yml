@@ -57,6 +57,7 @@ jobs:
             python manage.py migrate --noinput --settings=tock.settings.test
             python manage.py test --noinput --settings=tock.settings.test
             bandit -r . -x manage.py,docker_entrypoint.py
+            flake8
             codecov
 
       - store_artifacts:
