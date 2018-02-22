@@ -35,8 +35,14 @@ class TockUserBackend(UaaBackend):
 
     def create_user_with_email(email):
         username = email_to_username(email)
-        User.objects.create_user(username, email)
-        return User.objects.get(email__iexact=email)
+        try:
+            print("Try getting a user that exists already.")
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            print("Create a new user if they don't exist.")
+            User.objects.create_user(username, email)
+        return User.objects.get(username=username)
+
 
 class UserDataMiddleware(object):
 
