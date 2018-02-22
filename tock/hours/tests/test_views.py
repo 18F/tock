@@ -36,8 +36,10 @@ FIXTURES = [
 ]
 
 def decode_streaming_csv(response, **reader_options):
-    lines = [line.decode('utf-8') for line in response.streaming_content]
-    return csv.DictReader(lines, **reader_options)
+    return csv.DictReader(
+        response.body.decode('utf-8').split('\n'),
+        **reader_options
+    )
 
 class DashboardReportsListTests(WebTest):
     fixtures = ['tock/fixtures/prod_user.json',]
@@ -342,12 +344,15 @@ class DashboardViewTests(WebTest):
         self.assertContains(response, '18F Operations Dashboard')
         self.assertEqual(response.context['rp_selected'], self.rp_1)
 
-class CSVTests(TestCase):
+class CSVTests(WebTest):
     fixtures = FIXTURES
 
     def test_user_data_csv(self):
         """Test that correct fields are returned for user data CSV request."""
-        response = client(self).get(reverse('reports:UserDataView'))
+        response = self.app.get(
+            reverse('reports:UserDataView'),
+            headers={'X_AUTH_USER':'aaron.snow@gsa.gov'}
+        )
         rows = decode_streaming_csv(response)
         for row in rows:
             num_of_fields = len(row)
@@ -360,7 +365,10 @@ class CSVTests(TestCase):
     def test_project_csv(self):
         """Test that correct fields are returned for project data CSV
         request."""
-        response = client(self).get(reverse('reports:ProjectList'))
+        response = self.app.get(
+            reverse('reports:ProjectList'),
+            headers={'X_AUTH_USER':'aaron.snow@gsa.gov'}
+            )
         rows = decode_streaming_csv(response)
         for row in rows:
             num_of_fields = len(row)
@@ -380,7 +388,10 @@ class CSVTests(TestCase):
         tco.notes = 'Some notes about things!'
         tco.save()
 
-        response = client(self).get(reverse('reports:GeneralSnippetsView'))
+        response = self.app.get(
+            reverse('reports:GeneralSnippetsView'),
+            headers={'X_AUTH_USER':'aaron.snow@gsa.gov'}
+            )
         rows = decode_streaming_csv(response)
         entry_found = False
         for row in rows:
@@ -393,11 +404,14 @@ class CSVTests(TestCase):
         self.assertEqual(num_of_fields, expected_num_of_fields)
         self.assertTrue(entry_found)
 
-class BulkTimecardsTests(TestCase):
+class BulkTimecardsTests(WebTest):
     fixtures = FIXTURES
 
     def test_bulk_timecards(self):
-        response = client(self).get(reverse('reports:BulkTimecardList'))
+        a = get_user_model().objects.get(username='aaron.snow')
+        response = self.app.get(
+            reverse('reports:BulkTimecardList'),
+            headers={'X_AUTH_USER':'aaron.snow@gsa.gov'})
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
@@ -427,7 +441,9 @@ class BulkTimecardsTests(TestCase):
         self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
 
     def test_slim_bulk_timecards(self):
-        response = client(self).get(reverse('reports:SlimBulkTimecardList'))
+        response = self.app.get(
+            reverse('reports:SlimBulkTimecardList'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'})
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
@@ -449,15 +465,15 @@ class BulkTimecardsTests(TestCase):
             rows_read += 1
         self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
 
-class TestAdminBulkTimecards(TestCase):
+class TestAdminBulkTimecards(WebTest):
     fixtures = FIXTURES
 
     def test_admin_bulk_timecards(self):
-        factory = RequestFactory()
         user = User.objects.get(username='aaron.snow')
-        request = factory.get(reverse('reports:AdminBulkTimecardList'))
-        request.user = user
-        response = hours.views.admin_bulk_timecard_list(request)
+        response = self.app.get(
+            reverse('reports:AdminBulkTimecardList'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
@@ -487,7 +503,10 @@ class ProjectTimelineTests(WebTest):
     fixtures = FIXTURES
 
     def test_project_timeline(self):
-        res = client(self).get(reverse('reports:UserTimelineView'))
+        res = self.app.get(
+            reverse('reports:UserTimelineView'),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+            )
         self.assertIn(
             'aaron.snow,,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
@@ -497,7 +516,7 @@ class UtilTests(TestCase):
         """Ensure the number of hours returns a correct value"""
         self.assertEqual(20, number_of_hours(50, 40))
 
-class UserReportsTest(TestCase):
+class UserReportsTest(WebTest):
     fixtures = [
         'tock/fixtures/prod_user.json',
         'projects/fixtures/projects.json',
@@ -535,10 +554,12 @@ class UserReportsTest(TestCase):
         )
 
     def test_user_reporting_period_report(self):
-        response = client(self).get(reverse(
-            'reports:ReportingPeriodUserDetailView',
+        response = self.app.get(
+            reverse('reports:ReportingPeriodUserDetailView',
             kwargs={'reporting_period':'1999-12-31', 'username':'aaron.snow'}
-        ))
+            ),
+            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+        )
         self.assertEqual(response.context['user_utilization'], '67.5%')
         self.assertEqual(response.context['user_all_hours'], 40.00)
         self.assertEqual(response.context['user_billable_hours'], 27)
@@ -602,7 +623,10 @@ class ReportTests(WebTest):
             start_date=datetime.date(2016, 1, 1),
             end_date=datetime.date(2016, 1, 7),
             exact_working_hours=40)
-        response = self.app.get(reverse('reports:ListReports'))
+        response = self.app.get(
+            reverse('reports:ListReports'),
+            headers={'X_AUTH_USER': self.regular_user.email},
+        )
         response = response.content.decode('utf-8')
         self.assertTrue(response.index('2016') < response.index('2015'))
 
@@ -1010,7 +1034,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
@@ -1039,7 +1064,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 4)
@@ -1061,7 +1087,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
@@ -1073,7 +1100,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
         self.assertEqual(
             len(response.html.find_all('tbody')), 2
@@ -1095,7 +1123,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
 
         tables = response.html.find_all('table')
@@ -1125,7 +1154,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email},
         )
 
         tables = response.html.find_all('table')
@@ -1148,7 +1178,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            headers={'X_AUTH_USER': self.regular_user.email}
         )
         self.assertContains(response,
             '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')

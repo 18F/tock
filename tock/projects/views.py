@@ -4,14 +4,18 @@ from django.db.models import Sum
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 
+from rest_framework.permissions import IsAuthenticated
+from tock.utils import PermissionMixin
+
 from hours.models import TimecardObject
 from .models import Project
 
 
-class ProjectListView(ListView):
+class ProjectListView(PermissionMixin, ListView):
     """ View for listing all of the projects, sort projects by name """
     model = Project
     template_name = 'projects/project_list.html'
+    permission_classes = (IsAuthenticated, )
 
     queryset = Project.objects.all().prefetch_related('alerts').order_by('name')
 
@@ -20,10 +24,11 @@ class ProjectListView(ListView):
         return context
 
 
-class ProjectView(DetailView):
+class ProjectView(PermissionMixin, DetailView):
     """ View for listing the details of a specific project """
     model = Project
     template_name = 'projects/project_detail.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

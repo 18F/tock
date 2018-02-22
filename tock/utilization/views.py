@@ -8,10 +8,15 @@ from django.core.urlresolvers import reverse
 from hours.models import Timecard, TimecardObject, ReportingPeriod
 from employees.models import UserData
 
+from rest_framework.permissions import IsAuthenticated
+
+from tock.utils import PermissionMixin
+
 from .utils import get_fy_first_day, get_dates, calculate_utilization
 
-class GroupUtilizationView(ListView):
+class GroupUtilizationView(PermissionMixin, ListView):
     template_name = 'utilization/group_utilization.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         """Gets submitted timecards limited to the reporting periods in
