@@ -53,6 +53,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
           </div>
         </div>
         <nav role="navigation" class="usa-nav">
+          {% if not error_code %}
           <div class="usa-nav-inner">
             <button class="usa-nav-close">
               <img src="/static/img/uswds/close.svg" alt="close">
@@ -112,6 +113,7 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                 {% endif %}
             </ul>
           </div>
+          {% endif %}
         </nav>
 </header>
 
