@@ -45,8 +45,9 @@ from .forms import (
 from utilization.utils import calculate_utilization, get_fy_first_day
 
 
-class DashboardReportsList(ListView):
+class DashboardReportsList(PermissionMixin, ListView):
     template_name = 'hours/dashboard_list.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         available_reports = ReportingPeriod.objects.filter(
@@ -56,8 +57,9 @@ class DashboardReportsList(ListView):
         return available_reports
 
 
-class DashboardView(TemplateView):
+class DashboardView(PermissionMixin, TemplateView):
     template_name = 'hours/dashboard.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_context_data(self, **kwargs):
 
@@ -468,6 +470,7 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     )
 
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def user_data_csv(request):
     """
     Stream all user data as CSV.
@@ -476,6 +479,7 @@ def user_data_csv(request):
     serializer = UserDataSerializer()
     return stream_csv(queryset, serializer)
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def projects_csv(request):
     """
     Stream all of the projects as CSV.
@@ -484,6 +488,7 @@ def projects_csv(request):
     serializer = ProjectSerializer()
     return stream_csv(queryset, serializer)
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def bulk_timecard_list(request):
     """
     Stream all the timecards as CSV.
@@ -492,6 +497,7 @@ def bulk_timecard_list(request):
     serializer = BulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def slim_bulk_timecard_list(request):
     """
     Stream a slimmed down version of all the timecards as CSV.
@@ -500,6 +506,7 @@ def slim_bulk_timecard_list(request):
     serializer = SlimBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def general_snippets_only_timecard_list(request):
     """
     Stream all timecard data that is for General and has a snippet.
@@ -512,6 +519,7 @@ def general_snippets_only_timecard_list(request):
     serializer = GeneralSnippetsTimecardSerializer()
     return stream_csv(queryset, serializer)
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def timeline_view(request, value_fields=(), **field_alias):
     """ CSV endpoint for the project timeline viz. """
     queryset = get_timecards(TimecardList.queryset, request.GET)
@@ -551,6 +559,7 @@ def timeline_view(request, value_fields=(), **field_alias):
 
     return response
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def project_timeline_view(request):
     return timeline_view(
         request,
@@ -564,6 +573,7 @@ def project_timeline_view(request):
         project__organization__name='organization'
     )
 
+@user_passes_test(lambda u: u.is_authenticated, login_url='/')
 def user_timeline_view(request):
     return timeline_view(
         request,
@@ -575,7 +585,7 @@ def user_timeline_view(request):
         timecard__user__user_data__organization__name='organization'
     )
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(lambda u: u.is_superuser, login_url='/')
 def admin_bulk_timecard_list(request):
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = AdminBulkTimecardSerializer()
@@ -712,9 +722,10 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
         return reverse('ListReportingPeriods')
 
 
-class TimecardView(UpdateView):
+class TimecardView(PermissionMixin, UpdateView):
     form_class = TimecardForm
     template_name = 'hours/timecard_form.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_object(self, queryset=None):
         self.report_date = dt.datetime.strptime(
@@ -881,9 +892,11 @@ class TimecardView(UpdateView):
             )
 
 
-class ReportsList(ListView):
+class ReportsList(PermissionMixin, ListView):
     """Show a list of all Reporting Periods to navigate to various reports"""
     template_name = 'hours/reports_list.html'
+    permission_classes = (IsAuthenticated, )
+
 
     def get_queryset(self, queryset=None):
         query = ReportingPeriod.objects.all()
@@ -985,9 +998,10 @@ def ReportingPeriodCSVView(request, reporting_period):
     return response
 
 
-class ReportingPeriodUserDetailView(DetailView):
+class ReportingPeriodUserDetailView(PermissionMixin, DetailView):
     model = Timecard
     template_name = 'hours/reporting_period_user_detail.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_object(self):
         obj = Timecard.objects.prefetch_related(
