@@ -107,3 +107,8 @@ REST_FRAMEWORK = {
 }
 
 VERSION = env.get_credential('CIRCLE_TAG', 'master')
+
+UAA_CLIENT_ID = env.get_credential('UAA_CLIENT_ID', None)
+UAA_CLIENT_SECRET = env.get_credential('UAA_CLIENT_SECRET', None)
+UAA_AUTH_URL = 'https://login.fr.cloud.gov/oauth/authorize'
+UAA_TOKEN_URL = 'https://uaa.fr.cloud.gov/oauth/token'
