@@ -1,14 +1,12 @@
-import datetime
-
-from django.db.models import Sum, Prefetch
+from django.db.models import Sum
 from django.views.generic import ListView
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from hours.models import Timecard, TimecardObject, ReportingPeriod
+from hours.models import TimecardObject, ReportingPeriod
 from employees.models import UserData
 
-from .utils import get_fy_first_day, get_dates, calculate_utilization
+from .utils import get_dates, calculate_utilization
 
 class GroupUtilizationView(ListView):
     template_name = 'utilization/group_utilization.html'

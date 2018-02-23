@@ -1,13 +1,9 @@
 import datetime
-import requests
 
 from django.test import TestCase
 from django.db import IntegrityError
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 
-from tock.settings import base, dev
-from employees.models import UserData
 from rest_framework.authtoken.models import Token
 from employees.models import EmployeeGrade, UserData
 
@@ -24,11 +20,11 @@ class EmployeeGradeTests(TestCase):
         """Check that multiple EmployeeGrade objects with the same g_start_date
         cannot be saved for the same employee."""
         with self.assertRaises(IntegrityError):
-            another_employeegrade = EmployeeGrade.objects.create(
-            employee=User.objects.get(pk=1),
-            grade=9,
-            g_start_date=datetime.date.today()
-        )
+            EmployeeGrade.objects.create(
+                employee=User.objects.get(pk=1),
+                grade=9,
+                g_start_date=datetime.date.today()
+            )
 
     def test_string_method(self):
         """Check that string method override works correctly."""

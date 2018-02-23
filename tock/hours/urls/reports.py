@@ -1,7 +1,6 @@
 from django.conf.urls import url
 
 from .. import views
-from api.views import ProjectList
 
 urlpatterns = [
     url(r'^timecards_bulk.csv$', views.bulk_timecard_list, name='BulkTimecardList'),

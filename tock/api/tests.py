@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import csv
 import datetime
 import json
 
@@ -9,7 +8,7 @@ from django.core.urlresolvers import reverse
 
 from django_webtest import WebTest
 
-from api.views import get_timecards, TimecardList, ProjectList, TimecardSerializer
+from api.views import get_timecards, TimecardList
 from projects.factories import AccountingCodeFactory, ProjectFactory
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
@@ -21,7 +20,6 @@ from employees.models import UserData, EmployeeGrade
 
 from rest_framework.authtoken.models import Token
 
-from django.test.client import Client
 from rest_framework.test import APIClient
 
 # common client for all API tests
@@ -245,10 +243,10 @@ class ReportingPeriodList(WebTest):
 
     def test_ReportingPeriodList_json(self):
         """ Check that the reporting periods are listed """
-        res = client(self).get(reverse('ReportingPeriodList')).data
-        self.assertEqual(res.json['count'], 1)
+        res = client(self).get(reverse('ReportingPeriodList')).json()
+        self.assertGreater(len(res), 0)
 
-    def test_ReportingPeriodList_json(self):
+    def test_ReportingPeriodList_json_empty(self):
         """ Check that the ReportingPeriodList is empty when all users
         have filled out thier time cards"""
         reporting_periods = client(self).get(reverse('ReportingPeriodList')).data

@@ -48,6 +48,19 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 You can access the admin panel at `/admin`.
 
+### Running static analysis tools
+
+We run two linting tools in continuous integration,
+[`flake8`](http://flake8.pycqa.org/en/latest/) for general linting of unused
+variables, style, etc. and [`bandit`](https://pypi.python.org/pypi/bandit), a
+security-focused linter.
+
+To run this locally, run:
+```sh
+docker-compose run app bandit -r . -x manage.py,docker_entrypoint.py
+docker-compose run app flake8
+```
+
 ### Accessing the app container
 
 You'll likely want to run `manage.py` to do other things at some point.
@@ -60,11 +73,6 @@ docker-compose run app bash
 This will run an interactive bash session inside the main app container.
 In this container, the `/tock` directory is mapped to the `tock`
 directory of the repository on your host; you can run `manage.py` from there.
-
-Note that if you don't have Django installed on your host system, you
-can just run `python manage.py` directly from outside the container--the
-`manage.py` script has been modified to run itself in a Docker container
-if it detects that Django isn't installed.
 
 #### Running `pdb` within the Docker container
 

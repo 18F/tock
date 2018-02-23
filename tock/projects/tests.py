@@ -4,10 +4,9 @@ import random
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.models import Sum
 from django.utils.dateformat import format as date_format
 from django_webtest import WebTest
-from django.test import Client, TestCase
+from django.test import TestCase
 
 
 from hours.models import ReportingPeriod, Timecard, TimecardObject
@@ -424,7 +423,7 @@ class TestProjectTimeline(WebTest):
                     ),
                 ),
                 project=self.project,
-                hours_spent=random.randint(5, 35),
+                hours_spent=random.randint(5, 35), # nosec
             )
             for date in self.dates
         ]
@@ -490,13 +489,13 @@ class ProjectViewTests(WebTest):
         """
         TimecardObject.objects.filter().delete()
         Timecard.objects.get(pk=1).submitted=True
-        timecard_object_submitted = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard = Timecard.objects.get(pk=1),
             project=Project.objects.get(pk=1),
             submitted = True,
             hours_spent= 10
         )
-        timecard_object_saved = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard = Timecard.objects.get(pk=2),
             project=Project.objects.get(pk=1),
             submitted = False,

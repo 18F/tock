@@ -1,9 +1,7 @@
 from django.contrib import admin
-from django.forms.models import BaseInlineFormSet
 from django import forms
 
 from .models import Agency, Project, ProfitLossAccount, ProjectAlert, AccountingCode
-from hours.admin import TimecardPrefillDataInline
 
 class AgencyAdmin(admin.ModelAdmin):
     search_fields = ['name',]

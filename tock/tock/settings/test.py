@@ -1,6 +1,8 @@
 from django.utils.crypto import get_random_string
 
 from .base import *  # noqa
+# spell out explicit variable dependencies
+from .base import (INSTALLED_APPS, MIDDLEWARE_CLASSES)
 
 SECRET_KEY = get_random_string(50)
 

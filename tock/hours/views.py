@@ -1,7 +1,6 @@
 import csv
 import datetime as dt
 import io
-import json
 
 from itertools import chain
 from operator import attrgetter
@@ -9,15 +8,12 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
-from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
-from django.db.models import Prefetch, Q, Sum
+from django.db.models import Sum
 from django.contrib.auth.decorators import user_passes_test
 
 from rest_framework.permissions import IsAuthenticated
@@ -26,10 +22,8 @@ from rest_framework import serializers
 from api.views import get_timecards, TimecardList, ProjectSerializer, UserDataSerializer
 from api.renderers import stream_csv
 from employees.models import UserData
-from projects.models import AccountingCode
 from tock.remote_user_auth import email_to_username
-from tock.utils import PermissionMixin, IsSuperUserOrSelf, flatten
-from tock.settings import base
+from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
 from .models import (
     Project,
@@ -49,7 +43,6 @@ from .forms import (
     timecard_formset_factory
 )
 from utilization.utils import calculate_utilization, get_fy_first_day
-from employees.models import UserData
 
 
 class DashboardReportsList(ListView):
@@ -756,8 +749,6 @@ class TimecardView(UpdateView):
 
         reporting_period = ReportingPeriod.objects.get(pk=self.object.reporting_period_id)
 
-
-        accounting_codes = []
 
         # TODO: This is inefficient because we're writing over the
         # already-generated choices. Ideally we should be passing these
