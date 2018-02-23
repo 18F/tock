@@ -74,11 +74,6 @@ This will run an interactive bash session inside the main app container.
 In this container, the `/tock` directory is mapped to the `tock`
 directory of the repository on your host; you can run `manage.py` from there.
 
-Note that if you don't have Django installed on your host system, you
-can just run `python manage.py` directly from outside the container--the
-`manage.py` script has been modified to run itself in a Docker container
-if it detects that Django isn't installed.
-
 #### Running `pdb` within the Docker container
 
 Once you have a running set containers, you should be able to attach to the
