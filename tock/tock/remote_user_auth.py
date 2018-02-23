@@ -25,41 +25,32 @@ def email_to_username(email):
     return email_list[0][:30]
 
 
+def verify_userdata(user):
+    """Ensure that authenticated users have associated `UserData` records.
+    """
+    try:
+        user = UserData.objects.get(user=user)
+    except UserData.DoesNotExist:
+        UserData.objects.create(
+            user=user,
+            start_date=datetime.date.today(),
+        )
+
+
 class TockUserBackend(UaaBackend):
-
-    def should_create_user_for_email(email):
-        APPROVED_DOMAINS = getattr(settings, 'ALLOWED_EMAIL_DOMAINS', [])
-
-        email_pieces = email.split('@')
-        return email_pieces[1] in APPROVED_DOMAINS
 
     def create_user_with_email(email):
         username = email_to_username(email)
+
         try:
             print("Try getting a user that exists already.")
-            User.objects.get(username=username)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
             print("Create a new user if they don't exist.")
-            User.objects.create_user(username, email)
-        return User.objects.get(username=username)
+            user = User.objects.create_user(username, email)
+            verify_userdata(user)
+            user.first_name = str(username).split('.')[0].title()
+            user.last_name = str(username).split('.')[1].title()
+            user.save()
 
-
-class UserDataMiddleware(object):
-
-    def process_request(self, request):
-        """Ensure that authenticated users have associated `UserData` records.
-        """
-        if request.user.is_authenticated():
-            try:
-                UserData.objects.get(user=request.user)
-            except UserData.DoesNotExist:
-                UserData.objects.create(
-                    user=request.user,
-                    start_date=datetime.date.today(),
-                )
-                new_obj = User.objects.get(username=request.user)
-                first_name = str(request.user).split('.')[0].title()
-                last_name = str(request.user).split('.')[1].title()
-                new_obj.first_name = first_name
-                new_obj.last_name = last_name
-                new_obj.save()
+        return user

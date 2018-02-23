@@ -68,7 +68,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'tock.remote_user_auth.UserDataMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'uaa_client.middleware.UaaRefreshMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -88,10 +87,6 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-ALLOWED_EMAIL_DOMAINS = {
-    'gsa.gov',
-}
-
 REST_FRAMEWORK = {
     'UNICODE_JSON': False,
     'DEFAULT_RENDERER_CLASSES': (
@@ -109,6 +104,9 @@ REST_FRAMEWORK = {
 
 VERSION = env.get_credential('CIRCLE_TAG', 'master')
 
+UAA_APPROVED_DOMAINS = {
+    'gsa.gov',
+}
 UAA_CLIENT_ID = env.get_credential('UAA_CLIENT_ID', None)
 UAA_CLIENT_SECRET = env.get_credential('UAA_CLIENT_SECRET', None)
 UAA_AUTH_URL = 'https://login.fr.cloud.gov/oauth/authorize'
