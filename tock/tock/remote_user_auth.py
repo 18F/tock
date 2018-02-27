@@ -2,7 +2,6 @@ import datetime
 
 from uaa_client.authentication import UaaBackend
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
 
