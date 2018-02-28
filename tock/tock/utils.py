@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.permissions import BasePermission
 from django.shortcuts import redirect
 
@@ -13,7 +13,8 @@ from tock.settings import base
 
 logger = logging.getLogger(__name__)
 
-class PermissionMixin(object):
+
+class PermissionMixin(LoginRequiredMixin, object):
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(PermissionMixin, cls).as_view(**initkwargs)
@@ -46,9 +47,13 @@ class IsSuperUserOrSelf(BasePermission):
             )
         )
 
+
 def is_running_test_suite():
-    return (os.path.basename(sys.argv[0]) == 'manage.py' and
-            len(sys.argv) > 1 and sys.argv[1] == 'test') or base.FLOAT_API_KEY == ''
+    return (
+        (os.path.basename(sys.argv[0]) == 'manage.py' and
+            len(sys.argv) > 1 and sys.argv[1] == 'test') or
+        base.FLOAT_API_KEY == ''
+    )
 
 
 def flatten(nested_list):

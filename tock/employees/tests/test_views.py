@@ -7,10 +7,11 @@ import datetime
 from employees.views import parse_date
 from employees.models import UserData
 
+from test_common import ProtectedViewTestCase
 
-class UserViewTests(WebTest):
 
-    fixtures = ['tock/fixtures/prod_user.json']
+class UserViewTests(ProtectedViewTestCase, WebTest):
+
     csrf_checks = False
 
     def setUp(self):
@@ -24,9 +25,9 @@ class UserViewTests(WebTest):
         ).save()
 
     def test_access_to_employee_static_view(self):
-        response = self.app.get(
-            reverse('employees:UserDetailView', args=["regular.user"]),
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'},
+        self.login()
+        response = self.client.get(
+            reverse('employees:UserDetailView', args=["regular.user"])
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(
@@ -41,9 +42,9 @@ class UserViewTests(WebTest):
         )
 
     def test_access_to_user_form_for_self(self):
-        response = self.app.get(
-            reverse('employees:UserListView'),
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'},
+        self.login(username="aaron.snow")
+        response = self.client.get(
+            reverse('employees:UserListView')
         )
         self.assertContains(
             response,
@@ -93,17 +94,19 @@ class UserViewTests(WebTest):
     def test_UserFormViewPermissionForAdmin(self):
         """ Ensure that admin has access to another user's UserFormView
         page """
-        response = self.app.get(
-            reverse('employees:UserFormView', args=["regular.user"]),
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'},
+        self.login(username="aaron.snow", is_superuser=True)
+        response = self.client.get(
+            reverse('employees:UserFormView', args=["regular.user"])
         )
         # Check that inital data for UserDate Populates
-        self.assertEqual(
-            response.html.find('input', {'id': 'id_start_date'})['value'],
-            '2014-01-01')
-        self.assertEqual(
-            response.html.find('input', {'id': 'id_end_date'})['value'],
-            '2016-01-01')
+        self.assertContains(
+            response,
+            '<input class="datepicker" id="id_start_date" name="start_date" type="text" value="2014-01-01" />'
+        )
+        self.assertContains(
+            response,
+            '<input class="datepicker" id="id_end_date" name="end_date" type="text" value="2016-01-01" />'
+        )
 
     def test_UserFormViewPermissionForUser(self):
         """ Ensure that UserFormView returns a 403 when a user tries to access
@@ -116,34 +119,36 @@ class UserViewTests(WebTest):
 
     def test_UserFormViewPermissionForSelf(self):
         """ Ensure that UserFormViews works for a user's own form """
-        response = self.app.get(
-            reverse('employees:UserFormView', args=['regular.user']),
-            headers={'X_AUTH_USER': 'regular.user@gsa.gov'}
+        self.login(username="test.user")
+        response = self.client.get(
+            reverse('employees:UserFormView', args=['test.user']),
         )
         self.assertEqual(response.status_code, 200)
         # Check that inital data for UserDate Populates
-        self.assertEqual(
-            response.html.find('input', {'id': 'id_start_date'})['value'],
-            '2014-01-01')
-        self.assertEqual(
-            response.html.find('input', {'id': 'id_end_date'})['value'],
-            '2016-01-01')
+        self.assertContains(
+            response,
+            '<input class="datepicker" id="id_start_date" name="start_date" type="text" value="2014-01-01" />'
+        )
+        self.assertContains(
+            response,
+            '<input class="datepicker" id="id_end_date" name="end_date" type="text" value="2016-01-01" />'
+        )
 
     def test_UserFormViewPostForAdmin(self):
         """ Ensure that an admin can submit data via the form """
-        form = self.app.get(
+        self.login(username='aaron.snow', is_superuser=True)
+        response = self.client.post(
             reverse('employees:UserFormView', args=['regular.user']),
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'},
-        ).form
-        form['first_name'] = 'Regular'
-        form['last_name'] = 'User'
-        form['start_date'] = '2013-01-01'
-        form['end_date'] = '2014-01-01'
-        form['current_employee'] = False
-        response = form.submit(
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}).follow()
+            {
+                'first_name': 'Regular',
+                'last_name': 'User',
+                'start_date': '2013-01-01',
+                'end_date': '2014-01-01',
+                'current_employee': False,
+            }
+        )
         # Check if errors occured at submission
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.url, reverse('employees:UserListView'))
         # Check if data was changed
         # Check that data was changed
         user_data = UserData.objects.first()
