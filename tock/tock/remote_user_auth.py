@@ -39,17 +39,23 @@ def verify_userdata(user):
 
 
 class TockUserBackend(UaaBackend):
+    @classmethod
+    def get_user_by_email(cls, email):
+        user = super().get_user_by_email(email)
+        if user is not None:
+            verify_userdata(user)
+        return user
 
-    def create_user_with_email(email):
+    @classmethod
+    def create_user_with_email(cls, email):
         username = email_to_username(email)
 
         try:
-            logger("Try getting a user [%s] that exists already." % username)
+            logger.info("Try getting a user [%s] that exists already." % username)
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            logger("Creating a new user [%s] and UserData if it doesn't exist" % username)
+            logger.info("Creating a new user [%s] and UserData if it doesn't exist" % username)
             user = User.objects.create_user(username, email)
-            verify_userdata(user)
             user.first_name = str(username).split('.')[0].title()
             user.last_name = str(username).split('.')[1].title()
             user.save()
