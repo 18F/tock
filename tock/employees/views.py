@@ -42,6 +42,7 @@ class UserDetailView(PermissionMixin, DetailView):
             user__username=self.kwargs['username'])
         return target_user
 
+
 class UserFormView(PermissionMixin, FormView):
     template_name = 'employees/user_form.html'
     form_class = UserForm
