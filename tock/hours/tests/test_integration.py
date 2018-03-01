@@ -1,24 +1,28 @@
 import datetime
 
 from django.core.urlresolvers import reverse
-from django.contrib.auth import get_user_model
 
 from django_webtest import WebTest
+
+from test_common import ProtectedViewTestCase
 
 from hours.forms import choice_label_for_project
 import hours.models
 import projects.models
 
 
-class TestOptions(WebTest):
+class TestOptions(ProtectedViewTestCase, WebTest):
 
     fixtures = [
-        'projects/fixtures/projects.json',
-        'tock/fixtures/prod_user.json'
+        'projects/fixtures/projects.json'
     ]
 
     def setUp(self):
-        self.user = get_user_model().objects.get(id=1)
+        self.user = self.login(
+            username='aaron.snow',
+            is_superuser=True,
+            is_staff=True
+        )
         self.projects = [
             projects.models.Project.objects.get(name='openFEC'),
             projects.models.Project.objects.get(name='Peace Corps'),
@@ -45,13 +49,27 @@ class TestOptions(WebTest):
             'reportingperiod:UpdateTimesheet',
             kwargs={'reporting_period': date},
         )
-        res = self.app.get(url, headers={'X_AUTH_USER': self.user.email})
-        select = res.forms[0].fields['timecardobjects-0-project'][0]
-        options = [each[-1] for each in select.options]
+        self.login(username='aaron.snow')
+        res = self.client.get(url)
+        optionTemplate = """
+            <option
+            value="%s"
+            data-billable="billable"
+            data-notes-displayed="false"
+            data-notes-required="false">%s</option>
+        """
         for each in (positive or []):
-            self.assertIn(each, options)
+            self.assertContains(
+                res,
+                optionTemplate % (each.split(' - ')[0], each),
+                html=True
+            )
         for each in (negative or []):
-            self.assertNotIn(each, options)
+            self.assertNotContains(
+                res,
+                optionTemplate % (each.split(' - ')[0], each),
+                html=True
+            )
 
     def test_project_select(self):
         self._assert_project_options([
@@ -67,19 +85,18 @@ class TestOptions(WebTest):
 
     def test_admin_page_reportingperiod(self):
         """ Check that admin page reportingperiod works"""
-        res = self.app.get(
-            reverse('admin:hours_reportingperiod_changelist'),
-            headers={'X_AUTH_USER': self.user.email})
+        res = self.client.get(
+            reverse('admin:hours_reportingperiod_changelist')
+        )
         self.assertEqual(200, res.status_code)
 
     def test_admin_page_timecards(self):
         """Check that admin page timecard page works"""
         timecard = hours.models.Timecard.objects.first()
-        res = self.app.get(
+        res = self.client.get(
             reverse(
                 'admin:hours_timecard_change',
                 args=[timecard.id],
-            ),
-            headers={'X_AUTH_USER': self.user.email},
+            )
         )
         self.assertEqual(200, res.status_code)
