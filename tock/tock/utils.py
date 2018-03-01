@@ -29,9 +29,9 @@ class PermissionMixin(LoginRequiredMixin, object):
             for permission_class in getattr(cls, 'permission_classes', ()):
                 if not permission_class().has_permission(request, self):
                     if isinstance(permission_class(), IsAuthenticated):
-                        logger("User isn't logged in, redirecting...")
+                        logger.info("User isn't logged in, redirecting...")
                         return redirect('/auth/login')
-                    logger("User isn't allowed, redirecting...")
+                    logger.info("User isn't allowed, redirecting...")
                     return render(
                         request,
                         'uaa_client/login_error.html',
