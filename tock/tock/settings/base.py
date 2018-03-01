@@ -20,7 +20,7 @@ DATABASES = {}
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
 SECRET_KEY = env.get_credential('DJANGO_SECRET_KEY', get_random_string(50))
-LOGIN_URL='/auth/login'
+LOGIN_URL = '/auth/login'
 LOGIN_REDIRECT_URL = '/'
 
 INSTALLED_APPS = (
