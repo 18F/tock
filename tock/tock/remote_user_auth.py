@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from uaa_client.authentication import UaaBackend
 from django.core.exceptions import ValidationError
@@ -7,6 +8,7 @@ from django.contrib.auth.models import User
 
 from employees.models import UserData
 
+logger = logging.getLogger(__name__)
 
 def email_to_username(email):
     """Converts a given email address to a Django compliant username"""
@@ -42,10 +44,10 @@ class TockUserBackend(UaaBackend):
         username = email_to_username(email)
 
         try:
-            print("Try getting a user that exists already.")
+            logger("Try getting a user [%s] that exists already." % username)
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            print("Create a new user if they don't exist.")
+            logger("Creating a new user [%s] and UserData if it doesn't exist" % username)
             user = User.objects.create_user(username, email)
             verify_userdata(user)
             user.first_name = str(username).split('.')[0].title()
