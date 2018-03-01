@@ -21,16 +21,23 @@ class BaseLoginTestCase(TestCase):
                     start_date=datetime.datetime(2014, 1, 1),
                     end_date=datetime.datetime(2016, 1, 1)):
 
-        user = User.objects.create_user(
-            username=username,
-            password=password,
-            email=email
-        )
-        UserData(
-            user=user,
-            start_date=start_date,
-            end_date=end_date
-        ).save()
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                email=email
+            )
+
+        try:
+            UserData.objects.get(user=user)
+        except UserData.DoesNotExist:
+            UserData(
+                user=user,
+                start_date=start_date,
+                end_date=end_date
+            ).save()
 
         for groupname in groups:
             group = Group.objects.get(name=groupname)
