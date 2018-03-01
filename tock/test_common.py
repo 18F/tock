@@ -17,7 +17,9 @@ from employees.models import UserData
 class BaseLoginTestCase(TestCase):
 
     def create_user(self, username, password=None, is_staff=False,
-                    is_superuser=False, email=None, groups=()):
+                    is_superuser=False, email=None, groups=(),
+                    start_date=datetime.datetime(2014, 1, 1),
+                    end_date=datetime.datetime(2016, 1, 1)):
 
         user = User.objects.create_user(
             username=username,
@@ -26,8 +28,8 @@ class BaseLoginTestCase(TestCase):
         )
         UserData(
             user=user,
-            start_date=datetime.datetime(2014, 1, 1),
-            end_date=datetime.datetime(2016, 1, 1)
+            start_date=start_date,
+            end_date=end_date
         ).save()
 
         for groupname in groups:
@@ -47,11 +49,15 @@ class BaseLoginTestCase(TestCase):
         return user
 
     def login(self, username='first.last', is_staff=False, is_superuser=False,
-              groups=(), permissions=None):
+              groups=(), permissions=None,
+              start_date=datetime.datetime(2014, 1, 1),
+              end_date=datetime.datetime(2016, 1, 1)):
 
         user = self.create_user(username=username, password='example',  # nosec
                                 is_staff=is_staff, is_superuser=is_superuser,
-                                groups=groups)
+                                groups=groups,
+                                start_date=start_date,
+                                end_date=end_date)
 
         assert self.client.login(
             username=username,
