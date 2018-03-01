@@ -3,11 +3,10 @@ import logging
 import os
 import sys
 
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.permissions import BasePermission
-from django.shortcuts import redirect
-
-# from uaa_client.authentication import UaaBackend
+from django.shortcuts import redirect, render
 
 from tock.settings import base
 
@@ -29,16 +28,24 @@ class PermissionMixin(LoginRequiredMixin, object):
             self.kwargs = kwargs
             for permission_class in getattr(cls, 'permission_classes', ()):
                 if not permission_class().has_permission(request, self):
-                    print("Can't log you in.")
-                    print("Permission Class %s" % (permission_class))
-                    # Check to see if the permission_class isAuthenticated here.
-                    # You don't want people to have to login if they're checking if they're a super user
-                    return redirect('/auth/login')
+                    if isinstance(permission_class(), IsAuthenticated):
+                        print("User isn't logged in, redirecting...")
+                        return redirect('/auth/login')
+                    print("User isn't allowed, redirecting...")
+                    return render(
+                        request,
+                        'uaa_client/login_error.html',
+                        context={
+                            'superuser': request.user.is_superuser,
+                        },
+                        status=403
+                    )
             return view(request, args, **kwargs)
         return wrapped
 
 
 class IsSuperUserOrSelf(BasePermission):
+
     def has_permission(self, request, view):
         return (
             request.user and (
