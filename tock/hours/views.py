@@ -586,6 +586,7 @@ def user_timeline_view(request):
         timecard__user__user_data__organization__name='organization'
     )
 
+@login_required
 def admin_bulk_timecard_list(request):
     if not request.user.is_superuser:
         return render(
