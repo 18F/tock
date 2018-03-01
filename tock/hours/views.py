@@ -19,7 +19,8 @@ from django.contrib.auth.decorators import user_passes_test
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
-from api.views import get_timecards, TimecardList, ProjectSerializer, UserDataSerializer
+from api.views import get_timecards, \
+    TimecardList, ProjectSerializer, UserDataSerializer
 from api.renderers import stream_csv
 from employees.models import UserData
 from tock.remote_user_auth import email_to_username
@@ -90,7 +91,7 @@ class DashboardView(PermissionMixin, TemplateView):
         context = super(DashboardView, self).get_context_data(**kwargs)
 
         # Get unit param.
-        unit_param = None #get_params('unit')
+        unit_param = None  # get_params('unit')
 
         # Get requested date and corresponding reporting period.
         requested_date = dt.datetime.strptime(
@@ -107,7 +108,7 @@ class DashboardView(PermissionMixin, TemplateView):
         except ReportingPeriod.DoesNotExist:
             context.update(
                 {
-                    'error': 'No reporting period available for {}.'\
+                    'error': 'No reporting period available for {}.'
                     .format(self.kwargs['reporting_period'])
                 }
             )
@@ -151,7 +152,7 @@ class DashboardView(PermissionMixin, TemplateView):
         except Targets.DoesNotExist:
             context.update(
                 {
-                    'error': 'No target information available for {}.'\
+                    'error': 'No target information available for {}.'
                     .format(self.kwargs['reporting_period'])
                 }
             )
@@ -189,7 +190,7 @@ class DashboardView(PermissionMixin, TemplateView):
         # Get data for reporting period and clean result.
         hours_billed_weekly = clean_result(TimecardObject.objects.filter(
             timecard__reporting_period__start_date=\
-                rp_selected.start_date.strftime('%Y-%m-%d'),
+            rp_selected.start_date.strftime('%Y-%m-%d'),
             project__accounting_code__billable=True,
             timecard__user__user_data__in=employees
         ).exclude(
@@ -243,19 +244,19 @@ class DashboardView(PermissionMixin, TemplateView):
             'fytd_start_date': fytd_start_date,
             # Annual performance
             'hours_required_cr_fytd': '{:,}'.format(
-                round(hours_required_cr_fytd,2)
+                round(hours_required_cr_fytd, 2)
             ),
             'hours_required_plan_fytd': '{:,}'.format(
-                round(hours_required_plan_fytd,2)
+                round(hours_required_plan_fytd, 2)
             ),
             'hours_billed_fytd': '{:,}'.format(
-                round(hours_billed_fytd,2)
+                round(hours_billed_fytd, 2)
             ),
             'variance_cr_ytd': '{:,}'.format(
-                round(variance_cr_ytd,2)
+                round(variance_cr_ytd, 2)
             ),
             'variance_plan_fytd': '{:,}'.format(
-                round(variance_plan_fytd,2)
+                round(variance_plan_fytd, 2)
             ),
             'p_variance_cr_fytd': '{0:.2%}'.format(
                 p_variance_cr_fytd
@@ -286,19 +287,19 @@ class DashboardView(PermissionMixin, TemplateView):
             ),
             # Weekly performance.
             'hours_required_cr_weekly': '{:,}'.format(
-                round(hours_required_cr_weekly,2)
+                round(hours_required_cr_weekly, 2)
             ),
             'hours_required_plan_weekly': '{:,}'.format(
-                round(hours_required_plan_weekly,2)
+                round(hours_required_plan_weekly, 2)
             ),
             'hours_billed_weekly': '{:,}'.format(
-                round(hours_billed_weekly,2)
+                round(hours_billed_weekly, 2)
             ),
             'variance_cr_weekly': '{:,}'.format(
-                round(variance_cr_weekly,2)
+                round(variance_cr_weekly, 2)
             ),
             'variance_plan_weekly': '{:,}'.format(
-                round(variance_plan_weekly,2)
+                round(variance_plan_weekly, 2)
             ),
             'p_variance_cr_weekly': '{0:.2%}'.format(
                 p_variance_cr_weekly
