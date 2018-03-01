@@ -12,9 +12,9 @@ def email_to_username(email):
     """Converts a given email address to a Django compliant username"""
     email_list = email.lower().split('@')
 
-    # If ALLOWED_EMAIL_DOMAINS, then ensure it is in the list of domains
-    if settings.ALLOWED_EMAIL_DOMAINS:
-        if email_list[1] in settings.ALLOWED_EMAIL_DOMAINS:
+    # If UAA_APPROVED_DOMAINS, then ensure it is in the list of domains
+    if settings.UAA_APPROVED_DOMAINS:
+        if email_list[1] in settings.UAA_APPROVED_DOMAINS:
             pass
         else:
             raise ValidationError('Email Domain not in Allowed List')
