@@ -68,6 +68,8 @@ class TestGroupUtilizationView(WebTest):
         req_user_data.is_billable = True
         req_user_data.save()
 
+        self.req_user = req_user
+
         self.user = User.objects.create(
             username='regular.user'
         )
@@ -102,7 +104,7 @@ class TestGroupUtilizationView(WebTest):
     def test_utilization(self):
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+            user=self.req_user
         )
 
         self.assertEqual(len(
@@ -126,7 +128,7 @@ class TestGroupUtilizationView(WebTest):
     def test_summary_rows(self):
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+            user=self.req_user
         )
         self.assertEqual(
             response.context['unit_totals'][0]['recent']['total_hours'],
@@ -138,7 +140,7 @@ class TestGroupUtilizationView(WebTest):
         self.b_timecard_object.save()
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
-            headers={'X_AUTH_USER': 'aaron.snow@gsa.gov'}
+            user=self.req_user
         )
         self.assertContains(response,int(
             self.b_timecard_object.hours_spent + \
