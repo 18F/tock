@@ -66,7 +66,7 @@ class BaseLoginTestCase(TestCase):
                                 start_date=start_date,
                                 end_date=end_date)
 
-        assert self.client.login(
+        assert self.client.login(  # nosec
             username=username,
             password='example'  # nosec
         )
