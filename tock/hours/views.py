@@ -11,12 +11,13 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
+from django.shortcuts import render
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Sum
-from django.contrib.auth.decorators import login_required
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
 from rest_framework import serializers
 
 from api.views import get_timecards, \
@@ -471,7 +472,7 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     )
 
 
-@login_required
+@api_view(['GET'])
 def user_data_csv(request):
     """
     Stream all user data as CSV.
@@ -480,7 +481,7 @@ def user_data_csv(request):
     serializer = UserDataSerializer()
     return stream_csv(queryset, serializer)
 
-@login_required
+@api_view(['GET'])
 def projects_csv(request):
     """
     Stream all of the projects as CSV.
@@ -489,7 +490,7 @@ def projects_csv(request):
     serializer = ProjectSerializer()
     return stream_csv(queryset, serializer)
 
-@login_required
+@api_view(['GET'])
 def bulk_timecard_list(request):
     """
     Stream all the timecards as CSV.
@@ -498,7 +499,7 @@ def bulk_timecard_list(request):
     serializer = BulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
-@login_required
+@api_view(['GET'])
 def slim_bulk_timecard_list(request):
     """
     Stream a slimmed down version of all the timecards as CSV.
@@ -507,7 +508,7 @@ def slim_bulk_timecard_list(request):
     serializer = SlimBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
-@login_required
+@api_view(['GET'])
 def general_snippets_only_timecard_list(request):
     """
     Stream all timecard data that is for General and has a snippet.
@@ -520,7 +521,6 @@ def general_snippets_only_timecard_list(request):
     serializer = GeneralSnippetsTimecardSerializer()
     return stream_csv(queryset, serializer)
 
-@login_required
 def timeline_view(request, value_fields=(), **field_alias):
     """ CSV endpoint for the project timeline viz. """
     queryset = get_timecards(TimecardList.queryset, request.GET)
@@ -560,7 +560,7 @@ def timeline_view(request, value_fields=(), **field_alias):
 
     return response
 
-@login_required
+@api_view(['GET'])
 def project_timeline_view(request):
     return timeline_view(
         request,
@@ -574,7 +574,7 @@ def project_timeline_view(request):
         project__organization__name='organization'
     )
 
-@login_required
+@api_view(['GET'])
 def user_timeline_view(request):
     return timeline_view(
         request,
@@ -586,7 +586,7 @@ def user_timeline_view(request):
         timecard__user__user_data__organization__name='organization'
     )
 
-@login_required
+@api_view(['GET'])
 def admin_bulk_timecard_list(request):
     if not request.user.is_superuser:
         return render(
