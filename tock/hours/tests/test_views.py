@@ -9,7 +9,6 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django_webtest import WebTest
 
-from api.tests import client
 from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData
 from hours.utils import number_of_hours
@@ -26,6 +25,19 @@ FIXTURES = [
     'employees/fixtures/user_data.json',
     'organizations/fixtures/organizations.json',
 ]
+
+
+def client(self):
+    # Note that this function was originally brought in from
+    # api.tests, but that client can't authenticate past the
+    # @login_required decorator we're currently using for
+    # this package's API-like views. For more details, see:
+    #
+    # https://github.com/18F/tock/pull/726
+    user = User.objects.get_or_create(username='aaron.snow')[0]
+    self.client.force_login(user)
+    return self.client
+
 
 def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
