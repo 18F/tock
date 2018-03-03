@@ -3,10 +3,16 @@ from django.core.urlresolvers import RegexURLPattern, RegexURLResolver, reverse
 
 import tock.urls
 
+# Some URLconf patterns contain unnamed capture groups.
+# These constants just tell us what they look like, and what sample
+# values to use when we want to generate a sample URL for them.
 DOT_STAR_GROUP = '(.+)'
-
 SAMPLE_DOT_STAR_ARG = "foo"
 
+# When a URLconf pattern contains named capture groups, we'll use this
+# dictionary to retrieve a sample value for it, which will be included
+# in the sample URLs we generate, when attempting to perform a GET
+# request on the view.
 SAMPLE_KWARGS = {
     "reporting_period": "2018-01-01",
     "reporting_period_start_date": "2018-01-02",
@@ -17,19 +23,36 @@ SAMPLE_KWARGS = {
     "app_label": "hours",
 }
 
-IGNORE_NAMESPACES = ['djdt']
+# Our test suite will ignore some namespaces.
+IGNORE_NAMESPACES = [
+    # The Django Debug Toolbar (DJDT) ends up in the URL config but it's always
+    # disabled in production, so don't worry about it.
+    'djdt'
+]
 
-NAMESPACES_WITH_UNNAMED_PATTERNS = ['admin']
+# In general, we don't want to have any unnamed views, because that makes it
+# impossible to generate sample URLs that point at them. We'll make exceptions
+# for some namespaces that we don't have control over, though.
+NAMESPACES_WITH_UNNAMED_VIEWS = [
+    'admin'
+]
 
 
 def iter_patterns(urlconf, patterns=None, namespace=None):
+    """
+    Iterate through all patterns in the given Django URLconf.  Yields
+    `(viewname, regex)` tuples, where `viewname` is the fully-qualified view name
+    (including its namespace, if any), and `regex` is a regular expression that
+    corresponds to the part of the pattern that contains any capturing groups.
+    """
+
     if patterns is None:
         patterns = urlconf.urlpatterns
     for pattern in patterns:
         if isinstance(pattern, RegexURLPattern):
             viewname = pattern.name
-            if viewname is None and namespace not in NAMESPACES_WITH_UNNAMED_PATTERNS:
-                raise AssertionError(f'namespace {namespace} cannot contain unnamed patterns')
+            if viewname is None and namespace not in NAMESPACES_WITH_UNNAMED_VIEWS:
+                raise AssertionError(f'namespace {namespace} cannot contain unnamed views')
             if namespace and viewname is not None:
                 viewname = f"{namespace}:{viewname}"
             yield (viewname, pattern.regex)
@@ -50,6 +73,10 @@ def iter_patterns(urlconf, patterns=None, namespace=None):
 
 
 def iter_sample_urls(urlconf):
+    """
+    Yields sample URLs for all entries in the given Django URLconf.
+    """
+
     for viewname, regex in iter_patterns(urlconf):
         if viewname is None:
             continue
@@ -75,6 +102,12 @@ def iter_sample_urls(urlconf):
 
 
 class URLAuthTests(TestCase):
+    """
+    Tests to ensure that most URLs in a Django URLconf are protected by
+    authentication.
+    """
+
+    # We won't test that the following URLs are protected by auth.
     IGNORE_URLS = [
         # These are the UAA auth endpoints that always need
         # to be public.
@@ -89,6 +122,11 @@ class URLAuthTests(TestCase):
     ]
 
     def assertURLIsProtectedByAuth(self, url):
+        """
+        Make a GET request to the given URL, and ensure that it either redirects
+        to login or denies access outright.
+        """
+
         response = self.client.get(url)
         code = response.status_code
         if code == 302:
@@ -109,6 +147,13 @@ class URLAuthTests(TestCase):
 
     @classmethod
     def define_tests_for_urls(cls, urlconf):
+        """
+        This class method dynamically adds test methods to the class which
+        test the security properties of individual URLs in a URLconf.  It's a hack,
+        because Python's built-in unittest package doesn't provide any
+        means for parameterizing tests.
+        """
+
         def create_url_auth_test(url):
             def test(self):
                 self.assertURLIsProtectedByAuth(url)
