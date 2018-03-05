@@ -6,9 +6,10 @@ from django.views.generic.detail import DetailView
 
 from hours.models import TimecardObject
 from .models import Project
+from tock.utils import PermissionMixin
 
 
-class ProjectListView(ListView):
+class ProjectListView(PermissionMixin, ListView):
     """ View for listing all of the projects, sort projects by name """
     model = Project
     template_name = 'projects/project_list.html'
@@ -20,7 +21,7 @@ class ProjectListView(ListView):
         return context
 
 
-class ProjectView(DetailView):
+class ProjectView(PermissionMixin, DetailView):
     """ View for listing the details of a specific project """
     model = Project
     template_name = 'projects/project_detail.html'
