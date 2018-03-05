@@ -23,6 +23,8 @@ SECRET_KEY = env.get_credential('DJANGO_SECRET_KEY', get_random_string(50))
 LOGIN_URL = '/auth/login'
 LOGIN_REDIRECT_URL = '/'
 
+CSRF_FAILURE_VIEW = 'tock.views.csrf_failure'
+
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
     'django.contrib.staticfiles',
