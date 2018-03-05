@@ -11,10 +11,10 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
-from django.shortcuts import render
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Sum
+from django.shortcuts import render_to_response
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
@@ -586,17 +586,11 @@ def user_timeline_view(request):
         timecard__user__user_data__organization__name='organization'
     )
 
+
 @api_view(['GET'])
 def admin_bulk_timecard_list(request):
     if not request.user.is_superuser:
-        return render(
-            request,
-            'uaa_client/login_error.html',
-            context={
-                'superuser': request.user.is_superuser,
-            },
-            status=403
-        )
+        return render_to_response('403.html')
 
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = AdminBulkTimecardSerializer()
