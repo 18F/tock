@@ -127,7 +127,15 @@ class URLAuthTests(TestCase):
         to login or denies access outright.
         """
 
-        response = self.client.get(url)
+        try:
+            response = self.client.get(url)
+        except Exception as e:
+            # It'll be helpful to provide information on what URL was being
+            # accessed at the time the exception occurred.  Python 3 will
+            # also include a full traceback of the original exception, so
+            # we don't need to worry about hiding the original cause.
+            raise AssertionError(f'Accessing {url} raised "{e}"')
+
         code = response.status_code
         if code == 302:
             redirect = response['location']
