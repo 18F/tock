@@ -925,7 +925,7 @@ class ReportsList(PermissionMixin, ListView):
         return sorted_fiscal_years
 
 
-class ReportingPeriodDetailView(ListView):
+class ReportingPeriodDetailView(PermissionMixin, ListView):
     template_name = 'hours/reporting_period_detail.html'
     context_object_name = 'timecard_list'
 
@@ -961,6 +961,7 @@ class ReportingPeriodDetailView(ListView):
         return context
 
 
+@api_view(['GET'])
 def ReportingPeriodCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')
