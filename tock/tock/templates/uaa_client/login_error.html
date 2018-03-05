@@ -1,14 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% if not superuser %}
-<h2>Whoops, you don't have access</h2>
-
-<p>You don't have access to view this page.<p>
-{% endif %}
-
-{% if error_code %}
-<h2>Whoops, login error!</h2>
+<h2>UAA Login Error</h2>
 
 {% if error_code == "missing_state" or error_code == "missing_session_state" or error_code == "invalid_state" %}
   <p>Bad session state</p>
@@ -16,8 +9,6 @@
   <p>Missing session code</p>
 {% elif error_code == "authenticate_failed" %}
   <p>Authentication failed</p>
-{% endif %}
-
 {% endif %}
 
 {% endblock %}
