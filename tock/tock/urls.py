@@ -1,9 +1,21 @@
 from django.conf import settings
 from django.conf.urls import include, url
+from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import PermissionDenied
 
 # Enable the Django admin.
 from django.contrib import admin
 admin.autodiscover()
+
+def check_if_staff(user):
+    if not user.is_authenticated():
+        return False
+    if user.is_staff:
+        return True
+    raise PermissionDenied
+
+staff_login_required = user_passes_test(check_if_staff)
+admin.site.login = staff_login_required(admin.site.login)
 
 import hours.views
 import api.urls
