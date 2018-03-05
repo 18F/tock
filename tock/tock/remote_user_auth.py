@@ -10,6 +10,7 @@ from employees.models import UserData
 
 logger = logging.getLogger(__name__)
 
+
 def email_to_username(email):
     """Converts a given email address to a Django compliant username"""
     email_list = email.lower().split('@')
@@ -32,6 +33,10 @@ def verify_userdata(user):
     try:
         user = UserData.objects.get(user=user)
     except UserData.DoesNotExist:
+        logger.info(
+            'Adding UserData for User [%s]' %
+            user.username
+        )
         UserData.objects.create(
             user=user,
             start_date=datetime.date.today(),
@@ -41,8 +46,13 @@ def verify_userdata(user):
 class TockUserBackend(UaaBackend):
     @classmethod
     def get_user_by_email(cls, email):
+        logger.info('Getting user for email [%s]' % email)
         user = super().get_user_by_email(email)
         if user is not None:
+            logger.info(
+                'Verifying that User [%s] has UserData' %
+                user.username
+            )
             verify_userdata(user)
         return user
 
@@ -51,10 +61,16 @@ class TockUserBackend(UaaBackend):
         username = email_to_username(email)
 
         try:
-            logger.info("Try getting a user [%s] that exists already." % username)
+            logger.info(
+                "Attempting to get user [%s] that exists already." %
+                username
+            )
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            logger.info("Creating a new user [%s] and UserData if it doesn't exist" % username)
+            logger.info(
+                "Creating a new user [%s]" %
+                username
+            )
             user = User.objects.create_user(username, email)
             user.first_name = str(username).split('.')[0].title()
             user.last_name = str(username).split('.')[1].title()
