@@ -30,6 +30,10 @@ urlpatterns = [
         'utilization.urls',
         namespace='utilization'
     )),
+    url(r'^notifications/', include(
+        'notifications.urls',
+        namespace='notifications'
+    )),
     url(r'^projects/', include(projects.urls)),
 
     # TODO: version the API?

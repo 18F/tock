@@ -78,6 +78,14 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
                   <span>Users</span>
                 </a>
               </li>
+
+                <li>
+                <a href="{% url 'notifications:NotificationsView' %}" class="usa-nav-link">
+                  <span>Notifications</span>
+                </a>
+              </li>
+
+
               {% if request.user.is_superuser %}
               <li>
                 <button class="
