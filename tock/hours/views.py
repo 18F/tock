@@ -8,13 +8,13 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError, \
+    PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Sum
-from django.shortcuts import render_to_response
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
@@ -597,7 +597,7 @@ def user_timeline_view(request):
 @api_view(['GET'])
 def admin_bulk_timecard_list(request):
     if not request.user.is_superuser:
-        return render_to_response('403.html')
+        raise PermissionDenied
 
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = AdminBulkTimecardSerializer()
