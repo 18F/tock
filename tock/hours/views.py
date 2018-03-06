@@ -1032,9 +1032,10 @@ class ReportingPeriodUserDetailView(PermissionMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         rp_period = self.kwargs['reporting_period']
+        username = self.kwargs['username']
         user_billable_hours = TimecardObject.objects.filter(
             timecard__reporting_period__start_date=rp_period,
-            timecard__user__username=self.kwargs['username'],
+            timecard__user__username=username,
             project__accounting_code__billable=True
         ).aggregate(
             (
@@ -1044,7 +1045,7 @@ class ReportingPeriodUserDetailView(PermissionMixin, DetailView):
 
         user_all_hours = TimecardObject.objects.filter(
             timecard__reporting_period__start_date=rp_period,
-            timecard__user__username=self.kwargs['username'],
+            timecard__user__username=username,
         ).aggregate(
             (
                 Sum('hours_spent')
