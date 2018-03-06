@@ -8,6 +8,8 @@ from .base import (DATABASES, INSTALLED_APPS, MIDDLEWARE_CLASSES, TEMPLATES)
 
 DEBUG = True
 
+SECRET_KEY = 'development_mode'
+
 for t in TEMPLATES:
     t.setdefault('OPTIONS', {})
     t['OPTIONS']['debug'] = True
