@@ -24,8 +24,7 @@ import projects.urls
 urlpatterns = [
     url(r'^$',
         hours.views.ReportingPeriodListView.as_view(),
-        name='ListReportingPeriods'
-    ),
+        name='ListReportingPeriods'),
     url(r'^reporting_period/', include(
         'hours.urls.timesheets',
         namespace='reportingperiod'

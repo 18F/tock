@@ -6,7 +6,8 @@ import sys
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework.permissions import BasePermission
-from django.shortcuts import redirect, render
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
 
 from tock.settings import base
 
@@ -32,14 +33,7 @@ class PermissionMixin(LoginRequiredMixin, object):
                         logger.info("User isn't logged in, redirecting...")
                         return redirect('/auth/login')
                     logger.info("User isn't allowed, redirecting...")
-                    return render(
-                        request,
-                        'uaa_client/login_error.html',
-                        context={
-                            'superuser': request.user.is_superuser,
-                        },
-                        status=403
-                    )
+                    raise PermissionDenied
             return view(request, args, **kwargs)
         return wrapped
 

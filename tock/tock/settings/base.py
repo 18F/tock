@@ -23,6 +23,8 @@ SECRET_KEY = env.get_credential('DJANGO_SECRET_KEY', get_random_string(50))
 LOGIN_URL = '/auth/login'
 LOGIN_REDIRECT_URL = '/'
 
+CSRF_FAILURE_VIEW = 'tock.views.csrf_failure'
+
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
     'django.contrib.staticfiles',
@@ -41,11 +43,12 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
 )
 
-TEMPLATES =  [
+TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/templates/'
-            ],
+        'DIRS': [
+            '/templates/'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

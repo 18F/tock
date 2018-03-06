@@ -1,22 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
 
-{% if not superuser %}
-<h2>Whoops, you don't have access</h2>
+<h2>cloud.gov Login Error</h2>
 
-<p>You don't have access to view this page.<p>
-{% endif %}
+{% if error_code == "missing_state" or
+      error_code == "missing_session_state" or
+      error_code == "invalid_state" %}
 
-{% if error_code %}
-<h2>Whoops, login error!</h2>
+<p>Bad session state</p>
 
-{% if error_code == "missing_state" or error_code == "missing_session_state" or error_code == "invalid_state" %}
-  <p>Bad session state</p>
 {% elif error_code == "missing_code" %}
-  <p>Missing session code</p>
+
+<p>Missing session code</p>
+
 {% elif error_code == "authenticate_failed" %}
-  <p>Authentication failed</p>
-{% endif %}
+
+<p>Authentication failed</p>
 
 {% endif %}
 
