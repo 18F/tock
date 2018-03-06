@@ -1,14 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>UAA Login Error</h2>
+<h2>cloud.gov Login Error</h2>
 
-{% if error_code == "missing_state" or error_code == "missing_session_state" or error_code == "invalid_state" %}
-  <p>Bad session state</p>
+{% if error_code == "missing_state" or
+      error_code == "missing_session_state" or
+      error_code == "invalid_state" %}
+
+<p>Bad session state</p>
+
 {% elif error_code == "missing_code" %}
-  <p>Missing session code</p>
+
+<p>Missing session code</p>
+
 {% elif error_code == "authenticate_failed" %}
-  <p>Authentication failed</p>
+
+<p>Authentication failed</p>
+
 {% endif %}
 
 {% endblock %}
