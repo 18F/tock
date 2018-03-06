@@ -66,3 +66,8 @@ try:
   from .local_settings import *     # noqa
 except ImportError:
   pass
+
+UAA_CLIENT_ID = 'testtesttesttesttesttesttesttesttesttesttest'
+UAA_CLIENT_SECRET = 'testtesttesttesttesttesttesttesttesttest'
+UAA_AUTH_URL = 'fake:'
+UAA_TOKEN_URL = 'fake:'

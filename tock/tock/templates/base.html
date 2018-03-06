@@ -52,67 +52,8 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             </em>
           </div>
         </div>
-        <nav role="navigation" class="usa-nav">
-          <div class="usa-nav-inner">
-            <button class="usa-nav-close">
-              <img src="/static/img/uswds/close.svg" alt="close">
-            </button>
-            <ul class="usa-nav-primary usa-accordion">
-              <li>
-                <a href="{% url 'ProjectListView' %}" class="usa-nav-link">
-                  <span>Projects</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'reports:ListReports' %}" class="usa-nav-link">
-                  <span>Reports</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'reports:DashboardReportsList' %}" class="usa-nav-link">
-                  <span>Operations Dashboard</span>
-                </a>
-              </li>
-              <li>
-                <a href="{% url 'employees:UserListView' %}" class="usa-nav-link">
-                  <span>Users</span>
-                </a>
-              </li>
-              {% if request.user.is_superuser %}
-              <li>
-                <button class="
-                usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-2">
-                  <span>Admin</span>
-                </button>
-                <ul id="side-nav-2" class="usa-nav-submenu" aria-hidden="true">
-                  <li>
-                  <a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Create reporting period</a>
-                  </li>
-                  <li>
-                  <a href="/admin">Admin panel</a>
-                  </li>
-                  <li>
-                  <a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
-                  </li>
-                </ul>
-              </li>
-                {% endif %}
-                {% if request.user.is_staff %}
-                <li>
-                  <button class="
-                  usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-3">
-                    <span>Supervisor</span>
-                  </button>
-                  <ul id="side-nav-3" class="usa-nav-submenu" aria-hidden="true">
-                    <li>
-                  <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
-                    </li>
-                  </ul>
-                </li>
-                {% endif %}
-            </ul>
-          </div>
-        </nav>
+        {% block navigation %}
+        {% endblock navigation %}
 </header>
 
 <div class="usa-grid usa-content usa-section">

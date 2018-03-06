@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block navigation %}
+  {% include "_navigation.html" %}
+{% endblock %}
 
 {% block content %}
 <h1>Let's Tock about {{ object.user.first_name }} {{ object.user.last_name }}!</h1>

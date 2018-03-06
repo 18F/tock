@@ -139,6 +139,7 @@ class ProjectsTest(WebTest):
             project_lead = None
         )
         self.project_no_lead.save()
+        self.app.set_user(user)
 
     def test_model(self):
         """
@@ -432,6 +433,7 @@ class TestProjectTimeline(WebTest):
             obj for obj in self.objs
             if obj.timecard.reporting_period.start_date in self.dates_recent
         ]
+        self.app.set_user(User.objects.get(pk=1))
 
     def test_project_timeline(self):
         res = project_timeline(self.project)
@@ -504,7 +506,7 @@ class ProjectViewTests(WebTest):
 
         response = self.app.get(
             reverse('ProjectView', kwargs={'pk': '1'}),
-            headers={'X-FORWARDED-EMAIL': 'aaron.snow@gsa.gov'}
+            user=User.objects.get(email='aaron.snow@gsa.gov')
         )
 
         self.assertEqual(float(response.html.select('#totalHoursAll')[0].string), 15)

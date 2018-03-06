@@ -8,18 +8,20 @@ from operator import attrgetter
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError, \
+    PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Sum
-from django.contrib.auth.decorators import user_passes_test
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
 from rest_framework import serializers
 
-from api.views import get_timecards, TimecardList, ProjectSerializer, UserDataSerializer
+from api.views import get_timecards, \
+    TimecardList, ProjectSerializer, UserDataSerializer
 from api.renderers import stream_csv
 from employees.models import UserData
 from tock.remote_user_auth import email_to_username
@@ -45,8 +47,9 @@ from .forms import (
 from utilization.utils import calculate_utilization, get_fy_first_day
 
 
-class DashboardReportsList(ListView):
+class DashboardReportsList(PermissionMixin, ListView):
     template_name = 'hours/dashboard_list.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
         available_reports = ReportingPeriod.objects.filter(
@@ -56,8 +59,9 @@ class DashboardReportsList(ListView):
         return available_reports
 
 
-class DashboardView(TemplateView):
+class DashboardView(PermissionMixin, TemplateView):
     template_name = 'hours/dashboard.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_context_data(self, **kwargs):
 
@@ -88,7 +92,7 @@ class DashboardView(TemplateView):
         context = super(DashboardView, self).get_context_data(**kwargs)
 
         # Get unit param.
-        unit_param = None #get_params('unit')
+        unit_param = None  # get_params('unit')
 
         # Get requested date and corresponding reporting period.
         requested_date = dt.datetime.strptime(
@@ -105,7 +109,7 @@ class DashboardView(TemplateView):
         except ReportingPeriod.DoesNotExist:
             context.update(
                 {
-                    'error': 'No reporting period available for {}.'\
+                    'error': 'No reporting period available for {}.'
                     .format(self.kwargs['reporting_period'])
                 }
             )
@@ -149,7 +153,7 @@ class DashboardView(TemplateView):
         except Targets.DoesNotExist:
             context.update(
                 {
-                    'error': 'No target information available for {}.'\
+                    'error': 'No target information available for {}.'
                     .format(self.kwargs['reporting_period'])
                 }
             )
@@ -185,9 +189,9 @@ class DashboardView(TemplateView):
         rev_fytd = hours_billed_fytd * target.labor_rate
 
         # Get data for reporting period and clean result.
+        rp_select_time = rp_selected.start_date.strftime('%Y-%m-%d')
         hours_billed_weekly = clean_result(TimecardObject.objects.filter(
-            timecard__reporting_period__start_date=\
-                rp_selected.start_date.strftime('%Y-%m-%d'),
+            timecard__reporting_period__start_date=rp_select_time,
             project__accounting_code__billable=True,
             timecard__user__user_data__in=employees
         ).exclude(
@@ -241,19 +245,19 @@ class DashboardView(TemplateView):
             'fytd_start_date': fytd_start_date,
             # Annual performance
             'hours_required_cr_fytd': '{:,}'.format(
-                round(hours_required_cr_fytd,2)
+                round(hours_required_cr_fytd, 2)
             ),
             'hours_required_plan_fytd': '{:,}'.format(
-                round(hours_required_plan_fytd,2)
+                round(hours_required_plan_fytd, 2)
             ),
             'hours_billed_fytd': '{:,}'.format(
-                round(hours_billed_fytd,2)
+                round(hours_billed_fytd, 2)
             ),
             'variance_cr_ytd': '{:,}'.format(
-                round(variance_cr_ytd,2)
+                round(variance_cr_ytd, 2)
             ),
             'variance_plan_fytd': '{:,}'.format(
-                round(variance_plan_fytd,2)
+                round(variance_plan_fytd, 2)
             ),
             'p_variance_cr_fytd': '{0:.2%}'.format(
                 p_variance_cr_fytd
@@ -284,19 +288,19 @@ class DashboardView(TemplateView):
             ),
             # Weekly performance.
             'hours_required_cr_weekly': '{:,}'.format(
-                round(hours_required_cr_weekly,2)
+                round(hours_required_cr_weekly, 2)
             ),
             'hours_required_plan_weekly': '{:,}'.format(
-                round(hours_required_plan_weekly,2)
+                round(hours_required_plan_weekly, 2)
             ),
             'hours_billed_weekly': '{:,}'.format(
-                round(hours_billed_weekly,2)
+                round(hours_billed_weekly, 2)
             ),
             'variance_cr_weekly': '{:,}'.format(
-                round(variance_cr_weekly,2)
+                round(variance_cr_weekly, 2)
             ),
             'variance_plan_weekly': '{:,}'.format(
-                round(variance_plan_weekly,2)
+                round(variance_plan_weekly, 2)
             ),
             'p_variance_cr_weekly': '{0:.2%}'.format(
                 p_variance_cr_weekly
@@ -468,6 +472,7 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     )
 
 
+@api_view(['GET'])
 def user_data_csv(request):
     """
     Stream all user data as CSV.
@@ -476,6 +481,8 @@ def user_data_csv(request):
     serializer = UserDataSerializer()
     return stream_csv(queryset, serializer)
 
+
+@api_view(['GET'])
 def projects_csv(request):
     """
     Stream all of the projects as CSV.
@@ -484,6 +491,8 @@ def projects_csv(request):
     serializer = ProjectSerializer()
     return stream_csv(queryset, serializer)
 
+
+@api_view(['GET'])
 def bulk_timecard_list(request):
     """
     Stream all the timecards as CSV.
@@ -492,6 +501,8 @@ def bulk_timecard_list(request):
     serializer = BulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
+
+@api_view(['GET'])
 def slim_bulk_timecard_list(request):
     """
     Stream a slimmed down version of all the timecards as CSV.
@@ -500,6 +511,8 @@ def slim_bulk_timecard_list(request):
     serializer = SlimBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
+
+@api_view(['GET'])
 def general_snippets_only_timecard_list(request):
     """
     Stream all timecard data that is for General and has a snippet.
@@ -511,6 +524,7 @@ def general_snippets_only_timecard_list(request):
     queryset = get_timecards(objects, request.GET)
     serializer = GeneralSnippetsTimecardSerializer()
     return stream_csv(queryset, serializer)
+
 
 def timeline_view(request, value_fields=(), **field_alias):
     """ CSV endpoint for the project timeline viz. """
@@ -551,6 +565,8 @@ def timeline_view(request, value_fields=(), **field_alias):
 
     return response
 
+
+@api_view(['GET'])
 def project_timeline_view(request):
     return timeline_view(
         request,
@@ -564,6 +580,8 @@ def project_timeline_view(request):
         project__organization__name='organization'
     )
 
+
+@api_view(['GET'])
 def user_timeline_view(request):
     return timeline_view(
         request,
@@ -575,8 +593,12 @@ def user_timeline_view(request):
         timecard__user__user_data__organization__name='organization'
     )
 
-@user_passes_test(lambda u: u.is_superuser)
+
+@api_view(['GET'])
 def admin_bulk_timecard_list(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
     queryset = get_timecards(TimecardList.queryset, request.GET)
     serializer = AdminBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
@@ -600,8 +622,8 @@ class ReportingPeriodListView(PermissionMixin, ListView):
             return []
         fy_start_date = dt.date(year=date.year, month=10, day=1)
         if fy_start_date.weekday() not in [5, 6, 1]:
-            return [ fy_start_date + dt.timedelta(days=i) for i in \
-                range(-7, 7) ] # A disallow dates a week before and after.
+            return [fy_start_date + dt.timedelta(days=i) for i in
+                    range(-7, 7)]  # A disallow dates a week before and after.
         else:
             return []
 
@@ -610,13 +632,13 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         # period has concluded.
         latest_rp = self.queryset.first()
         if not latest_rp:
-            return None # In case there are no reporting periods created yet.
+            return None  # In case there are no reporting periods created yet.
 
         latest_end = latest_rp.end_date
         new_start = latest_end + dt.timedelta(days=1)
 
         if latest_end <= dt.datetime.utcnow().date() and \
-        new_start not in self.disallowed_dates(latest_rp.end_date):
+           new_start not in self.disallowed_dates(latest_rp.end_date):
             ReportingPeriod.objects.create(
                 start_date=new_start,
                 end_date=new_start + dt.timedelta(days=6),
@@ -712,9 +734,10 @@ class ReportingPeriodBulkImportView(PermissionMixin, FormView):
         return reverse('ListReportingPeriods')
 
 
-class TimecardView(UpdateView):
+class TimecardView(PermissionMixin, UpdateView):
     form_class = TimecardForm
     template_name = 'hours/timecard_form.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_object(self, queryset=None):
         self.report_date = dt.datetime.strptime(
@@ -743,12 +766,15 @@ class TimecardView(UpdateView):
 
         formset = self.get_formset()
         formset.set_is_aws_eligible(aws_eligible)
-        formset.set_exact_working_hours(base_reporting_period.exact_working_hours)
+        formset.set_exact_working_hours(
+            base_reporting_period.exact_working_hours
+        )
         formset.set_max_working_hours(base_reporting_period.max_working_hours)
         formset.set_min_working_hours(base_reporting_period.min_working_hours)
 
-        reporting_period = ReportingPeriod.objects.get(pk=self.object.reporting_period_id)
-
+        reporting_period = ReportingPeriod.objects.get(
+            pk=self.object.reporting_period_id
+        )
 
         # TODO: This is inefficient because we're writing over the
         # already-generated choices. Ideally we should be passing these
@@ -794,10 +820,11 @@ class TimecardView(UpdateView):
     def prefilled_formset(self):
         timecard = self.last_timecard()
         timecard_prefills = dict(
-            TimecardPrefillData.objects.active().filter(
-                employee=self.request.user.user_data).values_list(
-                    'project', 'hours'
-                )
+            TimecardPrefillData
+            .objects
+            .active()
+            .filter(employee=self.request.user.user_data)
+            .values_list('project', 'hours')
         )
         project_ids = []
         extra = 1
@@ -823,7 +850,8 @@ class TimecardView(UpdateView):
         # prefills we need to add to the timecard.
         if reporting_period.holiday_prefills:
             for holiday_prefill in reporting_period.holiday_prefills.all():
-                timecard_prefills[holiday_prefill.project.id] = holiday_prefill.hours_per_period
+                timecard_prefills[holiday_prefill.project.id] =\
+                    holiday_prefill.hours_per_period
 
         # For each project we were able to pull from the previous timecard,
         # make sure it is added to the timecard prefill information we have
@@ -832,7 +860,8 @@ class TimecardView(UpdateView):
         # just pulling the Tock line from the previous timecard for
         # convenience).
         for project_id in project_ids:
-            timecard_prefills[project_id] = timecard_prefills.get(project_id, None)
+            timecard_prefills[project_id] =\
+                timecard_prefills.get(project_id, None)
 
         # Set the initial data containing all of the prefill information for
         # the formset to be structured in the way the form expects it:
@@ -847,7 +876,6 @@ class TimecardView(UpdateView):
 
         formset = timecard_formset_factory(extra=extra)
         return formset(initial=init)
-
 
     def form_valid(self, form):
         context = self.get_context_data()
@@ -872,7 +900,8 @@ class TimecardView(UpdateView):
             messages.add_message(
                 self.request,
                 messages.INFO,
-                'Timesheet saved.  Please remember to submit your timesheet when finished.'
+                ("Timesheet saved. "
+                 "Please remember to submit your timesheet when finished.")
             )
 
             return reverse(
@@ -881,9 +910,10 @@ class TimecardView(UpdateView):
             )
 
 
-class ReportsList(ListView):
+class ReportsList(PermissionMixin, ListView):
     """Show a list of all Reporting Periods to navigate to various reports"""
     template_name = 'hours/reports_list.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_queryset(self, queryset=None):
         query = ReportingPeriod.objects.all()
@@ -901,7 +931,7 @@ class ReportsList(ListView):
         return sorted_fiscal_years
 
 
-class ReportingPeriodDetailView(ListView):
+class ReportingPeriodDetailView(PermissionMixin, ListView):
     template_name = 'hours/reporting_period_detail.html'
     context_object_name = 'timecard_list'
 
@@ -937,6 +967,7 @@ class ReportingPeriodDetailView(ListView):
         return context
 
 
+@api_view(['GET'])
 def ReportingPeriodCSVView(request, reporting_period):
     """Export a CSV of a specific reporting period"""
     response = HttpResponse(content_type='text/csv')
@@ -985,9 +1016,10 @@ def ReportingPeriodCSVView(request, reporting_period):
     return response
 
 
-class ReportingPeriodUserDetailView(DetailView):
+class ReportingPeriodUserDetailView(PermissionMixin, DetailView):
     model = Timecard
     template_name = 'hours/reporting_period_user_detail.html'
+    permission_classes = (IsAuthenticated, )
 
     def get_object(self):
         obj = Timecard.objects.prefetch_related(
@@ -1000,10 +1032,11 @@ class ReportingPeriodUserDetailView(DetailView):
         return obj
 
     def get_context_data(self, **kwargs):
+        rp_period = self.kwargs['reporting_period']
+        username = self.kwargs['username']
         user_billable_hours = TimecardObject.objects.filter(
-            timecard__reporting_period__start_date=\
-                self.kwargs['reporting_period'],
-            timecard__user__username=self.kwargs['username'],
+            timecard__reporting_period__start_date=rp_period,
+            timecard__user__username=username,
             project__accounting_code__billable=True
         ).aggregate(
             (
@@ -1012,9 +1045,8 @@ class ReportingPeriodUserDetailView(DetailView):
         )['hours_spent__sum']
 
         user_all_hours = TimecardObject.objects.filter(
-            timecard__reporting_period__start_date=\
-                self.kwargs['reporting_period'],
-            timecard__user__username=self.kwargs['username'],
+            timecard__reporting_period__start_date=rp_period,
+            timecard__user__username=username,
         ).aggregate(
             (
                 Sum('hours_spent')

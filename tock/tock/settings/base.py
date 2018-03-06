@@ -20,6 +20,10 @@ DATABASES = {}
 ROOT_URLCONF = 'tock.urls'
 WSGI_APPLICATION = 'tock.wsgi.application'
 SECRET_KEY = env.get_credential('DJANGO_SECRET_KEY', get_random_string(50))
+LOGIN_URL = '/auth/login'
+LOGIN_REDIRECT_URL = '/'
+
+CSRF_FAILURE_VIEW = 'tock.views.csrf_failure'
 
 INSTALLED_APPS = (
     'django.contrib.contenttypes',  # may be okay to remove
@@ -28,6 +32,7 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'uaa_client',
     'tock',
     'projects',
     'hours',
@@ -38,11 +43,12 @@ INSTALLED_APPS = (
     'rest_framework.authtoken',
 )
 
-TEMPLATES =  [
+TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['/templates/'
-            ],
+        'DIRS': [
+            '/templates/'
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -66,9 +72,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'tock.remote_user_auth.EmailHeaderMiddleware',
-    'tock.remote_user_auth.UserDataMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'uaa_client.middleware.UaaRefreshMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -86,10 +91,6 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-ALLOWED_EMAIL_DOMAINS = {
-    'gsa.gov',
-}
-
 REST_FRAMEWORK = {
     'UNICODE_JSON': False,
     'DEFAULT_RENDERER_CLASSES': (
@@ -102,7 +103,16 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
 }
 
 VERSION = env.get_credential('CIRCLE_TAG', 'master')
+
+UAA_APPROVED_DOMAINS = {
+    'gsa.gov',
+}
+UAA_CLIENT_ID = env.get_credential('UAA_CLIENT_ID', None)
+UAA_CLIENT_SECRET = env.get_credential('UAA_CLIENT_SECRET', None)
+UAA_AUTH_URL = 'https://login.fr.cloud.gov/oauth/authorize'
+UAA_TOKEN_URL = 'https://uaa.fr.cloud.gov/oauth/token'

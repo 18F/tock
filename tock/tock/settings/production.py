@@ -18,6 +18,11 @@ STATIC_URL = '/tock/static/'
 
 DATABASES['default'] = dj_database_url.config()
 
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

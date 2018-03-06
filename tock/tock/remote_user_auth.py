@@ -1,21 +1,23 @@
 import datetime
+import logging
 
-from django.contrib.auth.backends import RemoteUserBackend
-from django.contrib.auth.middleware import RemoteUserMiddleware
+from uaa_client.authentication import UaaBackend
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth.models import User
 
 from employees.models import UserData
 
+logger = logging.getLogger(__name__)
+
 
 def email_to_username(email):
     """Converts a given email address to a Django compliant username"""
     email_list = email.lower().split('@')
 
-    # If ALLOWED_EMAIL_DOMAINS, then ensure it is in the list of domains
-    if settings.ALLOWED_EMAIL_DOMAINS:
-        if email_list[1] in settings.ALLOWED_EMAIL_DOMAINS:
+    # If UAA_APPROVED_DOMAINS, then ensure it is in the list of domains
+    if settings.UAA_APPROVED_DOMAINS:
+        if email_list[1] in settings.UAA_APPROVED_DOMAINS:
             pass
         else:
             raise ValidationError('Email Domain not in Allowed List')
@@ -25,38 +27,53 @@ def email_to_username(email):
     return email_list[0][:30]
 
 
-class TockUserBackend(RemoteUserBackend):
+def verify_userdata(user):
+    """Ensure that authenticated users have associated `UserData` records.
+    """
+    try:
+        user = UserData.objects.get(user=user)
+    except UserData.DoesNotExist:
+        logger.info(
+            'Adding UserData for User [%s]' %
+            user.username
+        )
+        UserData.objects.create(
+            user=user,
+            start_date=datetime.date.today(),
+        )
 
-    def clean_username(self, email_address):
-        """
-        Performs any cleaning on the "username" prior to using it to get or
-        create the user object.  Returns the cleaned username.
 
-        By default, returns the username unchanged.
-        """
-        return email_to_username(email_address)
+class TockUserBackend(UaaBackend):
+    @classmethod
+    def get_user_by_email(cls, email):
+        logger.info('Getting user for email [%s]' % email)
+        user = super().get_user_by_email(email)
+        if user is not None:
+            logger.info(
+                'Verifying that User [%s] has UserData' %
+                user.username
+            )
+            verify_userdata(user)
+        return user
 
+    @classmethod
+    def create_user_with_email(cls, email):
+        username = email_to_username(email)
 
-class EmailHeaderMiddleware(RemoteUserMiddleware):
-    header = 'HTTP_X_AUTH_USER'
+        try:
+            logger.info(
+                "Attempting to get user [%s] that exists already." %
+                username
+            )
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            logger.info(
+                "Creating a new user [%s]" %
+                username
+            )
+            user = User.objects.create_user(username, email)
+            user.first_name = str(username).split('.')[0].title()
+            user.last_name = str(username).split('.')[1].title()
+            user.save()
 
-
-class UserDataMiddleware(object):
-
-    def process_request(self, request):
-        """Ensure that authenticated users have associated `UserData` records.
-        """
-        if request.user.is_authenticated():
-            try:
-                UserData.objects.get(user=request.user)
-            except UserData.DoesNotExist:
-                UserData.objects.create(
-                    user=request.user,
-                    start_date=datetime.date.today(),
-                )
-                new_obj = User.objects.get(username=request.user)
-                first_name = str(request.user).split('.')[0].title()
-                last_name = str(request.user).split('.')[1].title()
-                new_obj.first_name=first_name
-                new_obj.last_name=last_name
-                new_obj.save()
+        return user

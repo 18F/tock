@@ -27,6 +27,7 @@ FIXTURES = [
     'organizations/fixtures/organizations.json',
 ]
 
+
 def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
     return csv.DictReader(lines, **reader_options)
@@ -48,14 +49,14 @@ class DashboardReportsListTests(WebTest):
     def test_response_ok(self):
         response = self.app.get(
             reverse('reports:DashboardReportsList'),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
 
     def test_template_render(self):
         response = self.app.get(
             reverse('reports:DashboardReportsList'),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -151,7 +152,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period':'1999-12-31'}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
 
@@ -162,7 +163,7 @@ class DashboardViewTests(WebTest):
                 kwargs={'reporting_period':'1999-12-31'}
             ),
             {'unit':'1'},
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
 
@@ -173,7 +174,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertNotContains(response, '<td>$-2 (-100.00%)</td>')
 
@@ -189,7 +190,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertContains(response, '<td data-title="Variance">$-2 (-100.00%)</td>')
 
@@ -201,7 +202,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period':'1999-12-31'}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertContains(response, 'Whoops!')
         self.assertContains(response, '1999-12-31')
@@ -219,7 +220,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertContains(response, 'Whoops')
         self.assertContains(response, date)
@@ -234,7 +235,7 @@ class DashboardViewTests(WebTest):
                 kwargs={'reporting_period': date}
             ),
             {'unit':'13'},
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertEqual(
             response.context['units'],
@@ -250,7 +251,7 @@ class DashboardViewTests(WebTest):
                 kwargs={'reporting_period': date}
             ),
             {'unit':'1'},
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertEqual(
             response.context['variance_rev_cr_weekly'],
@@ -263,7 +264,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertContains(
             response, '<td data-title="FYTD Performance">$4,500</td>')
@@ -282,7 +283,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertContains(
             response, '<td data-title="Variance">$-2 (-100.00%)</td>')
@@ -297,7 +298,7 @@ class DashboardViewTests(WebTest):
                 kwargs={'reporting_period': date}
             ),
             {'unit':'1'},
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertContains(
             response,
@@ -311,7 +312,7 @@ class DashboardViewTests(WebTest):
                 kwargs={'reporting_period': date}
             ),
             {'unit':'13'},
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         self.assertContains(
             response,
@@ -328,7 +329,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
 
         self.assertContains(response, '18F Operations Dashboard')
@@ -527,7 +528,8 @@ class UserReportsTest(TestCase):
         )
 
     def test_user_reporting_period_report(self):
-        response = client(self).get(reverse(
+        self.client.force_login(self.user)
+        response = self.client.get(reverse(
             'reports:ReportingPeriodUserDetailView',
             kwargs={'reporting_period':'1999-12-31', 'username':'aaron.snow'}
         ))
@@ -594,7 +596,7 @@ class ReportTests(WebTest):
             start_date=datetime.date(2016, 1, 1),
             end_date=datetime.date(2016, 1, 7),
             exact_working_hours=40)
-        response = self.app.get(reverse('reports:ListReports'))
+        response = self.app.get(reverse('reports:ListReports'), user=self.user)
         response = response.content.decode('utf-8')
         self.assertTrue(response.index('2016') < response.index('2015'))
 
@@ -603,7 +605,7 @@ class ReportTests(WebTest):
         user with with userdata """
         response = self.app.get(
             reverse('ListReportingPeriods'),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
         )
         self.assertEqual(response.status_code, 200)
 
@@ -613,7 +615,7 @@ class ReportTests(WebTest):
         existing_rps = hours.models.ReportingPeriod.objects.all()
         self.app.get(
             reverse('ListReportingPeriods'),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
         )
         new_rps = hours.models.ReportingPeriod.objects.all()
         self.assertNotEqual(existing_rps, new_rps)
@@ -637,7 +639,7 @@ class ReportTests(WebTest):
         existing_rps = hours.models.ReportingPeriod.objects.all()
         self.app.get(
             reverse('ListReportingPeriods'),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
         )
         new_rps = hours.models.ReportingPeriod.objects.all()
         self.assertEqual(len(existing_rps), len(new_rps))
@@ -654,7 +656,7 @@ class ReportTests(WebTest):
             self.reporting_period.save()
             self.app.get(
                 reverse('ListReportingPeriods'),
-                headers={'X_AUTH_USER': self.regular_user.email},
+                user=self.regular_user,
             )
             ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
             self.assertNotEqual(ct_existing_rps, ct_new_rps)
@@ -671,7 +673,7 @@ class ReportTests(WebTest):
             self.reporting_period.save()
             self.app.get(
                 reverse('ListReportingPeriods'),
-                headers={'X_AUTH_USER': self.regular_user.email},
+                user=self.regular_user,
             )
             ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
             self.assertEqual(ct_existing_rps, ct_new_rps)
@@ -687,7 +689,7 @@ class ReportTests(WebTest):
             self.reporting_period.save()
             self.app.get(
                 reverse('ListReportingPeriods'),
-                headers={'X_AUTH_USER': self.regular_user.email},
+                user=self.regular_user,
             )
             ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
             self.assertNotEqual(ct_existing_rps, ct_new_rps)
@@ -702,7 +704,7 @@ class ReportTests(WebTest):
         self.reporting_period.save()
         self.app.get(
             reverse('ListReportingPeriods'),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
         )
         ct_new_rps = len(hours.models.ReportingPeriod.objects.all())
         self.assertEqual(ct_existing_rps, ct_new_rps)
@@ -713,7 +715,7 @@ class ReportTests(WebTest):
         self.reporting_period.delete()
         self.app.get(
             reverse('ListReportingPeriods'),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
         )
         self.assertIsNotNone(hours.models.ReportingPeriod.objects.all())
 
@@ -727,7 +729,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
         )
         self.assertEqual(response.status_code, 200)
 
@@ -742,7 +744,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
             expect_errors=True
         )
         self.assertEqual(response.status_code, 404)
@@ -773,7 +775,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': '2016-01-01'}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
 
         # Checks response context for the prefilled project and hours.
@@ -804,7 +806,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': '2016-01-01'}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         str_formset = str(response.context['formset']).split('\n')
         for line in str_formset:
@@ -828,7 +830,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
 
         # projects prefilled in the html
@@ -893,7 +895,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         first_hour_val = response.html \
             .find('div', {'class': 'entry-amount'}) \
@@ -919,7 +921,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         delete_divs = response.html.find_all('div', {'class': 'entry-delete'})
 
@@ -937,7 +939,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         delete_divs = response.html.find_all('div', {'class': 'entry-delete'})
 
@@ -963,35 +965,36 @@ class ReportTests(WebTest):
                 'timecardobjects-0-project': '4',
                 'timecardobjects-0-hours_spent': None,
             },
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
         )
         formset = response.context['formset']
         self.assertTrue(formset.save_only)
 
     def test_report_list_not_authenticated(self):
         response = self.app.get(
-            reverse('ListReportingPeriods'), expect_errors=True)
-        self.assertEqual(response.status_code, 403)
+            reverse('ListReportingPeriods'))
+        self.assertRedirects(response, '/auth/login',
+                             fetch_redirect_response=False)
 
     def test_create_reporting_period_superuser(self):
         periods = list(hours.models.ReportingPeriod.objects.all())
         get_res = self.app.get(
             reverse('reportingperiod:ReportingPeriodCreateView'),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
         form = get_res.forms[0]
         form['start_date'] = '07/04/2015'
         form['end_date'] = '07/11/2015'
         form['min_working_hours'] = '40'
         form['max_working_hours'] = '60'
-        form.submit(headers={'X_AUTH_USER': self.user.email})
+        form.submit(user=self.user)
         updated_periods = list(hours.models.ReportingPeriod.objects.all())
         self.assertTrue(len(updated_periods) == len(periods) + 1)
 
     def test_create_reporting_period_not_superuser(self):
         response = self.app.get(
             reverse('reportingperiod:ReportingPeriodCreateView'),
-            headers={'X_AUTH_USER': self.regular_user.email},
+            user=self.regular_user,
             expect_errors=True,
         )
         self.assertEqual(response.status_code, 403)
@@ -1001,7 +1004,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
@@ -1030,7 +1034,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 4)
@@ -1052,7 +1057,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
@@ -1064,7 +1070,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         self.assertEqual(
             len(response.html.find_all('tbody')), 2
@@ -1086,7 +1093,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
 
         tables = response.html.find_all('table')
@@ -1116,7 +1124,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
 
         tables = response.html.find_all('table')
@@ -1139,7 +1148,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         self.assertContains(response,
             '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')
@@ -1202,7 +1212,7 @@ class PrefillDataViewTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': self.rp_1.start_date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
 
         # Only our prefilled object should appear in this form.
@@ -1231,7 +1241,7 @@ class PrefillDataViewTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': self.rp_2.start_date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
 
         # Only our prefilled object should appear in this form.
@@ -1271,7 +1281,7 @@ class PrefillDataViewTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': self.rp_2.start_date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
 
         # Only our prefilled object should appear in this form.
@@ -1306,7 +1316,7 @@ class PrefillDataViewTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': self.rp_1.start_date}
             ),
-            headers={'X_AUTH_USER': self.user.email},
+            user=self.user,
         )
 
         # Only the existing timecard object should appear in this form; no

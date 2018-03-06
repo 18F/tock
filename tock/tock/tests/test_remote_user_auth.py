@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 
 from django_webtest import WebTest
 
-from ..remote_user_auth import email_to_username
+from ..remote_user_auth import email_to_username, TockUserBackend
 from employees.models import UserData
 
 
@@ -14,7 +14,7 @@ class AuthTests(WebTest):
     def test_email_domain_validation(self):
         """Ensure that a given email address is a member of the right domain"""
 
-        with self.settings(ALLOWED_EMAIL_DOMAINS={'gsa.gov'}):
+        with self.settings(UAA_APPROVED_DOMAINS={'gsa.gov'}):
             email = 'aaron.snow@gsa.gov'
             self.assertEqual('aaron.snow', email_to_username(email))
             with self.assertRaises(ValidationError):
@@ -29,10 +29,7 @@ class AuthTests(WebTest):
         self.assertEqual('aaron.snowsnowsnowsnow', email_to_username(email))
 
     def _login(self, email):
-        self.app.get(
-            '/',
-            headers={'X_AUTH_USER': email},
-        )
+        TockUserBackend.get_user_by_email(email)
 
     def test_login_creates_user_and_user_data(self):
         email = 'tock.tock@gsa.gov'

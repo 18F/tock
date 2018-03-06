@@ -13,3 +13,4 @@ httmock==1.2.6
 # Cloud.gov specific
 newrelic==2.98.0.81
 cfenv==0.5.3
+cg-django-uaa==1.2.0
