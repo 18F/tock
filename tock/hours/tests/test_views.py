@@ -1004,7 +1004,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
@@ -1033,7 +1034,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 4)
@@ -1055,7 +1057,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodCSVView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
@@ -1067,7 +1070,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         self.assertEqual(
             len(response.html.find_all('tbody')), 2
@@ -1089,7 +1093,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
 
         tables = response.html.find_all('table')
@@ -1119,7 +1124,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
 
         tables = response.html.find_all('table')
@@ -1142,7 +1148,8 @@ class ReportTests(WebTest):
             reverse(
                 'reports:ReportingPeriodDetailView',
                 kwargs={'reporting_period': '2015-01-01'},
-            )
+            ),
+            user=self.regular_user
         )
         self.assertContains(response,
             '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')

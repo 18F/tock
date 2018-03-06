@@ -6,9 +6,10 @@ from django.core.urlresolvers import reverse
 from hours.models import TimecardObject, ReportingPeriod
 from employees.models import UserData
 
+from tock.utils import PermissionMixin
 from .utils import get_dates, calculate_utilization
 
-class GroupUtilizationView(ListView):
+class GroupUtilizationView(PermissionMixin, ListView):
     template_name = 'utilization/group_utilization.html'
 
     def get_queryset(self):
