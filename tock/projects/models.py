@@ -22,7 +22,7 @@ class Agency(models.Model):
 class AccountingCode(models.Model):
     """ Account code for each project """
     code = models.CharField(max_length=200, blank=True)
-    agency = models.ForeignKey(Agency)
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE)
     office = models.CharField(max_length=200, blank=True)
     billable = models.BooleanField(default=False)
     flat_rate = models.BooleanField(default=False)
@@ -191,6 +191,7 @@ class Project(models.Model):
     name = models.CharField(max_length=200)
     mbnumber = models.CharField(max_length=200, blank=True, verbose_name="MB Number")
     accounting_code = models.ForeignKey(AccountingCode,
+                                        on_delete=models.CASCADE,
                                         verbose_name="Accounting Code")
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True, verbose_name='Project Start Date')
@@ -213,10 +214,11 @@ class Project(models.Model):
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         null=True,
+        on_delete=models.CASCADE,
         verbose_name='Profit/loss Accounting String'
     )
-    project_lead = models.ForeignKey(User, null=True)
-    organization = models.ForeignKey(Organization, blank=True, null=True)
+    project_lead = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
 
     objects = ProjectManager()
 
