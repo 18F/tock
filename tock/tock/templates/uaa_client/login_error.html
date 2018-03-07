@@ -4,9 +4,7 @@
 
   <h2>cloud.gov Login Error</h2>
 
-  {% if error_code == "missing_state" or
-      error_code == "missing_session_state" or
-      error_code == "invalid_state" %}
+  {% if "_state" in error_code %}
 
       <p>Bad session state</p>
 
@@ -14,9 +12,9 @@
 
     <p>Missing session code</p>
 
-  {% else error_code == "authenticate_failed" %}
+  {% else %}
 
-    <p>Authentication failed</p>
+    <p>Authentication failed:  {{ error_code }}</p>
 
   {% endif %}
 {% endblock %}
