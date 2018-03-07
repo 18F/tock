@@ -20,6 +20,7 @@ admin.site.login = staff_login_required(admin.site.login)
 import hours.views
 import api.urls
 import projects.urls
+import tock.views
 
 urlpatterns = [
     url(r'^$',
@@ -50,6 +51,8 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^auth/', include('uaa_client.urls')),
+
+    url(r'^logout$', tock.views.logout, name='logout'),
 ]
 
 
