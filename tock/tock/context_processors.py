@@ -13,6 +13,8 @@ def version_url(request):
     # Regular expression here matches the regular expression found in
     # .circleci/config.yml for filtering on tags for Production deployments
     if re.match('/v20[1-9][0-9][0-9]+\.[0-9]+/', name):
-        response['release_url'] = '%sreleases/tag/%s' % (base_url, name)
+        response['x_tock_release_url'] = '%sreleases/tag/%s' % (base_url, name)
+    elif name != 'master':
+        response['x_tock_release_name'] = name[:7]
 
     return response
