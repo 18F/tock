@@ -107,7 +107,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-VERSION = env.get_credential('CIRCLE_TAG', 'master')
+VERSION = env.get_credential('VERSION', 'master')
 
 UAA_APPROVED_DOMAINS = {
     'gsa.gov',

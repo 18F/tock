@@ -5,8 +5,7 @@ import bleach
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.forms.models import inlineformset_factory
-from django.utils.encoding import force_text
-from django.utils.html import escape, conditional_escape, escapejs
+from django.utils.html import escapejs
 from django.db.models import Prefetch
 
 from .models import Timecard, TimecardObject, ReportingPeriod
@@ -46,40 +45,22 @@ class SelectWithData(forms.widgets.Select):
     of the form: {'label': 'option label', 'disabled': True}
     """
 
-    def render_option(self, selected_choices, option_value, option_label):
-        option_value = force_text(option_value)
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        option = super().create_option(name, value, label, selected, index, subindex, attrs)
+        if isinstance(option['label'], dict):
+            info = option['label']
+            attrs = {}
 
-        if (option_value in selected_choices):
-            selected_html = u' selected="selected"'
-        else:
-            selected_html = ''
+            attrs['data-billable'] = "billable" if info.get('billable') else "non-billable"
+            attrs['data-notes-displayed'] = "true" if info.get('notes_displayed') else "false"
+            attrs['data-notes-required'] = "true" if info.get('notes_required') else "false"
 
-        billable_html = ''
-        notes_displayed_html = ' data-notes-displayed="false"'
-        notes_required_html = ' data-notes-required="false"'
-        alerts_html = ''
+            if info.get('alerts'):
+                attrs['data-alerts'] = escapejs(json.dumps(info['alerts']))
 
-        if isinstance(option_label, dict):
-            if dict.get(option_label, 'billable'):
-                billable_html = ' data-billable="billable"'
-            else:
-                billable_html = ' data-billable="non-billable"'
-
-            if dict.get(option_label, 'notes_displayed'):
-                notes_displayed_html = ' data-notes-displayed="true"'
-
-            if dict.get(option_label, 'notes_required'):
-                notes_required_html = ' data-notes-required="true"'
-
-            if dict.get(option_label, 'alerts'):
-                alerts_html = 'data-alerts="%s"' % (escapejs(json.dumps(option_label['alerts'])))
-
-            option_label = option_label['label']
-
-        return '<option value="%s"%s%s%s%s%s>%s</option>' % (
-            escape(option_value), selected_html, billable_html,
-            notes_displayed_html, notes_required_html, alerts_html,
-            conditional_escape(force_text(option_label)))
+            option['attrs'].update(attrs)
+            option['label'] = info['label']
+        return option
 
 
 def choice_label_for_project(project):
