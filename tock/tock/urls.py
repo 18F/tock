@@ -23,6 +23,8 @@ import api.urls
 import projects.urls
 import tock.views
 
+handler400 = 'tock.views.handler400'
+handler403 = 'tock.views.handler403'
 handler404 = 'tock.views.handler404'
 handler500 = 'tock.views.handler500'
 
