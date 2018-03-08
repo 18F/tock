@@ -62,15 +62,20 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
       {% block js %}
       {% endblock js %}
 </div>
-    <footer>
-       <div class="usa-footer-secondary_section">
-        <div class="usa-grid">
-          <div class="usa-footer-logo">
-            <p><i>The current release is <code>{{ x_tock_release_name }}</code>, <a href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}">view this release on GitHub</a></i>.</p>
-          </div>
-        </div>
-      </div>
-    </footer>
-    
+<footer class="usa-footer usa-footer-slim" role="contentinfo">
+  <div class="usa-grid">
+    <nav class=" usa-width-one-whole">
+      <ul class="usa-unstyled-list">
+        <li class="usa-width-one-half">
+          <p><i>The current release is <code>{{ x_tock_release_name }}</code>, <a href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}">view this release on GitHub</a></i>.</p>
+        </li>
+        <li class="usa-width-one-half">
+          <p><i>For questions, suggestions, or bug reports, please <a href="https://github.com/18f/tock/issues">file an issue</a>.</i></p>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+
   </body>
 </html>
