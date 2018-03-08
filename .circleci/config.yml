@@ -83,8 +83,7 @@ jobs:
       - run:
           name: deploy Tock Staging to cloud.gov
           command: |
-            cf api ${CF_API}
-            cf auth ${CF_DEPLOYER_USERNAME_STAGING} ${CF_DEPLOYER_PASSWORD_STAGING}
+            cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
             cf set-env tock VERSION ${CIRCLE_SHA1}
             cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
@@ -102,8 +101,7 @@ jobs:
       - run:
           name: deploy Tock Production to cloud.gov
           command: |
-            cf api ${CF_API}
-            cf auth ${CF_DEPLOYER_USERNAME_PRODUCTION} ${CF_DEPLOYER_PASSWORD_PRODUCTION}
+            cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
             cf set-env tock VERSION ${CIRCLE_TAG}
             cf_deploy.sh tock gsa-18f-tock prod manifest-production.yml
 
