@@ -119,6 +119,8 @@ class URLAuthTests(TestCase):
         '/auth/fake/oauth/token',
         # Logging out of admin is always public, so ignore it.
         '/admin/logout/',
+        # And logging out of the site is always public too.
+        '/logout',
     ]
 
     def assertURLIsProtectedByAuth(self, url):

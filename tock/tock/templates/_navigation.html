@@ -24,6 +24,11 @@
           <span>Users</span>
         </a>
       </li>
+      <li>
+        <a href="{% url 'logout' %}" class="usa-nav-link">
+          <span>Log out</span>
+        </a>
+      </li>
       {% if request.user.is_superuser %}
       <li>
         <button class="
