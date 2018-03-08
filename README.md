@@ -18,12 +18,9 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
   $ cd tock
   ```
 
-  This is where the `env.sample` file is held.
-
 1. Run:
 
   ```shell
-  $ cp .env.sample .env
   $ docker-compose build
   $ docker-compose run app python manage.py migrate
   $ docker-compose run app python manage.py loaddata test_data/data-update-deduped.json
@@ -42,12 +39,6 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 1. Visit [http://localhost:8000/][] directly to access the site.
 
   When prompted for an email address, enter `admin@gsa.gov`.
-
-  If you see this message in the console, you can disregard it:
-  ```
-  app_1   | Starting development server at http://0.0.0.0:1234/
-  ```
-  It's still running at http://localhost:8000
 
 You can access the admin panel at `/admin`.
 
