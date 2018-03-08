@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import admin
 admin.autodiscover()
 
+
 def check_if_staff(user):
     if not user.is_authenticated():
         return False
@@ -21,6 +22,9 @@ import hours.views
 import api.urls
 import projects.urls
 import tock.views
+
+handler404 = 'tock.views.handler404'
+handler500 = 'tock.views.handler500'
 
 urlpatterns = [
     url(r'^$',
