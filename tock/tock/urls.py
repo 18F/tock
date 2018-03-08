@@ -7,6 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import admin
 admin.autodiscover()
 
+
 def check_if_staff(user):
     if not user.is_authenticated():
         return False
@@ -20,6 +21,12 @@ admin.site.login = staff_login_required(admin.site.login)
 import hours.views
 import api.urls
 import projects.urls
+import tock.views
+
+handler400 = 'tock.views.handler400'
+handler403 = 'tock.views.handler403'
+handler404 = 'tock.views.handler404'
+handler500 = 'tock.views.handler500'
 
 urlpatterns = [
     url(r'^$',
@@ -50,6 +57,8 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^auth/', include('uaa_client.urls')),
+
+    url(r'^logout$', tock.views.logout, name='logout'),
 ]
 
 
