@@ -15,6 +15,6 @@ def version_url(request):
     if re.match('/v20[1-9][0-9][0-9]+\.[0-9]+/', name):
         response['x_tock_release_url'] = '%sreleases/tag/%s' % (base_url, name)
     elif name != 'master':
-        response['x_tock_release_url'] = name[:7]
+        response['x_tock_release_name'] = name[:7]
 
     return response
