@@ -18,15 +18,13 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
   $ cd tock
   ```
 
-  This is where the `env.sample` file is held.
-
 1. Run:
 
   ```shell
-  $ cp .env.sample .env
   $ docker-compose build
   $ docker-compose run app python manage.py migrate
   $ docker-compose run app python manage.py loaddata test_data/data-update-deduped.json
+  $ docker-compose run app python manage.py createsuperuser --username admin@gsa.gov --email admin@gsa.gov --noinput
   ```
 
 1. Once the above commands are successful, run:
@@ -40,11 +38,7 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 1. Visit [http://localhost:8000/][] directly to access the site.
 
-  If you see this message in the console, you can disregard it:
-  ```
-  app_1   | Starting development server at http://0.0.0.0:1234/
-  ```
-  It's still running at http://localhost:8000
+  When prompted for an email address, enter `admin@gsa.gov`.
 
 You can access the admin panel at `/admin`.
 
@@ -135,9 +129,24 @@ To access similar data in CSV format from within Tock, please visit the [/report
 
 ## Authentication
 
-18F's current deployment of Tock relies on a [cloud.gov](https://cloud.gov) route service called [`uaa-auth`](https://github.com/dlapiduz/cf-uaa-guard-service).
+18F's current deployment of Tock relies on
+[cloud.gov's User Account and Authentication (UAA) server][UAA] for
+authentication.
+
+During development, a ["fake" cloud.gov UAA server][fakeUAA] is used for
+authentication. Here you can actually enter any email address; if the
+address is `@gsa.gov`, then a non-staff account will automatically
+be created for the user and you'll be logged-in, but otherwise access
+will be denied.
+
+The easiest way to create an administrative user is to first use
+`manage.py createsuperuser` to create a user, and then log in
+with that user's email address.  See the "Getting Started" section
+for an example of this.
 
 [Docker]: https://www.docker.com/
 [http://localhost:8000/]: http://localhost:8000/
 [Sass]: http://sass-lang.com/
 [Node]: https://nodejs.org/en/
+[UAA]: https://cloud.gov/docs/apps/leveraging-authentication/
+[fakeUAA]: http://cg-django-uaa.readthedocs.io/en/latest/quickstart.html#using-the-fake-cloud-gov-server
