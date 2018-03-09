@@ -937,6 +937,14 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
     context_object_name = 'timecard_list'
 
     def dispatch(self, *args, **kwargs):
+        """
+        Because PermissionMixin and this view are both subclassing dispatch
+        We'll explicitly check auth and pass to handle_no_permission().
+        
+        See github.com/django/django/blob/master/django/contrib/auth/mixins.py#L47
+        """
+        if not self.request.user.is_authenticated:
+            return self.handle_no_permission()
         self.report_start_date = dt.datetime.strptime(
             self.kwargs['reporting_period'],
             "%Y-%m-%d"

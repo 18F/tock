@@ -1076,6 +1076,17 @@ class ReportTests(WebTest):
         self.assertEqual(
             len(response.html.find_all('tbody')), 2
         )
+    
+    def test_ReportingPeriodDetailView_invalid_date_404(self):
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodDetailView',
+                kwargs={'reporting_period': '1776-07-04'},
+            ),
+            user=self.regular_user,
+            expect_errors=True
+        )
+        self.assertEqual(response.status_code, 404)
 
     def test_ReportingPeriodDetailView_add_submitted_time(self):
         """
