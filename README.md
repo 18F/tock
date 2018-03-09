@@ -24,7 +24,7 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
   $ docker-compose build
   $ docker-compose run app python manage.py migrate
   $ docker-compose run app python manage.py loaddata test_data/data-update-deduped.json
-  $ docker-compose run app python manage.py createsuperuser --username admin@gsa.gov --email admin@gsa.gov --noinput
+  $ docker-compose run app python manage.py createsuperuser --username admin --email admin@gsa.gov --noinput
   ```
 
 1. Once the above commands are successful, run:
