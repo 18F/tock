@@ -1076,7 +1076,7 @@ class ReportTests(WebTest):
         self.assertEqual(
             len(response.html.find_all('tbody')), 2
         )
-    
+
     def test_ReportingPeriodDetailView_invalid_date_404(self):
         response = self.app.get(
             reverse(

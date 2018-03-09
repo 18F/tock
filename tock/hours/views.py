@@ -940,7 +940,7 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
         """
         Because PermissionMixin and this view are both subclassing dispatch
         We'll explicitly check auth and pass to handle_no_permission().
-        
+
         See github.com/django/django/blob/master/django/contrib/auth/mixins.py#L47
         """
         if not self.request.user.is_authenticated:
@@ -966,10 +966,10 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
 
     def get_context_data(self, **kwargs):
         """
-        We need to add the reporting period to context, 
-        as well as users who have not filed timecards, 
+        We need to add the reporting period to context,
+        as well as users who have not filed timecards,
         so long as they are not new hires or recently departed.
-        
+
         To do so, we'll first get a quick list of IDs
         of those who have filed.
         """
@@ -983,7 +983,7 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
             .exclude(id__in=filed_users) \
             .filter(user_data__current_employee=True) \
             .order_by('last_name', 'first_name')
-        
+
         context.update({
             'users_without_filed_timecards': unfiled_users,
             'reporting_period': self.report_period
