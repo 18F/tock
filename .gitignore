@@ -72,3 +72,5 @@ tock.sql
 # node stuff
 node_modules
 !tock/tock/static/css/dist
+
+tock/VERSION

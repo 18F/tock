@@ -162,7 +162,7 @@ class DashboardViewTests(WebTest):
                 'reports:DashboardView',
                 kwargs={'reporting_period':'1999-12-31'}
             ),
-            {'unit':'1'},
+            params={'unit':'1'},
             user=self.user,
         )
         self.assertEqual(response.status_code, 200)
@@ -956,7 +956,7 @@ class ReportTests(WebTest):
                 'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
-            {
+            params={
                 'save_only': '1',
                 'timecardobjects-TOTAL_FORMS': '1',
                 'timecardobjects-INITIAL_FORMS': '0',
