@@ -1,5 +1,14 @@
 [
   {
+    "model": "employees.EmployeeGrade",
+    "fields": {
+      "employee": 1,
+      "grade": 4,
+      "g_start_date": "2015-05-28"
+    },
+    "pk": 1
+  },
+  {
     "model": "hours.reportingperiod",
     "fields": {
       "start_date": "2015-06-01",
@@ -24,6 +33,7 @@
       "timecard": 1,
       "project": 1,
       "hours_spent": 20,
+      "grade": 1,
       "created": "2015-06-08T12:00:00.000Z",
       "modified": "2015-06-08T12:00:00.000Z"
     },

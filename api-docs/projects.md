@@ -32,6 +32,7 @@ To fetch a list of projects  information.
         "billable": true,
         "start_date": null,
         "end_date": null,
+        "grade": 16,
         "active": true
     },...
 
@@ -48,5 +49,8 @@ To fetch a list of projects  information.
 $ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
 ```
 
-* **Notes:** None.
- 
+* **Notes:**
+
+Note that `grade` may be `null` if no grade information is
+available. If it is non-null, it will be a number corresponding to a grade;
+the mapping is defined by `GRADE_CHOICES` in `tock/employees/models.py`.

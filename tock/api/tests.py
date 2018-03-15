@@ -70,6 +70,20 @@ class TimecardsAPITests(WebTest):
         clean_res = json.loads(res.decode())
         self.assertEqual(len(clean_res), 2)
 
+    def test_timecards_grade_is_null_when_absent(self):
+        res = client(self).get(
+            reverse('TimecardList'),
+            data={'date': '2016-06-01'}).content
+        clean_res = json.loads(res.decode())
+        self.assertEqual(clean_res[0]['grade'], None)
+
+    def test_timecards_grade_is_populated_when_present(self):
+        res = client(self).get(
+            reverse('TimecardList'),
+            data={'date': '2015-06-01'}).content
+        clean_res = json.loads(res.decode())
+        self.assertEqual(clean_res[0]['grade'], 4)
+
     # TODO: test with more diverse data
     def test_get_timecards(self):
         """ Check that get time cards returns the correct queryset """

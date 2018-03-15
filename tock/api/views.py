@@ -109,6 +109,8 @@ class TimecardSerializer(serializers.Serializer):
     project_organization = serializers.CharField(
         source='project.organization_name'
     )
+    grade = serializers.IntegerField(
+        source='grade.grade')
 
 # API Views
 
@@ -167,6 +169,7 @@ class TimecardList(generics.ListAPIView):
         'timecard__user',
         'project__accounting_code__agency',
         'timecard__reporting_period',
+        'grade',
     ).order_by(
         'timecard__reporting_period__start_date'
     )
