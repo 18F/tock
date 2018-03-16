@@ -5,10 +5,11 @@ Welcome to the Tock documentation. This documentation is written in
 
 ## Table of Contents
 
-- [Deploying Tock](deploy.md)
-- [Managing UAA Clients](managing-uaa-clients.md)
-- [Releasing Tock](releasing-tock.md)
-- [Updating User-Provided Service variables](updating-user-provided-service.md)
 - [Getting Started with Local Tock Development](local-development.md)
+- [Tock API](api.md)
+- [Tock Authentication](authentication.md)
+- [Tock Deployment Process](deployment-process.md)
+- [Tock Release Management](release-management.md)
+- [Tock Logging](logging.md)
 
 [gh-md]: https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown
