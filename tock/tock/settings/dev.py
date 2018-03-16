@@ -44,19 +44,12 @@ else:
 MEDIA_ROOT = './media/'
 MEDIA_URL = '/media/'
 
-# Due to the Docker configuration and Django Debug Toolbar's need to account
-# for the local machine's IP address in INTERNAL_IPS to display itself, opt
-# to show the debug toolbar with a custom callback instead. For more
-# information on this setup please take a look at these resources:
-# https://django-debug-toolbar.readthedocs.io/en/1.4/installation.html#internal-ips
-# https://django-debug-toolbar.readthedocs.io/en/1.4/configuration.html#toolbar-options (SHOW_TOOLBAR_CALLBACK)
-# http://stackoverflow.com/questions/10517765/django-debug-toolbar-not-showing-up
-# https://gist.github.com/douglasmiranda/9de51aaba14543851ca3 (code taken from here)
+# Due to the Docker configuration, bypass Django Debug Toolbar's check
+# on INTERAL_IPS to display itself, opt to show the debug toolbar with 
+# a custom callback instead.
+# https://django-debug-toolbar.readthedocs.io/en/1.9.1/configuration.html#toolbar-options (SHOW_TOOLBAR_CALLBACK)
 def show_django_debug_toolbar(request):
-    if request.is_ajax():
-        return False
-
-    return True
+    return DEBUG
 
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TOOLBAR_CALLBACK': 'tock.settings.dev.show_django_debug_toolbar',
