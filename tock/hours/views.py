@@ -12,6 +12,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError, \
     PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView, FormView
 from django.db.models import Sum
@@ -935,11 +936,28 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
     template_name = 'hours/reporting_period_detail.html'
     context_object_name = 'timecard_list'
 
+    def dispatch(self, *args, **kwargs):
+        """
+        Because PermissionMixin and this view are both subclassing dispatch
+        We'll explicitly check auth and pass to handle_no_permission().
+
+        See github.com/django/django/blob/master/django/contrib/auth/mixins.py#L47
+        """
+        if not self.request.user.is_authenticated:
+            return self.handle_no_permission()
+        self.report_start_date = dt.datetime.strptime(
+            self.kwargs['reporting_period'],
+            "%Y-%m-%d"
+        ).date()
+        self.report_period = get_object_or_404(
+            ReportingPeriod,
+            start_date=self.report_start_date
+        )
+        return super().dispatch(*args, **kwargs)
+
     def get_queryset(self):
         return Timecard.objects.filter(
-            reporting_period__start_date=dt.datetime.strptime(
-                self.kwargs['reporting_period'],
-                "%Y-%m-%d").date(),
+            reporting_period=self.report_period,
             submitted=True,
         ).select_related(
             'user',
@@ -947,23 +965,29 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
         ).distinct().order_by('user__last_name', 'user__first_name')
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(
-            ReportingPeriodDetailView, self).get_context_data(**kwargs)
-        reporting_period = ReportingPeriod.objects.get(
-            start_date=dt.datetime.strptime(
-                self.kwargs['reporting_period'], "%Y-%m-%d").date())
-        filed_users = list(
-            Timecard.objects.filter(
-                reporting_period=reporting_period,
+        """
+        We need to add the reporting period to context,
+        as well as users who have not filed timecards,
+        so long as they are not new hires or recently departed.
+
+        To do so, we'll first get a quick list of IDs
+        of those who have filed.
+        """
+        context = super().get_context_data(**kwargs)
+        filed_users = Timecard.objects.filter(
+                reporting_period=self.report_period,
                 submitted=True
-            ).distinct().all().values_list('user__id', flat=True))
-        context['users_without_filed_timecards'] = get_user_model().objects \
-            .exclude(user_data__start_date__gte=reporting_period.end_date) \
+            ).distinct().values_list('user__id', flat=True)
+        unfiled_users = get_user_model().objects \
+            .exclude(user_data__start_date__gte=self.report_period.end_date) \
             .exclude(id__in=filed_users) \
             .filter(user_data__current_employee=True) \
             .order_by('last_name', 'first_name')
-        context['reporting_period'] = reporting_period
+
+        context.update({
+            'users_without_filed_timecards': unfiled_users,
+            'reporting_period': self.report_period
+        })
         return context
 
 
