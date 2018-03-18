@@ -45,7 +45,7 @@ MEDIA_ROOT = './media/'
 MEDIA_URL = '/media/'
 
 # Due to the Docker configuration, bypass Django Debug Toolbar's check
-# on INTERAL_IPS to display itself, opt to show the debug toolbar with 
+# on INTERAL_IPS to display itself, opt to show the debug toolbar with
 # a custom callback instead.
 # https://django-debug-toolbar.readthedocs.io/en/1.9.1/configuration.html#toolbar-options (SHOW_TOOLBAR_CALLBACK)
 def show_django_debug_toolbar(request):
