@@ -1,6 +1,7 @@
 # Updating User-Provided Service for Tock
 
-[:arrow_left: Back to Tock Documentation](README.md)
+[:arrow_left: Back to Tock
+Documentation](https://github.com/18F/tock/tree/master/docs)
 
 Tock leverages [Cloud Foundry User-Provided Service][cf-ups] to store
 environment variables used in the running application. These values need to be

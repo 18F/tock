@@ -1,6 +1,7 @@
 ## Getting Started with Local Tock Development
 
-[:arrow_left: Back to Tock Documentation](README.md)
+[:arrow_left: Back to Tock
+Documentation](https://github.com/18F/tock/tree/master/docs)
 
 1. Install [Docker][]. If you're on OS X, install Docker for Mac. If you're on Windows, install Docker for Windows.
 
