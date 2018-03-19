@@ -16,38 +16,27 @@ access using [cloud.gov's logging system][cg-log-sys].
 
 [cg-log-sys]: https://logs.fr.cloud.gov
 
-### Account Events
+| Description                | Kibana Query                                      |
+| -------------------------- | ------------------------------------------------- |
+| Deployments                | `@cf.app:"tock" AND @cf.message:"Recorded deployment"`               |
+| Authorization checks       | `@cf.app:"tock" AND @cf.message:"Authorization check"`               |
+| Authentication checks      | `@cf.app:"tock" AND @cf.message:"Authentication check"`              |
+| Successful login events    | `@cf.app:"tock" AND @cf.message:"Successful login"`                  |
+| Unsuccessful login events  | `@cf.app:"tock" AND @cf.message:"Unsuccessful login"`                |
+| Object access *            | `@cf.app:"tock" AND gsa18f_procurements`                 |
+| Account management events  | `@cf.app:"tock" AND ((versions AND User) OR user_roles)` |
+| All administrator activity | `@cf.app:"tock" AND admin`                               |
+| Data deletions **          | `@cf.app:"tock" AND DELETE`                              |
+| Data access **             | `@cf.app:"tock" AND SELECT`                              |
+| Data changes **            | `@cf.app:"tock" AND (UPDATE OR INSERT)`                  |
+| Permission Changes         | `@cf.app:"tock" AND user_roles AND INSERT`               |
 
-#### Account Logon Events
+\* For "object access" search by database table name.
 
-#### Account Management Events
-
-#### Authentication Checks
-
-#### Authorization Checks
-
-#### All Administrator Activity
-
-#### Permission Changes
-
-### Application Events
-
-#### Policy Change
-
-#### Privilege functions
-
-#### Process Tracking
-
-#### System events
-
-#### Object Access
-
-### Data Events
-
-#### Data Deletion
-
-#### Data Access
-
-#### Data Changes
+\** For these queries, consider including a table name like `@cf.app:"tock" AND SELECT AND proposals`
 
 
+Some table names:
+- `<TABLE_NAME>`
+
+https://docs.djangoproject.com/en/dev/ref/contrib/auth/#module-django.contrib.auth.signals
