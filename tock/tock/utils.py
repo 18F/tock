@@ -11,7 +11,7 @@ from django.shortcuts import redirect
 
 from tock.settings import base
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('tock-auth')
 
 
 class PermissionMixin(LoginRequiredMixin, object):

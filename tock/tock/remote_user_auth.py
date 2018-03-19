@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from employees.models import UserData
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('tock-auth')
 
 
 def email_to_username(email):
