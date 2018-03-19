@@ -16,3 +16,10 @@ Tock Developer.
 To access similar data in CSV format from within Tock, please visit the
 [/reports](https://tock.18f.gov/reports) page.
 
+### Tock API usages
+
+The Tock API is used in various ways by Tock Administrators and Tock Users.
+Below are some examples of Tock API usage.
+
+- [AngryTock Slack Bot](https://github.com/18F/angrytock)
+- [Google App Script](https://github.com/18F/tock-gas-ts)
