@@ -11,7 +11,7 @@ USE_X_FORWARDED_HOST = True
 
 ALLOWED_HOSTS = ['*']  # proxied
 
-#FORCE_SCRIPT_NAME = '/tock'
+# FORCE_SCRIPT_NAME = '/tock'
 
 STATIC_ROOT = '/app/tock/tock/static/'
 STATIC_URL = '/tock/static/'
@@ -41,6 +41,6 @@ LOGGING = {
 
 
 try:
-  from .local_settings import *     # noqa
+    from .local_settings import *     # noqa
 except ImportError:
-  pass
+    pass
