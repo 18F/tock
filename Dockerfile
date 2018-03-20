@@ -2,6 +2,8 @@ FROM python:3.6.4
 
 RUN apt-get update && apt-get install -y postgresql-client
 
-COPY requirements.txt requirements-dev.txt /tock/
+COPY Pipfile Pipfile
+COPY Pipfile.lock Pipfile.lock
 
-RUN pip install -r /tock/requirements.txt -r /tock/requirements-dev.txt
+RUN pip install pipenv
+RUN pipenv install --system --dev
