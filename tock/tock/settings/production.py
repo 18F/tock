@@ -55,6 +55,11 @@ LOGGING = {
             'propagate': True,
             'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
         },
+        'django.template': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+            'level': 'INFO',
+        },
         'uaa_client': {
             'handlers': ['console', 'file'],
             'propagate': True,
