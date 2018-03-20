@@ -1,12 +1,14 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+
 [packages]
+
 django = "==1.11.*"
 dj-database-url = "*"
-"psycopg2" = "*"
 gevent = "*"
 gunicorn = "*"
 whitenoise = "*"
@@ -16,9 +18,11 @@ bleach = "*"
 newrelic = "*"
 cfenv = "*"
 cg-django-uaa = "*"
+"psycopg2-binary" = "*"
 
 
 [dev-packages]
+
 bandit = "*"
 coverage = "*"
 django-debug-toolbar = "*"
@@ -26,6 +30,9 @@ django-webtest = "*"
 factory-boy = "*"
 "flake8" = "*"
 nplusone = "*"
+codecov = "*"
+
 
 [requires]
+
 python_version = "3.6"
