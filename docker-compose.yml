@@ -23,7 +23,7 @@ db:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
 sass:
-  image: node:8.9.3
+  image: node:8.10.0
   volumes:
     - .:/tock
     - /tock/node_modules
