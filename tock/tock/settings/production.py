@@ -6,6 +6,7 @@ from .base import *  # noqa
 # spell out explicit variable dependencies
 from .base import DATABASES
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 USE_X_FORWARDED_HOST = True
 
