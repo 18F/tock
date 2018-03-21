@@ -1,6 +1,7 @@
 # Releasing Tock
 
-[:arrow_left: Back to Tock Documentation](README.md)
+[:arrow_left: Back to Tock
+Documentation](https://github.com/18F/tock/tree/master/docs)
 
 Releasing Tock onto Production happens whenever you create a Git tag and push it
 up to the repository. The process is outlined below.
