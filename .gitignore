@@ -74,3 +74,6 @@ node_modules
 !tock/tock/static/css/dist
 
 tock/VERSION
+
+# vscode stuff
+.vscode
