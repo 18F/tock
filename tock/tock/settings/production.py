@@ -81,6 +81,16 @@ LOGGING = {
             'propagate': True,
             'level': 'INFO',
         },
+        'tock-organizations': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        'tock-projects': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+            'level': 'INFO',
+        },
         'tock': {
             'handlers': ['console', 'file'],
             'propagate': True,

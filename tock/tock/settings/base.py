@@ -35,12 +35,12 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'uaa_client',
     'tock.apps.TockAppConfig',
-    'projects',
+    'projects.apps.ProjectsAppConfig',
     'hours.apps.HoursAppConfig',
     'employees.apps.EmployeesAppConfig',
-    'organizations',
-    'api',
-    'utilization',
+    'organizations.apps.OrganizationsAppConfig',
+    'api.apps.ApiAppConfig',
+    'utilization.apps.UtilizationAppConfig',
     'rest_framework.authtoken',
 )
 
