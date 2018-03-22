@@ -22,15 +22,11 @@ Manifest files, which contain import deploy configuration settings, are located
 in the root directory of this project, prefixed with `manifest-` and ending in a
 `.yml` file extension.
 
-Note that this project has two requirements files:
-* `requirements.txt` for production dependencies
-* `requirements-dev.txt` for development and testing dependencies
-
 During local development and continuous integration testing,
-`pip install -r requirements-dev.txt` is used, which installs both
-development and production dependencies. During deployments, the Cloud
-Foundry python buildpack uses only `requirements.txt` by default, so
-only production dependencies will be installed.
+`pipenv install --dev` is used, which installs both development 
+and production dependencies. During deployments, the Cloud Foundry 
+python buildpack generates a `requirements.txt` file with `pipenv lock -r` 
+and installs only production dependencies.
 
 ### Cloud Foundry structure
 
