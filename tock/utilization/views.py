@@ -32,12 +32,12 @@ class GroupUtilizationView(PermissionMixin, ListView):
 
     def get_queryset(self):
         """
-        Gets submitted timecards for billable staff 
+        Gets submitted timecards for billable staff
         limited to the reporting periods in question.
         """
         # Start stubbing a dict for our units, using a quick list comprehension
         units = [{
-            'id': choice[0], 
+            'id': choice[0],
             'name': choice[1],
             'slug': slugify(choice[1])
          } for choice in UserData.UNIT_CHOICES]
@@ -57,7 +57,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
                 related user and accounting code for later use.
 
                 We're casting this to values() because we need very little data,
-                it's faster, and we can work with it in pure python so we avoid 
+                it's faster, and we can work with it in pure python so we avoid
                 additional queries hitting the database.
                 """
                 user_timecards = TimecardObject.objects.filter(
@@ -75,7 +75,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
                     'project__accounting_code__billable'
                 )
                 """
-                We also need to know the billable cards, but 
+                We also need to know the billable cards, but
                 we only need the IDs to boil down each reporting period QS
                 and find the intersection below.
                 """
