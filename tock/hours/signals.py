@@ -1,17 +1,10 @@
 import logging
 
 from django.db.models.signals import pre_save
-from django.dispatch import receiver
-
-from .models import (
-    HolidayPrefills, ReportingPeriod, Targets, Timecard, TimecardNote,
-    TimecardObject, TimecardPrefillData
-)
 
 logger = logging.getLogger('tock-hours')
 
 
-@receiver(pre_save, sender=HolidayPrefills)
 def holiday_prefills_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
@@ -19,7 +12,6 @@ def holiday_prefills_creation(sender, instance=None, **kwargs):
         )
 
 
-@receiver(pre_save, sender=ReportingPeriod)
 def reporting_period_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
@@ -27,7 +19,6 @@ def reporting_period_creation(sender, instance=None, **kwargs):
         )
 
 
-@receiver(pre_save, sender=Targets)
 def targets_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
@@ -35,7 +26,6 @@ def targets_creation(sender, instance=None, **kwargs):
         )
 
 
-@receiver(pre_save, sender=Timecard)
 def timecard_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
@@ -43,7 +33,6 @@ def timecard_creation(sender, instance=None, **kwargs):
         )
 
 
-@receiver(pre_save, sender=TimecardNote)
 def timecard_note_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
@@ -51,7 +40,6 @@ def timecard_note_creation(sender, instance=None, **kwargs):
         )
 
 
-@receiver(pre_save, sender=TimecardObject)
 def timecard_object_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
@@ -59,9 +47,51 @@ def timecard_object_creation(sender, instance=None, **kwargs):
         )
 
 
-@receiver(pre_save, sender=TimecardPrefillData)
 def timecard_prefill_data_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
             f'Creating TimecardPrefillData for {instance}.'
         )
+
+
+def setup_signals():
+    from .models import (
+        HolidayPrefills, ReportingPeriod, Targets, Timecard, TimecardNote,
+        TimecardObject, TimecardPrefillData
+    )
+
+    pre_save.connect(
+        holiday_prefills_creation,
+        sender=HolidayPrefills,
+        dispatch_uid="hours_holiday_prefills_creation"
+    )
+    pre_save.connect(
+        reporting_period_creation,
+        sender=ReportingPeriod,
+        dispatch_uid="hours_reporting_period_creation"
+    )
+    pre_save.connect(
+        targets_creation,
+        sender=Targets,
+        dispatch_uid="hours_targets_creation"
+    )
+    pre_save.connect(
+        timecard_creation,
+        sender=Timecard,
+        dispatch_uid="hours_timecard_creation"
+    )
+    pre_save.connect(
+        timecard_note_creation,
+        sender=TimecardNote,
+        dispatch_uid="hours_timecard_note_creation"
+    )
+    pre_save.connect(
+        timecard_object_creation,
+        sender=TimecardObject,
+        dispatch_uid="hours_timecard_object_creation"
+    )
+    pre_save.connect(
+        timecard_prefill_data_creation,
+        sender=TimecardPrefillData,
+        dispatch_uid="hours_timecard_prefill_data_creation"
+    )
