@@ -71,6 +71,11 @@ LOGGING = {
             'propagate': True,
             'level': 'INFO',
         },
+        'tock-employees': {
+            'handlers': ['console', 'file'],
+            'propagate': True,
+            'level': 'INFO',
+        },
         'tock': {
             'handlers': ['console', 'file'],
             'propagate': True,
