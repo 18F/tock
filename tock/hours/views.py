@@ -47,8 +47,6 @@ from .forms import (
 )
 from utilization.utils import calculate_utilization, get_fy_first_day
 
-from . import signals
-
 
 class DashboardReportsList(PermissionMixin, ListView):
     template_name = 'hours/dashboard_list.html'

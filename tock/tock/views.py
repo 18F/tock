@@ -3,8 +3,6 @@ import logging
 from django.shortcuts import render
 import django.contrib.auth
 
-from . import signals  # noqa
-
 logger = logging.getLogger('tock')
 
 
