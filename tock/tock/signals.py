@@ -2,7 +2,7 @@ import logging
 
 from django.contrib.auth.signals import user_logged_in, user_logged_out, \
     user_login_failed
-from django.db.models.signals import pre_save, post_save, m2m_changed
+from django.db.models.signals import post_save, m2m_changed
 
 logger = logging.getLogger('tock')
 

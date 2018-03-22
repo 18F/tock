@@ -6,4 +6,3 @@ class OrganizationsAppConfig(AppConfig):
 
     def ready(self):
         setup_signals()
-

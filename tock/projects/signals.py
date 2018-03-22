@@ -59,6 +59,11 @@ def setup_signals():
         dispatch_uid="project_project_alert_creation"
     )
     pre_save.connect(
+        profit_loss_account_creation,
+        sender=ProfitLossAccount,
+        dispatch_uid="project_profit_loss_account_creation"
+    )
+    pre_save.connect(
         project_creation,
         sender=Project,
         dispatch_uid="project_project_creation"
