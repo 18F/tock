@@ -17,6 +17,6 @@ def logout_logger(sender, request, user, **kwargs):
     logger.info(f'Successful logout event for {user.username}.')
 
 
-@receiver(user_logged_fail)
+@receiver(user_login_failed)
 def failed_login_logger(sender, credentials, request, **kwargs):
     logger.info(f'Unsuccessful login attempt by {credentials}.')
