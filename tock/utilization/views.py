@@ -22,6 +22,8 @@ class GroupUtilizationView(PermissionMixin, ListView):
         we could accept a form response that allows the user or app to 
         dynamically customize number of periods to include in the queryset.
         """
+        if not self.request.user.is_authenticated:
+            return self.handle_no_permission()
         self.available_periods = ReportingPeriod.objects.count()
         
         if self.available_periods >= self.requested_periods:
