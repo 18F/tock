@@ -108,22 +108,22 @@ class TestGroupUtilizationView(WebTest):
         )
 
         self.assertEqual(len(
-            response.context['unit_choices']), len(UserData.UNIT_CHOICES)
+            response.context['object_list']), len(UserData.UNIT_CHOICES)
         )
         self.assertContains(response, 'regular.user')
         self.assertContains(response, 'aaron.snow')
         self.assertTrue(response.context['through_date'])
         self.assertTrue(response.context['recent_start_date'])
-        self.assertEqual(len(response.context['user_list']), 2)
-        self.assertTrue(response.context['user_list'][0].__dict__['last'])
-        self.assertTrue(response.context['user_list'][0].__dict__['fytd'])
-        self.assertTrue(response.context['user_list'][0].__dict__['recent'])
+        self.assertEqual(len(response.context['object_list'][0]['billable_staff']), 2)
+        self.assertTrue(response.context['object_list'][0]['last'])
+        self.assertTrue(response.context['object_list'][0]['fytd'])
+        self.assertTrue(response.context['object_list'][0]['recent'])
         self.assertTrue(
-            response.context['user_list'][0].__dict__['_user_data_cache']
+            response.context['object_list'][0]['billable_staff'][0]._user_cache
         )
         self.assertEqual(
-            response.context['user_list'][0].__dict__['_user_data_cache'].\
-            __dict__['unit'], 0)
+            response.context['object_list'][0]['billable_staff'][0].unit, 0
+        )
 
     def test_summary_rows(self):
         response = self.app.get(
@@ -131,7 +131,7 @@ class TestGroupUtilizationView(WebTest):
             user=self.req_user
         )
         self.assertEqual(
-            response.context['unit_totals'][0]['recent']['total_hours'],
+            response.context['object_list'][0]['recent']['total_hours'],
             (self.b_timecard_object.hours_spent + \
             self.nb_timecard_object.hours_spent)
         )
