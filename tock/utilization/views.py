@@ -1,6 +1,4 @@
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.db.models import Sum
 from django.template.defaultfilters import slugify
 from django.views.generic import ListView
 
@@ -18,14 +16,14 @@ class GroupUtilizationView(PermissionMixin, ListView):
         """
         Resolve recent reporting periods.
 
-        Although recent_rps is set to the last four reporting periods, 
-        we could accept a form response that allows the user or app to 
+        Although recent_rps is set to the last four reporting periods,
+        we could accept a form response that allows the user or app to
         dynamically customize number of periods to include in the queryset.
         """
         if not self.request.user.is_authenticated:
             return self.handle_no_permission()
         self.available_periods = ReportingPeriod.objects.count()
-        
+
         if self.available_periods >= self.requested_periods:
             self.recent_rps = get_dates(self.requested_periods)
         else:
@@ -43,8 +41,8 @@ class GroupUtilizationView(PermissionMixin, ListView):
             'name': choice[1],
             'slug': slugify(choice[1])
          } for choice in UserData.UNIT_CHOICES]
-        # now we'll start building out that dict further, 
-        # First, let's get the staff for each unit
+        # now we'll start building out that dict further,
+        # starting with the staff for each unit
         for unit in units:
             billable_staff = UserData.objects.filter(
                 is_billable=True,
@@ -61,7 +59,6 @@ class GroupUtilizationView(PermissionMixin, ListView):
                 We're casting this to values() because we need very little data,
                 it's faster, and we can work with it in pure python so we avoid 
                 additional queries hitting the database.
-                
                 """
                 user_timecards = TimecardObject.objects.filter(
                     submitted=True,
@@ -87,9 +84,9 @@ class GroupUtilizationView(PermissionMixin, ListView):
                 ).values_list('id', flat=True)
 
                 """
-                Filter the timecard queryset to only look for cards that are 
-                related to reporting periods within the current fiscal year. 
-                
+                Filter the timecard queryset to only look for cards that are
+                related to reporting periods within the current fiscal year.
+
                 This operation is unnecessary except at the beginning of the
                 fiscal year.
                 """
@@ -98,7 +95,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
                     if card['timecard__reporting_period__start_date'] >= self.recent_rps[2]:
                         fytd_hours.append(card['hours_spent'])
                 fytd_hours = sum(fytd_hours)
-                
+
                 fytd_billable = []
                 for card in user_timecards:
                     if card['timecard__reporting_period__start_date'] >= self.recent_rps[2] \
@@ -167,7 +164,6 @@ class GroupUtilizationView(PermissionMixin, ListView):
                 timecard__user__user_data__unit=unit['id'],
                 ).values_list('hours_spent', flat=True)
             )
-
             last_billable_hours = sum(TimecardObject.objects.filter(
                 submitted=True,
                 timecard__reporting_period__start_date=self.recent_rps[4],
@@ -190,7 +186,6 @@ class GroupUtilizationView(PermissionMixin, ListView):
                     project__accounting_code__billable=True
                 ).values_list('hours_spent', flat=True)
             )
-
             # Query and calculate all RP hours for FY to date.
             fytd_total_hours = sum(
                 TimecardObject.objects.filter(
@@ -199,7 +194,6 @@ class GroupUtilizationView(PermissionMixin, ListView):
                     timecard__user__user_data__unit=unit['id'],
                 ).values_list('hours_spent', flat=True)
             )
-
             fytd_billable_hours = sum(TimecardObject.objects.filter(
                 submitted=True,
                 timecard__reporting_period__start_date__gte=self.recent_rps[2],
@@ -241,7 +235,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
         return units
 
     def get_context_data(self, **kwargs):
-        context = super(GroupUtilizationView, self).get_context_data(**kwargs)            
+        context = super(GroupUtilizationView, self).get_context_data(**kwargs)
         context.update(
             {
                 'through_date': self.recent_rps[0],
