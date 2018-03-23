@@ -30,9 +30,11 @@ class PermissionMixin(LoginRequiredMixin, object):
             for permission_class in getattr(cls, 'permission_classes', ()):
                 if not permission_class().has_permission(request, self):
                     if isinstance(permission_class(), IsAuthenticated):
-                        logger.info("User isn't logged in, redirecting...")
+                        logger.info('User not authenticated, redirecting to UAA.')
                         return redirect('/auth/login')
-                    logger.info("User isn't allowed, redirecting...")
+                    logger.warn(
+                        f'User not authorized {request.user.username}, redirecting to 404.'
+                    )
                     raise PermissionDenied
             return view(request, args, **kwargs)
         return wrapped
