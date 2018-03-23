@@ -11,5 +11,7 @@ Welcome to the Tock documentation. This documentation is written in
 - [Tock Deployment Process](deployment-process.md)
 - [Tock Release Management](release-management.md)
 - [Tock Logging](logging.md)
+- [Tock Developer Onboarding](onboarding.md)
+- [Tock Developer Offboarding](offboarding.md)
 
 [gh-md]: https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown
