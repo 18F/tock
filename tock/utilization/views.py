@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
 from django.views.generic import ListView
@@ -19,9 +20,14 @@ class GroupUtilizationView(PermissionMixin, ListView):
         Although recent_rps is set to the last four reporting periods,
         we could accept a form response that allows the user or app to
         dynamically customize number of periods to include in the queryset.
+
+        Also, if they're not staff, we're going to go ahead and bounce
+        them to 403 so we don't make all these queries.
         """
         if not self.request.user.is_authenticated:
             return self.handle_no_permission()
+        if not self.request.user.is_staff:
+            raise PermissionDenied
         self.available_periods = ReportingPeriod.objects.count()
 
         if self.available_periods >= self.requested_periods:

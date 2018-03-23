@@ -5,128 +5,117 @@
 
 {% block content %}
   <h2>Utilization by Unit</h2>
-
-  ---- {{ object_list }}
-  {% if request.user.is_staff %}
-    <h3>Notes:</h3>
-    <p>
-      The following report contains users who are marked as billable in Tock,
-      organized by their unit as listed in Tock. Both attributes may be easily
-      updated via the <b>Employees</b> page of the Tock <a href="/admin">admin</a>
-      interface. Within each unit, employees are ordered alphabetically by last name.
-    </p>
-    <p>
-      The contents of this page may only be viewed by Tock users who are marked as
-      "staff" users. This attribute may be updated via the Tock
-      <a href="/admin">admin</a> interface, as well, via the <b>Users</b> page.
-    </p>
-    <p>
-      Utilization is calculated by dividing the total number of hours submitted on
-      projects that are marked "billable" in Tock, divided by the total number of
-      hours submitted on all projects for the given period.
-    </p>
-    <h3>Jump to:</h3>
-    
-    <ul>
-      {% for unit in object_list %}
-        <li><a href="#{{unit.slug}}">{{unit.name}}</a></li>
-      {% endfor %}
-    </ul>
-
+  <h3>Notes:</h3>
+  <p>
+    The following report contains users who are marked as billable in Tock,
+    organized by their unit as listed in Tock. Both attributes may be easily
+    updated via the <b>Employees</b> page of the Tock <a href="/admin">admin</a>
+    interface. Within each unit, employees are ordered alphabetically by last name.
+  </p>
+  <p>
+    The contents of this page may only be viewed by Tock users who are marked as
+    "staff" users. This attribute may be updated via the Tock
+    <a href="/admin">admin</a> interface, as well, via the <b>Users</b> page.
+  </p>
+  <p>
+    Utilization is calculated by dividing the total number of hours submitted on
+    projects that are marked "billable" in Tock, divided by the total number of
+    hours submitted on all projects for the given period.
+  </p>
+  <h3>Jump to:</h3>
+  
+  <ul>
     {% for unit in object_list %}
-      <table class="report_table">
-        <caption>
-          <h3 id="{{unit.slug}}">{{unit.name}}</h3>
-        </caption>
-        <thead>
-          <tr class="report_table__header-row">
-            <th scope="col">Name</th>
-            <th scope="col">
-              Last Week <br> 
-              <small>(Ending {{ through_date }})</small><br>
-              <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
-            </th>
-            <th scope="col">
-              Last Four Weeks <br> 
-              <small>({{ recent_start_date }} - {{ through_date }})</small> <br>
-              <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
-            </th>
-            <th scope="col">Fiscal Year to Date <br> 
-              <small>(Ending {{ through_date }}) </small><br>
-              <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
-            </th>
-          </tr>
-        </thead>
-        <tfoot>
-          <tr>
-            <th scope="row">Totals:</th>
-            <td>
-              <b>
-                {{ unit.last.utilization }}<br>
-                ({{ unit.last.billable_hours }} / {{ unit.last.total_hours }})
-              </b>
-            </td>
-            <td>
-              <b>
-                {{ unit.recent.utilization }}<br>
-                ({{ unit.recent.billable_hours }} / {{ unit.recent.total_hours }})
-              </b>
-            </td>
-            <td>
-              <b>
-                {{ unit.fytd.utilization }}<br>
-                ({{ unit.fytd.billable_hours }} / {{ unit.fytd.total_hours }})
-              </b>
-            </td>
-          </tr>
-        </tfoot>
-
-        <tbody>
-        {% for userdata in unit.billable_staff %}
-          <tr class="report_table__row">
-            <th scope="row">
-              {{ userdata }}
-            </th>
-            <td>
-            {% if userdata.last_all_hours_total %}
-              <a href='{{ userdata.last_url }}' title="Percent billable (billable hours / total hours)">
-                {{ userdata.last }}
-                ({{ userdata.last_billable_hours_total }} /
-                {{ userdata.last_all_hours_total }})
-              </a>
-            {% else %}
-                --
-            {% endif %}
-            </td>
-            <td>
-            {% if userdata.recent_all_hours_total %}
-              {{ userdata.recent }}
-              ({{ userdata.recent_billable_hours_total }} /
-              {{ userdata.recent_all_hours_total }})
-            {% else %}
-              --
-            {% endif %}
-            </td>
-            <td>
-            {% if userdata.fytd_all_hours_total %}
-              {{ userdata.fytd }}
-              ({{ userdata.fytd_billable_hours_total }} /
-              {{ userdata.fytd_all_hours_total }})
-            {% else %}
-              --
-            {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
+      <li><a href="#{{unit.slug}}">{{unit.name}}</a></li>
     {% endfor %}
+  </ul>
 
-  {% else %}
+  {% for unit in object_list %}
+    <table class="report_table">
+      <caption>
+        <h3 id="{{unit.slug}}">{{unit.name}}</h3>
+      </caption>
+      <thead>
+        <tr class="report_table__header-row">
+          <th scope="col">Name</th>
+          <th scope="col">
+            Last Week <br> 
+            <small>(Ending {{ through_date }})</small><br>
+            <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
+          </th>
+          <th scope="col">
+            Last Four Weeks <br> 
+            <small>({{ recent_start_date }} - {{ through_date }})</small> <br>
+            <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
+          </th>
+          <th scope="col">Fiscal Year to Date <br> 
+            <small>(Ending {{ through_date }}) </small><br>
+            <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
+          </th>
+        </tr>
+      </thead>
+      <tfoot>
+        <tr>
+          <th scope="row">Totals:</th>
+          <td>
+            <b>
+              {{ unit.last.utilization }}<br>
+              ({{ unit.last.billable_hours }} / {{ unit.last.total_hours }})
+            </b>
+          </td>
+          <td>
+            <b>
+              {{ unit.recent.utilization }}<br>
+              ({{ unit.recent.billable_hours }} / {{ unit.recent.total_hours }})
+            </b>
+          </td>
+          <td>
+            <b>
+              {{ unit.fytd.utilization }}<br>
+              ({{ unit.fytd.billable_hours }} / {{ unit.fytd.total_hours }})
+            </b>
+          </td>
+        </tr>
+      </tfoot>
 
-    <h3>This page is viewable by Tock users with an `is_staff` status of True.</h3>
-    <p>If you need access, please contact your supervisor.</p>
-
-  {% endif %}
-
+      <tbody>
+      {% for userdata in unit.billable_staff %}
+        <tr class="report_table__row">
+          <th scope="row">
+            {{ userdata }}
+          </th>
+          <td>
+          {% if userdata.last_all_hours_total %}
+            <a href='{{ userdata.last_url }}' title="Percent billable (billable hours / total hours)">
+              {{ userdata.last }}
+              ({{ userdata.last_billable_hours_total }} /
+              {{ userdata.last_all_hours_total }})
+            </a>
+          {% else %}
+              --
+          {% endif %}
+          </td>
+          <td>
+          {% if userdata.recent_all_hours_total %}
+            {{ userdata.recent }}
+            ({{ userdata.recent_billable_hours_total }} /
+            {{ userdata.recent_all_hours_total }})
+          {% else %}
+            --
+          {% endif %}
+          </td>
+          <td>
+          {% if userdata.fytd_all_hours_total %}
+            {{ userdata.fytd }}
+            ({{ userdata.fytd_billable_hours_total }} /
+            {{ userdata.fytd_all_hours_total }})
+          {% else %}
+            --
+          {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% endfor %}
 {% endblock %}
