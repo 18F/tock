@@ -11,6 +11,7 @@ jobs:
       - image: circleci/python:3.6.4-jessie-node-browsers
         environment:
           - TZ=America/New_York
+          - PIPENV_VENV_IN_PROJECT=true
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -28,36 +29,35 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}
+          - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
       - run:
           name: install dependencies
           command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install codecov
-            pip install -r requirements.txt -r requirements-dev.txt
+            pip install pipenv
+            pipenv install --dev --deploy
             npm install
 
       - save_cache:
           paths:
-            - ./venv
+            - ./.venv
             - ./node_modules
-          key: v1-dependencies-{{ checksum "requirements.txt" }}-{{ checksum "requirements-dev.txt" }}-{{ checksum "package.json" }}
+          key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
 
       # run tests!
       - run:
           name: run tests
           command: |
-            . venv/bin/activate
+            . .venv/bin/activate
             npm run build-css
             cd tock
             python manage.py migrate --noinput --settings=tock.settings.test
             python manage.py test --noinput --settings=tock.settings.test
             bandit -r . -x docker_entrypoint.py
             flake8
+            pipenv check --dev
             codecov
 
       - store_artifacts:
@@ -84,7 +84,7 @@ jobs:
           name: deploy Tock Staging to cloud.gov
           command: |
             cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
-            cf set-env tock VERSION ${CIRCLE_SHA1}
+            echo ${CIRCLE_SHA1} > tock/VERSION
             cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
   deploy_to_production:
@@ -102,7 +102,7 @@ jobs:
           name: deploy Tock Production to cloud.gov
           command: |
             cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION}
-            cf set-env tock VERSION ${CIRCLE_TAG}
+            echo ${CIRCLE_TAG} > tock/VERSION
             cf_deploy.sh tock gsa-18f-tock prod manifest-production.yml
 
 workflows:

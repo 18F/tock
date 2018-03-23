@@ -1,7 +1,0 @@
-bandit==1.4.0
-coverage==4.4.1
-django-debug-toolbar==1.9.1
-django-webtest==1.9.2
-factory-boy==2.8.1
-flake8==3.5.0
-nplusone==0.8.1

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 
 from django.utils.crypto import get_random_string
+from pathlib import Path
 
 from .env import env
 
@@ -107,7 +108,10 @@ REST_FRAMEWORK = {
     ),
 }
 
-VERSION = env.get_credential('VERSION', 'master')
+try:
+    VERSION = (Path(BASE_DIR) / '..' / 'VERSION').read_text().strip()
+except IOError:
+    VERSION = 'master'
 
 UAA_APPROVED_DOMAINS = {
     'gsa.gov',
