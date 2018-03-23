@@ -11,7 +11,7 @@ from .utils import ValidateOnSaveMixin
 
 class HolidayPrefills(models.Model):
     """For use with ReportingPeriods to prefill timecards."""
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     hours_per_period = models.PositiveSmallIntegerField(default=8)
 
     def __str__(self):
@@ -167,8 +167,8 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 
 class Timecard(models.Model):
-    user = models.ForeignKey(User, related_name='timecards')
-    reporting_period = models.ForeignKey(ReportingPeriod)
+    user = models.ForeignKey(User, related_name='timecards', on_delete=models.CASCADE)
+    reporting_period = models.ForeignKey(ReportingPeriod, on_delete=models.CASCADE)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
@@ -253,15 +253,15 @@ class TimecardNote(models.Model):
 
 
 class TimecardObject(models.Model):
-    timecard = models.ForeignKey(Timecard, related_name='timecardobjects')
-    project = models.ForeignKey(Project)
+    timecard = models.ForeignKey(Timecard, related_name='timecardobjects', on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     hours_spent = models.DecimalField(decimal_places=2,
                                       max_digits=5,
                                       blank=True,
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    grade = models.ForeignKey(EmployeeGrade, blank=True, null=True)
+    grade = models.ForeignKey(EmployeeGrade, blank=True, null=True, on_delete=models.CASCADE)
 
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
@@ -276,13 +276,15 @@ class TimecardObject(models.Model):
         ProfitLossAccount,
         blank=True,
         null=True,
-        related_name='revenue_profit_loss_account'
+        related_name='revenue_profit_loss_account',
+        on_delete=models.CASCADE
     )
     expense_profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         blank=True,
         null=True,
-        related_name='expense_profit_loss_account'
+        related_name='expense_profit_loss_account',
+        on_delete=models.CASCADE
     )
 
     class Meta:
@@ -346,8 +348,8 @@ class TimecardPrefillDataManager(models.Manager):
 
 
 class TimecardPrefillData(models.Model):
-    employee = models.ForeignKey(UserData, related_name='timecard_prefill_data')
-    project = models.ForeignKey(Project, related_name='timecard_prefill_data')
+    employee = models.ForeignKey(UserData, related_name='timecard_prefill_data', on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, related_name='timecard_prefill_data', on_delete=models.CASCADE)
     hours = models.DecimalField(
         decimal_places=2,
         max_digits=5,
