@@ -1,4 +1,4 @@
-## Tock API
+# Tock API
 
 [:arrow_left: Back to Tock
 Documentation](https://github.com/18F/tock/tree/master/docs)
@@ -16,7 +16,7 @@ Tock Developer.
 To access similar data in CSV format from within Tock, please visit the
 [/reports](https://tock.18f.gov/reports) page.
 
-### Tock API usages
+# Usages
 
 The Tock API is used in various ways by Tock Administrators and Tock Users.
 Below are some examples of Tock API usage.
