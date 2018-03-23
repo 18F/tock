@@ -30,6 +30,7 @@ class EmployeeGrade(models.Model):
         User,
         help_text='Please select from existing employees.',
         unique_for_date='g_start_date',
+        on_delete=models.CASCADE,
     )
     grade = models.IntegerField(
         choices=GRADE_CHOICES,
@@ -90,7 +91,7 @@ class UserData(models.Model):
         (16, 'Unknown / N/A')
     )
 
-    user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username')
+    user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username', on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
@@ -99,6 +100,7 @@ class UserData(models.Model):
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
+        on_delete=models.CASCADE,
         blank=True,
         null=True,
         verbose_name='Profit/loss Accounting String'
@@ -108,7 +110,7 @@ class UserData(models.Model):
         default=False,
         verbose_name='Is alternative work schedule eligible'
     )
-    organization = models.ForeignKey(Organization, blank=True, null=True)
+    organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name='Employee'
