@@ -24,15 +24,17 @@ access using [cloud.gov's logging system][cg-log-sys].
 | Authentication checks      | `@cf.app:"tock" AND @message:"Authenticating user"`            |
 | Successful login events    | `@cf.app:"tock" AND @message:"Successful login"`               |
 | Unsuccessful login events  | `@cf.app:"tock" AND @message:"Unsuccessful login"`             |
-| Object access *            | `@cf.app:"tock" AND TimecardObject`                            |
+| Object access *            | `@cf.app:"tock" AND @message:"TimecardObject"`                 |
 | Account management events  | `@cf.app:"tock" AND @message:"account-management"`             |
 | All administrator activity | `@cf.app:"tock" AND @message:"admin-log"`                      |
 | Data deletions             | `@cf.app:"tock" AND (@message:"remove" OR @message:"delete")`  |
-| Data access                | `@cf.app:"tock" AND @message:"/api/reporting_period"`          |
-| Data changes               | `@cf.app:"tock" AND (@message:"create" OR @message:"change")`  |
+| Data access **             | `@cf.app:"tock" AND @message:"/api/reporting_period"`          |
+| Data changes *             | `@cf.app:"tock" AND (@message:"create" OR @message:"change")`  |
 | Permission Changes         | `@cf.app:"tock" AND @message:"account-management"`             |
 
-\* For "object access" search by database table name or Model name
+\* For "object access" search by Model name, `AND @message:"EmployeeGrade"`
+
+\** For "data access" search by Data url
 
 Some Model names:
 - `EmployeeGrade`
