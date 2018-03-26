@@ -23,16 +23,16 @@ def adminlog_post_save(sender, instance, **kwargs):
     from django.contrib.admin.models import ADDITION, CHANGE, DELETION
     if instance.action_flag == ADDITION:
         logger.info(
-            f'{instance.user} created {instance.content_type} {instance.object_repr}.'
+            f'[admin-log] {instance.user} created {instance.content_type} {instance.object_repr} @ {instance.get_admin_url()}.'
         )
     elif instance.action_flag == CHANGE:
         logger.info(
-            f'{instance.user} changed {instance.content_type} {instance.object_repr}: '
-            f'{instance.change_message}.'
+            f'[admin-log] {instance.user} changed {instance.content_type} {instance.object_repr}: '
+            f'{instance.change_message} @ {instance.get_admin_url()}.'
         )
     elif instance.action_flag == DELETION:
         logger.info(
-            f'{instance.user} deleted {instance.content_type} {instance.object_repr}.'
+            f'[admin-log] {instance.user} deleted {instance.content_type} {instance.object_repr} @ {instance.get_admin_url()}.'
         )
 
 def log_m2m_change(sender, instance, action, reverse, model, pk_set, **kwargs):
@@ -41,18 +41,18 @@ def log_m2m_change(sender, instance, action, reverse, model, pk_set, **kwargs):
     if action == 'post_add':
         objects_added = list(model.objects.filter(pk__in=pk_set))
         logger.info(
-            f'{model_name} given to {instance_model} {instance}: {objects_added}.'
+            f'[account-management] {model_name} given to {instance_model} {instance}: {objects_added}.'
         )
     elif action == 'post_remove':
         objects_added = list(model.objects.filter(pk__in=pk_set))
         logger.info(
-            f'{model_name} removed from {instance_model} {instance}: {objects_added}.'
+            f'[account-management] {model_name} removed from {instance_model} {instance}: {objects_added}.'
         )
         logger.info("%s removed from %s '%s': %s", model_name, instance_model,
                     instance, objects_added)
     elif action == 'post_clear':
         logger.info(
-            f'All {model_name} removed from {instance_model} {instance}.'
+            f'[account-management] All {model_name} removed from {instance_model} {instance}.'
         )
 
 def setup_signals():
