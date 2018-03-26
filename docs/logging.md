@@ -24,36 +24,15 @@ access using [cloud.gov's logging system][cg-log-sys].
 | Authentication checks      | `@cf.app:"tock" AND @message:"Authenticating user"`            |
 | Successful login events    | `@cf.app:"tock" AND @message:"Successful login"`               |
 | Unsuccessful login events  | `@cf.app:"tock" AND @message:"Unsuccessful login"`             |
-| Object access *            | `@cf.app:"tock" AND <TABLE_NAME>`                              |
-| Account management events  | `@cf.app:"tock" AND ((versions AND User) OR user_roles)`       |
-| All administrator activity | `@cf.app:"tock" AND admin`                                     |
-| Data deletions **          | `@cf.app:"tock" AND DELETE`                                    |
-| Data access **             | `@cf.app:"tock" AND SELECT`                                    |
-| Data changes **            | `@cf.app:"tock" AND (UPDATE OR INSERT)`                        |
-| Permission Changes         | `@cf.app:"tock" AND user_roles AND INSERT`                     |
+| Object access *            | `@cf.app:"tock" AND TimecardObject`                            |
+| Account management events  | `@cf.app:"tock" AND @message:"account-management"`             |
+| All administrator activity | `@cf.app:"tock" AND @message:"admin-log"`                      |
+| Data deletions             | `@cf.app:"tock" AND (@message:"remove" OR @message:"delete")`  |
+| Data access                | `@cf.app:"tock" AND @message:"/api/reporting_period"`          |
+| Data changes               | `@cf.app:"tock" AND (@message:"create" OR @message:"change")`  |
+| Permission Changes         | `@cf.app:"tock" AND @message:"account-management"`             |
 
 \* For "object access" search by database table name or Model name
-
-\** For these queries, consider including a table name like `@cf.app:"tock" AND SELECT AND employees_employeegrade`
-
-Some table names:
-- `employees_employeegrade`
-- `employees_userdata`
-- `hours_holidayprefills`
-- `hours_reportingperiod`
-- `hours_reportingperiod_holiday_prefills`
-- `hours_targets`
-- `hours_timecard`
-- `hours_timecardnote`
-- `hours_timecardobject`
-- `hours_timecardprefilldata`
-- `organizations_organization`
-- `projects_accountingcode`
-- `projects_agency`
-- `projects_profitlossaccount`
-- `projects_project`
-- `projects_project_alerts`
-- `projects_projectalert`
 
 Some Model names:
 - `EmployeeGrade`
@@ -72,3 +51,20 @@ Some Model names:
 - `Project`
 - `ProjectAlerts`
 - `ProjectAlert`
+
+Some Data urls:
+- `/reporting_period`
+- `/reports`
+- `/employees`
+- `/utilization`
+- `/projects`
+- `/admin`
+- `/auth`
+- `/api`
+- `/api/projects`
+- `/api/users`
+- `/api/reporting_period_audit`
+- `/api/timecards`
+- `/api/hours/by_quarter`
+- `/api/hours/by_quarter_by_user`
+- `/api/user_data`
