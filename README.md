@@ -3,6 +3,7 @@
 We use Tock to track our time. You can read more about Tock in this [blog post](https://18f.gsa.gov/2015/05/21/tockingtime/) about its features and the [handbook page](https://handbook.18f.gov/tock/) for guidance and instructions.
 
 [![CircleCI](https://circleci.com/gh/18F/tock.svg?style=svg)](https://circleci.com/gh/18F/tock)
+[![Dependency Status](https://gemnasium.com/badges/github.com/18F/tock.svg)](https://gemnasium.com/github.com/18F/tock)
 
 ![Screenshot of Tock](https://github.com/18F/tock/blob/master/Screen%20Shot%202016-12-05%20at%2011.30.54%20AM.png?raw=true)
 
