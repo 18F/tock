@@ -17,7 +17,12 @@ Documentation](https://github.com/18F/tock/tree/master/docs)
   $ docker-compose build
   $ docker-compose run app python manage.py migrate
   $ docker-compose run app python manage.py loaddata test_data/data-update-deduped.json
-  $ docker-compose run app python manage.py createsuperuser --username admin@gsa.gov --email admin@gsa.gov --noinput
+  $ docker-compose run app \
+    python manage.py \
+        createsuperuser \
+        --username admin.user \
+        --email admin.user@gsa.gov \
+        --noinput
   ```
 
 1. Once the above commands are successful, run:
@@ -31,7 +36,7 @@ Documentation](https://github.com/18F/tock/tree/master/docs)
 
 1. Visit [http://localhost:8000/][] directly to access the site.
 
-  When prompted for an email address, enter `admin@gsa.gov`.
+  When prompted for an email address, enter `admin.user@gsa.gov`.
 
 You can access the admin panel at `/admin`.
 
