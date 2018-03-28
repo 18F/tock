@@ -27,7 +27,7 @@ fi
 
 NEW_RELIC_API_KEY=$(
   echo "${VCAP_SERVICES}" | \
-  jq '.[] | map(select(.name == "tock-credentials-logging")) | .[].credentials.NEW_RELIC_API_KEY' -r
+  jq '.[] | map(select(.name == "tock-credentials")) | .[].credentials.NEW_RELIC_API_KEY' -r
 )
 
 # Append New Relic API key to New Relic INI file for `newrelic-admin` tool
