@@ -153,7 +153,8 @@ cf zero-downtime-push tock-staging -f manifest-staging.yml
 
 ### Production servers
 
-Production deploys are a somewhat manual process in that they are not done
+Production deploys are also automated. They rely on the creation of a Git tag to
+be made against the `master` branch following the
 from CI. However, just like in our CircleCI deployments to staging, we use the
 Cloud Foundry [autopilot plugin](https://github.com/contraband/autopilot).
 
@@ -184,44 +185,23 @@ Then use the autopilot plugin's `zero-downtime-push` command to deploy:
 cf zero-downtime-push tock -f manifest-production.yml
 ```
 
-<!--
-Please ignore the following as it won't be rendered. This is a placeholder for
-me to review after this lands on `master`.
+#### Automated Releases to Production
 
-If a breaking database migration needs to be done, things get a little trickier because
-the database service is actually shared between the two production apps. If the migration
-breaks the current version of Tock, we'll need to have a (hopefully short) amount of downtime.
+Tock is automatically deployed to Production using CircleCI using GitHub
+Releases and Git tags. Tags are versioned using the following structure, the
+letter `v` followed by the full year, full month, full day, followed by a period
+and a version number for that release. For example:
 
-We have a very simple maintenance page application that uses the CloudFoundry staticfiles
-buildpack. This app is in the [maintenance_page](../maintenance_page/) subdirectory.
-
-If `<APP_NAME>-maintenance` is not running or has not been deployed yet:
-
-```sh
-cd maintenance_page
-cf push
+```
+v20180131.1
 ```
 
-Once `<APP_NAME>-maintenance` is running:
+If multiple versions are needed to be released in a single day, increment the
+number after the period, e.g. `v20180131.1` turns into `v20180131.2`.
 
-```sh
-cf map-route <APP_NAME>-maintenance tock.18f.gov
-cf unmap-route <APP_NAME>-prod
-```
-
-And then deploy the production app:
-
-```sh
-cf push -f manifests/manifest-prod.yml
-```
-
-One the deploy is successful:
-
-```sh
-cf map-route <APP_NAME>-prod tock.18f.gov
-cf unmap-route <APP_NAME>-maintenance
-```
--->
+Once this tag is pushed up to GitHub, draft or assign it to an already
+drafted release in GitHub. CircleCI will deploy this tag to the Production
+instance of Tock using CF Autopilot.
 
 ### Logs
 
@@ -230,18 +210,3 @@ Logs in cloud.gov-deployed applications are generally viewable by running
 
 [UPS]: https://docs.cloudfoundry.org/devguide/services/user-provided.html
 [`README.md`]: https://github.com/18F/tock#readme
-
-### Automated Releases to Production
-
-Tock is automatically deployed to Production using CircleCI using GitHub
-Releases and Git tags. Tags are versioned using the following structure, the
-letter `v` followed by the full year, full month, full day, followed by a period
-and last a version number for that release. For example:
-
-```
-v20180131.1
-```
-
-Once this tag is pushed up to GitHub, you can draft or assigned to an already
-drafted release and CircleCI will deploy this tag to the Production instance of
-Tock using CF Autopilot.
