@@ -26,9 +26,9 @@ in the root directory of this project, prefixed with `manifest-` and ending in a
 `.yml` file extension.
 
 During local development and continuous integration testing,
-`pipenv install --dev` is used, which installs both development 
-and production dependencies. During deployments, the Cloud Foundry 
-python buildpack generates a `requirements.txt` file with `pipenv lock -r` 
+`pipenv install --dev` is used, which installs both development
+and production dependencies. During deployments, the Cloud Foundry
+python buildpack generates a `requirements.txt` file with `pipenv lock -r`
 and installs only production dependencies.
 
 ### Cloud Foundry structure
