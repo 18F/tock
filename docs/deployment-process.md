@@ -45,6 +45,28 @@ and installs only production dependencies.
   - tock.app.cloud.gov -> `staging` space, `tock-staging` app
   - tock.18f.gov -> `prod` space, `tock` app
 
+#### Cloud Foundry environment variables
+
+Tock requires a few different environment variables in production. These are
+both updated using the [User Provided Service](#user-provided-service) and
+configured in the `manifest-*.yaml`.
+
+| type | name | description |
+| ---- | -----| ----------- |
+| **secret** | `DJANGO_SECRET_KEY` | Secret key used to maintain session state. Changing this value will invalidate all user sessions for Tock and log all users out.|
+| **secret** | `NEW_RELIC_LICENSE_KEY` | The New Relic license key connected to the New Relic account for the application. |
+| **secret** | `NEW_RELIC_API_KEY` | The New Relic API key connected to the New Relic account for the application. |
+| **secret** | `UAA_CLIENT_ID` | The UAA Client ID from the cloud.gov identity provider service key. |
+| **secret** | `UAA_CLIENT_SECRET` | The UAA Client Secret from the cloud.gov identity provider service key. |
+| **public** | `NEW_RELIC_CONFIG_FILE` | New Relic configuration file used by the `newrelic-admin` commands and New Relic libraries. |
+| **public** | `NEW_RELIC_APP_NAME` | Application name that appears in the New Relic interface. Changing this will change will cause New Relic data to be gathered under a different application name. |
+| **public** | `NEW_RELIC_ENV` | Application environment which appears in the New Relic interface. |
+| **public** | `NEW_RELIC_LOG` | Logging that New Relic should listen to: e.g. `stdout`. |
+
+Variables with the designation **secret** are stored in the `tock-credentials`
+User-Provided Service (UPS). **Public** variables are stored in the
+environment's `manifest-*.yml` file.
+
 ### Services
 
 #### User Provided Service (UPS)
@@ -91,12 +113,28 @@ cf create-service aws-rds shared-psql tock-database
 cf bind-service <APP_INSTANCE> tock-database
 ```
 
+#### cloud.gov identity provider service
+
+Tock uses the cloud.gov identity provider service to provide authentication via
+cloud.gov UAA application for it's users.
+
+
+#### cloud.gov service account
+
+Tock uses the cloud.gov service account service to provide deployer accounts for
+staging and production environments.
+
+### CircleCI continuous integration, delivery, and deployment
+
+Tock uses CircleCI to continuously integrate code, deliver the code to staging
+servers, and deploy the latest release to production servers.
+
 ### New Relic environment variables
 
 Basic New Relic configuration is done in [newrelic.ini](../newrelic.ini), with
 additional settings specified in each deployment environment's manifest file.
 
-As described in [Environment variables](environment.md), you will need
+As described in [Environment variables](#cloud-foundry-environment-variables), you will need
 to supply the `NEW_RELIC_LICENSE_KEY` as part of each deployment's
 [User Provided Service](#user-provided-service-ups).
 
