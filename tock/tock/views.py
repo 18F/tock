@@ -3,7 +3,7 @@ import logging
 from django.shortcuts import render
 import django.contrib.auth
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('tock')
 
 
 def csrf_failure(request, reason=""):
