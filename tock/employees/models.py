@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import Token
 from organizations.models import Organization
 from projects.models import ProfitLossAccount
 
+
 class EmployeeGrade(models.Model):
     GRADE_CHOICES = (
         (1, '1'),

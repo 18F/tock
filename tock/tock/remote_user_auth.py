@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 from employees.models import UserData
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('tock-auth')
 
 
 def email_to_username(email):
@@ -33,9 +33,8 @@ def verify_userdata(user):
     try:
         user = UserData.objects.get(user=user)
     except UserData.DoesNotExist:
-        logger.info(
-            'Adding UserData for User [%s]' %
-            user.username
+        logger.warn(
+            f'Creating UserData for {user.username}.'
         )
         UserData.objects.create(
             user=user,
@@ -50,8 +49,7 @@ class TockUserBackend(UaaBackend):
         user = super().get_user_by_email(email)
         if user is not None:
             logger.info(
-                'Verifying that User [%s] has UserData' %
-                user.username
+                f'Verifying UserData for {user.username}'
             )
             verify_userdata(user)
         return user
@@ -62,14 +60,12 @@ class TockUserBackend(UaaBackend):
 
         try:
             logger.info(
-                "Attempting to get user [%s] that exists already." %
-                username
+                f'Fetching User for {username}'
             )
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            logger.info(
-                "Creating a new user [%s]" %
-                username
+            logger.warn(
+                f'Creating User for {username}'
             )
             user = User.objects.create_user(username, email)
             user.first_name = str(username).split('.')[0].title()
