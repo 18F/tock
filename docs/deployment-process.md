@@ -154,9 +154,10 @@ cf zero-downtime-push tock-staging -f manifest-staging.yml
 ### Production servers
 
 Production deploys are also automated. They rely on the creation of a Git tag to
-be made against the `master` branch following the
-from CI. However, just like in our CircleCI deployments to staging, we use the
-Cloud Foundry [autopilot plugin](https://github.com/contraband/autopilot).
+be made against the `master` branch following the [_Automated Releases to
+Production_](#automated-releases-to-production) workflow. Sometimes, you may
+need to make a manual deployment to production. If this is the case, please make
+sure you are using the Cloud Foundry [autopilot plugin](https://github.com/contraband/autopilot).
 
 To deploy, first make sure you are targeting the prod space:
 
@@ -170,13 +171,16 @@ Now, if you don't already have the autopilot plugin, you can install it by runni
 cf install-plugin autopilot -f -r CF-Community
 ```
 
-Open the `manifest-production.yml` file and add a `CIRCLE_TAG` value under
-`env:` which matches the release that you're manually deploying to production.
+Create a `VERSION` file with the name of the version that is being deployed to
+production either with the Git SHA1 for the latest commit or the Git Tag for the
+latest release.
 
-```yaml
-env:
-  # other variables
-  CIRCLE_TAG: v20180202.1
+```shell
+# Manually creating a VERSION file from the latest Git SHA1 commit
+echo $(git rev-parse HEAD | head -c 7) > tock/VERSION
+
+# Manually creating a VERSION file from the latest Git Tag release
+echo $(git describe --abbrev=0 --tags) > tock/VERSION
 ```
 
 Then use the autopilot plugin's `zero-downtime-push` command to deploy:
