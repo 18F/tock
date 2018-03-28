@@ -4,6 +4,7 @@ from django.db.models import Q
 
 from rest_framework.authtoken.models import Token
 
+from hours.models import ReportingPeriod, Timecard
 from organizations.models import Organization
 from projects.models import ProfitLossAccount
 
@@ -130,6 +131,22 @@ class UserData(models.Model):
             return self.organization.name
 
         return ''
+
+    def is_late(self):
+        """
+        Checks if user has a timecard submitted for the
+        most recent Reporting Period.
+        """
+        rp = ReportingPeriod.objects.order_by('end_date').filter(
+            end_date__lt=datetime.date.today()
+        ).latest()
+        timecard_count = Timecard.objects.filter(
+                reporting_period=rp,
+                submitted=True,
+                user=self.user,
+            ).count()
+        if timecard_count is 0:
+            return True
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""
