@@ -13,10 +13,9 @@ address is `@gsa.gov`, then a non-staff account will automatically
 be created for the user and you'll be logged-in, but otherwise access
 will be denied.
 
-The easiest way to create an administrative user is to first use
-`manage.py createsuperuser` to create a user, and then log in
-with that user's email address.  See the "Getting Started" section
-for an example of this.
+The easiest way to create an administrative user is to follow the instructions
+in [Getting Started with Local Tock
+Development](local-development.md#getting-started-with-local-tock-development).
 
 [UAA]: https://cloud.gov/docs/apps/leveraging-authentication/
 [fakeUAA]: http://cg-django-uaa.readthedocs.io/en/latest/quickstart.html#using-the-fake-cloud-gov-server
