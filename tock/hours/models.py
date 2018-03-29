@@ -299,6 +299,9 @@ class TimecardObject(models.Model):
     def notes_list(self):
         return self.notes.split('\n')
 
+    def __str__(self):
+        return f'{self.timecard} {self.project}'
+
     def save(self, *args, **kwargs):
         """Custom save() method to append employee grade info and the submitted
         status of the related timecard."""
