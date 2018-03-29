@@ -94,7 +94,7 @@ files in `tock/tock/static/sass` into corresponding CSS files in
 git, and should not be modified by hand.**
 
 You can also run the CSS build and watch scripts outside of the Docker
-container. Just install [Node][] (e.g. with `brew install node` on OS X), then
+container. Install [Node][] (e.g. with `brew install node` on OS X), then
 install the dependencies with:
 
 ```sh
@@ -114,3 +114,9 @@ are changed:
 ```
 npm run watch-css
 ```
+
+[Docker]: https://www.docker.com/
+[http://localhost:8000/]: http://localhost:8000/
+[Sass]: http://sass-lang.com/
+[Node]: https://nodejs.org/en/
+[UAA]: https://cloud.gov/docs/apps/leveraging-authentication/
