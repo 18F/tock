@@ -1,7 +1,6 @@
 # Tock Logging
 
-[:arrow_left: Back to Tock
-Documentation](https://github.com/18F/tock/tree/master/docs)
+[:arrow_left: Back to Tock Documentation](../docs)
 
 Tock leverages cloud.gov logging system which runs on the Elastic Logsearch
 Kibana (ELK) software stack. Logs for the Tock system are available to

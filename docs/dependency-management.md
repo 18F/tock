@@ -1,5 +1,7 @@
 # Dependency management
 
+[:arrow_left: Back to Tock Documentation](../docs)
+
 ## Python
 
 Tock uses [Pipenv] to manage development and production dependencies.

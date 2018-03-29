@@ -1,7 +1,6 @@
 # Leaving the Tock team
 
-[:arrow_left: Back to Tock
-Documentation](https://github.com/18F/tock/tree/master/docs)
+[:arrow_left: Back to Tock Documentation](../docs)
 
 ## Offboarding
 
