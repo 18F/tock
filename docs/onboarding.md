@@ -1,5 +1,8 @@
 # Joining the Tock team
 
+[:arrow_left: Back to Tock
+Documentation](https://github.com/18F/tock/tree/master/docs)
+
 ## Onboarding
 
 When you join the Tock team, you may be expected to complete the following
@@ -8,17 +11,31 @@ schedule check-in time with you to ensure that you're progressing and aren't
 stuck. If there is another Tock developer already on the project, you will be
 assigned them as a buddy to help you progress through onboarding.
 
+## Checklist
+
+Create a new issue with the following checklist. Swapping out {TockDeveloper}
+with the name of the onboarding developer.
+
+- [ ] {TockDeveloper} has access to New Relic
+- [ ] {TockDeveloper} has access to GitHub repository
+- [ ] {TockDeveloper} has access to SpaceDeveloper roles in Cloud Foundry for
+  spaces `staging` and `prod`.
+- [ ] {TockDeveloper} is invited to #tock-dev in Slack
+- [ ] {TockDeveloper} is familiar with the [deployment process of
+  Tock](https://github.com/18f/tock/tree/master/docs/deployment-process.md)
+
+
 ## Things we maintain
 
 - [Tock](tock-app), a Python Django framework web application comprised of multiple
   sub-apps.
-  - tock
-  - employees
-  - projects
-  - hours
-  - organizations
-  - api
-  - utilization
+  - tock - The main application
+  - employees - The application that manages the employee data
+  - projects - The application that manages the project data
+  - hours - The application that manages the hours and reporting data
+  - organizations - The application that manages organizations
+  - api - The application that manages the API
+  - utilization - The application that manages the utilization functionality
 - [AngryTock](tock-bot), a Golang Slack RTM-based bot
 - [#tock-dev](tock-chat), a Slack channel where Tock users come for technical
   support.
