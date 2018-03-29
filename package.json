@@ -11,9 +11,9 @@
     "node": ">=8.10.0"
   },
   "dependencies": {
-    "chosen-js": "1.8.x",
+    "chosen-js": "^1.8.3",
     "jquery": "3.3.x",
-    "node-sass": "4.7.x",
-    "uswds": "^1.6.0"
+    "node-sass": "4.8.x",
+    "uswds": "^1.6.1"
   }
 }
