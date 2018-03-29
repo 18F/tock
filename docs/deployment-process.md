@@ -11,12 +11,18 @@ Download the Cloud Foundry CLI according to the [cloud.gov instructions][].
 
 You will also need to install the [`autopilot`](https://github.com/contraband/autopilot)
 plugin for Cloud Foundry, which is used for zero-downtime deploys.
-You can install via
-`cf install-plugin autopilot -f -r CF-Community`.
 
-Tock is deployed to the GovCloud instance of cloud.gov. You will need to login
-to via the GovCloud api of cloud.gov:
-`cf login -a api.fr.cloud.gov --sso`
+```shell
+# Install the plugin
+cf install-plugin autopilot -f -r CF-Community
+```
+
+Tock is deployed to the GovCloud instance of cloud.gov.
+
+```shell
+# Login to cloud.gov
+cf login -a api.fr.cloud.gov --sso
+```
 
 Then target the org and space you want to work with. For example, if you wanted to work with the dev space:
 `cf target -o gsa-18f-tock -s dev`
@@ -76,31 +82,29 @@ variables, instead of using the local environment (except for [New Relic-related
 You will need to create a UPS called `tock-credentials`, provide 'credentials' to it, and link it to the
 application instance. This will need to be done for every Cloud Foundry `space`.
 
-<!--
-First, create a JSON file (e.g. `credentials-staging.json`) with all the configuration values specified as per the
-[Environment variables](environment.md). **DO NOT COMMIT THIS FILE.**
-
-```json
-{
-  "SECRET_KEY": "my secret key",
-  "...": "other environment variables"
-}
-```
--->
-
 Then enter the following commands (filling in the main application instance name
 for `<APP_INSTANCE>`) to create the user-provided service:
 
 ```sh
+# Creating and uploading the credentials to the service
 cf cups tock-credentials -p credentials-<ENVIRONMENT>.json
+
+# Binding the service to the app
 cf bind-service <APP_INSTANCE> tock-credentials
+
+# Restaging the app to make use of the updated credentials. This will cause
+# downtime in the application. It is better to use zero-downtime-push instead.
 cf restage <APP_INSTANCE>
 ```
 
 You can update the user-provided service with the following commands:
 
 ```sh
+# Uploading the new credentials to the service
 cf uups tock-credentials -p credentials-staging.json
+
+# Restaging the app to make use of the updated credentials. This will cause
+# downtime in the application. It is better to use zero-downtime-push instead.
 cf restage <APP_INSTANCE>
 ```
 
@@ -175,7 +179,7 @@ Create a `VERSION` file with the name of the version that is being deployed to
 production either with the Git SHA1 for the latest commit or the Git Tag for the
 latest release.
 
-```shell
+```sh
 # Manually creating a VERSION file from the latest Git SHA1 commit
 echo $(git rev-parse HEAD | head -c 7) > tock/VERSION
 
@@ -189,23 +193,28 @@ Then use the autopilot plugin's `zero-downtime-push` command to deploy:
 cf zero-downtime-push tock -f manifest-production.yml
 ```
 
-#### Automated Releases to Production
+#### Troubleshooting failed manual zero-downtime deployments
 
-Tock is automatically deployed to Production using CircleCI using GitHub
-Releases and Git tags. Tags are versioned using the following structure, the
-letter `v` followed by the full year, full month, full day, followed by a period
-and a version number for that release. For example:
+If at any point the deployment fails, there should still be zero-downtime for
+the production instance. Please verify that the Tock applications that are
+running are named correctly and are cleaned up. In the example commands below
+the following variables should be replaced with the values found in the previous
+commands.
 
+- `${STOPPED_TOCK_APP}` - The application that reads `stopped` from `cf apps`.
+- `${TOCK_VERNERABLE_APP_NAME}` - The application that reads `-venerable` from
+  `cf apps`.
+
+```sh
+# List all applications in the targeted space
+cf apps
+
+# Delete the stopped application
+cf delete ${STOPPED_TOCK_APP} -f
+
+# Rename the started application to match project conventions
+cf rename ${TOCK_VERNERABLE_APP_NAME} tock
 ```
-v20180131.1
-```
-
-If multiple versions are needed to be released in a single day, increment the
-number after the period, e.g. `v20180131.1` turns into `v20180131.2`.
-
-Once this tag is pushed up to GitHub, draft or assign it to an already
-drafted release in GitHub. CircleCI will deploy this tag to the Production
-instance of Tock using CF Autopilot.
 
 ### Logs
 
@@ -214,3 +223,90 @@ Logs in cloud.gov-deployed applications are generally viewable by running
 
 [UPS]: https://docs.cloudfoundry.org/devguide/services/user-provided.html
 [`README.md`]: https://github.com/18F/tock#readme
+
+## Releasing Tock
+
+Releasing Tock onto Production happens whenever you create a Git tag and push it
+up to the repository. The process is outlined below.
+
+Git tags can be manually created using the Git CLI as outlined below. You can
+also create them in the GitHub Release interface when drafting and publishing
+the release.
+
+## Creating a GitHub Release
+
+<details>
+<summary>GitHub Release Template</summary>
+
+```markdown
+### For Those About To Tock
+
+#### Liner Notes, XX/XX/XXXX
+
+<!-- Summary of changes -->
+---
+
+##### Stuff You Can See:
+
+<!-- List items of changes with PR links -->
+<!-
+  - Example: - None. PR: [#1987](https://www.youtube.com/watch?v=dQw4w9WgXcQ&allow=autoplay)
+-->
+-
+
+---
+
+##### Admin-only Features:
+
+<!-- List items of changes with PR links -->
+<!-
+  - Example: - None. PR: [#1987](https://www.youtube.com/watch?v=dQw4w9WgXcQ&allow=autoplay)
+-->
+-
+
+---
+
+##### Under The Hood:
+
+<!-- List items of changes with PR links -->
+<!-
+  - Example: - None. PR: [#1987](https://www.youtube.com/watch?v=dQw4w9WgXcQ&allow=autoplay)
+-->
+-
+
+---
+
+##### Code Contributors for this release
+
+Team Tock would like to thank:
+
+<!-- List folks not on the Tock team who contributed commits / code -->
+<!-
+  - @username
+-->
+-
+```
+
+</details>
+
+#### Automated Releases to Production
+
+Tock is automatically deployed to Production using CircleCI using GitHub
+Releases and Git tags. Tags are versioned using the following structure, the
+letter `v` followed by the full year, full month, full day, followed by a period
+and a version number for that release. For example:
+
+```sh
+# Create the tag
+git tag v20180131.1
+
+# Push the tags up to GitHub
+git push --tags
+```
+
+If multiple versions are needed to be released in a single day, increment the
+number after the period, e.g. `v20180131.1` turns into `v20180131.2`.
+
+Once this tag is pushed up to GitHub, draft or assign it to an already
+drafted release in GitHub. CircleCI will deploy this tag to the Production
+instance of Tock using CF Autopilot.
