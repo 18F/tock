@@ -4,16 +4,16 @@
 
 ## Onboarding
 
-When you join the Tock team, you may be expected to complete the following
-onboarding checklist on with minimal guidance. The Tock Product Owner may
-schedule check-in time with you to ensure that you're progressing and aren't
-stuck. If there is another Tock developer already on the project, you will be
-assigned them as a buddy to help you progress through onboarding.
+When you join the Tock team, the Tock System Owner will guide you through the
+onboarding checklist. The Tock Product Owner may schedule check-in time with you
+to ensure that you're progressing and aren't stuck. If there is another Tock
+developer already on the project, you will be assigned them as a buddy to help
+you progress through onboarding.
 
 ## Checklist
 
-Create a new issue with the following checklist. Swapping out {TockDeveloper}
-with the name of the onboarding developer.
+[Create a new issue](https://github.com/18f/tock/issues/new) with the following
+checklist. Swapping out {TockDeveloper} with the name of the onboarding developer.
 
 - [ ] {TockDeveloper} has access to New Relic
 - [ ] {TockDeveloper} has access to GitHub repository
