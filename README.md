@@ -11,9 +11,8 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 
 ## Documentation
 
-Read the project documentation in [the `/docs`
-directory][gh-docs]. Interested in the API docs? Read the API documentation in
-[the `/api-docs` directory][gh-api-docs].
+- [Developer Documentation][gh-docs]
+- [API Documentation][gh-api-docs]
 
 [gh-docs]: https://github.com/18F/tock/tree/master/docs
 [gh-api-docs]: https://github.com/18F/tock/tree/master/api-docs
