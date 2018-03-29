@@ -1,7 +1,6 @@
 ## Deploying to Cloud Foundry
 
-[:arrow_left: Back to Tock
-Documentation](https://github.com/18F/tock/tree/master/docs)
+[:arrow_left: Back to Tock Documentation](../docs)
 
 **This section is only of interest to 18F team members.**
 

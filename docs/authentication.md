@@ -1,7 +1,6 @@
 ## Tock Authentication
 
-[:arrow_left: Back to Tock
-Documentation](https://github.com/18F/tock/tree/master/docs)
+[:arrow_left: Back to Tock Documentation](../docs)
 
 18F's current deployment of Tock relies on
 [cloud.gov's User Account and Authentication (UAA) server][UAA] for
