@@ -127,7 +127,7 @@ jobs:
       - run:
           name: Install cf-recycle-plugin 1.0.0 release
           command: |
-            curl -o cf-recycle-plugin https://github.com/rogeruiz/cf-recycle-plugin/releases/download/v1.0.0/cf-recycle-plugin.linux64
+            curl -L -o cf-recycle-plugin https://github.com/rogeruiz/cf-recycle-plugin/releases/download/v1.0.0/cf-recycle-plugin.linux64
             chmod +x cf-recycle-plugin
             cf install-plugin cf-recycle-plugin -f
       - run:
