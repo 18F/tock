@@ -178,4 +178,4 @@ workflows:
         cron: "0 10 * * *"  # Roughly 5am ET
         filters:
           branches:
-            only: master
+            only: /.*/
