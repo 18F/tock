@@ -88,11 +88,14 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Login to cloud.gov Staging
+          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
+      - run:
+          name: Save version to file system
+          command: echo ${CIRCLE_SHA1} > tock/VERSION
+      - run:
           name: deploy Tock Staging to cloud.gov
-          command: |
-            cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
-            echo ${CIRCLE_SHA1} > tock/VERSION
-            cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
+          command: cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
   deploy_to_production:
     <<: *CF_DOCKER_IMAGE
@@ -103,7 +106,14 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: deploy Tock Production to cloud.gov
+          name: Login to cloud.gov Production
+          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION}
+      - run:
+          name: Save version to file system
+          command: echo ${CIRCLE_TAG} > tock/VERSION
+      - run:
+          name: Deploy Tock Production to cloud.gov
+          command: cf_deploy.sh tock gsa-18f-tock prod manifest-production.yml
 
   recycle_production:
     <<: *CF_DOCKER_IMAGE
