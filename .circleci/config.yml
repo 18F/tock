@@ -2,6 +2,16 @@
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
+cf-docker-image: &CF_DOCKER_IMAGE
+  docker:
+    - image: 18fgsa/cloud-foundry-cli
+      environment:
+        - TZ=America/New_York
+        - CF_API: https://api.fr.cloud.gov
+working-directory: &WORKING_DIRECTORY
+  working_directory: ~/repo
+
+
 version: 2
 jobs:
   build:
@@ -21,7 +31,7 @@ jobs:
           - POSTGRES_USER=circleci
           - POSTGRES_DB=tock-test
 
-    working_directory: ~/repo
+    <<: *WORKING_DIRECTORY
 
     steps:
       - checkout
@@ -70,13 +80,10 @@ jobs:
             - ./*
 
   deploy_to_staging:
-    docker:
-      - image: 18fgsa/cloud-foundry-cli
-        environment:
-          - TZ=America/New_York
-          - CF_API: https://api.fr.cloud.gov
+    <<: *CF_DOCKER_IMAGE
 
-    working_directory: ~/repo
+    <<: *WORKING_DIRECTORY
+
     steps:
       - attach_workspace:
           at: .
@@ -88,12 +95,9 @@ jobs:
             cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
   deploy_to_production:
-    docker:
-      - image: 18fgsa/cloud-foundry-cli
-        environment:
-          - TZ=America/New_York
-          - CF_API: https://api.fr.cloud.gov
-    working_directory: ~/repo
+    <<: *CF_DOCKER_IMAGE
+
+    <<: *WORKING_DIRECTORY
 
     steps:
       - attach_workspace:
