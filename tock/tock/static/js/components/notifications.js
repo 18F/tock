@@ -1,15 +1,12 @@
 (function setupNotifications() {
 
   var iconPath = (function() {
-    var links = document.getElementsByTagName('link');
-    var paths = [].slice.call(links).map(function (e) {
-      if (e.getAttribute('rel') === 'shortcut icon') {
-        return e.getAttribute('href');
-      }
-    }).filter(function (e) {
-      return e != undefined;
-    });
-    return paths[0];
+    var link = document.querySelector('[rel="shortcut icon"]');
+    if (link != undefined && typeof link.href === 'string') {
+      return link.href;
+    } else {
+      return undefined;
+    }
   })();
   var called = false;
   var processPermission = function(result) {
@@ -66,7 +63,7 @@
   };
 
 
-  if('Notification' in window) {
+  if('Notification' in window && iconPath != undefined) {
     var request = Notification.requestPermission(processPermission);
 
     if (request && typeof request.then === 'function') {
