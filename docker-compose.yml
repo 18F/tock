@@ -18,12 +18,12 @@ app:
     - "8000:8000"
   command: "python manage.py runserver 0.0.0.0:8000"
 db:
-  image: postgres:9.6.6
+  image: postgres:9.6.8
   environment:
     - POSTGRES_DB=tock
     - POSTGRES_USER=tock_user
 sass:
-  image: node:8.10.0
+  image: node:8.11.1
   volumes:
     - .:/tock
     - /tock/node_modules

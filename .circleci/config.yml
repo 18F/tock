@@ -2,13 +2,23 @@
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
+cf-docker-image: &CF_DOCKER_IMAGE
+  docker:
+    - image: 18fgsa/cloud-foundry-cli
+      environment:
+        - TZ=America/New_York
+        - CF_API: https://api.fr.cloud.gov
+working-directory: &WORKING_DIRECTORY
+  working_directory: ~/repo
+
+
 version: 2
 jobs:
   build:
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.4-jessie-node-browsers
+      - image: circleci/python:3.6.5-jessie-node-browsers
         environment:
           - TZ=America/New_York
           - PIPENV_VENV_IN_PROJECT=true
@@ -16,12 +26,12 @@ jobs:
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
       # documented at https://circleci.com/docs/2.0/circleci-images/
-      - image: circleci/postgres:9.6.6
+      - image: circleci/postgres:9.6.8
         environment:
           - POSTGRES_USER=circleci
           - POSTGRES_DB=tock-test
 
-    working_directory: ~/repo
+    <<: *WORKING_DIRECTORY
 
     steps:
       - checkout
@@ -70,40 +80,59 @@ jobs:
             - ./*
 
   deploy_to_staging:
-    docker:
-      - image: 18fgsa/cloud-foundry-cli
-        environment:
-          - TZ=America/New_York
-          - CF_API: https://api.fr.cloud.gov
+    <<: *CF_DOCKER_IMAGE
 
-    working_directory: ~/repo
+    <<: *WORKING_DIRECTORY
+
     steps:
       - attach_workspace:
           at: .
+      - run:
+          name: Login to cloud.gov Staging
+          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
+      - run:
+          name: Save version to file system
+          command: echo ${CIRCLE_SHA1} > tock/VERSION
       - run:
           name: deploy Tock Staging to cloud.gov
-          command: |
-            cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
-            echo ${CIRCLE_SHA1} > tock/VERSION
-            cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
+          command: cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
 
   deploy_to_production:
-    docker:
-      - image: 18fgsa/cloud-foundry-cli
-        environment:
-          - TZ=America/New_York
-          - CF_API: https://api.fr.cloud.gov
-    working_directory: ~/repo
+    <<: *CF_DOCKER_IMAGE
+
+    <<: *WORKING_DIRECTORY
 
     steps:
       - attach_workspace:
           at: .
       - run:
-          name: deploy Tock Production to cloud.gov
+          name: Login to cloud.gov Production
+          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION}
+      - run:
+          name: Save version to file system
+          command: echo ${CIRCLE_TAG} > tock/VERSION
+      - run:
+          name: Deploy Tock Production to cloud.gov
+          command: cf_deploy.sh tock gsa-18f-tock prod manifest-production.yml
+
+  recycle_production:
+    <<: *CF_DOCKER_IMAGE
+
+    <<: *WORKING_DIRECTORY
+
+    steps:
+      - run:
+          name: Login to cloud.gov Production
+          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION}
+      - run:
+          name: Install cf-recycle-plugin 1.0.0 release
           command: |
-            cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION}
-            echo ${CIRCLE_TAG} > tock/VERSION
-            cf_deploy.sh tock gsa-18f-tock prod manifest-production.yml
+            curl -L -o cf-recycle-plugin https://github.com/rogeruiz/cf-recycle-plugin/releases/download/v1.0.0/cf-recycle-plugin.linux64
+            chmod +x cf-recycle-plugin
+            cf install-plugin cf-recycle-plugin -f
+      - run:
+          name: Recycle Tock Production instances
+          command: cf recycle tock
 
 workflows:
   version: 2
@@ -141,3 +170,12 @@ workflows:
               only: /v20[1-9][0-9][0-9]+\.[0-9]+/
             branches:
               ignore: /.*/
+  recycle-prod:
+    jobs:
+      - recycle_production
+    triggers:
+    - schedule:
+        cron: "0 10 * * *"  # Roughly 5am ET
+        filters:
+          branches:
+            only: /.*/

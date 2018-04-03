@@ -12,7 +12,6 @@ from tock.utils import PermissionMixin, IsSuperUserOrSelf
 from .forms import UserForm
 from .models import UserData
 
-
 def parse_date(date):
     if date == 'NA':
         return None
