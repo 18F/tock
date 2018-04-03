@@ -1,52 +1,79 @@
 (function setupNotifications() {
-  if("Notification" in window) {
-    Notification.requestPermission().then(function(result) {
-      // If the user grants permission, or has granted permission in the past,
-      // setup the timers.  Otherwise bail out.
-      if (result !== 'granted') {
-        return;
+
+  var iconPath = (function() {
+    var links = document.getElementsByTagName('link');
+    var paths = [].slice.call(links).map(function (e) {
+      if (e.getAttribute('rel') === 'shortcut icon') {
+        return e.getAttribute('href');
       }
+    }).filter(function (e) {
+      return e != undefined;
+    });
+    return paths[0];
+  })();
+  var called = false;
+  var processPermission = function(result) {
+    // If the user grants permission, or has granted permission in the past,
+    // setup the timers.  Otherwise bail out.
+    if (result !== 'granted') {
+      return;
+    }
 
-      var setTimer = function() {
-        var now = new Date();
-        var target;
+    if (!called) {
+      called = true;
+    } else {
+      return;
+    }
 
-        // If it's Friday and before 3pm... (local times)
-        if(now.getDay() == 5 && now.getHours() < 15) {
-          // ...target is later today
-          var hoursForward = 15 - now.getHours();
-          target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + hoursForward);
-        } else {
-          // ...target is forward to the next Friday
-          var daysForward = 5 - now.getDay();
-          if(daysForward < 1) {
-            daysForward += 7;
-          }
+    var setTimer = function() {
+      var now = new Date();
+      var target;
 
-          target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysForward, 15);
+      // If it's Friday and before 3pm... (local times)
+      if(now.getDay() == 5 && now.getHours() < 15) {
+        // ...target is later today
+        var hoursForward = 15 - now.getHours();
+        target = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + hoursForward);
+      } else {
+        // ...target is forward to the next Friday
+        var daysForward = 5 - now.getDay();
+        if(daysForward < 1) {
+          daysForward += 7;
         }
 
-        // Now compute the time difference between now and
-        // the target, so we know when to send up the notification.
-        var delay = target.getTime() - now.getTime();
-        setTimeout(issueNotification, delay);
-      };
+        target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysForward, 15);
+      }
 
-      var issueNotification = function() {
-        new Notification('Tock Your Time!', {
-          body: 'Don\'t forget to Tock your time before COB!',
-          requireInteraction: true,
-          icon: '/static/img/favicon.ico'
-        });
+      // Now compute the time difference between now and
+      // the target, so we know when to send up the notification.
+      var delay = target.getTime() - now.getTime();
+      setTimeout(issueNotification, delay);
+    };
 
-        // Setup the next notification, but wait a few seconds to
-        // make sure the hour has rolled over.
-        setTimeout(setTimer, 10000);
-      };
+    var issueNotification = function() {
+      new Notification('Tock Your Time!', {
+        body: 'Don\'t forget to Tock your time before COB!',
+        requireInteraction: true,
+        icon: iconPath,
+      });
 
-      setTimer();
-    }).catch(function(error) {
-      console.error('error:', error);
-    });
+      // Setup the next notification, but wait a few seconds to
+      // make sure the hour has rolled over.
+      setTimeout(setTimer, 10000);
+    };
+
+    setTimer();
+  };
+
+
+  if('Notification' in window) {
+    var request = Notification.requestPermission(processPermission);
+
+    if (request && typeof request.then === 'function') {
+      request.then(processPermission).catch(function(error) {
+        console.error('error:', error);
+      });
+    }
+
   }
 })();
