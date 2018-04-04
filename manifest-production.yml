@@ -17,4 +17,4 @@ applications:
   instances: 4
   services:
   - tockdb
-  - tock-creds-prod
+  - tock-credentials
