@@ -18,3 +18,8 @@ def version_url(request):
         response['x_tock_release_name'] = name[:7]
 
     return response
+
+def tock_request_form_url(request):
+    return {
+        'x_tock_change_request_form_url': settings.TOCK_CHANGE_REQUEST_FORM,
+    }
