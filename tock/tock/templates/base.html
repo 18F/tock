@@ -63,11 +63,14 @@ m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   <div class="usa-grid">
     <nav class=" usa-width-one-whole">
       <ul class="usa-unstyled-list">
-        <li class="usa-width-one-half">
-          <p><i>The current release is <code>{{ x_tock_release_name }}</code>, <a href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}">view this release on GitHub</a></i>.</p>
+        <li class="usa-width-one-third">
+          <p><i>The current release is <code>{{ x_tock_release_name }}</code>, <a class="usa-external_link" href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}">view this release on GitHub</a></i>.</p>
         </li>
-        <li class="usa-width-one-half">
-          <p><i>For questions, suggestions, or bug reports, please <a href="https://github.com/18f/tock/issues">file an issue</a>.</i></p>
+        <li class="usa-width-one-third">
+          <p><i>For questions, suggestions, or bug reports, please <a class="usa-external_link" href="https://github.com/18f/tock/issues">file an issue</a>.</i></p>
+        </li>
+        <li class="usa-width-one-third">
+          <p><i>To change your previously submitted hours in Tock, please <a class="usa-external_link" href="{{ x_tock_change_request_form_url }}" target="_blank">use the Tock Change Request Form</a>.</i></p>
         </li>
       </ul>
     </nav>
