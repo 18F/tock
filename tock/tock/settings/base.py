@@ -63,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'tock.context_processors.version_url',
                 'tock.context_processors.tock_request_form_url',
+                'tock.context_processors.user_attendance',
             ],
         },
     },

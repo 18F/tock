@@ -1,5 +1,6 @@
 import re
 from django.conf import settings
+from employees.models import UserData
 
 
 def version_url(request):
@@ -23,3 +24,16 @@ def tock_request_form_url(request):
     return {
         'x_tock_change_request_form_url': settings.TOCK_CHANGE_REQUEST_FORM,
     }
+
+def user_attendance(request):
+    response = {
+        'x_tock_user_is_late': None
+    }
+
+    try:
+        udata = UserData.objects.get(user=request.user)
+        response['x_tock_user_is_late'] = udata.is_late()
+    except UserData.DoesNotExist:
+        response['x_tock_user_is_late'] = False
+
+    return response
