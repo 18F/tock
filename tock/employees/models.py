@@ -154,6 +154,8 @@ class UserData(models.Model):
             ).count()
         if timecard_count is 0:
             return True
+        else:
+            return False
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""

@@ -102,7 +102,7 @@ class UserDataTests(TestCase):
     def test_is_not_late(self):
         """ Check if the user is not late when Timecard is present """
         userdata = UserData.objects.get(user=self.regular_user)
-        reporting_period = ReportingPeriod(
+        reporting_period = ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
             exact_working_hours=40,
@@ -113,12 +113,14 @@ class UserDataTests(TestCase):
         timecard = Timecard.objects.create(
             user=self.regular_user,
             reporting_period=reporting_period)
+        project = Project.objects.get(name="Platform as a Service")
+        timecard.submitted = True
         timecard.save()
         timecard_object_1 = TimecardObject.objects.create(
             timecard=timecard,
-            project=Project.objects.get(name="openFEC"),
+            project=project,
             hours_spent=40)
-        timecard_object_1.save()
+
         self.assertEqual(userdata.is_late(), False)
 
     def test_employee_active(self):
