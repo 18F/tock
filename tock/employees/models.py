@@ -134,6 +134,7 @@ class UserData(models.Model):
 
         return ''
 
+    @property
     def is_late(self):
         """
         Checks if user has a timecard submitted for the

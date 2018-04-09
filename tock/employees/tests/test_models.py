@@ -97,7 +97,7 @@ class UserDataTests(TestCase):
             max_working_hours=60,
             message='This is not a vacation')
         reporting_period.save()
-        self.assertEqual(userdata.is_late(), True)
+        self.assertEqual(userdata.is_late, True)
 
     def test_is_not_late(self):
         """ Check if the user is not late when Timecard is present """
@@ -121,7 +121,7 @@ class UserDataTests(TestCase):
             project=project,
             hours_spent=40)
 
-        self.assertEqual(userdata.is_late(), False)
+        self.assertEqual(userdata.is_late, False)
 
     def test_employee_active(self):
         """ Check that the save() method correctly aligns UserData and User
