@@ -7,7 +7,7 @@
     <title>Tock</title>
 
     {% load staticfiles %}
-    {% if request.user.user_data.is_late %}
+    {% if request.user.is_authenticated and request.user.user_data.is_late %}
     <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
     {% else %}
     <link rel="shortcut icon" href="{% static 'img/favicon-happy.png' %}">
