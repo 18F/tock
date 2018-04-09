@@ -1,6 +1,5 @@
 import re
 from django.conf import settings
-from employees.models import UserData
 
 
 def version_url(request):
