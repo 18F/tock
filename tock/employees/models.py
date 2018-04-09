@@ -143,6 +143,9 @@ class UserData(models.Model):
         We're using get_model() to avoid circular imports
         since so many things use UserData
         """
+        if self.user.is_anonymous():
+            return false
+
         RP_model = apps.get_model('hours', 'ReportingPeriod')
         TC_model = apps.get_model('hours', 'Timecard')
         rp = RP_model.objects.order_by('end_date').filter(
