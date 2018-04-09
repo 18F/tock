@@ -116,7 +116,7 @@ class UserDataTests(TestCase):
         project = Project.objects.get(name="Platform as a Service")
         timecard.submitted = True
         timecard.save()
-        timecard_object_1 = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard=timecard,
             project=project,
             hours_spent=40)
