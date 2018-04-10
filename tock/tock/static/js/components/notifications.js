@@ -54,7 +54,7 @@
         icon: iconPath,
       });
 
-      // Setup the next notification, but wait a few seconds to
+      // Setup the next notification, but wait about 10 seconds to
       // make sure the hour has rolled over.
       setTimeout(setTimer, 10000);
     };
