@@ -7,7 +7,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
 from projects.models import Project
-from hours.models import TimecardObject, Timecard, ReportingPeriod
+from hours.models import (
+    TimecardObject,
+    Timecard,
+    ReportingPeriod,
+    TimecardPrefillData
+)
 from employees.models import UserData
 
 from rest_framework import serializers, generics
@@ -377,3 +382,21 @@ def hours_by_quarter_by_user(request, *args, **kwargs):
         HoursByQuarterByUserSerializer(HoursByQuarterByUser(*each)).data
         for each in rows
     ])
+
+
+class TimecardPrefillDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimecardPrefillData
+        fields = (
+            'start_date',
+            'end_date',
+            'employee',
+            'project',
+            'hours',
+            'notes',
+        )
+
+
+class TimeCardsPrefillDataListView(generics.ListAPIView):
+    queryset = TimecardPrefillData.objects.all()
+    serializer_class = TimecardPrefillDataSerializer
