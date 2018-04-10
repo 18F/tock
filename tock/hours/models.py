@@ -23,6 +23,7 @@ class HolidayPrefills(models.Model):
         unique_together = ['project', 'hours_per_period']
         ordering = ['project__name']
 
+
 class Targets(models.Model):
     name = models.CharField(
         max_length=200,
@@ -69,6 +70,7 @@ class Targets(models.Model):
         verbose_name = 'Target'
         verbose_name_plural = 'Targets'
 
+
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     USWDS_ALERT_SUCCESS = 'success'
     USWDS_ALERT_WARNING = 'warning'
@@ -92,18 +94,18 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     holiday_prefills = models.ManyToManyField(
         HolidayPrefills,
         blank=True,
-        help_text='Select items to prefill in timecards for this period. To '\
+        help_text='Select items to prefill in timecards for this period. To '
         'create additional items, click the green "+" sign.'
     )
     message = models.TextField(
-        help_text='A message to provide at the top of the reporting period. This will appear above any Timecard Notes in a Timecard.',
+        help_text='A message to provide at the top of the reporting period. This will appear above any Timecard Notes in a Timecard.',  # noqa
         blank=True
     )
     message_style = models.CharField(
         choices=USWDS_ALERT_CHOICES,
         default=USWDS_ALERT_INFO,
         max_length=32,
-        help_text='The style in which to display the message in a reporting period.'
+        help_text='The style in which to display the message in a reporting period.'  # noqa
     )
     message_title = models.CharField(
         blank=True,
@@ -112,7 +114,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     )
     message_enabled = models.BooleanField(
         default=False,
-        help_text='Toggle whether or not the message is displayed for the specific reporting period and visible in a Timecard.'
+        help_text='Toggle whether or not the message is displayed for the specific reporting period and visible in a Timecard.'  # noqa
     )
 
     def __str__(self):
@@ -142,7 +144,9 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
             return self.start_date.year
 
     def get_projects(self):
-        """Return the valid projects that exist during this reporting period."""
+        """
+        Return the valid projects that exist during this reporting period.
+        """
         rps = self.start_date
 
         return Project.objects.filter(
@@ -167,8 +171,15 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 
 class Timecard(models.Model):
-    user = models.ForeignKey(User, related_name='timecards', on_delete=models.CASCADE)
-    reporting_period = models.ForeignKey(ReportingPeriod, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        User,
+        related_name='timecards',
+        on_delete=models.CASCADE
+    )
+    reporting_period = models.ForeignKey(
+        ReportingPeriod,
+        on_delete=models.CASCADE
+    )
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
@@ -184,10 +195,16 @@ class Timecard(models.Model):
 
 class TimecardNoteManager(models.Manager):
     def enabled(self):
-        return super(TimecardNoteManager, self).get_queryset().filter(enabled=True)
+        return super(
+            TimecardNoteManager,
+            self
+        ).get_queryset().filter(enabled=True)
 
     def disabled(self):
-        return super(TimecardNoteManager, self).get_queryset().filter(enabled=False)
+        return super(
+            TimecardNoteManager,
+            self
+        ).get_queryset().filter(enabled=False)
 
 
 class TimecardNote(models.Model):
@@ -207,10 +224,10 @@ class TimecardNote(models.Model):
 
     title = models.CharField(
         max_length=140,
-        help_text='The heading that will appear above the note when displayed in a timecard.'
+        help_text='The heading that will appear above the note when displayed in a timecard.'  # noqa
     )
     body = models.TextField(
-        help_text='The body of the note that will appear when displayed in a timecard.'
+        help_text='The body of the note that will appear when displayed in a timecard.'  # noqa
     )
     enabled = models.BooleanField(
         default=True,
@@ -237,7 +254,6 @@ class TimecardNote(models.Model):
         verbose_name = 'Timecard Note'
         verbose_name_plural = 'Timecard Notes'
 
-
     def get_enabled_display(self):
         if not self.enabled:
             return 'Disabled'
@@ -253,7 +269,11 @@ class TimecardNote(models.Model):
 
 
 class TimecardObject(models.Model):
-    timecard = models.ForeignKey(Timecard, related_name='timecardobjects', on_delete=models.CASCADE)
+    timecard = models.ForeignKey(
+        Timecard,
+        related_name='timecardobjects',
+        on_delete=models.CASCADE
+    )
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     hours_spent = models.DecimalField(decimal_places=2,
                                       max_digits=5,
@@ -261,7 +281,12 @@ class TimecardObject(models.Model):
                                       null=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    grade = models.ForeignKey(EmployeeGrade, blank=True, null=True, on_delete=models.CASCADE)
+    grade = models.ForeignKey(
+        EmployeeGrade,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE
+    )
 
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
@@ -313,27 +338,26 @@ class TimecardObject(models.Model):
 
         self.submitted = self.timecard.submitted
 
-        p_pl = self.project.profit_loss_account # Project PL info.
-        u_pl = self.timecard.user.user_data.profit_loss_account # User PL info.
-        rp = self.timecard.reporting_period # TimecardObject reporting period.
+        p_pl = self.project.profit_loss_account  # Project PL info.
+        u_pl = self.timecard.user.user_data.profit_loss_account  # User PL info.  # noqa
+        rp = self.timecard.reporting_period  # TimecardObject reporting period.
 
         if p_pl and \
-        p_pl.account_type == 'Revenue' and \
-        p_pl.as_start_date < rp.end_date and \
-        p_pl.as_end_date > rp.end_date:
+            p_pl.account_type == 'Revenue' and \
+            p_pl.as_start_date < rp.end_date and \
+                p_pl.as_end_date > rp.end_date:
             self.revenue_profit_loss_account = p_pl
         else:
             self.revenue_profit_loss_account = None
 
         if u_pl and \
-        u_pl.account_type == 'Expense' and \
-        u_pl.as_start_date < rp.end_date and \
-        u_pl.as_end_date > rp.end_date:
+            u_pl.account_type == 'Expense' and \
+            u_pl.as_start_date < rp.end_date and \
+                u_pl.as_end_date > rp.end_date:
 
             self.expense_profit_loss_account = u_pl
         else:
             self.expense_profit_loss_account = None
-
 
         super(TimecardObject, self).save(*args, **kwargs)
 
@@ -351,8 +375,16 @@ class TimecardPrefillDataManager(models.Manager):
 
 
 class TimecardPrefillData(models.Model):
-    employee = models.ForeignKey(UserData, related_name='timecard_prefill_data', on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, related_name='timecard_prefill_data', on_delete=models.CASCADE)
+    employee = models.ForeignKey(
+        UserData,
+        related_name='timecard_prefill_data',
+        on_delete=models.CASCADE
+    )
+    project = models.ForeignKey(
+        Project,
+        related_name='timecard_prefill_data',
+        on_delete=models.CASCADE
+    )
     hours = models.DecimalField(
         decimal_places=2,
         max_digits=5,
@@ -377,7 +409,7 @@ class TimecardPrefillData(models.Model):
         blank=True,
         null=True,
         verbose_name='End Date',
-        help_text='Optional end date for when this record should no longer be used.'
+        help_text='Optional end date for when this record should no longer be used.'  # noqa
     )
 
     objects = TimecardPrefillDataManager()
