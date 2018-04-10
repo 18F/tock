@@ -11,8 +11,11 @@ from hours.models import TimecardObject, Timecard, ReportingPeriod
 from employees.models import UserData
 
 from rest_framework import serializers, generics
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 # Serializers for different models
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,9 +33,12 @@ class ProjectSerializer(serializers.ModelSerializer):
             'organization',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
-    profit_loss_account = serializers.CharField(source='profit_loss_account.name')
+    profit_loss_account = serializers.CharField(
+        source='profit_loss_account.name'
+    )
     client = serializers.StringRelatedField(source='accounting_code')
     organization = serializers.StringRelatedField()
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,6 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
             'email'
         )
 
+
 class UserDataSerializer(serializers.Serializer):
     user = serializers.StringRelatedField()
     current_employee = serializers.BooleanField()
@@ -53,8 +60,9 @@ class UserDataSerializer(serializers.Serializer):
     unit = serializers.SerializerMethodField()
     organization = serializers.StringRelatedField()
 
-    def get_unit(self,obj):
+    def get_unit(self, obj):
         return obj.get_unit_display()
+
 
 class ReportingPeriodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,6 +74,7 @@ class ReportingPeriodSerializer(serializers.ModelSerializer):
             'min_working_hours',
             'max_working_hours',
         )
+
 
 class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
@@ -114,27 +123,33 @@ class TimecardSerializer(serializers.Serializer):
 
 # API Views
 
+
 class UserDataView(generics.ListAPIView):
     queryset = UserData.objects.all()
     serializer_class = UserDataSerializer
+
 
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
+
 class ProjectInstanceView(generics.RetrieveAPIView):
     """ Return the details of a specific project """
-    queryset =  Project.objects.all()
+    queryset = Project.objects.all()
     model = Project
     serializer_class = ProjectSerializer
+
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
 class ReportingPeriodList(generics.ListAPIView):
     queryset = ReportingPeriod.objects.all()
     serializer_class = ReportingPeriodSerializer
+
 
 class ReportingPeriodAudit(generics.ListAPIView):
     """ This endpoint retrieves a list of users who have not filled out
@@ -161,6 +176,7 @@ class ReportingPeriodAudit(generics.ListAPIView):
             .filter(user_data__current_employee=True) \
             .order_by('last_name', 'first_name')
 
+
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """
 
@@ -178,6 +194,7 @@ class TimecardList(generics.ListAPIView):
 
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.query_params)
+
 
 def get_timecards(queryset, params=None):
     """
@@ -244,9 +261,6 @@ def get_timecards(queryset, params=None):
     return queryset
 
 
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-
 hours_by_quarter_query = '''
 with agg as (
     select
@@ -276,12 +290,13 @@ from agg
 group by
     year,
     quarter
-'''
+'''  # noqa
 
 HoursByQuarter = collections.namedtuple(
     'HoursByQuarter',
     ['year', 'quarter', 'billable', 'nonbillable', 'total'],
 )
+
 
 class HoursByQuarterSerializer(serializers.Serializer):
     year = serializers.IntegerField()
@@ -289,6 +304,7 @@ class HoursByQuarterSerializer(serializers.Serializer):
     billable = serializers.FloatField()
     nonbillable = serializers.FloatField()
     total = serializers.FloatField()
+
 
 @api_view()
 def hours_by_quarter(request, *args, **kwargs):
@@ -299,6 +315,7 @@ def hours_by_quarter(request, *args, **kwargs):
         HoursByQuarterSerializer(HoursByQuarter(*each)).data
         for each in rows
     ])
+
 
 hours_by_quarter_by_user_query = '''
 with agg as (
@@ -334,12 +351,13 @@ group by
     year,
     quarter,
     username
-'''
+'''  # noqa
 
 HoursByQuarterByUser = collections.namedtuple(
     'HoursByQuarter',
     ['year', 'quarter', 'username', 'billable', 'nonbillable', 'total'],
 )
+
 
 class HoursByQuarterByUserSerializer(serializers.Serializer):
     year = serializers.IntegerField()
@@ -348,6 +366,7 @@ class HoursByQuarterByUserSerializer(serializers.Serializer):
     billable = serializers.FloatField()
     nonbillable = serializers.FloatField()
     total = serializers.FloatField()
+
 
 @api_view()
 def hours_by_quarter_by_user(request, *args, **kwargs):
