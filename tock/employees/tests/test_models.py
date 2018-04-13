@@ -7,6 +7,13 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from employees.models import EmployeeGrade, UserData
 
+from hours.models import (
+    ReportingPeriod,
+    Timecard,
+    TimecardObject
+)
+from projects.models import Project
+
 class EmployeeGradeTests(TestCase):
     fixtures = ['tock/fixtures/prod_user.json']
 
@@ -37,6 +44,7 @@ class EmployeeGradeTests(TestCase):
         self.assertEqual(expected_string, str(self.employeegrade))
 
 class UserDataTests(TestCase):
+    fixtures = ['projects/fixtures/projects.json']
 
     def setUp(self):
         # Create regular_user.
@@ -77,6 +85,43 @@ class UserDataTests(TestCase):
             datetime.date(2100, 1, 1)
         )
         self.assertEqual(userdata.unit, 1)
+
+    def test_is_late(self):
+        """ Check if the user is late when no Timecard is present """
+        userdata = UserData.objects.get(user=self.regular_user)
+        reporting_period = ReportingPeriod(
+            start_date=datetime.date(2015, 1, 1),
+            end_date=datetime.date(2015, 1, 7),
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60,
+            message='This is not a vacation')
+        reporting_period.save()
+        self.assertEqual(userdata.is_late, True)
+
+    def test_is_not_late(self):
+        """ Check if the user is not late when Timecard is present """
+        userdata = UserData.objects.get(user=self.regular_user)
+        reporting_period = ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 1),
+            end_date=datetime.date(2015, 1, 7),
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60,
+            message='This is not a vacation')
+        reporting_period.save()
+        timecard = Timecard.objects.create(
+            user=self.regular_user,
+            reporting_period=reporting_period)
+        project = Project.objects.get(name="Platform as a Service")
+        timecard.submitted = True
+        timecard.save()
+        TimecardObject.objects.create(
+            timecard=timecard,
+            project=project,
+            hours_spent=40)
+
+        self.assertEqual(userdata.is_late, False)
 
     def test_employee_active(self):
         """ Check that the save() method correctly aligns UserData and User

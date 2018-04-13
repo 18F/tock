@@ -7,7 +7,13 @@
     <title>Tock</title>
 
     {% load staticfiles %}
-    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}">
+    {% if request.user.is_authenticated and request.user.user_data.is_late %}
+    <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
+    {% else %}
+    <link rel="shortcut icon" href="{% static 'img/favicon-happy.png' %}">
+    {% endif %}
+    <meta name="tock-icon-happy" content="{% static 'img/favicon-happy' %}">
+    <meta name="tock-icon-angry" content="{% static 'img/favicon-angry' %}">
     <link rel="stylesheet" href="{% static 'css/dist/core.css' %}">
     <link rel="stylesheet" href="{% static 'css/vendor/jquery-ui.min.css' %}">
     <link rel="stylesheet" href="{% static 'js/vendor/chosen/chosen.min.css' %}">

@@ -1,3 +1,6 @@
+import datetime
+
+from django.apps import apps
 from django.contrib.auth.models import User
 from django.db import models, IntegrityError
 from django.db.models import Q
@@ -130,6 +133,30 @@ class UserData(models.Model):
             return self.organization.name
 
         return ''
+
+    @property
+    def is_late(self):
+        """
+        Checks if user has a timecard submitted for the
+        most recent Reporting Period.
+
+        We're using get_model() to avoid circular imports
+        since so many things use UserData
+        """
+        RP_model = apps.get_model('hours', 'ReportingPeriod')
+        TC_model = apps.get_model('hours', 'Timecard')
+        rp = RP_model.objects.order_by('end_date').filter(
+            end_date__lt=datetime.date.today()
+        ).latest()
+        timecard_count = TC_model.objects.filter(
+                reporting_period=rp,
+                submitted=True,
+                user=self.user,
+            ).count()
+        if timecard_count is 0:
+            return True
+        else:
+            return False
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""
