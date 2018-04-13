@@ -1,7 +1,12 @@
 import collections
 import datetime
+import pdb
 
 from django.db import connection
+
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+
+from django.http import Http404
 
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
@@ -391,12 +396,52 @@ class TimecardPrefillDataSerializer(serializers.ModelSerializer):
             'start_date',
             'end_date',
             'employee',
+            'employee_id',
             'project',
+            'project_id',
             'hours',
             'notes',
         )
+    project = serializers.CharField(source='project.name')
+    project_id = serializers.IntegerField(source='project.id')
+    employee = serializers.CharField(source='employee.user.username')
+    employee_id = serializers.IntegerField(source='employee.id')
 
 
-class TimeCardsPrefillDataListView(generics.ListAPIView):
-    queryset = TimecardPrefillData.objects.all()
+class TimecardsPrefillDataListView(generics.ListAPIView):
+    queryset = TimecardPrefillData.objects.all()\
+               .prefetch_related('employee')\
+               .prefetch_related('project')
     serializer_class = TimecardPrefillDataSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(data={
+            "status": "200",
+            "data": serializer.data,
+        })
+
+
+class TimecardsPrefillDataUserListCreateView(generics.ListCreateAPIView):
+    serializer_class = TimecardPrefillDataSerializer
+
+    def get_queryset(self):
+        if not self.request.user.is_superuser:
+            raise PermissionDenied
+
+        username = self.kwargs['username']
+
+        try:
+            result = TimecardPrefillData.objects\
+                    .prefetch_related('employee')\
+                    .prefetch_related('employee__user')\
+                    .filter(
+                        employee__user__username=username
+                    )
+        except TimecardPrefillData.DoesNotExist:
+            raise Http404
+
+        return result

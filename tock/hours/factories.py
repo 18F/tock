@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 from hours import models
 from projects.factories import ProjectFactory
+from employees.factories import UserDataFactory
 
 
 class UserFactory(DjangoModelFactory):
@@ -17,11 +18,15 @@ class UserFactory(DjangoModelFactory):
 
 
 base_date = datetime.datetime(2015, 7, 4)
+
+
 class ReportingPeriodFactory(DjangoModelFactory):
     class Meta:
         model = models.ReportingPeriod
     start_date = factory.Sequence(lambda n: base_date + datetime.timedelta(n))
-    end_date = factory.Sequence(lambda n: base_date + datetime.timedelta(n + 6))
+    end_date = factory.Sequence(
+        lambda n: base_date + datetime.timedelta(n + 6)
+    )
 
 
 class TimecardFactory(DjangoModelFactory):
@@ -38,3 +43,14 @@ class TimecardObjectFactory(DjangoModelFactory):
     timecard = factory.SubFactory(TimecardFactory)
     project = factory.SubFactory(ProjectFactory)
     hours_spent = 10
+
+
+class TimecardPrefillDataFactory(DjangoModelFactory):
+    class Meta:
+        model = models.TimecardPrefillData
+    project = factory.SubFactory(ProjectFactory)
+    start_date = factory.Sequence(lambda n: base_date + datetime.timedelta(n))
+    end_date = factory.Sequence(
+        lambda n: base_date + datetime.timedelta(n + 6)
+    )
+    hours = 40

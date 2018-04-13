@@ -55,7 +55,12 @@ urlpatterns = [
     ),
     url(
         r'^timecards_prefill_data.json$',
-        views.TimeCardsPrefillDataListView.as_view(),
+        views.TimecardsPrefillDataListView.as_view(),
         name='TimecardsPrefillDataListView'
+    ),
+    url(
+        r'^timecards_prefill_data/(?P<username>[a-z\-\.]+).json$',
+        views.TimecardsPrefillDataUserListCreateView.as_view(),
+        name='TimecardsPrefillDataUserListCreateView'
     ),
 ]
