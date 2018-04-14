@@ -409,9 +409,7 @@ class TimecardPrefillDataSerializer(serializers.ModelSerializer):
 
 
 class TimecardsPrefillDataListView(generics.ListAPIView):
-    queryset = TimecardPrefillData.objects.all()\
-               .prefetch_related('employee')\
-               .prefetch_related('project')
+    queryset = TimecardPrefillData.objects.all()
     serializer_class = TimecardPrefillDataSerializer
 
     def list(self, request, *args, **kwargs):
@@ -428,6 +426,16 @@ class TimecardsPrefillDataListView(generics.ListAPIView):
 class TimecardsPrefillDataUserListCreateView(generics.ListCreateAPIView):
     serializer_class = TimecardPrefillDataSerializer
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(data={
+            "status": "200",
+            "data": serializer.data,
+        })
+
     def get_queryset(self):
         if not self.request.user.is_superuser:
             raise PermissionDenied
@@ -435,13 +443,12 @@ class TimecardsPrefillDataUserListCreateView(generics.ListCreateAPIView):
         username = self.kwargs['username']
 
         try:
-            result = TimecardPrefillData.objects\
-                    .prefetch_related('employee')\
-                    .prefetch_related('employee__user')\
-                    .filter(
-                        employee__user__username=username
-                    )
-        except TimecardPrefillData.DoesNotExist:
+            userdata = UserData.objects\
+                       .prefetch_related('user')\
+                       .get(user__username=username)
+        except UserData.DoesNotExist:
             raise Http404
 
-        return result
+        return TimecardPrefillData.objects\
+               .prefetch_related('employee')\
+               .filter(employee_id=userdata.id)
