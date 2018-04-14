@@ -76,59 +76,6 @@ class UsersAPITests(TestCase):
         pass
 
 
-class TimecardsPrefillDataAPITests(WebTest):
-    fixtures = FIXTURES
-
-    def test_timecards_prefill_data_json(self):
-        """
-        Check that the Timecards Prefill Data JSON is formatted correctedly.
-        """
-        response = client(self).get(
-            reverse('TimecardsPrefillDataListView')
-        ).content
-        clean_response = json.loads(response.decode())
-        self.assertEqual(len(clean_response), 2)
-        self.assertEqual(clean_response['status'], "200")
-
-    def test_timecards_prefill_data_json_with_valid_user_and_with_data(self):
-        """
-        Check that the Timecards Prefill Data JSON returns data for valid user
-        with TimecardPrefillData.
-        """
-        user = User.objects.get(username='aaron.snow')
-        userdata = UserData.objects.get(user=user)
-        project = Project.objects.get(
-            name="Out Of Office"
-        )
-        TimecardPrefillData.objects.create(
-            employee=userdata,
-            project=project,
-            hours=40
-        )
-        response = client(self).get(
-            reverse('TimecardsPrefillDataListView'),
-            kwargs={'username': 'aaron.snow'}
-        ).content
-        clean_response = json.loads(response.decode())
-        self.assertEqual(len(clean_response), 2)
-        self.assertEqual(clean_response['status'], "200")
-        self.assertEqual((not clean_response['data']), False)
-
-    def test_timecards_prefill_data_json_with_valid_user_and_no_data(self):
-        """
-        Check that the Timecards Prefill Data JSON returns data for valid user
-        with no TimecardPrefillData.
-        """
-        response = client(self).get(
-            reverse('TimecardsPrefillDataListView'),
-            kwargs={'username': 'aaron.snow'}
-        ).content
-        clean_response = json.loads(response.decode())
-        self.assertEqual(len(clean_response), 2)
-        self.assertEqual(clean_response['status'], "200")
-        self.assertEqual((not clean_response['data']), True)
-
-
 class TimecardsAPITests(WebTest):
     fixtures = FIXTURES
 
@@ -399,3 +346,72 @@ class ReportingPeriodList(WebTest):
             )
         ).data
         self.assertEqual(len(res), 0)
+
+
+class TimecardsPrefillDataAPITests(WebTest):
+    fixtures = FIXTURES
+
+    def test_timecards_prefill_data_json(self):
+        """
+        Check that the Timecards Prefill Data JSON is formatted correctedly.
+        """
+        response = client(self).get(
+            reverse('TimecardsPrefillDataListView')
+        ).data
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response['status'], "200")
+
+    def test_timecards_prefill_data_json_with_valid_user_and_with_data(self):
+        """
+        Check that the Timecards Prefill Data JSON returns data for valid user
+        with TimecardPrefillData.
+        """
+        user = User.objects.get(username='aaron.snow')
+        userdata = UserData.objects.get(user=user)
+        project_1 = Project.objects.get(
+            name="Out Of Office"
+        )
+        project_2 = Project.objects.get(
+            name="Platform as a Service"
+        )
+        TimecardPrefillData.objects.create(
+            employee=userdata,
+            project=project_1,
+            hours=8
+        )
+        TimecardPrefillData.objects.create(
+            employee=userdata,
+            project=project_2,
+            hours=32
+        )
+        response = client(self).get(
+            reverse(
+                'TimecardsPrefillDataUserListCreateView',
+                kwargs={'username': 'aaron.snow'}
+            )
+        ).data
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response['status'], "200")
+        self.assertEqual((not response['data']), False)
+        self.assertEqual(response['data'][0]['employee'], user.username)
+        self.assertEqual(response['data'][0]['hours'], '8.00')
+        self.assertEqual(response['data'][0]['project'], project_1.name)
+        self.assertEqual(response['data'][1]['employee'], user.username)
+        self.assertEqual(response['data'][1]['hours'], '32.00')
+        self.assertEqual(response['data'][1]['project'], project_2.name)
+
+
+    def test_timecards_prefill_data_json_with_valid_user_and_no_data(self):
+        """
+        Check that the Timecards Prefill Data JSON returns data for valid user
+        with no TimecardPrefillData.
+        """
+        response = client(self).get(
+            reverse(
+                'TimecardsPrefillDataUserListCreateView',
+                kwargs={'username': 'aaron.snow'}
+            )
+        ).data
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response['status'], "200")
+        self.assertEqual((not response['data']), True)
