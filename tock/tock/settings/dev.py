@@ -38,8 +38,6 @@ IS_RUNNING_TEST_SUITE = (os.path.basename(sys.argv[0]) == 'manage.py' and
 if not IS_RUNNING_TEST_SUITE:
     INSTALLED_APPS += ('debug_toolbar', )
     MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
-else:
-    NPLUSONE_RAISE = True
 
 MEDIA_ROOT = './media/'
 MEDIA_URL = '/media/'
