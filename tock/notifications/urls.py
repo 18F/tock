@@ -5,5 +5,5 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url('', views.NotificationsListView, name='NotificationsView'),
+    url('', views.NotificationsListView.as_view(), name='NotificationsView'),
 ]
