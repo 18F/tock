@@ -1,4 +1,4 @@
-## Tock Authentication
+## Tock authentication
 
 [:arrow_left: Back to Tock Documentation](../docs)
 
