@@ -1,6 +1,6 @@
-**Hours by Quarter and User Info**
+**Hours by quarter and user info**
 ----
-To fetch an hourly summary of all submitted timecards, by year, by quarter, and by user.
+To fetch an hourly summary of all submitted timecards by year, by quarter, and by user.
 
 * **URL**
 
@@ -10,7 +10,7 @@ To fetch an hourly summary of all submitted timecards, by year, by quarter, and 
 
   `GET`
   
-*  **URL Params**
+*  **URL params**
 
    **Required:**
    None.
@@ -18,7 +18,7 @@ To fetch an hourly summary of all submitted timecards, by year, by quarter, and 
    **Optional:**
    None.
 
-* **Success Response:**
+* **Success response:**
 
   * **Code:** `200` <br />
     **Content:** 
@@ -34,12 +34,12 @@ To fetch an hourly summary of all submitted timecards, by year, by quarter, and 
     },...
 ```
  
-* **Error Response:**
+* **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
     **Content:** `{"detail":"Authentication credentials were not provided."}`
 
-* **Sample Call:**
+* **Sample call:**
 
 ```
 $ curl https://tock.18f.gov/api/hours/by_quarter_by_user.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
