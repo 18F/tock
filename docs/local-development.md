@@ -1,4 +1,4 @@
-## Getting Started with Local Tock Development
+## Getting started with local Tock development
 
 [:arrow_left: Back to Tock Documentation](../docs)
 
@@ -41,12 +41,12 @@ You can access the admin panel at `/admin`.
 
 ### Running static analysis tools
 
-We run two linting tools in continuous integration,
+We run two linting tools in continuous integration:
 [`flake8`](http://flake8.pycqa.org/en/latest/) for general linting of unused
-variables, style, etc. and [`bandit`](https://pypi.python.org/pypi/bandit), a
+variables, styles, etc., and [`bandit`](https://pypi.python.org/pypi/bandit), a
 security-focused linter.
 
-To run this locally, run:
+To run these tools locally, run:
 ```sh
 docker-compose run app bandit -r . -x manage.py,docker_entrypoint.py
 docker-compose run app flake8
@@ -67,22 +67,22 @@ directory of the repository on your host; you can run `manage.py` from there.
 
 #### Running `pdb` within the Docker container
 
-Once you have a running set containers, you should be able to attach to the
-`tock_app` CONTAINER_ID using the following command.
+Once you have a running set of containers, you should be able to attach to the
+`tock_app` CONTAINER_ID using the following command:
 
 ```sh
 docker attach $(docker container ps | grep -E 'tock_app' | awk '{ print $1 }')
 ```
 
 This will drop you into the `tock_app` container. Now you can use `pdb` in your
-local code and have a Python Debugger.
+local code and have a Python debugger.
 
 ##### Exiting the debugger
 
 To properly exit the debugger, use the following keyboard commands within the
-container: `Control + p, Control + q` one after another.
+container: `Control + p, Control + q`, one after another.
 
-If you mistakenly hit `Control + c` you will kill the `tock_app` container! In
+If you mistakenly hit `Control + c`, you will kill the `tock_app` container! In
 that case, restart the `tock_app` container with a `docker-compose up` command.
 
 ### Making CSS changes
@@ -90,11 +90,11 @@ that case, restart the `tock_app` container with a `docker-compose up` command.
 `docker-compose up` will also launch a [Node] machine that compiles the [Sass]
 files in `tock/tock/static/sass` into corresponding CSS files in
 `tock/tock/static/css/dist`. **The generated CSS files are not checked into
-git, and should not be modified by hand.**
+git, and you should not modify them by hand.**
 
 You can also run the CSS build and watch scripts outside of the Docker
-container. Install [Node][] (e.g. with `brew install node` on OS X), then
-install the dependencies with:
+container. Install [Node][] (e.g., with `brew install node` on OS X), and then
+install the dependencies with the following:
 
 ```sh
 npm install
