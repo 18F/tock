@@ -1,6 +1,6 @@
-**User Data**
+**User data**
 ----
-To fetch a list of all users with organizational information for each.
+To fetch a list of all users, along with organizational information for each.
 
 * **URL**
 
@@ -10,7 +10,7 @@ To fetch a list of all users with organizational information for each.
 
   `GET`
   
-*  **URL Params**
+*  **URL params**
 
    **Required:**
    None.
@@ -18,7 +18,7 @@ To fetch a list of all users with organizational information for each.
    **Optional:**
    None.
 
-* **Success Response:**
+* **Success response:**
 
   * **Code:** `200` <br />
     **Content:** 
@@ -33,12 +33,12 @@ To fetch a list of all users with organizational information for each.
     },...
 ```
  
-* **Error Response:**
+* **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
     **Content:** `{"detail":"Authentication credentials were not provided."}`
 
-* **Sample Call:**
+* **Sample call:**
 
 ```
 $ curl https://tock.18f.gov/api/user_data.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
