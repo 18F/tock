@@ -48,6 +48,9 @@ from .forms import (
 from utilization.utils import calculate_utilization, get_fy_first_day
 
 
+NON_BILLABLE_PROJECT_IDS = [2, 669,]
+
+
 class DashboardReportsList(PermissionMixin, ListView):
     template_name = 'hours/dashboard_list.html'
     permission_classes = (IsAuthenticated, )
@@ -519,7 +522,7 @@ def general_snippets_only_timecard_list(request):
     Stream all timecard data that is for General and has a snippet.
     """
     objects = TimecardObject.objects.filter(
-        project__name='General',
+        project__id__in=NON_BILLABLE_PROJECT_IDS,
         notes__isnull=False
     )
     queryset = get_timecards(objects, request.GET)
