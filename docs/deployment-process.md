@@ -9,21 +9,21 @@ Download the Cloud Foundry CLI according to the [cloud.gov instructions][].
 [cloud.gov instructions]: https://docs.cloud.gov/getting-started/setup/
 
 You will also need to install the [`autopilot`](https://github.com/contraband/autopilot)
-plugin for Cloud Foundry, which is used for zero-downtime deploys.
+plugin for Cloud Foundry, which is used for zero-downtime deploys:
 
 ```shell
 # Install the plugin
 cf install-plugin autopilot -f -r CF-Community
 ```
 
-Tock is deployed to the GovCloud instance of cloud.gov.
+Tock will be deployed to the GovCloud instance of cloud.gov:
 
 ```shell
 # Login to cloud.gov
 cf login -a api.fr.cloud.gov --sso
 ```
 
-Then target the org and space you want to work with. For example, if you wanted to work with the dev space:
+After this deployment, you'll need to target the org and space you want to work with. For example, if you wanted to work with the dev space:
 `cf target -o gsa-18f-tock -s dev`
 
 Manifest files, which contain import deploy configuration settings, are located
@@ -31,9 +31,9 @@ in the root directory of this project, prefixed with `manifest-` and ending in a
 `.yml` file extension.
 
 During local development and continuous integration testing,
-`pipenv install --dev` is used, which installs both development
+`pipenv install --dev` is used. This installs both development
 and production dependencies. During deployments, the Cloud Foundry
-python buildpack generates a `requirements.txt` file with `pipenv lock -r`
+Python buildpack generates a `requirements.txt` file with `pipenv lock -r`
 and installs only production dependencies.
 
 ### Cloud Foundry structure
@@ -52,36 +52,37 @@ and installs only production dependencies.
 
 #### Cloud Foundry environment variables
 
-Tock requires a few different environment variables in production. These are
-both updated using the [User Provided Service](#user-provided-service) and
+In production, Tock requires a few different environment variables. These are
+updated using the [User Provided Service](#user-provided-service) and
 configured in the `manifest-*.yaml`.
 
 | type | name | description |
 | ---- | -----| ----------- |
-| **secret** | `DJANGO_SECRET_KEY` | Secret key used to maintain session state. Changing this value will invalidate all user sessions for Tock and log all users out.|
+| **secret** | `DJANGO_SECRET_KEY` | The secret key used to maintain session state. Changing this value will invalidate all user sessions for Tock and log out all users.|
 | **secret** | `NEW_RELIC_LICENSE_KEY` | The New Relic license key connected to the New Relic account for the application. |
 | **secret** | `NEW_RELIC_API_KEY` | The New Relic API key connected to the New Relic account for the application. |
 | **secret** | `UAA_CLIENT_ID` | The UAA Client ID from the cloud.gov identity provider service key. |
 | **secret** | `UAA_CLIENT_SECRET` | The UAA Client Secret from the cloud.gov identity provider service key. |
-| **public** | `NEW_RELIC_CONFIG_FILE` | New Relic configuration file used by the `newrelic-admin` commands and New Relic libraries. |
-| **public** | `NEW_RELIC_APP_NAME` | Application name that appears in the New Relic interface. Changing this will change will cause New Relic data to be gathered under a different application name. |
-| **public** | `NEW_RELIC_ENV` | Application environment which appears in the New Relic interface. |
+| **public** | `NEW_RELIC_CONFIG_FILE` | The New Relic configuration file used by the `newrelic-admin` commands and New Relic libraries. |
+| **public** | `NEW_RELIC_APP_NAME` | The application name that appears in the New Relic interface. Changing this will change will cause New Relic data to be gathered under a different application name. |
+| **public** | `NEW_RELIC_ENV` | The application environment that appears in the New Relic interface. |
 | **public** | `NEW_RELIC_LOG` | Logging that New Relic should listen to: e.g. `stdout`. |
 
-Variables with the designation **secret** are stored in the `tock-credentials`
+Variables with the designation **secret** are stored in the `tock-credentials`.
 User-Provided Service (UPS). **Public** variables are stored in the
 environment's `manifest-*.yml` file.
 
 ### Services
 
-#### User Provided Service (UPS)
+#### User-provided service (UPS)
 
-For cloud.gov deployments, this project makes use of a [User Provided Service (UPS)][UPS] to get its configuration
+For cloud.gov deployments, this project makes use of a [user-provided service (UPS)][UPS] to get its configuration
 variables, instead of using the local environment (except for [New Relic-related environment variables](#new-relic-environment-variables)).
-You will need to create a UPS called `tock-credentials`, provide 'credentials' to it, and link it to the
-application instance. This will need to be done for every Cloud Foundry `space`.
 
-Then enter the following commands (filling in the main application instance name
+You will need to create a UPS called `tock-credentials`, provide 'credentials' to it, and link it to the
+application instance. Please note that you'll need to do this for every Cloud Foundry `space`.
+
+Once you've completed those steps, enter the following commands (filling in the main application instance name
 for `<APP_INSTANCE>`) to create the user-provided service:
 
 ```sh
@@ -118,8 +119,8 @@ cf bind-service <APP_INSTANCE> tock-database
 
 #### cloud.gov identity provider service
 
-Tock uses the cloud.gov identity provider service to provide authentication via
-cloud.gov UAA application for it's users.
+Tock uses the cloud.gov identity provider service to provide authentication via the
+cloud.gov UAA application for its users.
 
 
 #### cloud.gov service account
@@ -139,7 +140,7 @@ additional settings specified in each deployment environment's manifest file.
 
 As described in [Environment variables](#cloud-foundry-environment-variables), you will need
 to supply the `NEW_RELIC_LICENSE_KEY` as part of each deployment's
-[User Provided Service](#user-provided-service-ups).
+[user-provided service](#user-provided-service-ups).
 
 ### Staging server
 
@@ -147,7 +148,7 @@ The staging server updates automatically when changes are merged into the
 `master` branch. Check out the `workflows` sections of
 the [CircleCI config](../.circleci/config.yml) for details and settings.
 
-Should you need to, you can push directly to tock.app.cloud.gov with:
+Should you need to, you can push directly to tock.app.cloud.gov with the following:
 
 ```sh
 cf target -o gsa-18f-tock -s staging
@@ -158,25 +159,26 @@ cf zero-downtime-push tock-staging -f manifest-staging.yml
 
 Production deploys are also automated. They rely on the creation of a Git tag to
 be made against the `master` branch following the [_Automated Releases to
-Production_](#automated-releases-to-production) workflow. Sometimes, you may
-need to make a manual deployment to production. If this is the case, please make
-sure you are using the Cloud Foundry [autopilot plugin](https://github.com/contraband/autopilot).
+Production_](#automated-releases-to-production) workflow. 
 
-To deploy, first make sure you are targeting the prod space:
+In some cases, you may need to make a manual deployment to production. If this is the case, please make
+sure you're using the Cloud Foundry [autopilot plugin](https://github.com/contraband/autopilot).
+
+To deploy, first make sure you're targeting the prod space:
 
 ```sh
 cf target -o gsa-18f-tock -s prod
 ```
 
-Now, if you don't already have the autopilot plugin, you can install it by running:
+If you don't already have the autopilot plugin, you can install it by running the following:
 
 ```sh
 cf install-plugin autopilot -f -r CF-Community
 ```
 
 Create a `VERSION` file with the name of the version that is being deployed to
-production either with the Git SHA1 for the latest commit or the Git Tag for the
-latest release.
+production either with the Git SHA1 for the latest commit or the Git tag for the
+latest release:
 
 ```sh
 # Manually creating a VERSION file from the latest Git SHA1 commit
@@ -196,12 +198,12 @@ cf zero-downtime-push tock -f manifest-production.yml
 
 If at any point the deployment fails, there should still be zero-downtime for
 the production instance. Please verify that the Tock applications that are
-running are named correctly and are cleaned up. In the example commands below
-the following variables should be replaced with the values found in the previous
+running are named correctly and cleaned up. In the following example commands,
+the variables should be replaced with the values found in the previous
 commands.
 
-- `${STOPPED_TOCK_APP}` - The application that reads `stopped` from `cf apps`.
-- `${TOCK_VERNERABLE_APP_NAME}` - The application that reads `-venerable` from
+- `${STOPPED_TOCK_APP}` — The application that reads `stopped` from `cf apps`.
+- `${TOCK_VERNERABLE_APP_NAME}` — The application that reads `-venerable` from
   `cf apps`.
 
 ```sh
@@ -218,7 +220,7 @@ cf rename ${TOCK_VERNERABLE_APP_NAME} tock
 ### Logs
 
 Logs in cloud.gov-deployed applications are generally viewable by running
-`cf logs <APP_NAME> --recent`
+`cf logs <APP_NAME> --recent`.
 
 [UPS]: https://docs.cloudfoundry.org/devguide/services/user-provided.html
 [`README.md`]: https://github.com/18F/tock#readme
@@ -226,13 +228,13 @@ Logs in cloud.gov-deployed applications are generally viewable by running
 ## Releasing Tock
 
 Releasing Tock onto Production happens whenever you create a Git tag and push it
-up to the repository. The process is outlined below.
+up to the repository. The process is outlined in the `Creating a GitHub release` section.
 
-Git tags can be manually created using the Git CLI as outlined below. You can
-also create them in the GitHub Release interface when drafting and publishing
+You can manually create Git tags using the Git CLI as outlined in the next section. You can
+also create them in the GitHub release interface when drafting and publishing
 the release.
 
-## Creating a GitHub Release
+## Creating a GitHub release
 
 <details>
 <summary>GitHub Release Template</summary>
@@ -288,11 +290,11 @@ Team Tock would like to thank:
 
 </details>
 
-#### Automated Releases to Production
+#### Automated releases to production
 
-Tock is automatically deployed to Production using CircleCI using GitHub
-Releases and Git tags. Tags are versioned using the following structure, the
-letter `v` followed by the full year, full month, full day, followed by a period
+Tock is automatically deployed to Production using CircleCI, GitHub
+releases, and Git tags. Tags are versioned using the following structure: the
+letter `v` followed by the full year, full month, and full day, followed by a period
 and a version number for that release. For example:
 
 ```sh
@@ -303,9 +305,9 @@ git tag v20180131.1
 git push --tags
 ```
 
-If multiple versions are needed to be released in a single day, increment the
-number after the period, e.g. `v20180131.1` turns into `v20180131.2`.
+If you need to release multiple versions in a single day, increment the
+number after the period (e.g., `v20180131.1` turns into `v20180131.2`).
 
-Once this tag is pushed up to GitHub, draft or assign it to an already
+Once you push this tag up to GitHub, draft or assign it to an already
 drafted release in GitHub. CircleCI will deploy this tag to the Production
 instance of Tock using CF Autopilot.
