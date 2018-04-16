@@ -1,4 +1,4 @@
-**Project Info**
+**Reporting period audit (specific)**
 ----
 To fetch a list of all users who have not submitted a timecard for the specified period.
 
@@ -12,7 +12,7 @@ To fetch a list of all users who have not submitted a timecard for the specified
 
   `GET`
   
-*  **URL Params**
+*  **URL params**
 
    **Required:**
    None.
@@ -20,7 +20,7 @@ To fetch a list of all users who have not submitted a timecard for the specified
    **Optional:**
    None.
 
-* **Success Response:**
+* **Success response:**
 
   * **Code:** `200` <br />
     **Content:** 
@@ -35,12 +35,12 @@ To fetch a list of all users who have not submitted a timecard for the specified
     },...
 ```
  
-* **Error Response:**
+* **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
     **Content:** `{"detail":"Authentication credentials were not provided."}`
 
-* **Sample Call:**
+* **Sample call:**
 
 ```
 $ curl https://tock.18f.gov/api/reporting_period_audit/2016-09-18.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
