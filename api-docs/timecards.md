@@ -1,6 +1,6 @@
-**Timecard Info**
+**Timecard info**
 ----
-To fetch a list of all submitted timecards and their related information.
+To fetch a list of all submitted timecards and related information.
 
 * **URL**
 
@@ -10,17 +10,17 @@ To fetch a list of all submitted timecards and their related information.
 
   `GET`
   
-*  **URL Params**
+*  **URL params**
 
    **Required:**
    None.
    
    **Optional:**
-   - `date=YYYY-MM-DD` - Returns timecard data for the reporting period in which the YYYY-MM-DD value falls.
-   - `user=firstname.lastname` - Returns timecard data for the specified user.
-   - `project=id` or `project=name` - Returns timecard data for the specifed project by either the project's database `pk` value or the name of the name value of the project.
+   - `date=YYYY-MM-DD` — Returns timecard data for the reporting period in which the YYYY-MM-DD value falls.
+   - `user=firstname.lastname` — Returns timecard data for the specified user.
+   - `project=id` or `project=name` — Returns timecard data for the specifed project by either the project's database `pk` value or the project's `name` value.
 
-* **Success Response:**
+* **Success response:**
 
   * **Code:** `200` <br />
     **Content:** 
@@ -40,12 +40,12 @@ To fetch a list of all submitted timecards and their related information.
     },...
 ```
  
-* **Error Response:**
+* **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
     **Content:** `{"detail":"Authentication credentials were not provided."}`
 
-* **Sample Call:**
+* **Sample call:**
 
 ```
 $ curl https://tock.18f.gov/api/timecards.json\?date\=2016-01-01\&user\=brackish.okun\&project\=1 -H 'Authorization: Token 08c25228c4be36f5e66f1148fb9d9bcabb9ef41e'
