@@ -1,4 +1,4 @@
-**Project Info**
+**Project info**
 ----
 To fetch information about a specific project.
 
@@ -12,7 +12,7 @@ To fetch information about a specific project.
 
   `GET`
   
-*  **URL Params**
+*  **URL params**
 
    **Required:**
    None.
@@ -20,7 +20,7 @@ To fetch information about a specific project.
    **Optional:**
    None.
 
-* **Success Response:**
+* **Success response:**
 
   * **Code:** `200` <br />
     **Content:** 
@@ -37,12 +37,12 @@ To fetch information about a specific project.
 },...
 ```
  
-* **Error Response:**
+* **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
     **Content:** `{"detail":"Authentication credentials were not provided."}`
 
-* **Sample Call:**
+* **Sample call:**
 
 ```
 $ curl https://tock.18f.gov/api/projects/100.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
