@@ -1,22 +1,24 @@
-# Tock Logging
+# Tock logging
 
 [:arrow_left: Back to Tock Documentation](../docs)
 
-Tock leverages cloud.gov logging system which runs on the Elastic Logsearch
-Kibana (ELK) software stack. Logs for the Tock system are available to
-Tock Developers with cloud.gov access. For more information about cloud.gov's
+Tock leverages the cloud.gov logging system, which runs on the Elastic Logsearch
+Kibana (ELK) software stack. 
+
+Logs for the Tock system are available to
+Tock developers who have cloud.gov access. For more information about cloud.gov's
 logging system, [please read the documentation][cg-logs].
 
 [cg-logs]: https://cloud.gov/docs/apps/logs/
 
-## Kibana Queries
+## Kibana queries
 
-The following logging events (LE) are documented below for developers to easily
-access using [cloud.gov's logging system][cg-log-sys].
+The following logging events (LE) are documented here so developers can easily
+access them as they're using [cloud.gov's logging system][cg-log-sys].
 
 [cg-log-sys]: https://logs.fr.cloud.gov
 
-| Description                | Kibana Query                                                     |
+| Description                | Kibana query                                                     |
 | -------------------------- | ---------------------------------------------------------------- |
 | Deployments                | `@cf.app:"tock" AND @message:"Recording deployment of"`          |
 | Authorization checks       | `@cf.app:"tock" AND @message:"tock-auth"`                        |
@@ -29,11 +31,11 @@ access using [cloud.gov's logging system][cg-log-sys].
 | Data deletions             | `@cf.app:"tock" AND (@message:"removed" OR @message:"deleted")`  |
 | Data access **             | `@cf.app:"tock" AND @message:"/api/reporting_period"`            |
 | Data changes *             | `@cf.app:"tock" AND (@message:"create" OR @message:"change")`    |
-| Permission Changes         | `@cf.app:"tock" AND @message:"account-management"`               |
+| Permission changes         | `@cf.app:"tock" AND @message:"account-management"`               |
 
-\* For "object access" search by Model name, `AND @message:"EmployeeGrade"`
+\* For "object access," search by Model name, `AND @message:"EmployeeGrade"`.
 
-\** For "data access" search by Data url
+\** For "data access," search by Data URL.
 
 Some Model names:
 - `EmployeeGrade`
@@ -53,7 +55,7 @@ Some Model names:
 - `ProjectAlerts`
 - `ProjectAlert`
 
-Some Data urls:
+Some Data URLs:
 - `/reporting_period`
 - `/reports`
 - `/employees`
