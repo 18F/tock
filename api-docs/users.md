@@ -1,6 +1,6 @@
-**User Info**
+**User info**
 ----
-To fetch a list of all users and their related information.
+To fetch a list of all users, along with basic information about them.
 
 * **URL**
 
@@ -10,7 +10,7 @@ To fetch a list of all users and their related information.
 
   `GET`
   
-*  **URL Params**
+*  **URL params**
 
    **Required:**
    None.
@@ -18,7 +18,7 @@ To fetch a list of all users and their related information.
    **Optional:**
    None.
 
-* **Success Response:**
+* **Success response:**
 
   * **Code:** `200` <br />
     **Content:** 
@@ -33,12 +33,12 @@ To fetch a list of all users and their related information.
     },...
 ```
  
-* **Error Response:**
+* **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
     **Content:** `{"detail":"Authentication credentials were not provided."}`
 
-* **Sample Call:**
+* **Sample call:**
 
 ```
 $ curl https://tock.18f.gov/api/users.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
