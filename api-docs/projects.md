@@ -1,6 +1,6 @@
 **Projects**
 ----
-To fetch a list of projects  information.
+To fetch information about various projects.
 
 * **URL**
 
@@ -10,7 +10,7 @@ To fetch a list of projects  information.
 
   `GET`
   
-*  **URL Params**
+*  **URL params**
 
    **Required:**
    None.
@@ -18,7 +18,7 @@ To fetch a list of projects  information.
    **Optional:**
    None.
 
-* **Success Response:**
+* **Success response:**
 
   * **Code:** `200` <br />
     **Content:** 
@@ -38,12 +38,12 @@ To fetch a list of projects  information.
 
 ```
  
-* **Error Response:**
+* **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
     **Content:** `{"detail":"Authentication credentials were not provided."}`
 
-* **Sample Call:**
+* **Sample call:**
 
 ```
 $ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalphanumericstringed854b18ba024327'
@@ -52,5 +52,5 @@ $ curl https://tock.18f.gov/api/projects.json -H 'Authorization: Token randomalp
 * **Notes:**
 
 Note that `grade` may be `null` if no grade information is
-available. If it is non-null, it will be a number corresponding to a grade;
+available. If it is non-null, the `grade` value will be a number corresponding to a grade;
 the mapping is defined by `GRADE_CHOICES` in `tock/employees/models.py`.

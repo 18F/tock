@@ -1,17 +1,18 @@
 # Tock documentation
 
-Welcome to the Tock documentation. This documentation is written in
+Welcome to the Tock documentation! This documentation is written in
 [GitHub-flavored markdown][gh-md] and is best read using the GitHub interface.
 
-## Table of Contents
+## Table of contents
 
-- [Getting Started with Local Tock Development](local-development.md)
-- [Tock API](api.md)
-- [Tock Authentication](authentication.md)
-- [Tock Deployment Process](deployment-process.md)
-- [Tock Release Management](release-management.md)
-- [Tock Logging](logging.md)
-- [Tock Developer Onboarding](onboarding.md)
-- [Tock Developer Offboarding](offboarding.md)
+- [Getting started with local Tock development](local-development.md)
+- [Access](access.md)
+- [API](api.md)
+- [Authentication](authentication.md)
+- [Dependency management](dependency-management.md)
+- [Deployment process](deployment-process.md)
+- [Developer onboarding](onboarding.md)
+- [Developer offboarding](offboarding.md)
+- [Logging](logging.md)
 
 [gh-md]: https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown
