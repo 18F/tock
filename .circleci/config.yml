@@ -67,7 +67,6 @@ jobs:
             python manage.py test --noinput --settings=tock.settings.test
             bandit -r . -x docker_entrypoint.py
             flake8
-            pipenv check --dev
             codecov
 
       - store_artifacts:
