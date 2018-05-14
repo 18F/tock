@@ -5,16 +5,16 @@
 
 {% block content %}
 
-<h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
+<h1>Tell us about your time for <span class="reporting-period"> {{ reporting_period.start_date }} to {{ reporting_period.end_date }}</span></h1>
 
-{% if object.reporting_period.message_enabled and object.reporting_period.message %}
-  <div class="usa-alert usa-alert-{{ object.reporting_period.message_style }}">
+{% if reporting_period.message_enabled and reporting_period.message %}
+  <div class="usa-alert usa-alert-{{ reporting_period.message_style }}">
     <div class="usa-alert-body">
-      {% if object.reporting_period.message_title %}
-        <h3 class="usa-alert-heading">{{ object.reporting_period.message_title }}</h3>
+      {% if reporting_period.message_title %}
+        <h3 class="usa-alert-heading">{{ reporting_period.message_title }}</h3>
       {% endif %}
       <p class="usa-alert-text">
-        {{ object.reporting_period.message }}
+        {{ reporting_period_message|safe }}
       </p>
     </div>
   </div>
@@ -25,7 +25,7 @@
     <div class="usa-alert-body">
       <h3 class="usa-alert-heading">{{ timecard_note.title }}</h3>
       <p class="usa-alert-text">
-        {{ timecard_note.body }}
+        {{ timecard_note.body|safe }}
       </p>
     </div>
   </div>

@@ -181,6 +181,21 @@ class TimecardNoteTests(TestCase):
         self.assertEqual(disabled_timecard_notes.count(), 1)
         self.assertEqual(disabled_timecard_notes.first(), self.timecard_note_disabled)
 
+    def test_timecard_note_default_order(self):
+        timecard_notes = TimecardNote.objects.all()
+        self.assertEqual(timecard_notes[0].position, 1)
+        self.assertEqual(timecard_notes[0].position, 2)
+
+    def test_timecard_note_changed_order(self):
+        self.timecard_note_enabled.position = 2
+        self.timecard_note_enable.save()
+        self.timecard_note_disabled.position = 1
+        self.timecard_note_disabled.save()
+
+        timecard_notes = TimecardNote.objects.all()
+        self.assertEqual(timecard_notes[0].position, 2)
+        self.assertEqual(timecard_notes[0].position, 1)
+
 
 class TimecardObjectTests(TestCase):
     fixtures = [

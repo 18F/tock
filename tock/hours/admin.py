@@ -88,9 +88,16 @@ class TimecardAdmin(admin.ModelAdmin):
 
 class TimecardNoteAdmin(admin.ModelAdmin):
     actions_on_bottom = True
-    fields = ('title', 'body', 'style', 'enabled',)
-    list_display = ('title', 'enabled', 'style', 'created', 'modified')
-    list_editable = ('enabled', 'style',)
+    fields = ('title', 'body', 'style', 'enabled', 'position',)
+    list_display = (
+        'title',
+        'enabled',
+        'position',
+        'style',
+        'created',
+        'modified',
+    )
+    list_editable = ('enabled', 'position', 'style',)
     list_filter = ('enabled', 'style',)
     readonly_fields = ('created', 'modified',)
 
