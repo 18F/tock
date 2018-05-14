@@ -190,16 +190,6 @@ class TimecardNoteManager(models.Manager):
         return super(TimecardNoteManager, self).get_queryset().filter(enabled=False)
 
 
-def get_next_timecard_position():
-    """Returns the next available timecard note position based on the number of
-    existing timecard notes.  Note that this is probably best served by a
-    PostgreSQL trigger on the field when creating a record for the first time
-    to avoid concurrency issues, but given the low usage of Tock administrative
-    functions, this should suffice."""
-
-    return TimecardNote.objects.count() + 1
-
-
 class TimecardNote(models.Model):
     # Alerts will be displayed in the Timecard form using the USWDS themes,
     # which are found here:  https://standards.usa.gov/components/alerts/
@@ -265,6 +255,16 @@ class TimecardNote(models.Model):
             enabled=self.get_enabled_display(),
             style=self.get_style_display()
         )
+
+
+def get_next_timecard_position():
+    """Returns the next available timecard note position based on the number of
+    existing timecard notes.  Note that this is probably best served by a
+    PostgreSQL trigger on the field when creating a record for the first time
+    to avoid concurrency issues, but given the low usage of Tock administrative
+    functions, this should suffice."""
+
+    return TimecardNote.objects.count() + 1
 
 
 class TimecardObject(models.Model):
