@@ -194,7 +194,7 @@ class TimecardNoteTests(TestCase):
 
     def test_timecard_note_changed_order(self):
         self.timecard_note_enabled.position = 2
-        self.timecard_note_enable.save()
+        self.timecard_note_enabled.save()
         self.timecard_note_disabled.position = 1
         self.timecard_note_disabled.save()
 
