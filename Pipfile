@@ -17,6 +17,7 @@ cfenv = "*"
 cg-django-uaa = "*"
 "psycopg2-binary" = "*"
 markdown = "*"
+django-webtest = "==1.9.2"
 
 [dev-packages]
 bandit = "*"
