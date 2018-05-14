@@ -173,18 +173,24 @@ class TimecardNoteTests(TestCase):
         # enabled, so we must account for its presence.
         enabled_timecard_notes = TimecardNote.objects.enabled()
         self.assertEqual(enabled_timecard_notes.count(), 2)
-        self.assertEqual(enabled_timecard_notes.last(), self.timecard_note_enabled)
+        self.assertEqual(
+            enabled_timecard_notes.last(),
+            self.timecard_note_enabled
+        )
 
     def test_get_only_disabled_timecard_notes(self):
         """Ensure that we are only returning disabled timecard notes."""
         disabled_timecard_notes = TimecardNote.objects.disabled()
         self.assertEqual(disabled_timecard_notes.count(), 1)
-        self.assertEqual(disabled_timecard_notes.first(), self.timecard_note_disabled)
+        self.assertEqual(
+            disabled_timecard_notes.first(),
+            self.timecard_note_disabled
+        )
 
     def test_timecard_note_default_order(self):
         timecard_notes = TimecardNote.objects.all()
         self.assertEqual(timecard_notes[0].position, 1)
-        self.assertEqual(timecard_notes[0].position, 2)
+        self.assertEqual(timecard_notes[1].position, 2)
 
     def test_timecard_note_changed_order(self):
         self.timecard_note_enabled.position = 2
@@ -194,7 +200,7 @@ class TimecardNoteTests(TestCase):
 
         timecard_notes = TimecardNote.objects.all()
         self.assertEqual(timecard_notes[0].position, 2)
-        self.assertEqual(timecard_notes[0].position, 1)
+        self.assertEqual(timecard_notes[1].position, 1)
 
 
 class TimecardObjectTests(TestCase):
