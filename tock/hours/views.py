@@ -899,12 +899,20 @@ class TimecardView(PermissionMixin, UpdateView):
 
     def get_success_url(self):
         if self.object.submitted:
-            return reverse("ListReportingPeriods")
+            messages.add_message(
+                self.request,
+                messages.INFO,
+                ('Time card for {timecard} submitted successfully.'.format(
+                    timecard=str(self.object.reporting_period.start_date)
+                ))
+            )
+
+            return reverse('ListReportingPeriods')
         else:
             messages.add_message(
                 self.request,
                 messages.INFO,
-                ("Timesheet saved. "
+                ("Time card saved. "
                  "Please remember to submit your timesheet when finished.")
             )
 
