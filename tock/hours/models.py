@@ -223,8 +223,8 @@ class TimecardNote(models.Model):
         help_text='The style in which to display the note in a timecard.'
     )
     position = models.SmallIntegerField(
-        default=get_next_timecard_position,
-        help_text='The order in which this timecard note should be displayed.'
+        default=0,
+        help_text='The order in which this timecard note should be displayed. Note: when creating a new timecard note, this value will be updated automatically upon the first save to be the next available position.'
     )
     created = models.DateTimeField(
         auto_now_add=True,
@@ -256,15 +256,11 @@ class TimecardNote(models.Model):
             style=self.get_style_display()
         )
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.position = TimecardNote.objects.count() + 1
 
-def get_next_timecard_position():
-    """Returns the next available timecard note position based on the number of
-    existing timecard notes.  Note that this is probably best served by a
-    PostgreSQL trigger on the field when creating a record for the first time
-    to avoid concurrency issues, but given the low usage of Tock administrative
-    functions, this should suffice."""
-
-    return TimecardNote.objects.count() + 1
+        super(TimecardNote, self).save(*args, **kwargs)
 
 
 class TimecardObject(models.Model):
