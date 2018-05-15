@@ -15,9 +15,10 @@
 {% if messages %}
     <div class="usa-grid">
     {% for message in messages %}
-        <div class="usa-alert usa-alert-info">
+        <div class="usa-alert usa-alert-{{ message.level_tag }}">
           <div class="usa-alert-body">
-            <p class="usa-alert-heading"><strong>{{ message }}</strong></p>
+            <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
+            <p class="usa-alert-text">{{ message.message }}</p>
           </div>
         </div>
     {% endfor %}
@@ -128,9 +129,10 @@
     {% if messages %}
         <div class="usa-grid">
         {% for message in messages %}
-            <div class="usa-alert usa-alert-info">
+            <div class="usa-alert usa-alert-{{ message.level_tag }}">
               <div class="usa-alert-body">
-                <p class="usa-alert-heading"><strong>{{ message }}</strong></p>
+                <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
+                <p class="usa-alert-text">{{ message.message }}</p>
               </div>
             </div>
         {% endfor %}
