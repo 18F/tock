@@ -8,10 +8,12 @@
 {% if formset.errors %}
     <div class="usa-alert usa-alert-error">
       <div class="usa-alert-body">
-        <p class="usa-alert-heading"><strong>{{ formset.non_form_errors }}</strong></p>
+        <h3 class="usa-alert-heading">There was an error processing your time card</h3>
+        <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
       </div>
     </div>
 {% endif %}
+
 {% if messages %}
     <div class="usa-grid">
     {% for message in messages %}
@@ -122,10 +124,12 @@
     {% if formset.errors %}
         <div class="usa-alert usa-alert-error">
           <div class="usa-alert-body">
-            <p class="usa-alert-heading"><strong>{{ formset.non_form_errors }}</strong></p>
+            <h3 class="usa-alert-heading">There was an error processing your time card</h3>
+            <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
           </div>
         </div>
     {% endif %}
+
     {% if messages %}
         <div class="usa-grid">
         {% for message in messages %}
