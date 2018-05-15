@@ -154,6 +154,10 @@ class TimecardTests(TestCase):
 
 class TimecardNoteTests(TestCase):
     def setUp(self):
+        # Ensure that we are dealing with just the two timecard note objects
+        # that we plan on testing.
+        TimecardNote.objects.all().delete()
+
         self.timecard_note_enabled = TimecardNote(
             title='Enabled test note',
             body='This is a test note that is enabled.'
@@ -169,10 +173,8 @@ class TimecardNoteTests(TestCase):
 
     def test_get_only_enabled_timecard_notes(self):
         """Ensure that we are only returning enabled timecard notes."""
-        # NOTE:  There is a migration for an initial timecard note that is
-        # enabled, so we must account for its presence.
         enabled_timecard_notes = TimecardNote.objects.enabled()
-        self.assertEqual(enabled_timecard_notes.count(), 2)
+        self.assertEqual(enabled_timecard_notes.count(), 1)
         self.assertEqual(
             enabled_timecard_notes.last(),
             self.timecard_note_enabled
@@ -188,19 +190,35 @@ class TimecardNoteTests(TestCase):
         )
 
     def test_timecard_note_default_order(self):
+        """Tests the default ordering of the timecard notes."""
+
         timecard_notes = TimecardNote.objects.all()
-        self.assertEqual(timecard_notes[0].position, 1)
-        self.assertEqual(timecard_notes[1].position, 2)
+        self.assertEqual(
+            timecard_notes[0].position,
+            self.timecard_note_enabled.position
+        )
+        self.assertEqual(
+            timecard_notes[1].position,
+            self.timecard_note_disabled.position
+        )
 
     def test_timecard_note_changed_order(self):
+        """Tests the changed ordering of the timecard notes."""
+
         self.timecard_note_enabled.position = 2
         self.timecard_note_enabled.save()
         self.timecard_note_disabled.position = 1
         self.timecard_note_disabled.save()
 
         timecard_notes = TimecardNote.objects.all()
-        self.assertEqual(timecard_notes[0].position, 2)
-        self.assertEqual(timecard_notes[1].position, 1)
+        self.assertEqual(
+            timecard_notes[0].position,
+            self.timecard_note_disabled.position
+        )
+        self.assertEqual(
+            timecard_notes[1].position,
+            self.timecard_note_enabled.position
+        )
 
 
 class TimecardObjectTests(TestCase):
