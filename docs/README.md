@@ -14,5 +14,6 @@ Welcome to the Tock documentation! This documentation is written in
 - [Developer onboarding](onboarding.md)
 - [Developer offboarding](offboarding.md)
 - [Logging](logging.md)
+- [Backup and Restore Database](backup-and-restore-database.md)
 
 [gh-md]: https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown
