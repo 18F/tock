@@ -1,18 +1,31 @@
 import collections
 import datetime
+import pdb
 
 from django.db import connection
+
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+
+from django.http import Http404
 
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
 from projects.models import Project
-from hours.models import TimecardObject, Timecard, ReportingPeriod
+from hours.models import (
+    TimecardObject,
+    Timecard,
+    ReportingPeriod,
+    TimecardPrefillData
+)
 from employees.models import UserData
 
 from rest_framework import serializers, generics
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 # Serializers for different models
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,9 +43,12 @@ class ProjectSerializer(serializers.ModelSerializer):
             'organization',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
-    profit_loss_account = serializers.CharField(source='profit_loss_account.name')
+    profit_loss_account = serializers.CharField(
+        source='profit_loss_account.name'
+    )
     client = serializers.StringRelatedField(source='accounting_code')
     organization = serializers.StringRelatedField()
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,6 +61,7 @@ class UserSerializer(serializers.ModelSerializer):
             'email'
         )
 
+
 class UserDataSerializer(serializers.Serializer):
     user = serializers.StringRelatedField()
     current_employee = serializers.BooleanField()
@@ -53,8 +70,9 @@ class UserDataSerializer(serializers.Serializer):
     unit = serializers.SerializerMethodField()
     organization = serializers.StringRelatedField()
 
-    def get_unit(self,obj):
+    def get_unit(self, obj):
         return obj.get_unit_display()
+
 
 class ReportingPeriodSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,6 +84,7 @@ class ReportingPeriodSerializer(serializers.ModelSerializer):
             'min_working_hours',
             'max_working_hours',
         )
+
 
 class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
@@ -114,27 +133,33 @@ class TimecardSerializer(serializers.Serializer):
 
 # API Views
 
+
 class UserDataView(generics.ListAPIView):
     queryset = UserData.objects.all()
     serializer_class = UserDataSerializer
+
 
 class ProjectList(generics.ListAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
+
 class ProjectInstanceView(generics.RetrieveAPIView):
     """ Return the details of a specific project """
-    queryset =  Project.objects.all()
+    queryset = Project.objects.all()
     model = Project
     serializer_class = ProjectSerializer
+
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+
 class ReportingPeriodList(generics.ListAPIView):
     queryset = ReportingPeriod.objects.all()
     serializer_class = ReportingPeriodSerializer
+
 
 class ReportingPeriodAudit(generics.ListAPIView):
     """ This endpoint retrieves a list of users who have not filled out
@@ -161,6 +186,7 @@ class ReportingPeriodAudit(generics.ListAPIView):
             .filter(user_data__current_employee=True) \
             .order_by('last_name', 'first_name')
 
+
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """
 
@@ -178,6 +204,7 @@ class TimecardList(generics.ListAPIView):
 
     def get_queryset(self):
         return get_timecards(self.queryset, self.request.query_params)
+
 
 def get_timecards(queryset, params=None):
     """
@@ -244,9 +271,6 @@ def get_timecards(queryset, params=None):
     return queryset
 
 
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-
 hours_by_quarter_query = '''
 with agg as (
     select
@@ -276,12 +300,13 @@ from agg
 group by
     year,
     quarter
-'''
+'''  # noqa
 
 HoursByQuarter = collections.namedtuple(
     'HoursByQuarter',
     ['year', 'quarter', 'billable', 'nonbillable', 'total'],
 )
+
 
 class HoursByQuarterSerializer(serializers.Serializer):
     year = serializers.IntegerField()
@@ -289,6 +314,7 @@ class HoursByQuarterSerializer(serializers.Serializer):
     billable = serializers.FloatField()
     nonbillable = serializers.FloatField()
     total = serializers.FloatField()
+
 
 @api_view()
 def hours_by_quarter(request, *args, **kwargs):
@@ -299,6 +325,7 @@ def hours_by_quarter(request, *args, **kwargs):
         HoursByQuarterSerializer(HoursByQuarter(*each)).data
         for each in rows
     ])
+
 
 hours_by_quarter_by_user_query = '''
 with agg as (
@@ -334,12 +361,13 @@ group by
     year,
     quarter,
     username
-'''
+'''  # noqa
 
 HoursByQuarterByUser = collections.namedtuple(
     'HoursByQuarter',
     ['year', 'quarter', 'username', 'billable', 'nonbillable', 'total'],
 )
+
 
 class HoursByQuarterByUserSerializer(serializers.Serializer):
     year = serializers.IntegerField()
@@ -348,6 +376,7 @@ class HoursByQuarterByUserSerializer(serializers.Serializer):
     billable = serializers.FloatField()
     nonbillable = serializers.FloatField()
     total = serializers.FloatField()
+
 
 @api_view()
 def hours_by_quarter_by_user(request, *args, **kwargs):
@@ -358,3 +387,68 @@ def hours_by_quarter_by_user(request, *args, **kwargs):
         HoursByQuarterByUserSerializer(HoursByQuarterByUser(*each)).data
         for each in rows
     ])
+
+
+class TimecardPrefillDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimecardPrefillData
+        fields = (
+            'start_date',
+            'end_date',
+            'employee',
+            'employee_id',
+            'project',
+            'project_id',
+            'hours',
+            'notes',
+        )
+    project = serializers.CharField(source='project.name')
+    project_id = serializers.IntegerField(source='project.id')
+    employee = serializers.CharField(source='employee.user.username')
+    employee_id = serializers.IntegerField(source='employee.id')
+
+
+class TimecardsPrefillDataListView(generics.ListAPIView):
+    queryset = TimecardPrefillData.objects.all()
+    serializer_class = TimecardPrefillDataSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(data={
+            "status": "200",
+            "data": serializer.data,
+        })
+
+
+class TimecardsPrefillDataUserListCreateView(generics.ListCreateAPIView):
+    serializer_class = TimecardPrefillDataSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response(data={
+            "status": "200",
+            "data": serializer.data,
+        })
+
+    def get_queryset(self):
+        if not self.request.user.is_superuser:
+            raise PermissionDenied
+
+        username = self.kwargs['username']
+
+        try:
+            userdata = UserData.objects\
+                       .prefetch_related('user')\
+                       .get(user__username=username)
+        except UserData.DoesNotExist:
+            raise Http404
+
+        return TimecardPrefillData.objects\
+               .prefetch_related('employee')\
+               .filter(employee_id=userdata.id)

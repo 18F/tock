@@ -10,8 +10,14 @@ from django_webtest import WebTest
 
 from api.views import get_timecards, TimecardList
 from projects.factories import AccountingCodeFactory, ProjectFactory
+from projects.models import Project
+from hours.models import TimecardPrefillData
 from hours.factories import (
-    UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
+    UserFactory,
+    ReportingPeriodFactory,
+    TimecardFactory,
+    TimecardObjectFactory,
+    TimecardPrefillDataFactory,
 )
 
 from django.contrib.auth.models import User
@@ -22,6 +28,7 @@ from rest_framework.authtoken.models import Token
 
 from rest_framework.test import APIClient
 
+
 # common client for all API tests
 def client(self):
     self.request_user = User.objects.get_or_create(username='aaron.snow')[0]
@@ -30,12 +37,15 @@ def client(self):
     self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
     return self.client
 
+
 # common fixtures for all API tests
 FIXTURES = [
     'tock/fixtures/prod_user.json',
     'projects/fixtures/projects.json',
-    'hours/fixtures/timecards.json'
+    'hours/fixtures/timecards.json',
+    'employees/fixtures/user_data.json'
 ]
+
 
 class ProjectsAPITests(TestCase):
     fixtures = FIXTURES
@@ -43,14 +53,18 @@ class ProjectsAPITests(TestCase):
     def test_projects_json(self):
         pass
 
+
 class ProjectInstanceAPITests(WebTest):
     fixtures = FIXTURES
 
     def test_projects_json(self):
-        res = client(self).get(reverse('ProjectInstanceView', kwargs={'pk': '29'})).data
+        res = client(self).get(
+            reverse('ProjectInstanceView', kwargs={'pk': '29'})
+        ).data
         self.assertEqual(res['name'], "Consulting - Agile BPA")
         self.assertEqual(res['start_date'], "2016-01-01")
         self.assertEqual(res['end_date'], None)
+
 
 class UsersAPITests(TestCase):
     fixtures = FIXTURES
@@ -60,6 +74,7 @@ class UsersAPITests(TestCase):
 
     def test_users_csv(self):
         pass
+
 
 class TimecardsAPITests(WebTest):
     fixtures = FIXTURES
@@ -91,8 +106,10 @@ class TimecardsAPITests(WebTest):
         queryset = get_timecards(TimecardList.queryset)
         self.assertEqual(len(queryset), 2)
         # Check with after param
-        queryset = get_timecards(TimecardList.queryset,
-            params={'after': '2020-12-31'})
+        queryset = get_timecards(
+            TimecardList.queryset,
+            params={'after': '2020-12-31'}
+        )
         self.assertEqual(len(queryset), 0)
 
         # Check with date param
@@ -143,6 +160,7 @@ class TimecardsAPITests(WebTest):
         )
         self.assertEqual(len(queryset), 2)
 
+
 class TestAggregates(WebTest):
 
     def setUp(self):
@@ -151,11 +169,24 @@ class TestAggregates(WebTest):
         self.userdata = UserData.objects.create(user=self.user)
         self.billable_code = AccountingCodeFactory(billable=True)
         self.nonbillable_code = AccountingCodeFactory(billable=False)
-        self.billable_project = ProjectFactory(accounting_code=self.billable_code)
-        self.nonbillable_project = ProjectFactory(accounting_code=self.nonbillable_code)
-        self.period = ReportingPeriodFactory(start_date=datetime.datetime(2015, 11, 1))
-        self.timecard = TimecardFactory(user=self.user, reporting_period=self.period)
-        self.grade = EmployeeGrade.objects.create(employee=self.user, grade=15, g_start_date=datetime.datetime(2016, 1, 1))
+        self.billable_project = ProjectFactory(
+            accounting_code=self.billable_code
+        )
+        self.nonbillable_project = ProjectFactory(
+            accounting_code=self.nonbillable_code
+        )
+        self.period = ReportingPeriodFactory(
+            start_date=datetime.datetime(2015, 11, 1)
+        )
+        self.timecard = TimecardFactory(
+            user=self.user,
+            reporting_period=self.period
+        )
+        self.grade = EmployeeGrade.objects.create(
+            employee=self.user,
+            grade=15,
+            g_start_date=datetime.datetime(2016, 1, 1)
+        )
         self.timecard_objects = [
             TimecardObjectFactory(
                 timecard=self.timecard,
@@ -252,6 +283,7 @@ class TestAggregates(WebTest):
         self.assertEqual(len(self.timecard_objects), 4)
         self.assertEqual(row['total'], 60)
 
+
 class ReportingPeriodList(WebTest):
     fixtures = FIXTURES
 
@@ -263,7 +295,9 @@ class ReportingPeriodList(WebTest):
     def test_ReportingPeriodList_json_empty(self):
         """ Check that the ReportingPeriodList is empty when all users
         have filled out thier time cards"""
-        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        reporting_periods = client(self).get(
+            reverse('ReportingPeriodList')
+        ).data
         start_date = reporting_periods[0]['start_date']
         res = client(self).get(reverse(
                 'ReportingPeriodAudit',
@@ -281,7 +315,9 @@ class ReportingPeriodList(WebTest):
         userdata = UserData(user=self.regular_user)
         userdata.save()
 
-        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        reporting_periods = client(self).get(
+            reverse('ReportingPeriodList')
+        ).data
         start_date = reporting_periods[0]['start_date']
         res = client(self).get(reverse(
                 'ReportingPeriodAudit',
@@ -300,7 +336,9 @@ class ReportingPeriodList(WebTest):
         userdata.current_employee = False
         userdata.save()
 
-        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        reporting_periods = client(self).get(
+            reverse('ReportingPeriodList')
+        ).data
         start_date = reporting_periods[0]['start_date']
         res = client(self).get(reverse(
                 'ReportingPeriodAudit',
@@ -308,3 +346,72 @@ class ReportingPeriodList(WebTest):
             )
         ).data
         self.assertEqual(len(res), 0)
+
+
+class TimecardsPrefillDataAPITests(WebTest):
+    fixtures = FIXTURES
+
+    def test_timecards_prefill_data_json(self):
+        """
+        Check that the Timecards Prefill Data JSON is formatted correctedly.
+        """
+        response = client(self).get(
+            reverse('TimecardsPrefillDataListView')
+        ).data
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response['status'], "200")
+
+    def test_timecards_prefill_data_json_with_valid_user_and_with_data(self):
+        """
+        Check that the Timecards Prefill Data JSON returns data for valid user
+        with TimecardPrefillData.
+        """
+        user = User.objects.get(username='aaron.snow')
+        userdata = UserData.objects.get(user=user)
+        project_1 = Project.objects.get(
+            name="Out Of Office"
+        )
+        project_2 = Project.objects.get(
+            name="Platform as a Service"
+        )
+        TimecardPrefillData.objects.create(
+            employee=userdata,
+            project=project_1,
+            hours=8
+        )
+        TimecardPrefillData.objects.create(
+            employee=userdata,
+            project=project_2,
+            hours=32
+        )
+        response = client(self).get(
+            reverse(
+                'TimecardsPrefillDataUserListCreateView',
+                kwargs={'username': 'aaron.snow'}
+            )
+        ).data
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response['status'], "200")
+        self.assertEqual((not response['data']), False)
+        self.assertEqual(response['data'][0]['employee'], user.username)
+        self.assertEqual(response['data'][0]['hours'], '8.00')
+        self.assertEqual(response['data'][0]['project'], project_1.name)
+        self.assertEqual(response['data'][1]['employee'], user.username)
+        self.assertEqual(response['data'][1]['hours'], '32.00')
+        self.assertEqual(response['data'][1]['project'], project_2.name)
+
+
+    def test_timecards_prefill_data_json_with_valid_user_and_no_data(self):
+        """
+        Check that the Timecards Prefill Data JSON returns data for valid user
+        with no TimecardPrefillData.
+        """
+        response = client(self).get(
+            reverse(
+                'TimecardsPrefillDataUserListCreateView',
+                kwargs={'username': 'aaron.snow'}
+            )
+        ).data
+        self.assertEqual(len(response), 2)
+        self.assertEqual(response['status'], "200")
+        self.assertEqual((not response['data']), True)
