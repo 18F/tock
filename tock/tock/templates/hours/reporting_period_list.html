@@ -8,7 +8,21 @@
 <h1>Welcome to Tock!</h1>
 
 <div class="reporting-periods">
+    {% if messages %}
+        <div class="usa-grid">
+        {% for message in messages %}
+            <div class="usa-alert usa-alert-{{ message.level_tag }}">
+              <div class="usa-alert-body">
+                <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
+                <p class="usa-alert-text">{{ message.message }}</p>
+              </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+
 	<h2>Reporting Periods You Need to Fill Out</h2>
+
 	<ul>
 	{% for reporting_period in uncompleted_reporting_periods %}
 	    <li><a href="{% url 'reportingperiod:UpdateTimesheet' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>

@@ -5,6 +5,28 @@
 
 {% block content %}
 
+{% if formset.errors %}
+    <div class="usa-alert usa-alert-error">
+      <div class="usa-alert-body">
+        <h3 class="usa-alert-heading">There was an error processing your time card</h3>
+        <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+      </div>
+    </div>
+{% endif %}
+
+{% if messages %}
+    <div class="usa-grid">
+    {% for message in messages %}
+        <div class="usa-alert usa-alert-{{ message.level_tag }}">
+          <div class="usa-alert-body">
+            <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
+            <p class="usa-alert-text">{{ message.message }}</p>
+          </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endif %}
+
 <h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
 
 {% if object.reporting_period.message_enabled and object.reporting_period.message %}
@@ -81,24 +103,6 @@
       </div>
     {% endfor %}
   </div>
-  {% if formset.errors %}
-    <div class="usa-alert usa-alert-error">
-      <div class="usa-alert-body">
-        <p class="usa-alert-heading"><strong>{{ formset.non_form_errors }}</strong></p>
-      </div>
-    </div>
-  {% endif %}
-  {% if messages %}
-    <div class="usa-grid">
-    {% for message in messages %}
-    <div class="usa-alert usa-alert-info">
-      <div class="usa-alert-body">
-        <p class="usa-alert-heading"><strong>{{ message }}</strong></p>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
   <div class="timecard-footer">
     <div class="entries-total">
       <div class="usa-grid">
@@ -113,10 +117,31 @@
     </div>
     <div class="submit-form">
       <div class="usa-grid">
-          <button type="button" class="usa-button-outline save-timecard" id="save-timecard">Save time card</button>
-          <button type="button" class="usa-button-primary" id="submit-timecard">Submit time card</button>
+        <button type="button" class="usa-button-big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
+        <button type="button" class="usa-button-secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
       </div>
     </div>
+    {% if formset.errors %}
+        <div class="usa-alert usa-alert-error">
+          <div class="usa-alert-body">
+            <h3 class="usa-alert-heading">There was an error processing your time card</h3>
+            <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+          </div>
+        </div>
+    {% endif %}
+
+    {% if messages %}
+        <div class="usa-grid">
+        {% for message in messages %}
+            <div class="usa-alert usa-alert-{{ message.level_tag }}">
+              <div class="usa-alert-body">
+                <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
+                <p class="usa-alert-text">{{ message.message }}</p>
+              </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
   </div>
 </form>
 
