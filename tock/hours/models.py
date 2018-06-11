@@ -96,7 +96,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         'create additional items, click the green "+" sign.'
     )
     message = models.TextField(
-        help_text='A message to provide at the top of the reporting period. This will appear above any Timecard Notes in a Timecard.',
+        help_text='A message to provide at the top of the reporting period. This will appear above any Timecard Notes in a Timecard. Note: supports Markdown.',
         blank=True
     )
     message_style = models.CharField(
@@ -210,7 +210,7 @@ class TimecardNote(models.Model):
         help_text='The heading that will appear above the note when displayed in a timecard.'
     )
     body = models.TextField(
-        help_text='The body of the note that will appear when displayed in a timecard.'
+        help_text='The body of the note that will appear when displayed in a timecard. Note: supports Markdown.'
     )
     enabled = models.BooleanField(
         default=True,
@@ -221,6 +221,10 @@ class TimecardNote(models.Model):
         default=USWDS_ALERT_INFO,
         max_length=32,
         help_text='The style in which to display the note in a timecard.'
+    )
+    position = models.SmallIntegerField(
+        default=0,
+        help_text='The order in which this timecard note should be displayed. Note: when creating a new timecard note, this value will be updated automatically upon the first save to be the next available position.'
     )
     created = models.DateTimeField(
         auto_now_add=True,
@@ -234,6 +238,7 @@ class TimecardNote(models.Model):
     objects = TimecardNoteManager()
 
     class Meta:
+        ordering=['position']
         verbose_name = 'Timecard Note'
         verbose_name_plural = 'Timecard Notes'
 
@@ -250,6 +255,12 @@ class TimecardNote(models.Model):
             enabled=self.get_enabled_display(),
             style=self.get_style_display()
         )
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.position = TimecardNote.objects.count() + 1
+
+        super(TimecardNote, self).save(*args, **kwargs)
 
 
 class TimecardObject(models.Model):

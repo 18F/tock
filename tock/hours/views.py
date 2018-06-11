@@ -2,6 +2,8 @@ import csv
 import datetime as dt
 import io
 
+import markdown
+
 from itertools import chain
 from operator import attrgetter
 
@@ -791,15 +793,37 @@ class TimecardView(PermissionMixin, UpdateView):
         if self.request.POST.get('save_only') is not None:
             formset.save_only = True
 
+        timecard_notes = []
+
+        for timecard_note in TimecardNote.objects.enabled():
+            timecard_notes.append({
+                'title': timecard_note.title,
+                'body': markdown.markdown(
+                    timecard_note.body,
+                    output_format='html5'
+                ),
+                'style': timecard_note.style
+            })
+
         context.update({
             'exact_working_hours': base_reporting_period.exact_working_hours,
             'min_working_hours': base_reporting_period.min_working_hours,
             'max_working_hours': base_reporting_period.max_working_hours,
             'formset': formset,
             'messages': messages.get_messages(self.request),
-            'timecard_notes': TimecardNote.objects.enabled(),
+            'timecard_notes': timecard_notes,
             'unsubmitted': not self.object.submitted,
+            'reporting_period': reporting_period
         })
+
+        if reporting_period.message_enabled:
+            context.update({
+                'reporting_period_message': markdown.markdown(
+                    reporting_period.message,
+                    output_format='html5'
+                )
+            })
+
         return context
 
     def get_formset(self):
