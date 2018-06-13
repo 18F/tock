@@ -8,5 +8,5 @@ class ViewsTests(TestCase):
         self.client.force_login(user)
 
         response = self.client.get('/logout')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
         self.assertFalse(response.context['user'].is_authenticated())
