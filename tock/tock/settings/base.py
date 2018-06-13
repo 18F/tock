@@ -121,5 +121,6 @@ UAA_CLIENT_ID = env.get_credential('UAA_CLIENT_ID', None)
 UAA_CLIENT_SECRET = env.get_credential('UAA_CLIENT_SECRET', None)
 UAA_AUTH_URL = 'https://login.fr.cloud.gov/oauth/authorize'
 UAA_TOKEN_URL = 'https://uaa.fr.cloud.gov/oauth/token'
+UAA_LOGOUT_URL = 'https://login.fr.cloud.gov/logout.do'
 
 TOCK_CHANGE_REQUEST_FORM = 'https://docs.google.com/a/gsa.gov/forms/d/1EpVTxXgRNgYfoSA2J8Oi-csjhFKqFm5DT542vIlahpU/viewform?edit_requested=true'

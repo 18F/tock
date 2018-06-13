@@ -12,7 +12,7 @@ def successful_login(sender, request, user, **kwargs):
 
 
 def successful_logout(sender, request, user, **kwargs):
-    logger.info(f'Successful logout event for {user.username}.')
+    logger.info(f'Successful logout event for {user}.')
 
 
 def failed_login(sender, credentials, request, **kwargs):

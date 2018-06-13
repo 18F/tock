@@ -1,6 +1,8 @@
 import logging
+import urllib.parse
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.conf import settings
 import django.contrib.auth
 
 logger = logging.getLogger('tock')
@@ -18,8 +20,18 @@ def csrf_failure(request, reason=""):
 
 
 def logout(request):
-    django.contrib.auth.logout(request)
-    return render(request, 'logout.html')
+    if request.user.is_authenticated():
+        django.contrib.auth.logout(request)
+        tock_logout_url = request.build_absolute_uri('logout')
+        params = urllib.parse.urlencode({
+            'redirect': tock_logout_url,
+            'client_id': settings.UAA_CLIENT_ID,
+        })
+        return redirect(
+            f'{settings.UAA_LOGOUT_URL}?{params}'
+        )
+    else:
+        return render(request, 'logout.html')
 
 
 # TODO: new function signature for Django 2.0
