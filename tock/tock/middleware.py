@@ -9,12 +9,12 @@ class AutoLogout(object):
         self.get_response = get_response
 
     def __call__(self, request):
+        fmt = '%Y%m%d%H%M%S'
 
         # Check if user exists and is logged in
         if request.user and request.user.is_authenticated():
 
             logout_time_in_seconds = settings.AUTO_LOGOUT_DELAY_MINUTES * 60
-            fmt = '%Y%m%d%H%M%S'
 
             # Compare the time of the last activity with the logout delay
             try:
