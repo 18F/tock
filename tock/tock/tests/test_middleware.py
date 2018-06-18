@@ -22,4 +22,7 @@ class MiddlewareAutoLogoutTests(ProtectedViewTestCase, TestCase):
             reverse('ListReportingPeriods')
         )
         self.assertEqual(response_after_expiry.status_code, 302)
-        self.assertIn('tock_last_activity', response_initial.client.session)
+        self.assertIn(
+            'tock_last_activity',
+            response_after_expiry.client.session
+        )
