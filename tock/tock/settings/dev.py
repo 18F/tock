@@ -4,7 +4,7 @@ import dj_database_url
 
 from .base import *  # noqa
 # spell out explicit variable dependencies
-from .base import (DATABASES, INSTALLED_APPS, MIDDLEWARE_CLASSES, TEMPLATES)
+from .base import (DATABASES, INSTALLED_APPS, MIDDLEWARE, TEMPLATES)
 
 DEBUG = True
 
@@ -26,7 +26,7 @@ DATABASES['default'] = dj_database_url.config(
 )
 
 INSTALLED_APPS += ('nplusone.ext.django', )
-MIDDLEWARE_CLASSES += ('nplusone.ext.django.NPlusOneMiddleware', )
+MIDDLEWARE += ('nplusone.ext.django.NPlusOneMiddleware', )
 
 # Change this setting to True in order to discover potentially inefficient
 # queries while doing active development using nplusone.
@@ -37,7 +37,7 @@ IS_RUNNING_TEST_SUITE = (os.path.basename(sys.argv[0]) == 'manage.py' and
 
 if not IS_RUNNING_TEST_SUITE:
     INSTALLED_APPS += ('debug_toolbar', )
-    MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
+    MIDDLEWARE += ('debug_toolbar.middleware.DebugToolbarMiddleware', )
 else:
     NPLUSONE_RAISE = True
 

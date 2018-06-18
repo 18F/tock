@@ -2,7 +2,7 @@ from django.utils.crypto import get_random_string
 
 from .base import *  # noqa
 # spell out explicit variable dependencies
-from .base import (INSTALLED_APPS, MIDDLEWARE_CLASSES)
+from .base import (INSTALLED_APPS, MIDDLEWARE)
 
 SECRET_KEY = get_random_string(50)
 
@@ -18,7 +18,7 @@ DATABASES = {
 }
 
 INSTALLED_APPS += ('nplusone.ext.django', )
-MIDDLEWARE_CLASSES += ('nplusone.ext.django.NPlusOneMiddleware', )
+MIDDLEWARE += ('nplusone.ext.django.NPlusOneMiddleware', )
 NPLUSONE_RAISE = True
 
 MEDIA_ROOT = './media/'
