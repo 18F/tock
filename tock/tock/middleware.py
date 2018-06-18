@@ -3,25 +3,34 @@ from django.contrib import auth
 from datetime import datetime, timedelta
 
 
-class AutoLogout():
-    def process_request(self, request):
-        # Check if user is logged in at all
-        if not request.user.is_authenticated():
-            return
+class AutoLogout(object):
 
-        fmt = '%Y%m%d%H%M%S'
-        # Compare the time of the last activity with the logout delay
-        try:
-            session_time = datetime.strptime(
-                request.session['tock_last_activity'],
-                fmt
-            )
-            if datetime.now() - session_time > \
-               timedelta(0, settings.AUTO_LOGOUT_DELAY_MINUTES * 60, 0):
-                auth.logout(request)
-                del request.session['tock_last_activity']
-                return
-        except KeyError:
-            pass
+    def __init__(self, get_response):
+        self.get_response = get_response
 
-        request.session['tock_last_activity'] = datetime.now().strftime(fmt)
+    def __call__(self, request):
+
+        # Check if user exists and is logged in
+        if request.user and request.user.is_authenticated():
+
+            logout_time_in_seconds = settings.AUTO_LOGOUT_DELAY_MINUTES * 60
+            fmt = '%Y%m%d%H%M%S'
+
+            # Compare the time of the last activity with the logout delay
+            try:
+                session_time = datetime.strptime(
+                    request.session['tock_last_activity'],
+                    fmt
+                )
+                if datetime.now() - session_time > \
+                   timedelta(seconds=logout_time_in_seconds):
+                    auth.logout(request)
+                    del request.session['tock_last_activity']
+                    return self.get_response(request)
+            except KeyError:
+                pass
+
+        request.session['tock_last_activity'] = \
+            datetime.now().strftime(fmt)
+
+        return self.get_response(request)
