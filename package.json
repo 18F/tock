@@ -5,7 +5,9 @@
     "watch-css": "npm run build-css -- --watch",
     "prestart": "npm install --quiet",
     "start": "npm run build-css && npm run watch-css",
-    "predeploy": "npm install --silent && npm run build-css"
+    "predeploy": "npm install --silent && npm run build-css",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "engines": {
     "node": ">=8.10.0"
@@ -14,6 +16,8 @@
     "chosen-js": "^1.8.3",
     "jquery": "3.3.x",
     "node-sass": "4.8.x",
-    "uswds": "^1.6.1"
-  }
+    "uswds": "^1.6.1",
+    "snyk": "^1.83.0"
+  },
+  "snyk": true
 }
