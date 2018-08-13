@@ -17,7 +17,7 @@ If you are a consumer of Tock APIs and data, you may want to consult the [API do
 
 -----------
 
-Tock documentation! is written in
+The Tock documentation is written in
 [GitHub-flavored markdown][gh-md] and is best read using the GitHub interface.
 
 [gh-md]: https://guides.github.com/features/mastering-markdown/#GitHub-flavored-markdown
