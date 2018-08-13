@@ -21,6 +21,7 @@ checklist. Replace {TockDeveloper} with the name of the onboarding developer.
 - [ ] {TockDeveloper} has been invited to #tock-dev in Slack.
 - [ ] {TockDeveloper} is familiar with the [deployment process of
   Tock](https://github.com/18f/tock/tree/master/docs/deployment-process.md).
+- [] {TockDeveloper} has access to `GSATETockLibrary` and `GSATEUtilitiesLibrary` scripts
 
 
 ## Things we maintain
