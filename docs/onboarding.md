@@ -23,6 +23,8 @@ checklist. Replace {TockDeveloper} with the name of the onboarding developer.
   Tock](https://github.com/18f/tock/tree/master/docs/deployment-process.md).
 - [ ] {TockDeveloper} has access to `GSATETockLibrary` and `GSATEUtilitiesLibrary` scripts.
 
+Remember that either you, the onboarder, or the Tock product owner, will have to grant the onboarding developer access to the `GSATETockLibrary` and `GSATEUtilitiesLibrary` scripts.
+
 
 ## Things we maintain
 
