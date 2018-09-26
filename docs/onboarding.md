@@ -27,6 +27,10 @@ You will need to be sure you have:
 - [ ] Reviewed the [Tock deployment process](https://github.com/18f/tock/tree/master/docs/deployment-process.md).
 
 
+## Things to remember
+- If you get questions about timecards that don't seem to be answerable fromm looking at the Tock code, it's probably the [Google Script Integration](../docs/google-script-integration.md).
+
+
 ## Things we maintain
 
 - [Tock](tock-app), a Python Django framework web application comprised of multiple
