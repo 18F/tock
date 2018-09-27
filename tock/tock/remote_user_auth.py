@@ -1,15 +1,16 @@
 import datetime
 import logging
 
-from uaa_client.authentication import UaaBackend
-from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied, ValidationError
+from uaa_client.authentication import UaaBackend
 
 from employees.models import UserData
 
 logger = logging.getLogger('tock-auth')
 
+ACCOUNT_INACTIVE_MSG = "Your Tock account is inactive. Please reach out to the Tock team in the #tock Slack channel for help."
 
 def email_to_username(email):
     """Converts a given email address to a Django compliant username"""
@@ -43,6 +44,12 @@ def verify_userdata(user):
 
 
 class TockUserBackend(UaaBackend):
+
+    def user_can_authenticate(self, user):
+        if not user.is_active:
+            raise PermissionDenied(ACCOUNT_INACTIVE_MSG)
+        return super().user_can_authenticate(user)
+
     @classmethod
     def get_user_by_email(cls, email):
         logger.info('Getting user for email [%s]' % email)
