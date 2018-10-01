@@ -62,20 +62,27 @@ class UserDataTests(TestCase):
             is_18f_employee=True,
             current_employee=True
         )
+        # Create a sample reporting period
+        self.reporting_period = ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 1),
+            end_date=datetime.date(2015, 1, 7),
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60,
+            message='This is not a vacation'
+        )
         # Create API token for regular_user.
         self.token = Token.objects.create(user=self.regular_user)
 
     def test_string_method(self):
         """Check that string method override works correctly."""
-        userdata = UserData.objects.get(
-            user=self.regular_user
-        )
+        userdata = self.regular_user_userdata
         expected_string = str(userdata.user.username)
         self.assertEqual(expected_string, str(userdata))
 
     def test_user_data_is_stored(self):
         """ Check that user data was stored correctly """
-        userdata = UserData.objects.get(user=self.regular_user)
+        userdata = self.regular_user_userdata
         self.assertEqual(
             userdata.start_date,
             datetime.date(2014, 1, 1)
@@ -88,53 +95,39 @@ class UserDataTests(TestCase):
 
     def test_is_late(self):
         """ Check if the user is late when no Timecard is present """
-        userdata = UserData.objects.get(user=self.regular_user)
-        reporting_period = ReportingPeriod(
-            start_date=datetime.date(2015, 1, 1),
-            end_date=datetime.date(2015, 1, 7),
-            exact_working_hours=40,
-            min_working_hours=40,
-            max_working_hours=60,
-            message='This is not a vacation')
-        reporting_period.save()
+        userdata = self.regular_user_userdata
         self.assertEqual(userdata.is_late, True)
+        # Now set is_billable to false and re-check:
+        userdata.is_billable = False
+        userdata.save()
+        self.assertEqual(userdata.is_late, False)
 
     def test_is_not_late(self):
         """ Check if the user is not late when Timecard is present """
-        userdata = UserData.objects.get(user=self.regular_user)
-        reporting_period = ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 1, 1),
-            end_date=datetime.date(2015, 1, 7),
-            exact_working_hours=40,
-            min_working_hours=40,
-            max_working_hours=60,
-            message='This is not a vacation')
-        reporting_period.save()
+        userdata = self.regular_user_userdata
         timecard = Timecard.objects.create(
             user=self.regular_user,
-            reporting_period=reporting_period)
+            reporting_period=self.reporting_period,
+            submitted=True
+        )
         project = Project.objects.get(name="Platform as a Service")
-        timecard.submitted = True
-        timecard.save()
         TimecardObject.objects.create(
             timecard=timecard,
             project=project,
             hours_spent=40)
-
         self.assertEqual(userdata.is_late, False)
 
     def test_employee_active(self):
         """ Check that the save() method correctly aligns UserData and User
          attributes when current_employee is True."""
-        user = User.objects.get(
-            username=self.regular_user.username)
+        user = self.regular_user
         user.is_active = False
         user.save()
-        status_before_save = User.objects.get(
-            username=self.regular_user.username).is_active
+        status_before_save = user.is_active
         self.regular_user_userdata.current_employee = True
         self.regular_user_userdata.save()
-
+        # now re-get the user object so we can see if the status
+        # changed when userdata changed.
         status_after_save = User.objects.get(
             username=self.regular_user.username).is_active
         self.assertNotEqual(status_before_save, status_after_save)
