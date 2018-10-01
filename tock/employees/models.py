@@ -73,6 +73,7 @@ class EmployeeGrade(models.Model):
             )
         super(EmployeeGrade, self).save(*args, **kwargs)
 
+
 class UserData(models.Model):
 
     UNIT_CHOICES = (
@@ -141,8 +142,14 @@ class UserData(models.Model):
         most recent Reporting Period.
 
         We're using get_model() to avoid circular imports
-        since so many things use UserData
+        since so many things use UserData.
+
+        If they're not billable staff, they don't have to tock,
+        so we'll just bail out.
         """
+        if not self.current_employee or not self.is_billable:
+            return False
+        # They are billable, so go ahead with other checks.
         RP_model = apps.get_model('hours', 'ReportingPeriod')
         TC_model = apps.get_model('hours', 'Timecard')
         rp = RP_model.objects.order_by('end_date').filter(
