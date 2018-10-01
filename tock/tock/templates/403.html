@@ -2,5 +2,11 @@
 
 {% block content %}
     <h2>You don't have permission to view this information.</h2>
-    <p>If you need access, please contact your supervisor.</p>
+    <p>
+    {% if exception %}
+        {{exception}}
+    {% else %}
+        If you need access, please contact your supervisor.
+    {% endif %}
+    </p>
 {% endblock %}

@@ -9,18 +9,26 @@ onboarding checklist. The Tock product owner may schedule check-in time with you
 to ensure that you're progressing and aren't stuck. If another Tock
 developer is already on the project, you'll be paired with them so they can help you with onboarding-related tasks.
 
-## Checklist
+## Team member checklist
+Before you get started onboarding, your Tock developer partner needs to take care of a few things.
+They will [create a new issue](https://github.com/18f/tock/issues/new) with the following
+checklist, work through it with you.
+- [ ] Generate a Tock API authorization token for the new developer.
+- [ ] Grant access to New Relic.
+- [ ] Grant access to the GitHub repository.
+- [ ] Grant access to SpaceDeveloper roles in Cloud Foundry for `staging` and `prod` spaces.
+- [ ] Send invitation to #tock-dev in Slack.
+- [ ] Grant access to `GSATETockLibrary` and `GSATEUtilitiesLibrary` scripts.
 
-To onboard a new team member, [create a new issue](https://github.com/18f/tock/issues/new) with the following
-checklist. Replace {TockDeveloper} with the name of the onboarding developer.
 
-- [ ] {TockDeveloper} has access to New Relic.
-- [ ] {TockDeveloper} has access to the GitHub repository.
-- [ ] {TockDeveloper} has access to SpaceDeveloper roles in Cloud Foundry for
-  spaces `staging` and `prod`.
-- [ ] {TockDeveloper} has been invited to #tock-dev in Slack.
-- [ ] {TockDeveloper} is familiar with the [deployment process of
-  Tock](https://github.com/18f/tock/tree/master/docs/deployment-process.md).
+## New developer checklist
+You will need to be sure you have:
+- [ ] Familiarized yourself with the systems and scripts your onboarding partner has granted access to
+- [ ] Reviewed the [Tock deployment process](https://github.com/18f/tock/tree/master/docs/deployment-process.md).
+
+
+## Things to remember
+- If you get questions about timecards that don't seem to be answerable fromm looking at the Tock code, it's probably the [Google Script Integration](../docs/google-script-integration.md).
 
 
 ## Things we maintain

@@ -1,12 +1,12 @@
 import datetime
 
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 
 from django_webtest import WebTest
-
-from ..remote_user_auth import email_to_username, TockUserBackend
 from employees.models import UserData
+
+from ..remote_user_auth import TockUserBackend, email_to_username
 
 
 class AuthTests(WebTest):
@@ -56,3 +56,14 @@ class AuthTests(WebTest):
         self._login(email)
         user = User.objects.filter(username='tock.tock').first()
         self.assertTrue(hasattr(user, 'user_data'))
+
+    def test_user_can_authenticate_permissiondenied(self):
+        """Users cannot authenticate if their account is inactive"""
+        user = User(is_active=False)
+        with self.assertRaises(PermissionDenied):
+            TockUserBackend().user_can_authenticate(user)
+
+    def test_user_can_authenticate(self):
+        """Active users can authenticate"""
+        user = User(is_active=True)
+        self.assertTrue(TockUserBackend().user_can_authenticate(user))
