@@ -1,7 +1,10 @@
 import urllib.parse
+
 from django.conf import settings
-from django.test import TestCase
 from django.contrib.auth.models import User
+from django.test import TestCase
+
+from tock.remote_user_auth import ACCOUNT_INACTIVE_MSG
 
 
 class ViewsTests(TestCase):
@@ -24,3 +27,10 @@ class ViewsTests(TestCase):
             fetch_redirect_response=False
         )
         self.assertTrue(self.client.session.is_empty())
+
+    def test_inactive_user_denied(self):
+        """Inactive users cannot access Tock"""
+        user = User.objects.create_user(username='foo', is_active=False)
+        self.client.force_login(user)
+        r = self.client.get('/')
+        self.assertContains(r, ACCOUNT_INACTIVE_MSG, status_code=403)

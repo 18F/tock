@@ -1,9 +1,9 @@
 import logging
 import urllib.parse
 
-from django.shortcuts import render, redirect
-from django.conf import settings
 import django.contrib.auth
+from django.conf import settings
+from django.shortcuts import redirect, render
 
 logger = logging.getLogger('tock')
 
@@ -48,11 +48,11 @@ def handler400(request):
 
 # TODO: new function signature for Django 2.0
 # def handler403(request, exception, template_name='403.html'):
-def handler403(request):
+def handler403(request, exception):
     response = render(
         request,
         '403.html',
-        {}
+        {'exception': exception}
     )
     response.status_code = 403
     return response
