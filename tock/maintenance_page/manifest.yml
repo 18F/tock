@@ -1,0 +1,8 @@
+---
+applications:
+- name: tock-maintenance
+  buildpack: staticfile_buildpack
+  stack: cflinuxfs2
+  memory: 64M
+  disk_quota: 64M
+  instances: 1
