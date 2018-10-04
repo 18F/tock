@@ -1,52 +1,37 @@
 import csv
 import datetime as dt
 import io
-
 from itertools import chain
 from operator import attrgetter
 
 # Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist, ValidationError, \
-    PermissionDenied
+from django.core.exceptions import (ObjectDoesNotExist, PermissionDenied,
+                                    ValidationError)
 from django.core.urlresolvers import reverse
+from django.db.models import Sum
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import ListView, DetailView, TemplateView
-from django.views.generic.edit import CreateView, UpdateView, FormView
-from django.db.models import Sum
-
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view
+from django.views.generic import DetailView, ListView, TemplateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from rest_framework import serializers
+from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 
-from api.views import get_timecards, \
-    TimecardList, ProjectSerializer, UserDataSerializer
 from api.renderers import stream_csv
+from api.views import (ProjectSerializer, TimecardList, UserDataSerializer,
+                       get_timecards)
 from employees.models import UserData
 from tock.remote_user_auth import email_to_username
-from tock.utils import PermissionMixin, IsSuperUserOrSelf
-
-from .models import (
-    Project,
-    ReportingPeriod,
-    Targets,
-    Timecard,
-    TimecardNote,
-    TimecardObject,
-    TimecardPrefillData
-)
-from .forms import (
-    ReportingPeriodForm,
-    ReportingPeriodImportForm,
-    projects_as_choices,
-    TimecardForm,
-    TimecardFormSet,
-    timecard_formset_factory
-)
+from tock.utils import IsSuperUserOrSelf, PermissionMixin
 from utilization.utils import calculate_utilization, get_fy_first_day
 
+from .forms import (ReportingPeriodForm, ReportingPeriodImportForm,
+                    TimecardForm, TimecardFormSet, projects_as_choices,
+                    timecard_formset_factory)
+from .models import (Project, ReportingPeriod, Targets, Timecard, TimecardNote,
+                     TimecardObject, TimecardPrefillData)
 
 NON_BILLABLE_PROJECT_IDS = [2, 669,]
 

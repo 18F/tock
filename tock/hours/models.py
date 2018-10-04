@@ -6,6 +6,7 @@ from django.db.models import Q
 
 from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
+
 from .utils import ValidateOnSaveMixin, render_markdown
 
 
