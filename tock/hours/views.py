@@ -2,8 +2,6 @@ import csv
 import datetime as dt
 import io
 
-import markdown
-
 from itertools import chain
 from operator import attrgetter
 
@@ -798,10 +796,7 @@ class TimecardView(PermissionMixin, UpdateView):
         for timecard_note in TimecardNote.objects.enabled():
             timecard_notes.append({
                 'title': timecard_note.title,
-                'body': markdown.markdown(
-                    timecard_note.body,
-                    output_format='html5'
-                ),
+                'body': timecard_note.rendered_body,
                 'style': timecard_note.style
             })
 
@@ -818,11 +813,8 @@ class TimecardView(PermissionMixin, UpdateView):
 
         if reporting_period.message_enabled:
             context.update({
-                'reporting_period_message': markdown.markdown(
-                    reporting_period.message,
-                    output_format='html5'
-                )
-            })
+                'reporting_period_message': reporting_period.rendered_message
+                })
 
         return context
 
