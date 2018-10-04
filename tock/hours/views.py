@@ -776,30 +776,16 @@ class TimecardView(PermissionMixin, UpdateView):
         if self.request.POST.get('save_only') is not None:
             formset.save_only = True
 
-        timecard_notes = []
-
-        for timecard_note in TimecardNote.objects.enabled():
-            timecard_notes.append({
-                'title': timecard_note.title,
-                'body': timecard_note.rendered_body,
-                'style': timecard_note.style
-            })
-
         context.update({
             'exact_working_hours': base_reporting_period.exact_working_hours,
             'min_working_hours': base_reporting_period.min_working_hours,
             'max_working_hours': base_reporting_period.max_working_hours,
             'formset': formset,
             'messages': messages.get_messages(self.request),
-            'timecard_notes': timecard_notes,
+            'timecard_notes': TimecardNote.objects.enabled(),
             'unsubmitted': not self.object.submitted,
-            'reporting_period': reporting_period
+            'reporting_period': reporting_period,
         })
-
-        if reporting_period.message_enabled:
-            context.update({
-                'reporting_period_message': reporting_period.rendered_message
-                })
 
         return context
 
