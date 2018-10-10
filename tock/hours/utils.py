@@ -1,3 +1,6 @@
+import markdown
+
+
 class ValidateOnSaveMixin(object):
     """This Mixin ensures that model field validatation happens upon save, which
     is surprisingly not the default action in Django."""
@@ -11,3 +14,10 @@ class ValidateOnSaveMixin(object):
 
 def number_of_hours(percentage, total_hours):
     return (percentage / 100) * total_hours
+
+
+def render_markdown(text):
+    return markdown.markdown(text,
+                             output_format='html5',
+                             enable_attributes=False
+                             )

@@ -6,7 +6,8 @@ from django.db.models import Q
 
 from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
-from .utils import ValidateOnSaveMixin
+
+from .utils import ValidateOnSaveMixin, render_markdown
 
 
 class HolidayPrefills(models.Model):
@@ -99,6 +100,11 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         help_text='A message to provide at the top of the reporting period. This will appear above any Timecard Notes in a Timecard. Note: supports Markdown.',
         blank=True
     )
+    rendered_message = models.TextField(
+        help_text='HTML rendered from Markdown in the message field',
+        blank=True,
+        editable=False
+    )
     message_style = models.CharField(
         choices=USWDS_ALERT_CHOICES,
         default=USWDS_ALERT_INFO,
@@ -165,6 +171,10 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         return self.holiday_prefills.exists()
     has_holiday_prefills.boolean = True
 
+    def save(self, *args, **kwargs):
+        if self.message:
+           self.rendered_message = render_markdown(self.message)
+        super().save(*args, **kwargs)
 
 class Timecard(models.Model):
     user = models.ForeignKey(User, related_name='timecards', on_delete=models.CASCADE)
@@ -211,6 +221,11 @@ class TimecardNote(models.Model):
     )
     body = models.TextField(
         help_text='The body of the note that will appear when displayed in a timecard. Note: supports Markdown.'
+    )
+    rendered_body = models.TextField(
+        help_text='HTML rendered from Markdown in the body field',
+        editable=False,
+        blank=True
     )
     enabled = models.BooleanField(
         default=True,
@@ -259,7 +274,8 @@ class TimecardNote(models.Model):
     def save(self, *args, **kwargs):
         if not self.pk:
             self.position = TimecardNote.objects.count() + 1
-
+        if self.body:
+           self.rendered_body = render_markdown(self.body)
         super(TimecardNote, self).save(*args, **kwargs)
 
 

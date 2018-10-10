@@ -36,7 +36,7 @@
         <h3 class="usa-alert-heading">{{ reporting_period.message_title }}</h3>
       {% endif %}
       <p class="usa-alert-text">
-        {{ reporting_period_message|safe }}
+        {{ reporting_period.rendered_message|safe }}
       </p>
     </div>
   </div>
