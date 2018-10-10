@@ -159,7 +159,7 @@ cf zero-downtime-push tock-staging -f manifest-staging.yml
 
 Production deploys are also automated. They rely on the creation of a Git tag to
 be made against the `master` branch following the [_Automated Releases to
-Production_](#automated-releases-to-production) workflow. 
+Production_](#automated-releases-to-production) workflow.
 
 In some cases, you may need to make a manual deployment to production. If this is the case, please make
 sure you're using the Cloud Foundry [autopilot plugin](https://github.com/contraband/autopilot).
@@ -311,3 +311,27 @@ number after the period (e.g., `v20180131.1` turns into `v20180131.2`).
 Once you push this tag up to GitHub, draft or assign it to an already
 drafted release in GitHub. CircleCI will deploy this tag to the Production
 instance of Tock using CF Autopilot.
+
+
+## Maintenance Mode
+A simple static application exists to display a maintenance
+page if/when Tock needs to be taken offline.
+
+To show the maintenance page you will need to manually map Tock's production
+route to this application.
+```sh
+cf target -o gsa-18f-tock -s prod
+cf map-route tock-maintenance tock.18f.gov
+```
+
+Upon a new automatic release, the production route will be mapped back to the production app.
+
+To manually re-map the route and exit "maintenance mode":
+```sh
+cf target -o gsa-18f-tock -s prod
+cf map-route tock tock.18f.gov
+```
+To deploy this static application:
+
+1. `cd` into ./tock/maintenance_page/
+2. run `cf push`
