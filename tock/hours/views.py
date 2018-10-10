@@ -33,8 +33,6 @@ from .forms import (ReportingPeriodForm, ReportingPeriodImportForm,
 from .models import (Project, ReportingPeriod, Targets, Timecard, TimecardNote,
                      TimecardObject, TimecardPrefillData)
 
-NON_BILLABLE_PROJECT_IDS = [2, 669,]
-
 
 class DashboardReportsList(PermissionMixin, ListView):
     template_name = 'hours/dashboard_list.html'
@@ -507,7 +505,7 @@ def general_snippets_only_timecard_list(request):
     Stream all timecard data that is for General and has a snippet.
     """
     objects = TimecardObject.objects.filter(
-        project__id__in=NON_BILLABLE_PROJECT_IDS,
+        project__accounting_code__billable=False,
         notes__isnull=False
     )
     queryset = get_timecards(objects, request.GET)
