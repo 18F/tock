@@ -1,25 +1,47 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+
 [packages]
-django = "==1.11.*"
-dj-database-url = "*"
-gevent = "*"
-gunicorn = "*"
-whitenoise = "*"
-djangorestframework = "==3.6.*"
-djangorestframework-csv = "*"
-bleach = "*"
-newrelic = "*"
-cfenv = "*"
-cg-django-uaa = "*"
-"psycopg2-binary" = "*"
-markdown = "*"
+
+Django = "==1.11.16"
+dj-database-url = "==0.5.0"
+gevent = "==1.3.0"
+gunicorn = "==19.8.1"
+whitenoise = "==3.3.1"
+djangorestframework = "==3.8.2"
+djangorestframework-csv = "==2.1.0"
+bleach = "==2.1.3"
+newrelic = "==3.2.0.91"
+cfenv = "==0.5.3"
+cg-django-uaa = "==1.3.0"
+"psycopg2-binary" = "==2.7.4"
+Markdown = "==2.6.11"
 django-webtest = "==1.9.2"
+"beautifulsoup4" = "==4.6.0"
+certifi = "==2018.4.16"
+chardet = "==3.0.4"
+furl = "==1.0.1"
+greenlet = "==0.4.13"
+"html5lib" = "==1.0.1"
+idna = "==2.6"
+orderedmultidict = "==0.7.11"
+PyJWT = "==1.6.1"
+pytz = "==2018.4"
+requests = "==2.18.4"
+unicodecsv = "==0.14.1"
+"urllib3" = "==1.22"
+waitress = "==1.1.0"
+webencodings = "==0.5.1"
+WebOb = "==1.8.1"
+WebTest = "==2.0.29"
+
 
 [dev-packages]
+
 bandit = "*"
 coverage = "*"
 django-debug-toolbar = "*"
@@ -29,5 +51,7 @@ factory-boy = "*"
 nplusone = "*"
 codecov = "*"
 
+
 [requires]
+
 python_version = "3.6"
