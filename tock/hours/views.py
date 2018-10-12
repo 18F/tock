@@ -4,7 +4,6 @@ import io
 from itertools import chain
 from operator import attrgetter
 
-# Create your views here.
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.exceptions import (ObjectDoesNotExist, PermissionDenied,
@@ -15,6 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
+
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
