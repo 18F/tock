@@ -3,10 +3,10 @@ import csv
 
 from decimal import Decimal
 
-from django.core.urlresolvers import reverse
-from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import User
+from django.test import TestCase, RequestFactory
+from django.urls import reverse
+
 from django_webtest import WebTest
 
 from api.tests import client
@@ -18,6 +18,8 @@ from hours.views import GeneralSnippetsTimecardSerializer
 import hours.models
 import hours.views
 import projects.models
+
+User = get_user_model()
 
 FIXTURES = [
     'tock/fixtures/prod_user.json',

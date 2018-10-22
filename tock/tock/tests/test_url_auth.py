@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.core.urlresolvers import RegexURLPattern, RegexURLResolver, reverse
+from django.urls import RegexURLPattern, RegexURLResolver, reverse
 
 import tock.urls
 

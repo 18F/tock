@@ -1,7 +1,7 @@
 import datetime
 
 from django.apps import apps
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models, IntegrityError
 from django.db.models import Q
 
@@ -10,6 +10,8 @@ from rest_framework.authtoken.models import Token
 from organizations.models import Organization
 from projects.models import ProfitLossAccount
 
+
+User = get_user_model()
 
 class EmployeeGrade(models.Model):
     GRADE_CHOICES = (

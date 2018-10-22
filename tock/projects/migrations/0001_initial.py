@@ -48,13 +48,13 @@ class Migration(migrations.Migration):
                                                    null=True)),
                   ('accounting_code',
                    models.ForeignKey(verbose_name='Accounting Code',
-                                     to='projects.AccountingCode')),],
+                                     to='projects.AccountingCode', on_delete=models.CASCADE)),],
           options=
           {'verbose_name_plural': 'Projects',
            'verbose_name': 'Project',},
           bases=(models.Model,),),
       migrations.AddField(model_name='accountingcode',
                           name='agency',
-                          field=models.ForeignKey(to='projects.Agency'),
+                          field=models.ForeignKey(to='projects.Agency', on_delete=models.CASCADE),
                           preserve_default=True,),
   ]

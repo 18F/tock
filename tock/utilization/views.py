@@ -1,6 +1,6 @@
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 from django.views.generic import ListView
 
 from hours.models import TimecardObject, ReportingPeriod

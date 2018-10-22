@@ -1,8 +1,9 @@
-from django.core.urlresolvers import reverse
+import datetime
+
+from django.urls import reverse
 
 from django_webtest import WebTest
 
-import datetime
 from employees.views import parse_date
 from employees.models import UserData
 
