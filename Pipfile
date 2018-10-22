@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "==1.11.*"
+django = "~=2.0"
 dj-database-url = "*"
 gevent = "*"
 gunicorn = "*"
 whitenoise = "*"
-djangorestframework = "==3.6.*"
+djangorestframework = "~=3.8"
 djangorestframework-csv = "*"
 bleach = "*"
 newrelic = "*"
@@ -17,7 +17,7 @@ cfenv = "*"
 cg-django-uaa = "*"
 "psycopg2-binary" = "*"
 markdown = "*"
-django-webtest = "==1.9.2"
+django-webtest = "~=1.9"
 
 [dev-packages]
 bandit = "*"

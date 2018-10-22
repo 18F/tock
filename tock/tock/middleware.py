@@ -12,7 +12,7 @@ class AutoLogout(object):
         fmt = '%Y%m%d%H%M%S'
 
         # Check if user exists and is logged in
-        if request.user and request.user.is_authenticated():
+        if request.user and request.user.is_authenticated:
 
             logout_time_in_seconds = settings.AUTO_LOGOUT_DELAY_MINUTES * 60
 

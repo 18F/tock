@@ -1,11 +1,10 @@
 import datetime
 
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
 from rest_framework.permissions import IsAuthenticated
-
 
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
 

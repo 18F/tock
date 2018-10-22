@@ -1,11 +1,10 @@
-from django.conf.urls import url
+from django.urls import path
 
-from . import views
+from .views import UserListView, UserDetailView, UserFormView
 
+app_name="employees"
 urlpatterns = [
-    url(regex=r'^$', view=views.UserListView.as_view(), name='UserListView'),
-    url(regex=r'^(?P<username>[A-Za-z0-9._%+-]*)/$',
-        view=views.UserDetailView.as_view(), name='UserDetailView'),
-    url(regex=r'^e/(?P<username>[A-Za-z0-9._%+-]*)/$',
-        view=views.UserFormView.as_view(), name='UserFormView'),
+    path('', UserListView.as_view(), name='UserListView'),
+    path('<username>/', UserDetailView.as_view(), name='UserDetailView'),
+    path('e/<username>/', UserFormView.as_view(), name='UserFormView'),
 ]

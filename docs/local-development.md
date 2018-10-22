@@ -85,6 +85,17 @@ container: `Control + p, Control + q`, one after another.
 If you mistakenly hit `Control + c`, you will kill the `tock_app` container! In
 that case, restart the `tock_app` container with a `docker-compose up` command.
 
+
+### Testing locally
+
+The easiest, most reliable way to test locally is from within the docker container, 
+which lets you access `manage.py`:
+
+```
+docker-compose run app bash
+python manage.py test
+```
+
 ### Making CSS changes
 
 `docker-compose up` will also launch a [Node] machine that compiles the [Sass]

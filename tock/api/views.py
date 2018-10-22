@@ -1,16 +1,16 @@
 import collections
 import datetime
 
+from django.contrib.auth import get_user_model
 from django.db import connection
 
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
+from rest_framework import serializers, generics
 
-from projects.models import Project
 from hours.models import TimecardObject, Timecard, ReportingPeriod
+from projects.models import Project
 from employees.models import UserData
 
-from rest_framework import serializers, generics
+User = get_user_model()
 
 # Serializers for different models
 
@@ -137,8 +137,10 @@ class ReportingPeriodList(generics.ListAPIView):
     serializer_class = ReportingPeriodSerializer
 
 class ReportingPeriodAudit(generics.ListAPIView):
-    """ This endpoint retrieves a list of users who have not filled out
-    their time cards for a given time period """
+    """ 
+    Retrieves a list of users who have not filled out
+    their time cards for a given time period 
+    """
 
     queryset = ReportingPeriod.objects.all()
     serializer_class = UserSerializer

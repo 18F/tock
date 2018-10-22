@@ -1,5 +1,6 @@
 from django.test import TestCase
-from django.core.urlresolvers import RegexURLPattern, RegexURLResolver, reverse
+from django.urls import reverse, URLPattern
+from django.urls.resolvers import RoutePattern, RegexPattern
 
 import tock.urls
 
@@ -41,22 +42,22 @@ NAMESPACES_WITH_UNNAMED_VIEWS = [
 def iter_patterns(urlconf, patterns=None, namespace=None):
     """
     Iterate through all patterns in the given Django URLconf.  Yields
-    `(viewname, regex)` tuples, where `viewname` is the fully-qualified view name
-    (including its namespace, if any), and `regex` is a regular expression that
+    `(viewname, route)` tuples, where `viewname` is the fully-qualified view name
+    (including its namespace, if any), and `route` is a regular expression that
     corresponds to the part of the pattern that contains any capturing groups.
     """
 
     if patterns is None:
         patterns = urlconf.urlpatterns
     for pattern in patterns:
-        if isinstance(pattern, RegexURLPattern):
+        if isinstance(pattern, URLPattern):
             viewname = pattern.name
             if viewname is None and namespace not in NAMESPACES_WITH_UNNAMED_VIEWS:
                 raise AssertionError(f'namespace {namespace} cannot contain unnamed views')
             if namespace and viewname is not None:
                 viewname = f"{namespace}:{viewname}"
-            yield (viewname, pattern.regex)
-        elif isinstance(pattern, RegexURLResolver):
+            yield (viewname, pattern.pattern)
+        elif isinstance(pattern, RegexPattern):
             if pattern.regex.groups > 0:
                 raise AssertionError('resolvers are not expected to have groups')
             if pattern.namespace and namespace is not None:
@@ -174,4 +175,4 @@ class URLAuthTests(TestCase):
                 setattr(cls, f'test_{viewname}', create_url_auth_test(url))
 
 
-URLAuthTests.define_tests_for_urls(tock.urls)
+#URLAuthTests.define_tests_for_urls(tock.urls)

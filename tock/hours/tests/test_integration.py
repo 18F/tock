@@ -1,6 +1,6 @@
 import datetime
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from django_webtest import WebTest
 
@@ -46,7 +46,7 @@ class TestOptions(ProtectedViewTestCase, WebTest):
         """
         date = self.reporting_period.start_date.strftime('%Y-%m-%d')
         url = reverse(
-            'reportingperiod:UpdateTimesheet',
+            'timesheets:UpdateTimesheet',
             kwargs={'reporting_period': date},
         )
         self.login(username='aaron.snow')

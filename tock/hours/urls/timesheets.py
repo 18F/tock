@@ -1,21 +1,20 @@
-from django.conf.urls import url
+from django.urls import path, re_path
 
 from .. import views
 
+app_name = 'timesheets'
 urlpatterns = [
-    url(
-        regex=r'^create/$',
-        view=views.ReportingPeriodCreateView.as_view(),
-        name='ReportingPeriodCreateView',
+    path(
+        'create/', views.ReportingPeriodCreateView.as_view(), name='ReportingPeriodCreateView',
     ),
-    url(
-        regex=r'^(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/$',
-        view=views.TimecardView.as_view(),
+    re_path(
+        r'^(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/$',
+        views.TimecardView.as_view(),
         name='UpdateTimesheet',
     ),
-    url(
-        regex=r'^import/$',
-        view=views.ReportingPeriodBulkImportView.as_view(),
+    path(
+        'import/',
+        views.ReportingPeriodBulkImportView.as_view(),
         name='ImportReportingPeriod',
     ),
 ]
