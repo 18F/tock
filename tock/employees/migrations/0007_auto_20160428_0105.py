@@ -47,8 +47,8 @@ class Migration(migrations.Migration):
             field=models.OneToOneField(
                 verbose_name='Tock username',
                 to=settings.AUTH_USER_MODEL,
-                on_delete=models.CASCADE,
-                related_name='user_data'
+                related_name='user_data',
+                on_delete=models.CASCADE
             ),
         ),
     ]

@@ -16,10 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='project_lead',
-            field=models.ForeignKey(
-                to=settings.AUTH_USER_MODEL,
-                on_delete=models.CASCADE,
-                null=True
-            ),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
         ),
     ]

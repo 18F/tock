@@ -64,11 +64,8 @@ class Migration(migrations.Migration):
           preserve_default=True,),
       migrations.AddField(model_name='timecard',
                           name='user',
-                          field=models.ForeignKey(
-                              to=settings.AUTH_USER_MODEL,
-                              on_delete=models.CASCADE),
-                              preserve_default=True,
-                          ),
+                          field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
+                          preserve_default=True,),
       migrations.AlterUniqueTogether(
           name='timecard',
           unique_together=set([('user', 'reporting_period')]),),

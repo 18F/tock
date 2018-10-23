@@ -46,6 +46,5 @@ def handler404(request, exception):
     response.status_code = 404
     return response
 
-
 def handler500(request, exception):
     return render(request, '500.html', {})
