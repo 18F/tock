@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, verbose_name='ID', serialize=False, auto_created=True)),
                 ('start_date', models.DateField(null=True, blank=True)),
                 ('end_date', models.DateField(null=True, blank=True)),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

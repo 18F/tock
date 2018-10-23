@@ -36,7 +36,8 @@ class Migration(migrations.Migration):
                                                              verbose_name='ID',
                                                              serialize=False)),
                                      ('reporting_period', models.ForeignKey(
-                                         to='hours.ReportingPeriod')),],
+                                         to='hours.ReportingPeriod',
+                                         on_delete=models.CASCADE)),],
                              options={},
                              bases=(models.Model,),),
       migrations.CreateModel(
@@ -51,8 +52,8 @@ class Migration(migrations.Migration):
                       max_digits=3)),
                   ('created', models.DateTimeField(auto_now_add=True)),
                   ('modified', models.DateTimeField(auto_now=True)),
-                  ('project', models.ForeignKey(to='projects.Project')),
-                  ('timecard', models.ForeignKey(to='hours.Timecard')),],
+                  ('project', models.ForeignKey(to='projects.Project', on_delete=models.CASCADE)),
+                  ('timecard', models.ForeignKey(to='hours.Timecard', on_delete=models.CASCADE)),],
           options={},
           bases=(models.Model,),),
       migrations.AddField(
@@ -63,7 +64,7 @@ class Migration(migrations.Migration):
           preserve_default=True,),
       migrations.AddField(model_name='timecard',
                           name='user',
-                          field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+                          field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
                           preserve_default=True,),
       migrations.AlterUniqueTogether(
           name='timecard',

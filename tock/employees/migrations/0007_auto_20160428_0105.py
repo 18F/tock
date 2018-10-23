@@ -44,6 +44,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userdata',
             name='user',
-            field=models.OneToOneField(verbose_name='Tock username', to=settings.AUTH_USER_MODEL, related_name='user_data'),
+            field=models.OneToOneField(
+                verbose_name='Tock username',
+                to=settings.AUTH_USER_MODEL,
+                related_name='user_data',
+                on_delete=models.CASCADE
+            ),
         ),
     ]
