@@ -22,7 +22,6 @@ django-webtest = "~=1.9"
 [dev-packages]
 bandit = "*"
 coverage = "*"
-django = "==1.11.*"
 django-debug-toolbar = "*"
 django-webtest = "*"
 factory-boy = "*"
