@@ -30,7 +30,7 @@ urlpatterns = [
     path('general_snippets_bulk.csv', views.general_snippets_only_timecard_list, name='GeneralSnippetsView'),
     re_path(
         r'^dashboard/(?P<reporting_period>[0-9]{4}-[0-9]{2}-[0-9]{2})/$',
-        view=views.DashboardView.as_view(),
+        views.DashboardView.as_view(),
         name='DashboardView'
     ),
     path('dashboard/list/', views.DashboardReportsList.as_view(), name='DashboardReportsList'),

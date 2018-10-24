@@ -363,7 +363,7 @@ class CSVTests(TestCase):
         request."""
         response = client().get(reverse('reports:ProjectList'))
         rows = decode_streaming_csv(response)
-        num_rows = len(list(rows))
+        num_rows = len(rows)
         self.assertNotEqual(num_rows, 0)
         for row in rows:
             num_of_fields = len(row)

@@ -30,7 +30,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'organization',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
-    #profit_loss_account = serializers.CharField(source='profit_loss_account.name')
+    profit_loss_account = serializers.CharField(source='profit_loss_account.name', allow_null=True)
     client = serializers.StringRelatedField(source='accounting_code')
     organization = serializers.StringRelatedField()
 
