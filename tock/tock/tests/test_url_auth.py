@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse, URLPattern
-from django.urls.resolvers import RoutePattern, RegexPattern, URLResolver
+from django.urls.resolvers import URLResolver
 
 import tock.urls
 

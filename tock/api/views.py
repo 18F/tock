@@ -144,9 +144,9 @@ class ReportingPeriodList(generics.ListAPIView):
     serializer_class = ReportingPeriodSerializer
 
 class ReportingPeriodAudit(generics.ListAPIView):
-    """ 
+    """
     Retrieves a list of users who have not filled out
-    their time cards for a given time period 
+    their time cards for a given time period
     """
 
     queryset = ReportingPeriod.objects.all()
