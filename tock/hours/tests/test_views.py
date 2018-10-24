@@ -32,7 +32,7 @@ FIXTURES = [
 
 def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
-    return csv.DictReader(lines, **reader_options)
+    return list(csv.DictReader(lines, **reader_options))
 
 class DashboardReportsListTests(WebTest):
     fixtures = ['tock/fixtures/prod_user.json',]
@@ -341,17 +341,21 @@ class CSVTests(TestCase):
     fixtures = FIXTURES
 
     def test_user_data_csv(self):
-        """Test that correct fields are returned for user data CSV request."""
+        """
+        Test that CSV is returned and contains the correct fields
+        for user data CSV request.
+        """
         response = client().get(reverse('reports:UserDataView'))
         rows = decode_streaming_csv(response)
-        num_rows = len(list(rows))
-        self.assertNotEqual(num_rows, 0)
+        # Make sure we even have a response to work with.
+        self.assertNotEqual(len(rows), 0)
+
+        num_of_fields = 0
         for row in rows:
             num_of_fields = len(row)
         num_of_expected_fields = len(
             UserDataSerializer.__dict__['_declared_fields']
         )
-
         self.assertEqual(num_of_expected_fields, num_of_fields)
 
     def test_project_csv(self):
@@ -746,7 +750,7 @@ class ReportTests(WebTest):
         date = datetime.date(1980, 10, 1).strftime('%Y-%m-%d')
         response = self.app.get(
             reverse(
-                'timesheets:UpdateTimesheet',
+                'reportingperiod:UpdateTimesheet',
                 kwargs={'reporting_period': date}
             ),
             user=self.regular_user,

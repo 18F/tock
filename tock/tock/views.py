@@ -20,7 +20,7 @@ def csrf_failure(request, reason=""):
 
 
 def logout(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         django.contrib.auth.logout(request)
         tock_logout_url = request.build_absolute_uri('logout')
         params = urllib.parse.urlencode({
@@ -46,5 +46,5 @@ def handler404(request, exception):
     response.status_code = 404
     return response
 
-def handler500(request, exception):
+def handler500(request, exception=None):
     return render(request, '500.html', {})

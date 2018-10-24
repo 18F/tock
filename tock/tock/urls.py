@@ -43,7 +43,8 @@ urlpatterns = [
 
     path('auth/', include('uaa_client.urls')),
 
-    path('logout/', tock.views.logout, name='logout'),
+    # Trailing slash here creates unpredictable redirects in tests.
+    path('logout', tock.views.logout, name='logout'),
 ]
 
 

@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse, URLPattern
-from django.urls.resolvers import RoutePattern, RegexPattern
+from django.urls.resolvers import RoutePattern, RegexPattern, URLResolver
 
 import tock.urls
 
@@ -19,6 +19,7 @@ SAMPLE_KWARGS = {
     "reporting_period_start_date": "2018-01-02",
     "username": "bar",
     "pk": "1",
+    "id": "1",
     "content_type_id": "2",
     "object_id": "3",
     "app_label": "hours",
@@ -46,10 +47,10 @@ def iter_patterns(urlconf, patterns=None, namespace=None):
     (including its namespace, if any), and `route` is a regular expression that
     corresponds to the part of the pattern that contains any capturing groups.
     """
-
     if patterns is None:
         patterns = urlconf.urlpatterns
     for pattern in patterns:
+        # Resolve if it's a route or an include
         if isinstance(pattern, URLPattern):
             viewname = pattern.name
             if viewname is None and namespace not in NAMESPACES_WITH_UNNAMED_VIEWS:
@@ -57,9 +58,9 @@ def iter_patterns(urlconf, patterns=None, namespace=None):
             if namespace and viewname is not None:
                 viewname = f"{namespace}:{viewname}"
             yield (viewname, pattern.pattern)
-        elif isinstance(pattern, RegexPattern):
-            if pattern.regex.groups > 0:
-                raise AssertionError('resolvers are not expected to have groups')
+        elif isinstance(pattern, URLResolver):
+            if len(pattern.default_kwargs.keys()) > 0:
+                raise AssertionError('resolvers are not expected to have kwargs')
             if pattern.namespace and namespace is not None:
                 raise AssertionError('nested namespaces are not currently supported')
             if pattern.namespace in IGNORE_NAMESPACES:
@@ -76,29 +77,28 @@ def iter_patterns(urlconf, patterns=None, namespace=None):
 def iter_sample_urls(urlconf):
     """
     Yields sample URLs for all entries in the given Django URLconf.
+    This gets pretty deep into the muck of RoutePattern
+    https://docs.djangoproject.com/en/2.1/_modules/django/urls/resolvers/
     """
 
-    for viewname, regex in iter_patterns(urlconf):
-        if viewname is None:
+    for viewname, route in iter_patterns(urlconf):
+        if not viewname:
             continue
-
-        named_groups = regex.groupindex.keys()
+        if viewname is 'auth_user_password_change':
+            print(route)
+            break
+        named_groups = route.regex.groupindex.keys()
         kwargs = {}
         args = ()
 
-        if len(named_groups) != regex.groups:
-            if regex.groups != 1:
-                raise AssertionError('Patterns can contain at most one unnamed group')
-            if DOT_STAR_GROUP not in regex.pattern:
-                raise AssertionError(f'Unnamed groups can only contain {DOT_STAR_GROUP}')
-            args = (SAMPLE_DOT_STAR_ARG,)
         for kwarg in named_groups:
             if kwarg not in SAMPLE_KWARGS:
                 raise AssertionError(
-                    f'Sample value for {kwarg} in pattern "{regex.pattern}" not found'
+                    f'Sample value for {kwarg} in pattern "{route}" not found'
                 )
             kwargs[kwarg] = SAMPLE_KWARGS[kwarg]
-        url = reverse(viewname, urlconf=urlconf, args=args, kwargs=kwargs)
+
+        url = reverse(viewname, args=args, kwargs=kwargs)
         yield (viewname, url)
 
 
@@ -109,6 +109,7 @@ class URLAuthTests(TestCase):
     """
 
     # We won't test that the following URLs are protected by auth.
+    # Note that the trailing slash is wobbly depending on how the URL was defined.
     IGNORE_URLS = [
         # These are the UAA auth endpoints that always need
         # to be public.
@@ -137,7 +138,7 @@ class URLAuthTests(TestCase):
             # accessed at the time the exception occurred.  Python 3 will
             # also include a full traceback of the original exception, so
             # we don't need to worry about hiding the original cause.
-            raise AssertionError(f'Accessing {url} raised "{e}"')
+            raise AssertionError(f'Accessing {url} raised "{e}"', e)
 
         code = response.status_code
         if code == 302:
@@ -152,8 +153,7 @@ class URLAuthTests(TestCase):
             pass
         else:
             raise AssertionError(
-                f'GET {url} returned HTTP {code}, but should redirect to login or '
-                f'deny access'
+                f'GET {url} returned HTTP {code}, but should redirect to login or deny access',
             )
 
     @classmethod
@@ -175,4 +175,4 @@ class URLAuthTests(TestCase):
                 setattr(cls, f'test_{viewname}', create_url_auth_test(url))
 
 
-#URLAuthTests.define_tests_for_urls(tock.urls)
+URLAuthTests.define_tests_for_urls(tock.urls)

@@ -234,7 +234,8 @@ class Project(models.Model):
         return self.accounting_code.billable
 
     def get_profit_loss_account(self):
-        return self.profit_loss_account.name
+        if self.profit_loss_account:
+            return self.profit_loss_account.name
 
     @property
     def organization_name(self):

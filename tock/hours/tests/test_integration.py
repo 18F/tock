@@ -46,7 +46,7 @@ class TestOptions(ProtectedViewTestCase, WebTest):
         """
         date = self.reporting_period.start_date.strftime('%Y-%m-%d')
         url = reverse(
-            'timesheets:UpdateTimesheet',
+            'reportingperiod:UpdateTimesheet',
             kwargs={'reporting_period': date},
         )
         self.login(username='aaron.snow')

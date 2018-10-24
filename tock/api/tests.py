@@ -47,11 +47,9 @@ class ProjectInstanceAPITests(WebTest):
 
     def test_projects_json(self):
         res = client().get(reverse('ProjectInstanceView', kwargs={'pk': '29'})).data
-
-        print('data len is %s' % len(data))
-        self.assertTrue(res.has_key('name'))
-        self.assertTrue(res.has_key('start_date'))
-        self.assertTrue(res.has_key('end_date'))
+        self.assertTrue('name' in res)
+        self.assertTrue('start_date' in res)
+        self.assertTrue('end_date' in res)
         self.assertEqual(res['name'], "Consulting - Agile BPA")
         self.assertEqual(res['start_date'], "2016-01-01")
         self.assertEqual(res['end_date'], None)
@@ -70,24 +68,20 @@ class TimecardsAPITests(WebTest):
 
     def test_timecards_json(self):
         """ Check that the timecards are rendered in json format correctly """
-        res = client().get(reverse('TimecardList'))
-        print(res)
-        #clean_res = json.loads(res.decode())
-        #self.assertEqual(len(clean_res), 2)
+        res = client().get(reverse('TimecardList')).data
+        self.assertEqual(len(res), 2)
 
     def test_timecards_grade_is_null_when_absent(self):
-        #res = client().get(
-        #    reverse('TimecardList'),
-        #    data={'date': '2016-06-01'}).data
-        #clean_res = json.loads(res.decode())
-        #self.assertEqual(clean_res[0]['grade'], None)
-        pass
+        res = client().get(
+            reverse('TimecardList'),
+            kwargs={'date': '2016-06-01'}).data
+        self.assertEqual(res[1]['grade'], None)
 
     def test_timecards_grade_is_populated_when_present(self):
         res = client().get(
             reverse('TimecardList'),
-            data={'date': '2015-06-01'}).data
-        self.assertEqual(res['grade'], 4)
+            kwargs={'date': '2015-06-01'}).data
+        self.assertEqual(res[0]['grade'], 4)
 
     # TODO: test with more diverse data
     def test_get_timecards(self):

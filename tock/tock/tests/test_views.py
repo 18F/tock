@@ -1,16 +1,20 @@
 import urllib.parse
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from tock.remote_user_auth import ACCOUNT_INACTIVE_MSG
 
+User = get_user_model()
+
 
 class ViewsTests(TestCase):
     def test_logout_logs_user_out(self):
-        user = User.objects.create_user(username='foo')
+        user = User.objects.create_user(username='foo', password='bar')
         self.client.force_login(user)
+        # Make sure we actually did the above successfully
+        self.assertTrue(user.is_authenticated)
 
         uaa_redirect_url = settings.UAA_LOGOUT_URL
         uaa_redirect_url += '?'

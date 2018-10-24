@@ -2,7 +2,7 @@ from django.urls import path, re_path
 
 from .. import views
 
-app_name = 'timesheets'
+app_name = 'reportingperiod'
 urlpatterns = [
     path(
         'create/', views.ReportingPeriodCreateView.as_view(), name='ReportingPeriodCreateView',
