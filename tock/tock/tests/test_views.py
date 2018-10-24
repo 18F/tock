@@ -11,7 +11,9 @@ User = get_user_model()
 
 class ViewsTests(TestCase):
     def test_logout_logs_user_out(self):
-        user = User.objects.create_user(username='foo', password='bar')
+        user = User.objects.create_user(
+            username='foo', password='bar' # nosec
+        )
         self.client.force_login(user)
         # Make sure we actually did the above successfully
         self.assertTrue(user.is_authenticated)
