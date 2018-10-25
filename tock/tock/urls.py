@@ -1,7 +1,7 @@
-from django.conf import settings
-from django.conf.urls import include, url
 from django.contrib.auth.decorators import user_passes_test
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.urls import include, path
 
 # Enable the Django admin.
 from django.contrib import admin
@@ -9,7 +9,7 @@ admin.autodiscover()
 
 
 def check_if_staff(user):
-    if not user.is_authenticated():
+    if not user.is_authenticated:
         return False
     if user.is_staff:
         return True
@@ -29,36 +29,22 @@ handler404 = 'tock.views.handler404'
 handler500 = 'tock.views.handler500'
 
 urlpatterns = [
-    url(r'^$',
-        hours.views.ReportingPeriodListView.as_view(),
-        name='ListReportingPeriods'),
-    url(r'^reporting_period/', include(
-        'hours.urls.timesheets',
-        namespace='reportingperiod'
-    )),
-    url(r'^reports/', include(
-        'hours.urls.reports',
-        namespace='reports'
-    )),
-    url(r'^employees/', include(
-        'employees.urls',
-        namespace='employees'
-    )),
-    url(r'^utilization/', include(
-        'utilization.urls',
-        namespace='utilization'
-    )),
-    url(r'^projects/', include(projects.urls)),
+    path('', hours.views.ReportingPeriodListView.as_view(), name='ListReportingPeriods'),
+    path('reporting_period/', include('hours.urls.timesheets', namespace='reportingperiod')),
+    path('reports/', include('hours.urls.reports', namespace='reports')),
+    path('employees/', include('employees.urls', namespace='employees')),
+    path('utilization/', include('utilization.urls', namespace='utilization')),
+    path('projects/', include(projects.urls)),
 
     # TODO: version the API?
-    url(r'^api/', include(api.urls)),
+    path('api/', include(api.urls)),
 
-    # Enable the Django admin.
-    url(r'^admin/', include(admin.site.urls)),
+    path('admin/', admin.site.urls),
 
-    url(r'^auth/', include('uaa_client.urls')),
+    path('auth/', include('uaa_client.urls')),
 
-    url(r'^logout$', tock.views.logout, name='logout'),
+    # Trailing slash here creates unpredictable redirects in tests.
+    path('logout', tock.views.logout, name='logout'),
 ]
 
 
@@ -67,7 +53,7 @@ if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
+        path('__debug__/', include(debug_toolbar.urls)),
     ]
 
 

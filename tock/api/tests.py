@@ -1,34 +1,32 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import json
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from django_webtest import WebTest
 
 from api.views import get_timecards, TimecardList
-from projects.factories import AccountingCodeFactory, ProjectFactory
+from employees.models import UserData, EmployeeGrade
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
 )
-
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
-from employees.models import UserData, EmployeeGrade
+from projects.factories import AccountingCodeFactory, ProjectFactory
 
 from rest_framework.authtoken.models import Token
-
 from rest_framework.test import APIClient
 
+User = get_user_model()
+
 # common client for all API tests
-def client(self):
-    self.request_user = User.objects.get_or_create(username='aaron.snow')[0]
-    self.token = Token.objects.get_or_create(user=self.request_user)[0].key
-    self.client = APIClient()
-    self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
-    return self.client
+def client():
+    request_user = User.objects.get_or_create(username='aaron.snow')[0]
+    token = Token.objects.get_or_create(user=request_user)[0].key
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION='Token ' + token)
+    return client
 
 # common fixtures for all API tests
 FIXTURES = [
@@ -47,7 +45,10 @@ class ProjectInstanceAPITests(WebTest):
     fixtures = FIXTURES
 
     def test_projects_json(self):
-        res = client(self).get(reverse('ProjectInstanceView', kwargs={'pk': '29'})).data
+        res = client().get(reverse('ProjectInstanceView', kwargs={'pk': '29'})).data
+        self.assertTrue('name' in res)
+        self.assertTrue('start_date' in res)
+        self.assertTrue('end_date' in res)
         self.assertEqual(res['name'], "Consulting - Agile BPA")
         self.assertEqual(res['start_date'], "2016-01-01")
         self.assertEqual(res['end_date'], None)
@@ -66,23 +67,20 @@ class TimecardsAPITests(WebTest):
 
     def test_timecards_json(self):
         """ Check that the timecards are rendered in json format correctly """
-        res = client(self).get(reverse('TimecardList')).content
-        clean_res = json.loads(res.decode())
-        self.assertEqual(len(clean_res), 2)
+        res = client().get(reverse('TimecardList')).data
+        self.assertEqual(len(res), 2)
 
     def test_timecards_grade_is_null_when_absent(self):
-        res = client(self).get(
+        res = client().get(
             reverse('TimecardList'),
-            data={'date': '2016-06-01'}).content
-        clean_res = json.loads(res.decode())
-        self.assertEqual(clean_res[0]['grade'], None)
+            kwargs={'date': '2016-06-01'}).data
+        self.assertEqual(res[1]['grade'], None)
 
     def test_timecards_grade_is_populated_when_present(self):
-        res = client(self).get(
+        res = client().get(
             reverse('TimecardList'),
-            data={'date': '2015-06-01'}).content
-        clean_res = json.loads(res.decode())
-        self.assertEqual(clean_res[0]['grade'], 4)
+            kwargs={'date': '2015-06-01'}).data
+        self.assertEqual(res[0]['grade'], 4)
 
     # TODO: test with more diverse data
     def test_get_timecards(self):
@@ -143,6 +141,7 @@ class TimecardsAPITests(WebTest):
         )
         self.assertEqual(len(queryset), 2)
 
+
 class TestAggregates(WebTest):
 
     def setUp(self):
@@ -172,7 +171,7 @@ class TestAggregates(WebTest):
         ]
 
     def test_hours_by_quarter(self):
-        response = client(self).get(reverse('HoursByQuarter')).data
+        response = client().get(reverse('HoursByQuarter')).data
         self.assertEqual(len(response), 1)
         row = response[0]
         self.assertEqual(row['billable'], 15)
@@ -198,12 +197,12 @@ class TestAggregates(WebTest):
             ),
         ])
 
-        response = client(self).get(reverse('HoursByQuarter')).data
+        response = client().get(reverse('HoursByQuarter')).data
         self.assertEqual(len(self.timecard_objects), 3)
         self.assertEqual(response[0]['total'], 20)
 
     def test_hours_by_quarter_by_user(self):
-        response = client(self).get(reverse('HoursByQuarterByUser')).data
+        response = client().get(reverse('HoursByQuarterByUser')).data
         self.assertEqual(len(response), 1)
         row = response[0]
         self.assertEqual(row['username'], str(self.user))
@@ -246,7 +245,7 @@ class TestAggregates(WebTest):
             ),
         ])
 
-        response = client(self).get(reverse('HoursByQuarterByUser')).data
+        response = client().get(reverse('HoursByQuarterByUser')).data
         row = response[0]
 
         self.assertEqual(len(self.timecard_objects), 4)
@@ -257,15 +256,15 @@ class ReportingPeriodList(WebTest):
 
     def test_ReportingPeriodList_json(self):
         """ Check that the reporting periods are listed """
-        res = client(self).get(reverse('ReportingPeriodList')).json()
+        res = client().get(reverse('ReportingPeriodList')).json()
         self.assertGreater(len(res), 0)
 
     def test_ReportingPeriodList_json_empty(self):
         """ Check that the ReportingPeriodList is empty when all users
         have filled out thier time cards"""
-        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        reporting_periods = client().get(reverse('ReportingPeriodList')).data
         start_date = reporting_periods[0]['start_date']
-        res = client(self).get(reverse(
+        res = client().get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
@@ -276,14 +275,13 @@ class ReportingPeriodList(WebTest):
         """ Check that the ReportingPeriodList shows users that have missing
         time cards """
         # Create a user
-        self.regular_user = get_user_model().objects.create(
-            username='new.user')
+        self.regular_user = User.objects.create(username='new.user')
         userdata = UserData(user=self.regular_user)
         userdata.save()
 
-        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        reporting_periods = client().get(reverse('ReportingPeriodList')).data
         start_date = reporting_periods[0]['start_date']
-        res = client(self).get(reverse(
+        res = client().get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )
@@ -294,15 +292,15 @@ class ReportingPeriodList(WebTest):
         """ Check that the ReportingPeriodList shows users that have missing
         time cards """
         # Create a user, but set the user as unemployed
-        self.regular_user = get_user_model().objects.create(
+        self.regular_user = User.objects.create(
             username='new.user')
         userdata = UserData(user=self.regular_user)
         userdata.current_employee = False
         userdata.save()
 
-        reporting_periods = client(self).get(reverse('ReportingPeriodList')).data
+        reporting_periods = client().get(reverse('ReportingPeriodList')).data
         start_date = reporting_periods[0]['start_date']
-        res = client(self).get(reverse(
+        res = client().get(reverse(
                 'ReportingPeriodAudit',
                 kwargs={'reporting_period_start_date': start_date}
             )

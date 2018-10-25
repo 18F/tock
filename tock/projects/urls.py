@@ -1,16 +1,8 @@
-from django.conf.urls import url
+from django.urls import path
 
-from . import views
+from .views import ProjectListView, ProjectView
 
 urlpatterns = [
-    url(
-        regex=r'^$',
-        view=views.ProjectListView.as_view(),
-        name='ProjectListView'
-    ),
-    url(
-        regex=r'^(?P<pk>\d+)/$',
-        view=views.ProjectView.as_view(),
-        name='ProjectView'
-    ),
+    path('', ProjectListView.as_view(), name='ProjectListView'),
+    path('<int:pk>/', ProjectView.as_view(), name='ProjectView'),
 ]

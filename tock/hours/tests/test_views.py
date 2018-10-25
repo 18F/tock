@@ -32,7 +32,7 @@ FIXTURES = [
 
 def decode_streaming_csv(response, **reader_options):
     lines = [line.decode('utf-8') for line in response.streaming_content]
-    return csv.DictReader(lines, **reader_options)
+    return list(csv.DictReader(lines, **reader_options))
 
 class DashboardReportsListTests(WebTest):
     fixtures = ['tock/fixtures/prod_user.json',]
@@ -341,22 +341,30 @@ class CSVTests(TestCase):
     fixtures = FIXTURES
 
     def test_user_data_csv(self):
-        """Test that correct fields are returned for user data CSV request."""
-        response = client(self).get(reverse('reports:UserDataView'))
+        """
+        Test that CSV is returned and contains the correct fields
+        for user data CSV request.
+        """
+        response = client().get(reverse('reports:UserDataView'))
         rows = decode_streaming_csv(response)
+        # Make sure we even have a response to work with.
+        self.assertNotEqual(len(rows), 0)
+
+        num_of_fields = 0
         for row in rows:
             num_of_fields = len(row)
         num_of_expected_fields = len(
             UserDataSerializer.__dict__['_declared_fields']
         )
-
         self.assertEqual(num_of_expected_fields, num_of_fields)
 
     def test_project_csv(self):
         """Test that correct fields are returned for project data CSV
         request."""
-        response = client(self).get(reverse('reports:ProjectList'))
+        response = client().get(reverse('reports:ProjectList'))
         rows = decode_streaming_csv(response)
+        num_rows = len(rows)
+        self.assertNotEqual(num_rows, 0)
         for row in rows:
             num_of_fields = len(row)
         num_of_expected_fields = len(
@@ -375,7 +383,7 @@ class CSVTests(TestCase):
         tco.notes = 'Some notes about things!'
         tco.save()
 
-        response = client(self).get(reverse('reports:GeneralSnippetsView'))
+        response = client().get(reverse('reports:GeneralSnippetsView'))
         rows = decode_streaming_csv(response)
         entry_found = False
         for row in rows:
@@ -392,7 +400,7 @@ class BulkTimecardsTests(TestCase):
     fixtures = FIXTURES
 
     def test_bulk_timecards(self):
-        response = client(self).get(reverse('reports:BulkTimecardList'))
+        response = client().get(reverse('reports:BulkTimecardList'))
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
@@ -422,7 +430,7 @@ class BulkTimecardsTests(TestCase):
         self.assertNotEqual(rows_read, 0, 'no rows read, expecting 1 or more')
 
     def test_slim_bulk_timecards(self):
-        response = client(self).get(reverse('reports:SlimBulkTimecardList'))
+        response = client().get(reverse('reports:SlimBulkTimecardList'))
         rows = decode_streaming_csv(response)
         expected_fields = set((
             'project_name',
@@ -482,7 +490,7 @@ class ProjectTimelineTests(WebTest):
     fixtures = FIXTURES
 
     def test_project_timeline(self):
-        res = client(self).get(reverse('reports:UserTimelineView'))
+        res = client().get(reverse('reports:UserTimelineView'))
         self.assertIn(
             'aaron.snow,,2015-06-01,2015-06-08,False,20.00', str(res.content))
 
@@ -739,8 +747,7 @@ class ReportTests(WebTest):
         """
         Tests that a 404 is raised when a reporting period is not found.
         """
-        date = datetime.date(1980, 10, 1)
-
+        date = datetime.date(1980, 10, 1).strftime('%Y-%m-%d')
         response = self.app.get(
             reverse(
                 'reportingperiod:UpdateTimesheet',

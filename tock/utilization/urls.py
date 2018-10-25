@@ -1,10 +1,8 @@
-from django.conf.urls import url
+from django.urls import path
 
-from . import views
+from .views import GroupUtilizationView
 
+app_name = 'utilization'
 urlpatterns = [
-    url(
-        regex=r'^$',
-        view=views.GroupUtilizationView.as_view(),
-        name='GroupUtilizationView'
-    )]
+    path('', GroupUtilizationView.as_view(), name='GroupUtilizationView')
+]

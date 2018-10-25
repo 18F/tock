@@ -345,16 +345,20 @@ class BulkTimecardSerializer(serializers.Serializer):
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
     revenue_profit_loss_account = serializers.CharField(
-        source='revenue_profit_loss_account.accounting_string'
+        source='revenue_profit_loss_account.accounting_string',
+        allow_null=True
     )
     revenue_profit_loss_account_name = serializers.CharField(
-        source='revenue_profit_loss_account.name'
+        source='revenue_profit_loss_account.name',
+        allow_null=True
     )
     expense_profit_loss_account = serializers.CharField(
-        source='expense_profit_loss_account.accounting_string'
+        source='expense_profit_loss_account.accounting_string',
+        allow_null=True
     )
     expense_profit_loss_account_name = serializers.CharField(
-        source='expense_profit_loss_account.name'
+        source='expense_profit_loss_account.name',
+        allow_null=True
     )
     employee_organization = serializers.CharField(
         source='timecard.user.user_data.organization_name'
@@ -438,18 +442,22 @@ class AdminBulkTimecardSerializer(serializers.Serializer):
     active = serializers.BooleanField(source='project.active')
     mbnumber = serializers.CharField(source='project.mbnumber')
     notes = serializers.CharField()
-    grade = serializers.CharField(source='grade.grade')
+    grade = serializers.CharField(source='grade.grade', allow_null=True)
     revenue_profit_loss_account = serializers.CharField(
-        source='revenue_profit_loss_account.accounting_string'
+        source='revenue_profit_loss_account.accounting_string',
+        allow_null=True
     )
     revenue_profit_loss_account_name = serializers.CharField(
-        source='revenue_profit_loss_account.name'
+        source='revenue_profit_loss_account.name',
+        allow_null=True
     )
     expense_profit_loss_account = serializers.CharField(
-        source='expense_profit_loss_account.accounting_string'
+        source='expense_profit_loss_account.accounting_string',
+        allow_null=True
     )
     expense_profit_loss_account_name = serializers.CharField(
-        source='expense_profit_loss_account.name'
+        source='expense_profit_loss_account.name',
+        allow_null=True
     )
     employee_organization = serializers.CharField(
         source='timecard.user.user_data.organization_name'

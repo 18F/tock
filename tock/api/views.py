@@ -1,16 +1,16 @@
 import collections
 import datetime
 
+from django.contrib.auth import get_user_model
 from django.db import connection
 
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
+from rest_framework import serializers, generics
 
-from projects.models import Project
 from hours.models import TimecardObject, Timecard, ReportingPeriod
+from projects.models import Project
 from employees.models import UserData
 
-from rest_framework import serializers, generics
+User = get_user_model()
 
 # Serializers for different models
 
@@ -30,7 +30,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'organization',
         )
     billable = serializers.BooleanField(source='accounting_code.billable')
-    profit_loss_account = serializers.CharField(source='profit_loss_account.name')
+    profit_loss_account = serializers.CharField(source='profit_loss_account.name', allow_null=True)
     client = serializers.StringRelatedField(source='accounting_code')
     organization = serializers.StringRelatedField()
 
@@ -72,7 +72,8 @@ class TimecardSerializer(serializers.Serializer):
     project_id = serializers.CharField(source='project.id')
     project_name = serializers.CharField(source='project.name')
     profit_loss_account = serializers.CharField(
-        source='project.profit_loss_account.name'
+        source='project.profit_loss_account.name',
+        allow_null=True
     )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     start_date = serializers.DateField(
@@ -92,16 +93,20 @@ class TimecardSerializer(serializers.Serializer):
     )
     notes = serializers.CharField()
     revenue_profit_loss_account = serializers.CharField(
-        source='revenue_profit_loss_account.accounting_string'
+        source='revenue_profit_loss_account.accounting_string',
+        allow_null=True
     )
     revenue_profit_loss_account_name = serializers.CharField(
-        source='revenue_profit_loss_account.name'
+        source='revenue_profit_loss_account.name',
+        allow_null=True
     )
     expense_profit_loss_account = serializers.CharField(
-        source='expense_profit_loss_account.accounting_string'
+        source='expense_profit_loss_account.accounting_string',
+        allow_null=True
     )
     expense_profit_loss_account_name = serializers.CharField(
-        source='expense_profit_loss_account.name'
+        source='expense_profit_loss_account.name',
+        allow_null=True
     )
     employee_organization = serializers.CharField(
         source='timecard.user.user_data.organization_name'
@@ -110,7 +115,9 @@ class TimecardSerializer(serializers.Serializer):
         source='project.organization_name'
     )
     grade = serializers.IntegerField(
-        source='grade.grade')
+        source='grade.grade',
+        allow_null=True
+    )
 
 # API Views
 
@@ -137,8 +144,10 @@ class ReportingPeriodList(generics.ListAPIView):
     serializer_class = ReportingPeriodSerializer
 
 class ReportingPeriodAudit(generics.ListAPIView):
-    """ This endpoint retrieves a list of users who have not filled out
-    their time cards for a given time period """
+    """
+    Retrieves a list of users who have not filled out
+    their time cards for a given time period
+    """
 
     queryset = ReportingPeriod.objects.all()
     serializer_class = UserSerializer

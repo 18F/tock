@@ -1,17 +1,17 @@
 import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from django_webtest import WebTest
-
 
 from ..utils import get_fy_first_day, get_dates
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from projects.models import Project, AccountingCode, Agency
 from employees.models import UserData
 
+User = get_user_model()
 
 FIXTURES = [
     'tock/fixtures/prod_user.json',
@@ -106,7 +106,6 @@ class TestGroupUtilizationView(WebTest):
             url=reverse('utilization:GroupUtilizationView'),
             user=self.req_user
         )
-
         self.assertEqual(len(
             response.context['object_list']), len(UserData.UNIT_CHOICES)
         )
@@ -118,9 +117,6 @@ class TestGroupUtilizationView(WebTest):
         self.assertTrue(response.context['object_list'][0]['last'])
         self.assertTrue(response.context['object_list'][0]['fytd'])
         self.assertTrue(response.context['object_list'][0]['recent'])
-        self.assertTrue(
-            response.context['object_list'][0]['billable_staff'][0]._user_cache
-        )
         self.assertEqual(
             response.context['object_list'][0]['billable_staff'][0].unit, 0
         )

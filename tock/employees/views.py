@@ -6,7 +6,6 @@ from django.views.generic import ListView, DetailView
 from django.views.generic.edit import FormView
 from rest_framework.permissions import IsAuthenticated
 
-
 from tock.utils import PermissionMixin, IsSuperUserOrSelf
 
 from .forms import UserForm
