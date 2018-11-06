@@ -32,8 +32,8 @@ MIDDLEWARE += ('nplusone.ext.django.NPlusOneMiddleware', )
 # queries while doing active development using nplusone.
 NPLUSONE_RAISE = False
 
-IS_RUNNING_TEST_SUITE = (os.path.basename(sys.argv[0]) == 'manage.py' and
-                         len(sys.argv) > 1 and sys.argv[1] == 'test')
+IS_RUNNING_TEST_SUITE = (os.path.basename(sys.argv[0]) == 'manage.py'
+                         and len(sys.argv) > 1 and sys.argv[1] == 'test')
 
 if not IS_RUNNING_TEST_SUITE:
     INSTALLED_APPS += ('debug_toolbar', )
