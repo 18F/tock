@@ -250,6 +250,13 @@ def get_timecards(queryset, params=None):
             project__accounting_code__billable=billable
         )
 
+    if 'before' in params:
+        # get everything before a specified date
+        before_date = params.get('before')
+        queryset = queryset.filter(
+            timecard__reporting_period__start_date__lte=before_date
+        )
+
     return queryset
 
 

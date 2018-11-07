@@ -138,7 +138,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         return 'Message Enabled'
 
     def get_fiscal_year(self):
-        """Determines the Fiscal Year (Oct 1 - Sept 31) of a given
+        """Determines the Fiscal Year (Oct 1 - Sept 30) of a given
             ReportingPeriod. Oct, Nov, Dec are part of the *next* FY """
         next_calendar_year_months = [10, 11, 12]
         if self.start_date.month in next_calendar_year_months:
