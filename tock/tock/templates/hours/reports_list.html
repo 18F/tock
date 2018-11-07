@@ -10,31 +10,35 @@
 	<div class="usa-width-one-half">
 		<h2>Regular Reports</h2>
 	<ul>
-
 		<li>Complete timecard data:
 			<a href="{% url 'reports:BulkTimecardList' %}">All</a>
-			<a href="{% url 'reports:BulkTimecardList' %}?after=2016-10-02&before=2017-10-01">FY2017</a>
-            <a href="{% url 'reports:BulkTimecardList' %}?after=2017-10-01&before=2018-09-30">FY2018</a>
+			{% for year in fiscal_years %}
+				<a href="{% url 'reports:BulkTimecardList' %}?after{{ year|add:"-1" }}-10-01&before={{ year }}-09-30">FY{{ year }}</a>
+			{% endfor %}
 		</li>
 		<li>Complete timecard data with fewer fields:
 			<a href="{% url 'reports:SlimBulkTimecardList' %}">All</a>
-			<a href="{% url 'reports:SlimBulkTimecardList' %}?after=2016-10-02&before=2017-10-01">FY2017</a>
-            <a href="{% url 'reports:SlimBulkTimecardList' %}?after=2017-10-01&before=2018-09-30">FY2018</a>
+			{% for year in fiscal_years %}
+				<a href="{% url 'reports:SlimBulkTimecardList' %}?after{{ year|add:"-1" }}-10-01&before={{ year }}-09-30">FY{{ year }}</a>
+			{% endfor %}
 		</li>
 		<li>Complete snippet data for '18F Non-Billable':
 				<a href="{% url 'reports:GeneralSnippetsView' %}">All</a>
-				<a href="{% url 'reports:GeneralSnippetsView' %}?after=2016-10-02&before=2017-10-01">FY2017</a>
-                <a href="{% url 'reports:GeneralSnippetsView' %}?after=2017-10-01&before=2018-09-30">FY2018</a>
+			{% for year in fiscal_years %}
+				<a href="{% url 'reports:GeneralSnippetsView' %}?after{{ year|add:"-1" }}-10-01&before={{ year }}-09-30">FY{{ year }}</a>
+			{% endfor %}
 		</li>
 		<li>Aggregate hourly data by project and reporting period:
 			<a href="{% url 'reports:ProjectTimelineView' %}">All</a>
-			<a href="{% url 'reports:ProjectTimelineView' %}?after=2016-10-02&before=2017-10-01">FY2017</a>
-            <a href="{% url 'reports:ProjectTimelineView' %}?after=2017-10-01&before=2018-09-30">FY2018</a>
+			{% for year in fiscal_years %}
+				<a href="{% url 'reports:ProjectTimelineView' %}?after{{ year|add:"-1" }}-10-01&before={{ year }}-09-30">FY{{ year }}</a>
+			{% endfor %}
 		</li>
 		<li>Aggregate hourly data by user, reporting period, and project billable status:
 			<a href="{% url 'reports:UserTimelineView' %}">All</a>
-			<a href="{% url 'reports:UserTimelineView' %}?after=2016-10-02&before=2017-10-01">FY2017</a>
-            <a href="{% url 'reports:UserTimelineView' %}?after=2017-10-01&before=2018-09-30">FY2018</a>
+			{% for year in fiscal_years %}
+				<a href="{% url 'reports:UserTimelineView' %}?after{{ year|add:"-1" }}-10-01&before={{ year }}-09-30">FY{{ year }}</a>
+			{% endfor %}
 		</li>
 		<li><a href="{% url 'reports:ProjectList' %}">Download list of all projects</a></li>
 		<li><a href="{% url 'reports:UserDataView' %}">Download list of all users</a></li>
@@ -47,8 +51,9 @@
     <h2 class="usa-alert-heading">Superuser Reports</h2>
     <p class="usa-alert-text">Complete timecard data with grade info:<br>
 				<a href="{% url 'reports:AdminBulkTimecardList' %}">All</a>
-				<a href="{% url 'reports:AdminBulkTimecardList' %}?after=2016-10-01&before=2017-09-30">FY2017</a>
-                <a href="{% url 'reports:AdminBulkTimecardList' %}?after=2017-10-01&before=2018-09-30">FY2018</a></p>
+				{% for year in fiscal_years %}
+					<a href="{% url 'reports:AdminBulkTimecardList' %}?after{{ year|add:"-1" }}-10-01&before={{ year }}-09-30">FY{{ year }}</a>
+				{% endfor %}
   </div>
 </div>
 
