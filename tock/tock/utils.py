@@ -45,17 +45,17 @@ class IsSuperUserOrSelf(BasePermission):
     def has_permission(self, request, view):
         return (
             request.user and (
-                request.user.is_superuser or
-                request.user.username == view.kwargs.get('username')
+                request.user.is_superuser
+                or request.user.username == view.kwargs.get('username')
             )
         )
 
 
 def is_running_test_suite():
     return (
-        (os.path.basename(sys.argv[0]) == 'manage.py' and
-            len(sys.argv) > 1 and sys.argv[1] == 'test') or
-        base.FLOAT_API_KEY == ''
+        (os.path.basename(sys.argv[0]) == 'manage.py'
+            and len(sys.argv) > 1 and sys.argv[1] == 'test')
+        or base.FLOAT_API_KEY == ''
     )
 
 
