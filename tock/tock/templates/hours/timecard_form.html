@@ -164,7 +164,7 @@
 
       if (!is_checked) hoursTotal += ($(this).val() / 1);
     });
-    return {'hoursTotal': hoursTotal};
+    return {'hoursTotal': parseFloat(hoursTotal.toFixed(2))};
   }
 
   function populateHourTotals(){
