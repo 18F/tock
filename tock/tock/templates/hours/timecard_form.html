@@ -47,7 +47,7 @@
     <div class="usa-alert-body">
       <h3 class="usa-alert-heading">{{ timecard_note.title }}</h3>
       <p class="usa-alert-text">
-        {{ timecard_note.body|safe }}
+        {{ timecard_note.rendered_body|safe }}
       </p>
     </div>
   </div>
@@ -164,7 +164,7 @@
 
       if (!is_checked) hoursTotal += ($(this).val() / 1);
     });
-    return {'hoursTotal': hoursTotal};
+    return {'hoursTotal': parseFloat(hoursTotal.toFixed(2))};
   }
 
   function populateHourTotals(){
