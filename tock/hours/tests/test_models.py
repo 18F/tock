@@ -83,6 +83,40 @@ class ReportingPeriodTests(TestCase):
             exact_working_hours=32)
         self.assertEqual(2016, reporting_period_2.get_fiscal_year())
 
+        # Testing the week that spans two FYs
+        reporting_period_3 = ReportingPeriod(
+            start_date=datetime.date(2014, 9, 28),
+            end_date=datetime.date(2014, 10, 4),
+            exact_working_hours=32)
+        self.assertEqual(2015, reporting_period_3.get_fiscal_year())
+        reporting_period_4 = ReportingPeriod(
+            start_date=datetime.date(2015, 9, 27),
+            end_date=datetime.date(2015, 10, 3),
+            exact_working_hours=32)
+        self.assertEqual(2015, reporting_period_4.get_fiscal_year())
+
+    def test_get_fiscal_year_start_date(self):
+        # test more October date than September date
+        self.assertEqual(datetime.date(2014, 9, 28),
+            ReportingPeriod.get_fiscal_year_start_date(2015))
+        # test more September date than October date
+        self.assertEqual(datetime.date(2015, 10, 4),
+            ReportingPeriod.get_fiscal_year_start_date(2016))
+        # test fiscal year starts right on 10/1
+        self.assertEqual(datetime.date(2017, 10, 1),
+            ReportingPeriod.get_fiscal_year_start_date(2018))
+
+    def test_get_fiscal_year_end_date(self):
+        # test more October date than September date
+        self.assertEqual(datetime.date(2014, 9, 27),
+            ReportingPeriod.get_fiscal_year_end_date(2014))
+        # test more September date than October date
+        self.assertEqual(datetime.date(2015, 10, 3),
+            ReportingPeriod.get_fiscal_year_end_date(2015))
+        # test fiscal year ends right on 9/30
+        self.assertEqual(datetime.date(2017, 9, 30),
+            ReportingPeriod.get_fiscal_year_end_date(2017))
+
 
 class TimecardTests(TestCase):
     fixtures = [

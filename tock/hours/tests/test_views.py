@@ -610,6 +610,15 @@ class ReportTests(WebTest):
         response = response.content.decode('utf-8')
         self.assertTrue(response.index('2016') < response.index('2015'))
 
+    def test_ReportList_get_context_data(self):
+        response = self.app.get(reverse('reports:ListReports'), user=self.user)
+        act_fiscal_years = response.context['fiscal_years']
+        self.assertNotEqual(0, act_fiscal_years)
+        # check at least first item
+        self.assertEqual({'year': 2017,
+            'start_date': datetime.date(2016, 10, 2),
+            'end_date': datetime.date(2017, 9, 30)}, act_fiscal_years[0])
+
     def test_report_list_authenticated(self):
         """ Check that main page loads with reporting periods for authenticated
         user with with userdata """
