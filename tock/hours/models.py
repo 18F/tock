@@ -141,11 +141,91 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         """Determines the Fiscal Year (Oct 1 - Sept 30) of a given
             ReportingPeriod. Oct, Nov, Dec are part of the *next* FY """
         next_calendar_year_months = [10, 11, 12]
-        if self.start_date.month in next_calendar_year_months:
+        # When this reporting period spans two fiscal years
+        if self.start_date.month == 9 and self.end_date.month == 10:
+            # if start date is 9/27 or earlier, it means there's more September
+            # than October in this period, so it belongs to FY of September
+            if self.start_date.day <= 27:
+                return self.start_date.year
+            # Else there's more October days, it belongs to the FY of October
+            else:
+                return self.start_date.year + 1
+
+        elif self.start_date.month in next_calendar_year_months:
             fiscal_year = self.start_date.year + 1
             return fiscal_year
         else:
             return self.start_date.year
+
+
+    @staticmethod
+    def get_fiscal_year_start_date(fiscal_year):
+        """
+        Normally the FY start date is 10/1 of the previous year, but since our
+        system makes use of reporting period, we cannot just easily use this
+        date.  So in this system, during the week that spans two fiscal years,
+        that week will belong to the previous year if there's more September
+        days than October. And more October days means it belongs to this year.
+        i.e. 10/1/2015 is on a Thursday, this means it belongs to FY 2015 since
+        there is more September days that week (Sun to Wed), so the start date
+        of FY 2016 is 10/04/2015 (that coming Sunday).
+        """
+        first_date = datetime.date(fiscal_year - 1, 10, 1)
+        # converting definition of weekday for easier calculation,
+        # so Sun = 0, Mon = 1, ... Sat = 6
+        normalized_weekday = (first_date.weekday() + 1) % 7
+        # if 10/1 is Sun=0, Mon=1, Tues=2, or Wed=3
+        if normalized_weekday in range(4):
+            # this week belongs to this fiscal year
+            # so the Sunday is the start of the fiscal year
+            # i.e. if Tuesday, this will subtract 2 days to get the Sunday date
+            return first_date - datetime.timedelta(days=normalized_weekday)
+        else:
+            # this week belongs to previous fiscal year
+            # so the coming Sunday is the start of the fiscal year
+            # i.e. if Thursday, this will add 7 - 4 days (3 days) to get the
+            # Sunday date
+            return first_date + datetime.timedelta(days=7-normalized_weekday)
+
+    @staticmethod
+    def get_fiscal_year_end_date(fiscal_year):
+        """
+        Normally the FY end date is 9/30 of the year, but since our
+        system makes use of reporting period, we cannot just easily use this
+        date.  So in this system, during the week that spans two fiscal years,
+        that week will belong to the year if there's more September
+        days than October. And more October days means it belongs to next year.
+        i.e. 9/30/2015 is on a Wesnesday, this means it belongs to FY 2015 since
+        there is more September days that week (Sun to Wed), so the end date
+        of FY 2016 is 10/03/2015 (that Sunday) even though it is an October
+        day.
+        """
+        last_date = datetime.date(fiscal_year, 9, 30)
+        # converting definition of weekday for easier calculation,
+        # so Sun = 0, Mon = 1, ... Sat = 6
+        normalized_weekday = (last_date.weekday() + 1) % 7
+        # if 9/30 is Sun=0, Mon=1, Tues=2
+        if normalized_weekday in range(3):
+            # this week belongs to next fiscal year
+            # so the Saturday before is the end of the fiscal year
+            # i.e. if Tuesday, this will subtract 2+1 = 3 days to get the Saturday
+            # date
+            return last_date - datetime.timedelta(days=normalized_weekday + 1)
+        else:
+            # this week belongs to this fiscal year
+            # so the coming Saturday is the end of the fiscal year
+            # i.e. if Thursday, this will add 6 - 4 days (2 days) to get the
+            # Saturday date
+            return last_date + datetime.timedelta(days=6-normalized_weekday)
+
+    @staticmethod
+    def get_fiscal_year_from_date(date):
+        fy_end = ReportingPeriod.get_fiscal_year_end_date(date.year)
+
+        if date <= fy_end:
+            return date.year
+        else:
+            return date.year + 1
 
     def get_projects(self):
         """Return the valid projects that exist during this reporting period."""

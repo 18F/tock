@@ -943,12 +943,21 @@ class ReportsList(PermissionMixin, ListView):
         sorted_fiscal_years = sorted(fiscal_years.items(), reverse=True)
         return sorted_fiscal_years
 
+
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
+        # Get today's date to figure out the fiscal year it is in
         today = localdate()
-        year = today.year + 2 if today.month >= 10 else today.year + 1
-        context['fiscal_years'] = range(2017, year)
+        # The year will be used to determine which year reporting to end with
+        year = ReportingPeriod.get_fiscal_year_from_date(today)
+        context['fiscal_years'] = []
+        for year in range(2017, year + 1):
+            year_dates = dict()
+            year_dates['year'] = year
+            year_dates['start_date'] = ReportingPeriod.get_fiscal_year_start_date(year)
+            year_dates['end_date'] = ReportingPeriod.get_fiscal_year_end_date(year)
+            context['fiscal_years'].append(year_dates)
 
         return context
 
