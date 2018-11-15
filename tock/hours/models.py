@@ -179,13 +179,13 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
             # this week belongs to this fiscal year
             # so the Sunday is the start of the fiscal year
             # i.e. if Tuesday, this will subtract 2 days to get the Sunday date
-            return first_date - datetime.timedelta(days=normalized_weekday)
+            return first_date - datetime.timedelta(days = normalized_weekday)
         else:
             # this week belongs to previous fiscal year
             # so the coming Sunday is the start of the fiscal year
             # i.e. if Thursday, this will add 7 - 4 days (3 days) to get the
             # Sunday date
-            return first_date + datetime.timedelta(days=7-normalized_weekday)
+            return first_date + datetime.timedelta(days = 7 - normalized_weekday)
 
     @staticmethod
     def get_fiscal_year_end_date(fiscal_year):
@@ -210,13 +210,13 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
             # so the Saturday before is the end of the fiscal year
             # i.e. if Tuesday, this will subtract 2+1 = 3 days to get the Saturday
             # date
-            return last_date - datetime.timedelta(days=normalized_weekday + 1)
+            return last_date - datetime.timedelta(days = normalized_weekday + 1)
         else:
             # this week belongs to this fiscal year
             # so the coming Saturday is the end of the fiscal year
             # i.e. if Thursday, this will add 6 - 4 days (2 days) to get the
             # Saturday date
-            return last_date + datetime.timedelta(days=6-normalized_weekday)
+            return last_date + datetime.timedelta(days = 6 - normalized_weekday)
 
     @staticmethod
     def get_fiscal_year_from_date(date):
