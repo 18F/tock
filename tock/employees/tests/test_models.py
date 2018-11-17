@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.contrib.auth.models import User
 
 from rest_framework.authtoken.models import Token
+from organizations.models import Organization
 from employees.models import EmployeeGrade, UserData
 
 from hours.models import (
@@ -52,7 +53,14 @@ class UserDataTests(TestCase):
             username='aaron.snow',
             is_superuser=True,
             is_staff=True,
-            is_active=True)
+            is_active=True
+        )
+        # Create Organization.
+        self.regular_user_org = Organization.objects.create(
+            name='Engineering',
+            description='18F Engineering Chapter',
+            active=True
+        )
         # Create UserData object related to regular_user.
         self.regular_user_userdata = UserData.objects.create(
             user=self.regular_user,
@@ -60,7 +68,8 @@ class UserDataTests(TestCase):
             end_date=datetime.date(2100, 1, 1),
             unit=1,
             is_18f_employee=True,
-            current_employee=True
+            current_employee=True,
+            organization=self.regular_user_org
         )
         # Create a sample reporting period
         self.reporting_period = ReportingPeriod.objects.create(
@@ -101,6 +110,31 @@ class UserDataTests(TestCase):
         userdata.is_billable = False
         userdata.save()
         self.assertEqual(userdata.is_late, False)
+
+    def test_organization_name(self):
+        """ Check to see if we can get organization name correctly"""
+        userdata = self.regular_user_userdata
+        self.assertEqual(userdata.organization_name, 'Engineering')
+
+    def test_organization_name_empty(self):
+        """ Check to see if we can get empty organization name"""
+        # Create regular_user.
+        user1 = User.objects.create(
+            username='john.doe',
+            is_superuser=True,
+            is_staff=True,
+            is_active=True
+        )
+        # Create UserData object related to regular_user.
+        userdata1 = UserData.objects.create(
+            user=user1,
+            start_date= datetime.date(2014, 1, 1),
+            end_date=datetime.date(2100, 1, 1),
+            unit=1,
+            is_18f_employee=True,
+            current_employee=True
+        )
+        self.assertEqual(userdata1.organization_name, '')
 
     def test_is_not_late(self):
         """ Check if the user is not late when Timecard is present """
