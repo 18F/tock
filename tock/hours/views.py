@@ -951,13 +951,13 @@ class ReportsList(PermissionMixin, ListView):
         today = localdate()
         # The year will be used to determine which year reporting to end with
         year = ReportingPeriod.get_fiscal_year_from_date(today)
-        context['fiscal_years'] = []
-        for year in range(2017, year + 1):
-            year_dates = dict()
-            year_dates['year'] = year
-            year_dates['start_date'] = ReportingPeriod.get_fiscal_year_start_date(year)
-            year_dates['end_date'] = ReportingPeriod.get_fiscal_year_end_date(year)
-            context['fiscal_years'].append(year_dates)
+        context['fiscal_years'] = [ 
+            {
+                'year': fy, 
+                'start_date': ReportingPeriod.get_fiscal_year_start_date(fy),
+                'end_date': ReportingPeriod.get_fiscal_year_end_date(fy)
+            } for fy in range(2017, year + 1)
+        ]
 
         return context
 
