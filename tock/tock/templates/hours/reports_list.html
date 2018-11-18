@@ -4,75 +4,75 @@
 {% endblock %}
 
 {% block content %}
-<h1>Tock Reports</h1>
-<!--TODO: use URLconf to link to the API URLs as opposed to hard coding. -->
-<div class="usa-grid">
-	<div class="usa-width-one-half">
-		<h2>Regular Reports</h2>
-	<ul>
-		<li>Complete timecard data:
-			<a href="{% url 'reports:BulkTimecardList' %}">All</a>
-			{% for fy in fiscal_years %}
-				<a href="{% url 'reports:BulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
-			{% endfor %}
-		</li>
-		<li>Complete timecard data with fewer fields:
-			<a href="{% url 'reports:SlimBulkTimecardList' %}">All</a>
-			{% for fy in fiscal_years %}
-				<a href="{% url 'reports:SlimBulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
-			{% endfor %}
-		</li>
-		<li>Complete snippet data for '18F Non-Billable':
-				<a href="{% url 'reports:GeneralSnippetsView' %}">All</a>
-			{% for fy in fiscal_years %}
-				<a href="{% url 'reports:GeneralSnippetsView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
-			{% endfor %}
-		</li>
-		<li>Aggregate hourly data by project and reporting period:
-			<a href="{% url 'reports:ProjectTimelineView' %}">All</a>
-			{% for fy in fiscal_years %}
-				<a href="{% url 'reports:ProjectTimelineView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
-			{% endfor %}
-		</li>
-		<li>Aggregate hourly data by user, reporting period, and project billable status:
-			<a href="{% url 'reports:UserTimelineView' %}">All</a>
-			{% for fy in fiscal_years %}
-				<a href="{% url 'reports:UserTimelineView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
-			{% endfor %}
-		</li>
-		<li><a href="{% url 'reports:ProjectList' %}">Download list of all projects</a></li>
-		<li><a href="{% url 'reports:UserDataView' %}">Download list of all users</a></li>
-	</ul>
-	</div>
-	<div class="usa-width-one-half">
-		{% if user.is_superuser %}
-		<div class="usa-alert usa-alert-info">
-  <div class="usa-alert-body">
-    <h2 class="usa-alert-heading">Superuser Reports</h2>
-    <p class="usa-alert-text">Complete timecard data with grade info:<br>
-				<a href="{% url 'reports:AdminBulkTimecardList' %}">All</a>
-				{% for fy in fiscal_years %}
-					<a href="{% url 'reports:AdminBulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
-				{% endfor %}
+  <h1>Tock Reports</h1>
+  <!--TODO: use URLconf to link to the API URLs as opposed to hard coding. -->
+  <div class="usa-grid">
+    <div class="usa-width-one-half">
+      <h2>Regular Reports</h2>
+      <ul>
+        <li>Complete timecard data:
+          <a href="{% url 'reports:BulkTimecardList' %}">All</a>
+          {% for fy in fiscal_years %}
+            <a href="{% url 'reports:BulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
+          {% endfor %}
+        </li>
+        <li>Complete timecard data with fewer fields:
+          <a href="{% url 'reports:SlimBulkTimecardList' %}">All</a>
+          {% for fy in fiscal_years %}
+            <a href="{% url 'reports:SlimBulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
+          {% endfor %}
+        </li>
+        <li>Complete snippet data for '18F Non-Billable':
+            <a href="{% url 'reports:GeneralSnippetsView' %}">All</a>
+          {% for fy in fiscal_years %}
+            <a href="{% url 'reports:GeneralSnippetsView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
+          {% endfor %}
+        </li>
+        <li>Aggregate hourly data by project and reporting period:
+          <a href="{% url 'reports:ProjectTimelineView' %}">All</a>
+          {% for fy in fiscal_years %}
+            <a href="{% url 'reports:ProjectTimelineView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
+          {% endfor %}
+        </li>
+        <li>Aggregate hourly data by user, reporting period, and project billable status:
+          <a href="{% url 'reports:UserTimelineView' %}">All</a>
+          {% for fy in fiscal_years %}
+            <a href="{% url 'reports:UserTimelineView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
+          {% endfor %}
+        </li>
+        <li><a href="{% url 'reports:ProjectList' %}">Download list of all projects</a></li>
+        <li><a href="{% url 'reports:UserDataView' %}">Download list of all users</a></li>
+      </ul>
+    </div>
+    <div class="usa-width-one-half">
+    {% if user.is_superuser %}
+      <div class="usa-alert usa-alert-info">
+        <div class="usa-alert-body">
+        <h2 class="usa-alert-heading">Superuser Reports</h2>
+        <p class="usa-alert-text">Complete timecard data with grade info:</p>
+            <a href="{% url 'reports:AdminBulkTimecardList' %}">All</a>
+            {% for fy in fiscal_years %}
+              <a href="{% url 'reports:AdminBulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
+            {% endfor %}
+        </div>
+      </div>
+
+    {% endif %}
+    </div>
   </div>
-</div>
-
-	{% endif %}
-	</div>
-</div>
 
 
 
 
-<div class="reporting-periods clearfix">
-	<h2>Reports by weekly reporting period</h2>
-	{% for fiscal_year, reporting_periods in object_list %}
-	<h3>Fiscal Year {{ fiscal_year }}</h3>
-	<ul>
-	{% for reporting_period in reporting_periods %}
-	    <li><a href="{% url 'reports:ReportingPeriodDetailView' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> (<em><a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">CSV</a></em>)</li>
-	{% endfor %}
-	</ul>
-	{% endfor %}
-</div>
+  <div class="reporting-periods clearfix">
+    <h2>Reports by weekly reporting period</h2>
+    {% for fiscal_year, reporting_periods in object_list %}
+      <h3>Fiscal Year {{ fiscal_year }}</h3>
+      <ul>
+      {% for reporting_period in reporting_periods %}
+        <li><a href="{% url 'reports:ReportingPeriodDetailView' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a> (<em><a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">CSV</a></em>)</li>
+      {% endfor %}
+      </ul>
+    {% endfor %}
+  </div>
 {% endblock %}
