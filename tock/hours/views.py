@@ -13,6 +13,7 @@ from django.db.models import Sum
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.timezone import localdate
 from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from rest_framework import serializers
@@ -942,6 +943,23 @@ class ReportsList(PermissionMixin, ListView):
         sorted_fiscal_years = sorted(fiscal_years.items(), reverse=True)
         return sorted_fiscal_years
 
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Get today's date to figure out the fiscal year it is in
+        today = localdate()
+        # The year will be used to determine which year reporting to end with
+        year = ReportingPeriod.get_fiscal_year_from_date(today)
+        context['fiscal_years'] = [
+            {
+                'year': fy,
+                'start_date': ReportingPeriod.get_fiscal_year_start_date(fy),
+                'end_date': ReportingPeriod.get_fiscal_year_end_date(fy)
+            } for fy in range(2017, year + 1)
+        ]
+
+        return context
 
 class ReportingPeriodDetailView(PermissionMixin, ListView):
     template_name = 'hours/reporting_period_detail.html'

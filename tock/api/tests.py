@@ -121,6 +121,23 @@ class TimecardsAPITests(WebTest):
                                  params={'project': '22'})
         self.assertEqual(len(queryset), 0)
 
+        # Check with before param
+        queryset = get_timecards(TimecardList.queryset,
+                                 params={'before': '2015-06-01'})
+        self.assertEqual(len(queryset), 1)
+        queryset = get_timecards(TimecardList.queryset,
+                                 params={'before': '2015-05-31'})
+        self.assertEqual(len(queryset), 0)
+
+        # Check with a range using before and after param
+        queryset = get_timecards(TimecardList.queryset,
+                                 params={'after': '2015-06-01', 'before': '2016-05-31'})
+        self.assertEqual(len(queryset), 1)
+        queryset = get_timecards(TimecardList.queryset,
+                                 params={'after': '2015-06-01', 'before': '2016-06-01'})
+        self.assertEqual(len(queryset), 2)
+
+
     def test_get_unsubmitted_timecards(self):
         """ Check that get time cards returns the correct queryset """
         queryset = get_timecards(
