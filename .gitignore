@@ -77,3 +77,6 @@ tock/VERSION
 
 # vscode stuff
 .vscode
+
+# cypress examples
+cypress/examples
