@@ -48,7 +48,7 @@ jobs:
           command: |
             pip install pipenv
             pipenv install --dev --deploy
-            npm install
+            CYPRESS_INSTALL_BINARY=0 npm install
 
       - save_cache:
           paths:
