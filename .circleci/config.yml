@@ -48,12 +48,14 @@ jobs:
           command: |
             pip install pipenv
             pipenv install --dev --deploy
-            CYPRESS_INSTALL_BINARY=0 npm install
+            npm install
 
       - save_cache:
           paths:
             - ./.venv
             - ./node_modules
+            - ~/.npm
+            - ~/.cache
           key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
 
       # run tests!
@@ -68,6 +70,12 @@ jobs:
             bandit -r . -x docker_entrypoint.py
             flake8
             codecov
+            python manage.py loaddata test_data/data-update-deduped.json --settings=tock.settings.test
+            python manage.py createsuperuser --username admin.user --email admin.user@gsa.gov --noinput --settings=tock.settings.test
+            python manage.py runserver 0.0.0.0:8000 --settings=tock.settings.test &
+            sleep 5
+            cd ..
+            $(npm bin)/cypress run --config video=false
 
       - store_artifacts:
           path: test-reports
