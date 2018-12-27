@@ -54,8 +54,6 @@ jobs:
           paths:
             - ./.venv
             - ./node_modules
-            - ~/.npm
-            - ~/.cache
           key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
 
       # run tests!
