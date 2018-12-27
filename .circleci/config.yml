@@ -37,11 +37,11 @@ jobs:
       - checkout
 
       # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+      # - restore_cache:
+      #     keys:
+      #     - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
+      #     # fallback to using the latest cache if no exact match is found
+      #     - v1-dependencies-
 
       - run:
           name: install dependencies
@@ -50,11 +50,11 @@ jobs:
             pipenv install --dev --deploy
             npm install
 
-      - save_cache:
-          paths:
-            - ./.venv
-            - ./node_modules
-          key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
+      # - save_cache:
+      #     paths:
+      #       - ./.venv
+      #       - ./node_modules
+      #     key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
 
       # run tests!
       - run:
