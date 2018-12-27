@@ -50,11 +50,11 @@ jobs:
             pipenv install --dev --deploy
             npm install
 
-      # - save_cache:
-      #     paths:
-      #       - ./.venv
-      #       - ./node_modules
-      #     key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
+      - save_cache:
+          paths:
+            - ./.venv
+            - ./node_modules
+          key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
 
       # run tests!
       - run:
