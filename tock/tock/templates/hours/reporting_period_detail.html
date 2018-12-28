@@ -28,7 +28,7 @@
       <td data-title="First name">{{ user.first_name }}</td>
       <td data-title="Last name">{{ user.last_name }}</td>
       <td><a href="mailto:{{ user.email }}">{{ user.email }}</td>
-      <td data-title="Organization">{{ user.organization_name }}</td>
+      <td data-title="Organization">{{ user.user_data.organization_name }}</td>
     </tr>
   {% endfor %}
   </tbody>
@@ -44,6 +44,7 @@
       <th>First Name</th>
       <th>Last Name</th>
       <th>View Timecard</th>
+      <th>Organization</th>
     </tr>
   </thead>
   <tbody>
@@ -52,6 +53,7 @@
       <td data-title="First name">{{ timecard.user.first_name }}</td>
       <td data-title="Last name">{{ timecard.user.last_name }}</td>
       <td><a href="{% url 'reports:ReportingPeriodUserDetailView' reporting_period=timecard.reporting_period username=timecard.user.username %}">View Timecard</a></td>
+      <td data-title="Organization">{{ timecard.user.user_data.organization_name }}</td>
     </tr>
   {% endfor %}
   </tbody>
