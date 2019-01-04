@@ -13,12 +13,13 @@ developer is already on the project, you'll be paired with them so they can help
 Before you get started onboarding, your Tock developer partner needs to take care of a few things.
 They will [create a new issue](https://github.com/18f/tock/issues/new) with the following
 checklist, work through it with you.
-- [ ] Generate a Tock API authorization token for the new developer.
+- [ ] Generate a Tock API authorization token in the admin for the new developer.
 - [ ] Grant access to New Relic.
 - [ ] Grant access to the GitHub repository.
-- [ ] Grant access to SpaceDeveloper roles in Cloud Foundry for `staging` and `prod` spaces.
+- [ ] Grant access to SpaceDeveloper roles on Cloud.gov for `staging` and `prod` spaces within the  `gsa-18f-tock` org.
 - [ ] Send invitation to #tock-dev in Slack.
-- [ ] Grant access to `GSATETockLibrary` and `GSATEUtilitiesLibrary` scripts.
+- [ ] Grant access to `GSA_TE_TockLibrary` and `GSA_TE_UtilitiesLibrary` scripts.
+- [ ] Grant access to `gsa-18f-tock` org on Snyk.
 
 
 ## New developer checklist
@@ -28,7 +29,7 @@ You will need to be sure you have:
 
 
 ## Things to remember
-- If you get questions about timecards that don't seem to be answerable fromm looking at the Tock code, it's probably the [Google Script Integration](../docs/google-script-integration.md).
+- If you get questions about timecards that don't seem to be answerable from looking at the Tock code, it's probably the [Google Script Integration](../docs/google-script-integration.md).
 
 
 ## Things we maintain
