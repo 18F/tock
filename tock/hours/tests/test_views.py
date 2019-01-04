@@ -11,7 +11,7 @@ from django_webtest import WebTest
 
 from api.tests import client
 from api.views import UserDataSerializer, ProjectSerializer
-from employees.models import UserData
+from employees.models import UserData, Organization
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
 from hours.views import GeneralSnippetsTimecardSerializer
@@ -1125,17 +1125,8 @@ class ReportTests(WebTest):
             ),
             user=self.regular_user
         )
-
-        tables = response.html.find_all('table')
-        not_filed_time = tables[0]
-        filed_time = tables[1]
-        self.assertEqual(
-            len(not_filed_time.find_all('td')), 0
-        )
-        self.assertEqual(
-            len(filed_time.find_all('td')), 6
-        )
-
+        self.assertEqual(len(response.context['users_without_filed_timecards']), 0)
+        self.assertEqual(len(response.context['timecard_list']), 2)
 
     def test_ReportingPeriodDetailView_add_unsubmitted_time(self):
         """
@@ -1182,6 +1173,21 @@ class ReportTests(WebTest):
         )
         self.assertContains(response,
             '<td><a href="mailto:maya@gsa.gov">maya@gsa.gov</td>')
+
+    def test_ReportingPeriodDetailView_shows_organization(self):
+        """Report detail tables must show each user's organization"""
+        self.regular_user.user_data.organization = Organization.objects.get_or_create(name='TEST_ORG')[0]
+        self.regular_user.user_data.save()
+        response = self.app.get(
+            reverse(
+                'reports:ReportingPeriodDetailView',
+                kwargs={'reporting_period': '2015-01-01'},
+            ),
+            user=self.regular_user
+        )
+
+        self.assertContains(response,
+                            self.regular_user.user_data.organization)
 
 class PrefillDataViewTests(WebTest):
     fixtures = [
