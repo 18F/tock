@@ -75,7 +75,6 @@ Some Model names:
 - `UserData`
 - `HolidayPrefills`
 - `ReportingPeriod`
-- `Targets`
 - `Timecard`
 - `TimecardNote`
 - `TimecardObject`

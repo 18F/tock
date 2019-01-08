@@ -19,13 +19,6 @@ def reporting_period_creation(sender, instance=None, **kwargs):
         )
 
 
-def targets_creation(sender, instance=None, **kwargs):
-    if instance is not None and instance.pk is None:
-        logger.info(
-            f'Creating Targets for {instance}.'
-        )
-
-
 def timecard_creation(sender, instance=None, **kwargs):
     if instance is not None and instance.pk is None:
         logger.info(
@@ -56,7 +49,7 @@ def timecard_prefill_data_creation(sender, instance=None, **kwargs):
 
 def setup_signals():
     from .models import (
-        HolidayPrefills, ReportingPeriod, Targets, Timecard, TimecardNote,
+        HolidayPrefills, ReportingPeriod, Timecard, TimecardNote,
         TimecardObject, TimecardPrefillData
     )
 
@@ -69,11 +62,6 @@ def setup_signals():
         reporting_period_creation,
         sender=ReportingPeriod,
         dispatch_uid="hours_reporting_period_creation"
-    )
-    pre_save.connect(
-        targets_creation,
-        sender=Targets,
-        dispatch_uid="hours_targets_creation"
     )
     pre_save.connect(
         timecard_creation,

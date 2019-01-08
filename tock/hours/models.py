@@ -24,51 +24,6 @@ class HolidayPrefills(models.Model):
         unique_together = ['project', 'hours_per_period']
         ordering = ['project__name']
 
-class Targets(models.Model):
-    name = models.CharField(
-        max_length=200,
-        blank=True,
-        null=True
-    )
-    start_date = models.DateField(
-        unique=True
-    )
-    end_date = models.DateField(
-        unique=True
-    )
-    hours_target_cr = models.PositiveIntegerField(
-        default=0,
-        verbose_name='Hours target for cost recovery'
-    )
-    hours_target_plan = models.PositiveIntegerField(
-        default=0,
-        verbose_name='Hours target for financial plan'
-    )
-    revenue_target_cr = models.PositiveIntegerField(
-        default=0,
-        verbose_name='Revenue target for financial plan'
-    )
-    revenue_target_plan = models.PositiveIntegerField(
-        default=0,
-        verbose_name='Revenue target for financial plan',
-    )
-    periods = models.PositiveSmallIntegerField(
-        default=52,
-    )
-    labor_rate = models.PositiveSmallIntegerField(
-        default=1
-    )
-
-    def fiscal_year(self):
-        return ReportingPeriod.get_fiscal_year(self)
-
-    def __str__(self):
-        return '{} (FY{})'.format(self.name, self.fiscal_year())
-
-    class Meta:
-        unique_together = ("start_date", "end_date")
-        verbose_name = 'Target'
-        verbose_name_plural = 'Targets'
 
 class ReportingPeriod(ValidateOnSaveMixin, models.Model):
     USWDS_ALERT_SUCCESS = 'success'
