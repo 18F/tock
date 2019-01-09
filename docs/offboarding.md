@@ -18,3 +18,5 @@ checklist. Replace {TockDeveloper} with the name of the offboarding developer.
   - [ ] Rotation of cloud.gov service provider Service Keys.
   - [ ] Rotation of cloud.gov identity provider Service Keys.
   - [ ] Rotation of New Relic API key.
+[ ] {TockDeveloper} staff status removed in Django admin User tables
+[ ] {TockDeveloper} API keys removed in Django admin
