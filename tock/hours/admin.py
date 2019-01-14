@@ -7,7 +7,6 @@ from django.forms.models import BaseInlineFormSet
 from .models import (
     HolidayPrefills,
     ReportingPeriod,
-    Targets,
     Timecard,
     TimecardNote,
     TimecardObject,
@@ -129,7 +128,6 @@ class TimecardPrefillDataInline(admin.TabularInline):
 
 admin.site.register(HolidayPrefills)
 admin.site.register(ReportingPeriod, ReportingPeriodAdmin)
-admin.site.register(Targets)
 admin.site.register(Timecard, TimecardAdmin)
 admin.site.register(TimecardNote, TimecardNoteAdmin)
 admin.site.register(TimecardPrefillData, TimecardPrefillDataAdmin)
