@@ -25,7 +25,7 @@ describe('Timecard', () => {
     const length = entries.length;
     await page.click('.add-timecard-entry');
     const _entries = await page.$$('.entry');
-    expect(_entries.length).toEqual(length + 1);
+    await expect(_entries.length).toEqual(length + 1);
   });
 
   test('sums the hours in each project entry and correctly rounds!', async () => {
@@ -39,6 +39,6 @@ describe('Timecard', () => {
 
     await page.click('.add-timecard-entry');
     await page.type('#id_timecardobjects-2-hours_spent', '.2');
-    expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.6'});
+    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.6'});
   });
 });
