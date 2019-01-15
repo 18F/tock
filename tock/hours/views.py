@@ -724,9 +724,10 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
             .distinct().values_list('user__id', flat=True)
 
         unfiled_users = get_user_model().objects \
-            .exclude(user_data__start_date__gte=self.report_period.end_date) \
             .exclude(id__in=filed_users) \
+            .filter(is_active=True) \
             .filter(user_data__current_employee=True) \
+            .exclude(user_data__start_date__gte=self.report_period.end_date) \
             .select_related('user_data') \
             .order_by('last_name', 'first_name')
 
