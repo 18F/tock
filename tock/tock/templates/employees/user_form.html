@@ -6,19 +6,6 @@
 {% block content %}
 <h1>Let's Tock about {{ username }}!</h1>
 
-<figure class="chart chart--utilization">
-  <h2 class="chart__title">Project Hours Over Time</h2>
-  <utilization-chart
-    class="timeline timeline--project"
-    data-url="/reports/project_timeline.csv?user={{ username }}"
-    href="/projects/{% verbatim %}{{ project_id }}{% endverbatim %}"
-    layer="project_name"
-    color="project"
-    x="start_date"
-    y="hours_spent">
-  </utilization-chart>
-</figure>
-
 <form action="" method="post">{% csrf_token %}
     <!--{{ form.as_p }}-->
     {{ form.first_name.label_tag }}

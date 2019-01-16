@@ -5,22 +5,6 @@
 
 {% block content %}
 <h1>Tock Projects</h1>
-
-<figure class="chart chart--utilization">
-  <h2 class="chart__title">Project Hours Over Time</h2>
-  <utilization-chart
-    class="timeline timeline--projects"
-    data-url="/reports/project_timeline.csv"
-    href="/projects/{% verbatim %}{{ project_id }}{% endverbatim %}"
-    layer="project_name"
-    color="project"
-    x="start_date"
-    y="hours_spent">
-  </utilization-chart>
-</figure>
-
-
-
 <table class="table-responsive-reflow">
   <caption><h3>Active Projects</h3></caption>
   <thead>

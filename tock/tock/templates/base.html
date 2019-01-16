@@ -8,9 +8,9 @@
 
     {% load staticfiles %}
     {% if request.user.is_authenticated and request.user.user_data.is_late %}
-    <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
+      <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
     {% else %}
-    <link rel="shortcut icon" href="{% static 'img/favicon-happy.png' %}">
+      <link rel="shortcut icon" href="{% static 'img/favicon-happy.png' %}">
     {% endif %}
     <meta name="tock-icon-happy" content="{% static 'img/favicon-happy' %}">
     <meta name="tock-icon-angry" content="{% static 'img/favicon-angry' %}">
@@ -23,11 +23,6 @@
     <script src="{% static 'js/vendor/jquery-ui.min.js' %}"></script>
     <script src="{% static 'js/uswds.min.js' %}"></script>
 
-    <!-- charting dependencies -->
-    <script src="{% static 'js/vendor/d3.min.js' %}"></script>
-    <script src="{% static 'js/vendor/datalib.min.js' %}"></script>
-    <script src="{% static 'js/vendor/document-register-element.js' %}"></script>
-    <script src="{% static 'js/components/utilization-chart.js' %}"></script>
     <script src="{% static 'js/components/notifications.js' %}"></script>
 
     <script>
