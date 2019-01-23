@@ -1,15 +1,16 @@
 import json
 
 import bleach
-
 from django import forms
-from django.forms.models import BaseInlineFormSet
-from django.forms.models import inlineformset_factory
-from django.utils.html import escapejs
+from django.db import connection, transaction
 from django.db.models import Prefetch
+from django.forms.models import BaseInlineFormSet, inlineformset_factory
+from django.utils.html import escapejs
 
-from .models import Timecard, TimecardObject, ReportingPeriod
 from projects.models import AccountingCode, Project
+
+from .models import ReportingPeriod, Timecard, TimecardObject
+
 
 class ReportingPeriodForm(forms.ModelForm):
     """Form for creating new reporting periods"""
@@ -162,7 +163,6 @@ class TimecardObjectForm(forms.ModelForm):
         return self.cleaned_data.get('hours_spent') or 0
 
     def clean(self):
-        super(TimecardObjectForm, self).clean()
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
@@ -260,6 +260,17 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
 
         return getattr(self, 'cleaned_data', None)
+
+    def save(self, commit=True):
+        """
+        Save with deferred constraints
+        Allowing users to swap project IDs between TimeCardObjects
+        """
+        cur = connection.cursor()
+        with transaction.atomic():
+                cur.execute("SET CONSTRAINTS ALL DEFERRED")
+                formset = super().save(commit=commit)
+        return formset
 
 
 def timecard_formset_factory(extra=1):
