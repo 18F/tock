@@ -75,6 +75,11 @@
           <div class="entry-project usa-width-two-thirds">
             {{ project_entry.project.label_tag }}
             {{ project_entry.project }}
+            {% if project_entry.non_field_errors %}
+            <div class="invalid">
+              {{ project_entry.non_field_errors }}
+            </div>
+            {% endif %}
             <div class="entry-alerts" id="entry-alerts"></div>
             <div class="entry-hidden" id="entry-notes">
               {{ project_entry.notes.label_tag }}
