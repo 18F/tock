@@ -263,8 +263,18 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
     def save(self, commit=True):
         """
-        Save with deferred constraints
-        Allowing users to swap project IDs between TimeCardObjects
+        Incoming TimeCardObjectForms may violate the unique by (project_id, timecard_id)
+        constraint if users are swapping project_ids across TimeCardObjects which already
+        exist in the database.
+
+        From the user's perspective, the submitted timecard is valid and
+        so long as the final state of the TimeCardObject table and the Timecard itself is valid
+        we must accept the changes.
+
+        To do that, we save the formset with constraints deferred so that
+        they are checked at the end of the transaction.
+
+        Additional details: https://github.com/18F/tock/issues/887
         """
         cur = connection.cursor()
         with transaction.atomic():
