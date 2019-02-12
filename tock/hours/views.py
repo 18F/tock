@@ -770,18 +770,7 @@ def ReportingPeriodCSVView(request, reporting_period):
         if not timecard_object.timecard.submitted:
             continue
 
-        writer.writerow([
-            "{0} - {1}".format(
-                timecard_object.timecard.reporting_period.start_date,
-                timecard_object.timecard.reporting_period.end_date
-            ),
-            timecard_object.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
-            timecard_object.timecard.user.username,
-            timecard_object.project,
-            timecard_object.hours_spent,
-            timecard_object.timecard.user.user_data.organization_name,
-            timecard_object.project.organization_name
-        ])
+        writer.writerow(timecard_object.to_csv_row())
 
     return response
 

@@ -716,22 +716,26 @@ class ReportTests(WebTest):
         self.assertEqual(response.status_code, 403)
 
     def test_ReportingPeriodCSVView(self):
+        """
+        CSV row representation of included TimeCardObjects
+        must be present in generated CSV
+        """
+        reporting_period = '2015-01-01'
+        expected = hours.models.TimecardObject.objects.filter(
+            timecard__reporting_period__start_date=reporting_period
+        ).first()
         response = self.app.get(
             reverse(
                 'reports:ReportingPeriodCSVView',
-                kwargs={'reporting_period': '2015-01-01'},
+                kwargs={'reporting_period': reporting_period},
             ),
             user=self.regular_user
         )
         lines = response.content.decode('utf-8').splitlines()
         self.assertEqual(len(lines), 3)
-        result = '2015-01-01 - 2015-01-07,{0},aaron.snow,Peace Corps,28.00,,'
-        self.assertEqual(
-            result.format(
-                self.timecard.modified.strftime('%Y-%m-%d %H:%M:%S')
-            ),
-            lines[2],
-        )
+        # coerce to comma delimited string for comparison
+        expected_csv_row = ','.join([str(x) for x in expected.to_csv_row()])
+        self.assertIn(expected_csv_row, lines)
 
     def test_ReportingPeriodCSVView_add_additional_row(self):
         """
