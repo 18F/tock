@@ -68,6 +68,12 @@ jobs:
             bandit -r . -x docker_entrypoint.py
             flake8
             codecov
+            python manage.py loaddata test_data/data-update-deduped.json --settings=tock.settings.test
+            python manage.py createsuperuser --username admin.user --email admin.user@gsa.gov --noinput --settings=tock.settings.test
+            python manage.py runserver 0.0.0.0:8000 --settings=tock.settings.test &
+            sleep 5
+            cd ..
+            npm run test
 
       - store_artifacts:
           path: test-reports
