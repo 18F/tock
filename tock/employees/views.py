@@ -23,11 +23,7 @@ class UserListView(PermissionMixin, ListView):
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
-        return User.objects.select_related('user_data')
-
-    def get_context_data(self, **kwargs):
-        context = super(UserListView, self).get_context_data(**kwargs)
-        return context
+        return User.objects.filter(is_active=True).select_related('user_data')
 
 
 class UserDetailView(PermissionMixin, DetailView):
