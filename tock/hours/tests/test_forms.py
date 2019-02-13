@@ -1,6 +1,6 @@
 import datetime
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.contrib.auth import get_user_model
 
 import hours.models
@@ -116,42 +116,77 @@ class TimecardObjectFormTests(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['notes'], 'This is a test!')
 
-class TimecardInlineFormSetTests(TestCase):
-    fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
 
-    def setUp(self):
-        self.reporting_period = hours.models.ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 1, 1),
+def time_card_inlineformset_setup(self):
+    self.reporting_period = hours.models.ReportingPeriod.objects.create(
+     start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
             exact_working_hours=40,
             min_working_hours=40,
             max_working_hours=60
-            )
-        self.user = get_user_model().objects.get(id=1)
-        self.project_1 = projects.models.Project.objects.get(name="openFEC")
-        self.project_2 = projects.models.Project.objects.get(
-            name="Peace Corps")
-        self.project_3 = projects.models.Project.objects.get(name='General')
-        self.project_3.notes_displayed = True
-        self.project_3.notes_required = True
-        self.project_3.save()
-        self.timecard = hours.models.Timecard.objects.create(
-            reporting_period=self.reporting_period,
+    )
+    self.user = get_user_model().objects.get(id=1)
+    self.project_1 = projects.models.Project.objects.get(name="openFEC")
+    self.project_2 = projects.models.Project.objects.get(
+     name="Peace Corps")
+    self.project_3 = projects.models.Project.objects.get(name='General')
+    self.project_3.notes_displayed = True
+    self.project_3.notes_required = True
+    self.project_3.save()
+    self.timecard = hours.models.Timecard.objects.create(
+     reporting_period=self.reporting_period,
             user=self.user)
 
-    def form_data(self, clear=[], **kwargs):
-        """ Method that auto generates form data for tests """
-        form_data = {
-            'timecardobjects-TOTAL_FORMS': '2',
+    self.initial_form_data = {
+     'timecardobjects-TOTAL_FORMS': '2',
             'timecardobjects-INITIAL_FORMS': '0',
             'timecardobjects-MIN_NUM_FORMS': '',
             'timecardobjects-MAX_NUM_FORMS': '',
             'timecardobjects-0-project': '4',
-            'timecardobjects-0-hours_spent': '22',
+            'timecardobjects-0-hours_spent': '20',
             'timecardobjects-1-project': '5',
             'timecardobjects-1-hours_spent': '20'
-        }
+    }
+
+
+class TimecardInlineFormSetTransactionTests(TransactionTestCase):
+    fixtures = [
+     'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json',
+            'employees/fixtures/user_data.json'
+    ]
+
+    setUp = time_card_inlineformset_setup
+
+    def test_timecard_inline_formset_modify_saved(self):
+        """Users can swap project IDs between TimeCardObjects """
+        form_data = self.initial_form_data
+        formset = TimecardFormSet(form_data, instance=self.timecard)
+        # Save these timecard entries for later modification
+        formset.save_only = True
+        formset.is_valid()
+        formset.save()
+
+        # We've got a saved timecard, lets try to edit it by swapping the projects
+        project5 = self.timecard.timecardobjects.get(project_id=5)
+        project4 = self.timecard.timecardobjects.get(project_id=4)
+        form_data.update({'timecardobjects-0-id': project4.id,
+                          'timecardobjects-1-id': project5.id,
+                          'timecardobjects-0-project': '5',
+                          'timecardobjects-1-project': '4',
+                          'timecardobjects-INITIAL_FORMS': '2'})
+        formset = TimecardFormSet(form_data, instance=self.timecard)
+        formset.is_valid()
+        formset.save()
+
+class TimecardInlineFormSetTests(TestCase):
+    fixtures = [
+        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
+
+    setUp = time_card_inlineformset_setup
+
+    def form_data(self, clear=[], **kwargs):
+        """ Method that auto generates form data for tests """
+        form_data = self.initial_form_data
         for key in clear:
             del form_data[key]
         for key, value in kwargs.items():

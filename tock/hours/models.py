@@ -400,6 +400,21 @@ class TimecardObject(models.Model):
         super(TimecardObject, self).save(*args, **kwargs)
 
 
+    def to_csv_row(self):
+        """Output attributes for csv.writer consumption"""
+        return [
+            "{0} - {1}".format(
+                self.timecard.reporting_period.start_date,
+                self.timecard.reporting_period.end_date
+            ),
+            self.timecard.modified.strftime("%Y-%m-%d %H:%M:%S"),
+            self.timecard.user.username,
+            self.project,
+            self.hours_spent,
+            self.timecard.user.user_data.organization_name,
+            self.project.organization_name
+        ]
+
 class TimecardPrefillDataManager(models.Manager):
     def active(self):
         return super(TimecardPrefillDataManager, self).get_queryset().filter(
