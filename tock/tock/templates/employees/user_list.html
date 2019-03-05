@@ -21,9 +21,7 @@
   {% for user in object_list %}
     <tr>
       <td>
-      {% if request.user.is_superuser %}
-        <a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
-      {% elif request.user.username == user.username %}
+      {% if request.user.is_superuser or request.user.username == user.username %}
         <a href="/employees/e/{{ user.username }}">{{ user.username }}</a>
       {% else %}
         <a href="/employees/{{ user.username }}">{{ user.username }}</a>
@@ -32,7 +30,6 @@
       <td data-title="First name">{{ user.first_name }}</td>
       <td data-title="Last name">{{ user.last_name }}</td>
       <td data-title="Start date">{{ user.user_data.start_date }}</td>
-      <td data-title="End date">{{ user.user_data.end_date }}</td>
     </tr>
   {% endfor %}
   </tbody>

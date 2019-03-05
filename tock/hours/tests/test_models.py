@@ -10,22 +10,12 @@ import datetime
 from hours.models import (
     HolidayPrefills,
     ReportingPeriod,
-    Targets,
     Timecard,
     TimecardNote,
     TimecardObject
 )
 from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade, UserData
-
-class TargetsTests(TestCase):
-    def test_string_method(self):
-        obj = Targets.objects.create(
-            name='Foo!',
-            start_date=datetime.date(2016, 10, 1),
-            end_date=datetime.date(2017, 9, 30)
-        )
-        self.assertEqual(obj.__str__(), 'Foo! (FY2017)')
 
 
 class HolidayPrefillsTests(TestCase):
