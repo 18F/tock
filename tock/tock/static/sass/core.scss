@@ -8,10 +8,6 @@
 @import "utils";
 @import "alert";
 
-// generic web component styles
-@import "components";
-// chart-specific styles
-@import "charts";
 
 .container {
   margin-top: 5rem;
@@ -68,69 +64,70 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
 }
 
 @media screen and (max-width: 780px) {
-.table-responsive-reflow {
-  border: 0;
-  display: block;
-  width: 100%;
-  thead {
-   position:absolute;
-  left:-999em;
+  .table-responsive-reflow {
+    border: 0;
+    display: block;
+    width: 100%;
+
+    thead {
+      position:absolute;
+      left:-999em;
     }
+
     tr:nth-child(odd) td, tr:nth-child(odd) th {
-  background-color: $color-gray-lightest !important;
-}
-caption {display: block;}
+      background-color: $color-gray-lightest !important;
+    }
+
+    caption { display: block; }
   }
 
-
-    .table-responsive-reflow tbody,
-    .table-responsive-reflow tr,
-    .table-responsive-reflow th,
-    .table-responsive-reflow td,
-    .table-responsive-reflow tfoot {
-        border: 0;
-        display: block;
-        padding: 0;
-        text-align: left;
-        white-space: normal;
+  .table-responsive-reflow tbody,
+  .table-responsive-reflow tr,
+  .table-responsive-reflow th,
+  .table-responsive-reflow td,
+  .table-responsive-reflow tfoot {
+      border: 0;
+      display: block;
+      padding: 0;
+      text-align: left;
+      white-space: normal;
     }
 
     .table-responsive-reflow td,
     .table-responsive-reflow th {
-        padding: .5rem 1rem;
+      padding: .5rem 1rem;
     }
 
-.table-responsive-reflow th[data-title]:before,
-  .table-responsive-reflow td[data-title]:before {
-        content: attr(data-title);
-        font-weight: 700;
-        display: inline-block;
-        margin-right: 1rem;
-
+    .table-responsive-reflow th[data-title]:before,
+    .table-responsive-reflow td[data-title]:before {
+      content: attr(data-title);
+      font-weight: 700;
+      display: inline-block;
+      margin-right: 1rem;
     }
 
-   .table-responsive-reflow tr {
-        border-bottom: 1px solid #333;
+    .table-responsive-reflow tr {
+      border-bottom: 1px solid #333;
     }
-     .table-responsive-reflow tr td {
-         border-color:#333;
 
-     }
+    .table-responsive-reflow tr td {
+      border-color:#333;
+    }
 
    .table-responsive-reflow th:not([data-title]) {
-        font-weight: 700;
-        font-size: 2rem;
+      font-weight: 700;
+      font-size: 2rem;
     }
 
     .table-responsive-reflow td:empty {
-        display: none;
+      display: none;
     }
 }
 
 .clearfix {
   clear: both;
-    content: "";
-    display: block;
+  content: "";
+  display: block;
 }
 .usa-grid .usa-grid {
   padding-left: 0;
