@@ -162,7 +162,7 @@ class UserData(models.Model):
                 submitted=True,
                 user=self.user,
             ).count()
-        if timecard_count is 0:
+        if timecard_count == 0:
             return True
         else:
             return False

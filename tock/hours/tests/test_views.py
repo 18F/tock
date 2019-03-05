@@ -85,10 +85,10 @@ class CSVTests(TestCase):
         rows = decode_streaming_csv(response)
         entry_found = False
         for row in rows:
-                num_of_fields = len(row)
-                if tco.notes in row['notes']:
-                        entry_found = True
-                        break
+            num_of_fields = len(row)
+            if tco.notes in row['notes']:
+                entry_found = True
+                break
         expected_num_of_fields = \
             len(GeneralSnippetsTimecardSerializer.__dict__['_declared_fields'])
         self.assertEqual(num_of_fields, expected_num_of_fields)

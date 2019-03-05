@@ -278,8 +278,8 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         """
         cur = connection.cursor()
         with transaction.atomic():
-                cur.execute("SET CONSTRAINTS ALL DEFERRED")
-                formset = super().save(commit=commit)
+            cur.execute("SET CONSTRAINTS ALL DEFERRED")
+            formset = super().save(commit=commit)
         return formset
 
 
