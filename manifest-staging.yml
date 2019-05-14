@@ -4,7 +4,7 @@ applications:
   buildpack: python_buildpack
   memory: 512M
   path: .
-  stack: cflinuxfs2
+  stack: cflinuxfs3
   timeout: 180
   routes:
   - route: tock.app.cloud.gov
