@@ -11,7 +11,7 @@
 import sys
 import os
 import pwd
-import subprocess
+import subprocess # nosec
 
 from tock.settings.env import env
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
             while does_username_exist(username):
                 username += '0'
             home_dir = '/home/%s' % username
-            subprocess.check_call([
+            subprocess.check_call([ # nosec
                 'useradd',
                 '-d', home_dir,
                 '-m', username,
@@ -49,4 +49,4 @@ if __name__ == '__main__':
             ])
         os.environ['HOME'] = '/home/%s' % pwd.getpwuid(HOST_UID).pw_name
         os.setuid(HOST_UID)
-    os.execvp(sys.argv[1], sys.argv[1:])
+    os.execvp(sys.argv[1], sys.argv[1:])  # nosec

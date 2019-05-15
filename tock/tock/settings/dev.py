@@ -8,7 +8,7 @@ from .base import (DATABASES, INSTALLED_APPS, MIDDLEWARE, TEMPLATES)
 
 DEBUG = True
 
-SECRET_KEY = 'development_mode'
+SECRET_KEY = 'development_mode'  # nosec
 
 for t in TEMPLATES:
     t.setdefault('OPTIONS', {})
@@ -63,6 +63,6 @@ except ImportError:
   pass
 
 UAA_CLIENT_ID = 'testtesttesttesttesttesttesttesttesttesttest'
-UAA_CLIENT_SECRET = 'testtesttesttesttesttesttesttesttesttest'
+UAA_CLIENT_SECRET = 'testtesttesttesttesttesttesttesttesttest' # nosec
 UAA_AUTH_URL = 'fake:'
-UAA_TOKEN_URL = 'fake:'
+UAA_TOKEN_URL = 'fake:' # nosec

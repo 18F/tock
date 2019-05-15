@@ -11,7 +11,6 @@ cf-docker-image: &CF_DOCKER_IMAGE
 working-directory: &WORKING_DIRECTORY
   working_directory: ~/repo
 
-
 version: 2
 jobs:
   build:
@@ -39,9 +38,9 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+            - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
 
       - run:
           name: install dependencies
@@ -179,10 +178,8 @@ workflows:
     jobs:
       - recycle_production
     triggers:
-    - schedule:
-        cron: "0 10 * * *"  # Roughly 5am ET
-        filters:
-          tags:
-            only: /v20[1-9][0-9][0-9]+\.[0-9]+/
-          branches:
-            ignore: /.*/
+      - schedule:
+          cron: "0 10 * * *" # Roughly 5am ET
+          filters:
+            branches:
+              only: master
