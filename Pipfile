@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=2.0"
+django = "~=2.2"
 dj-database-url = "*"
 gevent = "*"
 gunicorn = "*"
@@ -14,7 +14,7 @@ djangorestframework-csv = "*"
 bleach = "*"
 newrelic = "*"
 cfenv = "*"
-cg-django-uaa = "*"
+cg-django-uaa = {git = "https://github.com/18F/cg-django-uaa",ref = "v2.0.0"}
 "psycopg2-binary" = "*"
 markdown = "*"
 django-webtest = "~=1.9"
