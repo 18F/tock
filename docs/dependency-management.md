@@ -20,7 +20,14 @@ pipenv lock --requirements > requirements.txt
 
 ## JavaScript
 
-Tock uses [npm] to manage JavaScript dependencies.
+### Production
+
+Tock uses Django's staticfiles functionality to serve frontend dependencies in production.
+
+Updates for dependencies must be committed directly to this repository in `tock/tock/static`
+
+### Development/Testing
+Tock uses [npm] to manage development/testing JavaScript dependencies.
 
 Update dependencies locally with the following:
 
