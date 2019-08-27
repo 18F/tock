@@ -96,19 +96,4 @@
   </tbody>
 </table>
 
-<link rel="stylesheet" href="{% static 'css/vendor/jquery.dataTables.min.css' %}" />
-<script src="{% static 'js/vendor/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'js/vendor/dataTables.fixedColumns.min.js' %}"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-  var $table = $('#dataTable').dataTable({
-    scrollX: true,
-    paging: false,
-    lengthChange: false
-    bFilter: false
-  });
-  new $.fn.dataTable.FixedColumns($table);
-});
-</script>
-
 {% endblock %}
