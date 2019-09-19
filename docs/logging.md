@@ -125,7 +125,7 @@ Once you have created the issue, follow the Audit Process.
 ### Audit Process
 
 On a weekly
-basis, we will log into [the cloud.gov logging system](https://logs.fr.cloud.gov) and
+basis, we will log into [the cloud.gov logging system](https://logs.fr.cloud.gov/app/kibana#/discover) and
 search for:
 ```
 @cf.app:"tock" AND ((@message:"tock-auth" AND @message:"Creating User for") OR @message:"Unsuccessful login" OR @message:"account-management" OR @message:"admin-log" OR @message:"Updated app with guid")
