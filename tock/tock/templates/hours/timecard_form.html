@@ -10,6 +10,13 @@
       <div class="usa-alert-body">
         <h3 class="usa-alert-heading">There was an error processing your time card</h3>
         <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+        {% for form in formset.errors %}
+            {% with form_id=forloop.counter0 %}
+            {% for error_message in form.values %}
+              <a href='#entry-{{form_id}}'>{{error_message}}</a>
+            {% endfor %}
+            {% endwith %}
+          {% endfor %}
       </div>
     </div>
 {% endif %}
@@ -61,7 +68,7 @@
   </div>
 </div>
 
-<form method="post">
+<form method="post" action="{% url 'reportingperiod:UpdateTimesheet' reporting_period=object.reporting_period.start_date %}">
   {% csrf_token %}
   {{ formset.management_form }}
   <div class="entries usa-grid">
@@ -81,7 +88,7 @@
             </div>
             {% endif %}
             <div class="entry-alerts" id="entry-alerts"></div>
-            <div class="entry-hidden" id="entry-notes">
+            <div class="entry-hidden entry-note-field">
               {{ project_entry.notes.label_tag }}
               {{ project_entry.notes.help_text }}
               {% if project_entry.notes.errors %}
@@ -126,27 +133,6 @@
         <button type="button" class="usa-button-secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
       </div>
     </div>
-    {% if formset.errors %}
-        <div class="usa-alert usa-alert-error">
-          <div class="usa-alert-body">
-            <h3 class="usa-alert-heading">There was an error processing your time card</h3>
-            <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
-          </div>
-        </div>
-    {% endif %}
-
-    {% if messages %}
-        <div class="usa-grid">
-        {% for message in messages %}
-            <div class="usa-alert usa-alert-{{ message.level_tag }}">
-              <div class="usa-alert-body">
-                <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
-                <p class="usa-alert-text">{{ message.message }}</p>
-              </div>
-            </div>
-        {% endfor %}
-        </div>
-    {% endif %}
   </div>
 </form>
 
@@ -203,7 +189,7 @@
   function toggleNotesField(selectBox) {
     var $fieldset = $(selectBox).parents('.entry-project'),
         $selected = $(selectBox).find(':selected'),
-        $notes = $fieldset.find('#entry-notes'),
+        $notes = $fieldset.find('.entry-note-field'),
         notesDisplayed = $selected.data('notes-displayed'),
         notesRequired = $selected.data('notes-required');
 
@@ -325,8 +311,8 @@ $( document ).ready(function() {
           var entry = $(this);
           entry.find('.chosen-container').remove();
           entry.find('#entry-alerts').empty();
-          entry.find('#entry-notes').addClass('entry-hidden').removeClass('entry-notes');
-          entry.find('#entry-notes .invalid').remove();
+          entry.find('.entry-notes').addClass('entry-hidden').removeClass('entry-notes');
+          entry.find('.entry-notes .invalid').remove();
           entry.find('select').show();
           entry.find('input, select, textarea').val('');
           entry.find(':checkbox').prop('checked', false);
