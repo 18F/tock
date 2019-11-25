@@ -30,38 +30,33 @@
           <span>Tock Change Request Form</span>
         </a>
       </li>
-      {% if request.user.is_superuser %}
+      {% if request.user.is_staff or request.user.is_superuser %}
       <li>
         <button class="
         usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-2">
-          <span>Admin</span>
+          <span>Administrative</span>
         </button>
         <ul id="side-nav-2" class="usa-nav-submenu" aria-hidden="true">
+          {% if request.user.is_staff %}
           <li>
-          <a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Create reporting period</a>
+              <a href="/admin">Tock Admin</a>
+            </li>
+          <li>
+              <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
+          </li>
+          {% endif %}
+          {% if request.user.is_superuser %}
+
+          <li>
+            <a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Create reporting period</a>
           </li>
           <li>
-          <a href="/admin">Admin panel</a>
+            <a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
           </li>
-          <li>
-          <a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
-          </li>
+          {% endif %}
         </ul>
       </li>
-        {% endif %}
-        {% if request.user.is_staff %}
-        <li>
-          <button class="
-          usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-3">
-            <span>Supervisor</span>
-          </button>
-          <ul id="side-nav-3" class="usa-nav-submenu" aria-hidden="true">
-            <li>
-          <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
-            </li>
-          </ul>
-        </li>
-        {% endif %}
+      {% endif %}
     </ul>
   </div>
 </nav>
