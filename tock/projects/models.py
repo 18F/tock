@@ -237,6 +237,10 @@ class Project(models.Model):
         if self.profit_loss_account:
             return self.profit_loss_account.name
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('ProjectView', args=[str(self.id)])
+
     @property
     def organization_name(self):
         """
