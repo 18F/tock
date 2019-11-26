@@ -1,15 +1,16 @@
 import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.views.generic import ListView, DetailView
+from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormView
 from rest_framework.permissions import IsAuthenticated
-
-from tock.utils import PermissionMixin, IsSuperUserOrSelf
+from tock.utils import IsSuperUserOrSelf, PermissionMixin
 
 from .forms import UserForm
 from .models import UserData
+
 
 def parse_date(date):
     if date == 'NA':
@@ -36,6 +37,10 @@ class UserDetailView(PermissionMixin, DetailView):
             user__username=self.kwargs['username'])
         return target_user
 
+    def get_context_data(self, **kwargs):
+        context = super(UserDetailView, self).get_context_data(**kwargs)
+        return _add_recent_tock_table(self.get_object().user, context)
+
 
 class UserFormView(PermissionMixin, FormView):
     template_name = 'employees/user_form.html'
@@ -44,7 +49,9 @@ class UserFormView(PermissionMixin, FormView):
 
     def get_context_data(self, **kwargs):
         kwargs['username'] = self.kwargs['username']
-        return super(UserFormView, self).get_context_data(**kwargs)
+        user = User.objects.get(username=kwargs['username'])
+        context = super(UserFormView, self).get_context_data(**kwargs)
+        return _add_recent_tock_table(user, context)
 
     def get_initial(self):
         initial = super(UserFormView, self).get_initial()
@@ -79,3 +86,20 @@ class UserFormView(PermissionMixin, FormView):
             'employees:UserListView',
             current_app=self.request.resolver_match.namespace,
         )
+
+def _add_recent_tock_table(user, context):
+    """
+    For a given user, return an updated context including
+    the data necessary to render a table of projects and hours billed
+    for the last `settings.RECENT_TOCKS_TO_REPORT` time periods
+    """
+    recent_tocks = user.timecards.order_by('-reporting_period__start_date')[:settings.RECENT_TOCKS_TO_REPORT]
+    recent_tocks = list(reversed(recent_tocks))
+    billing_table = {}
+    for n, timecard in enumerate(recent_tocks):
+        for tco in timecard.timecardobjects.all():
+            project_billing = billing_table.setdefault(tco.project, [0] * len(recent_tocks))
+            project_billing[n] = tco.hours_spent
+    context['recent_billing_table'] = billing_table
+    context['recent_timecards'] = recent_tocks
+    return context
