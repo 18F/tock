@@ -14,7 +14,7 @@ djangorestframework-csv = "*"
 bleach = "*"
 newrelic = "*"
 cfenv = "*"
-cg-django-uaa = {git = "https://github.com/18F/cg-django-uaa",ref = "v2.0.0"}
+cg-django-uaa = "*"
 "psycopg2-binary" = "*"
 markdown = "*"
 django-webtest = "~=1.9"
