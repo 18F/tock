@@ -177,7 +177,8 @@ class TimecardObjectForm(forms.ModelForm):
                     self.add_error(
                         'notes',
                         forms.ValidationError(
-                            'Please enter a snippet for this item.'
+                            'Please enter a snippet for your time tocked to '
+                             + self.cleaned_data['project'].name
                         )
                     )
                 elif not self.cleaned_data['project'].notes_displayed:
