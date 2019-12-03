@@ -150,7 +150,7 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         date.  So in this system, during the week that spans two fiscal years,
         that week will belong to the year if there's more September
         days than October. And more October days means it belongs to next year.
-        i.e. 9/30/2015 is on a Wesnesday, this means it belongs to FY 2015 since
+        i.e. 9/30/2015 is on a Wednesday, this means it belongs to FY 2015 since
         there is more September days that week (Sun to Wed), so the end date
         of FY 2016 is 10/03/2015 (that Sunday) even though it is an October
         day.

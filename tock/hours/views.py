@@ -4,7 +4,10 @@ import io
 from itertools import chain
 from operator import attrgetter
 
-# Create your views here.
+from api.renderers import stream_csv
+from api.views import (ProjectSerializer, TimecardList, UserDataSerializer,
+                       get_timecards)
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.exceptions import (ObjectDoesNotExist, PermissionDenied,
@@ -16,14 +19,10 @@ from django.urls import reverse
 from django.utils.timezone import localdate
 from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, FormView, UpdateView
+from employees.models import UserData
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
-
-from api.renderers import stream_csv
-from api.views import (ProjectSerializer, TimecardList, UserDataSerializer,
-                       get_timecards)
-from employees.models import UserData
 from tock.remote_user_auth import email_to_username
 from tock.utils import IsSuperUserOrSelf, PermissionMixin
 from utilization.utils import calculate_utilization
@@ -642,7 +641,7 @@ class ReportsList(PermissionMixin, ListView):
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self, queryset=None):
-        query = ReportingPeriod.objects.all()
+        query = ReportingPeriod.objects.filter(start_date__gte=ReportingPeriod.get_fiscal_year_start_date(settings.STARTING_FY_FOR_REPORTS_PAGE))
         fiscal_years = {}
         for reporting_period in query:
             if str(reporting_period.get_fiscal_year()) in fiscal_years:
@@ -658,21 +657,19 @@ class ReportsList(PermissionMixin, ListView):
 
 
     def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-        # Get today's date to figure out the fiscal year it is in
-        today = localdate()
-        # The year will be used to determine which year reporting to end with
-        year = ReportingPeriod.get_fiscal_year_from_date(today)
+        year = ReportingPeriod.get_fiscal_year_from_date(localdate())
         context['fiscal_years'] = [
             {
                 'year': fy,
                 'start_date': ReportingPeriod.get_fiscal_year_start_date(fy),
                 'end_date': ReportingPeriod.get_fiscal_year_end_date(fy)
-            } for fy in range(2017, year + 1)
+            } for fy in range(settings.STARTING_FY_FOR_REPORTS_PAGE, year + 1)
         ]
+        context['starting_report_date'] = ReportingPeriod.get_fiscal_year_start_date(settings.STARTING_FY_FOR_REPORTS_PAGE)
 
         return context
+
 
 class ReportingPeriodDetailView(PermissionMixin, ListView):
     template_name = 'hours/reporting_period_detail.html'

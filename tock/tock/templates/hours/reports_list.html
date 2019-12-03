@@ -11,31 +11,31 @@
       <h2>Regular Reports</h2>
       <ul>
         <li>Complete timecard data:
-          <a href="{% url 'reports:BulkTimecardList' %}">All</a>
+          <a href="{% url 'reports:BulkTimecardList' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
           {% for fy in fiscal_years %}
             <a href="{% url 'reports:BulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
           {% endfor %}
         </li>
         <li>Complete timecard data with fewer fields:
-          <a href="{% url 'reports:SlimBulkTimecardList' %}">All</a>
+          <a href="{% url 'reports:SlimBulkTimecardList' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
           {% for fy in fiscal_years %}
             <a href="{% url 'reports:SlimBulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
           {% endfor %}
         </li>
         <li>Complete snippet data for '18F Non-Billable':
-            <a href="{% url 'reports:GeneralSnippetsView' %}">All</a>
+            <a href="{% url 'reports:GeneralSnippetsView' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
           {% for fy in fiscal_years %}
             <a href="{% url 'reports:GeneralSnippetsView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
           {% endfor %}
         </li>
         <li>Aggregate hourly data by project and reporting period:
-          <a href="{% url 'reports:ProjectTimelineView' %}">All</a>
+          <a href="{% url 'reports:ProjectTimelineView' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
           {% for fy in fiscal_years %}
             <a href="{% url 'reports:ProjectTimelineView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
           {% endfor %}
         </li>
         <li>Aggregate hourly data by user, reporting period, and project billable status:
-          <a href="{% url 'reports:UserTimelineView' %}">All</a>
+          <a href="{% url 'reports:UserTimelineView' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
           {% for fy in fiscal_years %}
             <a href="{% url 'reports:UserTimelineView' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
           {% endfor %}
@@ -50,7 +50,7 @@
         <div class="usa-alert-body">
         <h2 class="usa-alert-heading">Superuser Reports</h2>
         <p class="usa-alert-text">Complete timecard data with grade info:</p>
-            <a href="{% url 'reports:AdminBulkTimecardList' %}">All</a>
+            <a href="{% url 'reports:AdminBulkTimecardList' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
             {% for fy in fiscal_years %}
               <a href="{% url 'reports:AdminBulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
             {% endfor %}
