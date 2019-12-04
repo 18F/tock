@@ -4,8 +4,9 @@ import csv
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse
+from django.conf import settings
 
 from django_webtest import WebTest
 
@@ -14,9 +15,9 @@ from api.views import UserDataSerializer, ProjectSerializer
 from employees.models import UserData, Organization
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
-from hours.views import GeneralSnippetsTimecardSerializer
+from hours.views import GeneralSnippetsTimecardSerializer, ReportsList
+
 import hours.models
-import hours.views
 import projects.models
 
 User = get_user_model()
@@ -246,6 +247,7 @@ class UserReportsTest(TestCase):
         self.assertEqual(response.context['user_billable_hours'], 27)
         self.assertContains(response, '67.5%')
 
+@override_settings(STARTING_FY_FOR_REPORTS_PAGE=2015)
 class ReportTests(WebTest):
     fixtures = [
         'projects/fixtures/projects.json',
@@ -254,9 +256,10 @@ class ReportTests(WebTest):
     csrf_checks = False
 
     def setUp(self):
+        self.start_year = settings.STARTING_FY_FOR_REPORTS_PAGE
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 1, 1),
-            end_date=datetime.date(2015, 1, 7),
+            start_date=datetime.date(self.start_year, 1, 1),
+            end_date=datetime.date(self.start_year, 1, 7),
             exact_working_hours=40)
         self.user = get_user_model().objects.get(id=1)
         self.userdata = UserData.objects.create(user=self.user)
@@ -283,8 +286,8 @@ class ReportTests(WebTest):
         self.regular_user.save()
         UserData(
             user=self.regular_user,
-            start_date=datetime.date(2015, 1, 1),
-            end_date=datetime.date(2017, 1, 1),
+            start_date=datetime.date(self.start_year, 1, 1),
+            end_date=datetime.date(self.start_year + 2, 1, 1),
         ).save()
         self.former_employee = get_user_model().objects.create(
             username='maya',
@@ -294,28 +297,46 @@ class ReportTests(WebTest):
         self.regular_user.save()
         UserData(
             user=self.former_employee,
-            start_date=datetime.date(2015, 1, 1),
-            end_date=datetime.date(2017, 1, 1),
+            start_date=datetime.date(self.start_year, 1, 1),
+            end_date=datetime.date(self.start_year + 2, 1, 1),
             current_employee=False,
         ).save()
 
     def test_ReportList_get_queryset(self):
-        hours.models.ReportingPeriod.objects.create(
-            start_date=datetime.date(2016, 1, 1),
-            end_date=datetime.date(2016, 1, 7),
-            exact_working_hours=40)
-        response = self.app.get(reverse('reports:ListReports'), user=self.user)
-        response = response.content.decode('utf-8')
-        self.assertTrue(response.index('2016') < response.index('2015'))
+        """
+        Provide a sorted list of (FY, [reporting_periods]) after
+        settings.STARTING_FY_FOR_REPORTS_PAGE
+        """
+        # This old report Should not be included in results
+        old_report, _ = hours.models.ReportingPeriod.objects.get_or_create(
+            start_date=datetime.date(self.start_year - 2, 1, 1),
+            end_date=datetime.date(self.start_year - 1, 1, 7),
+        exact_working_hours=40)
+        self.assertEqual(len(ReportsList().get_queryset()), 1)
+
+        new_report, _ = hours.models.ReportingPeriod.objects.get_or_create(
+            start_date=datetime.date(self.start_year + 1, 1, 1),
+            end_date=datetime.date(self.start_year + 2, 1, 7),
+        exact_working_hours=40)
+        self.assertEqual(len(ReportsList().get_queryset()), 2)
 
     def test_ReportList_get_context_data(self):
+        """fiscal_years and starting_report_date are added to context"""
+        context = self.app.get(reverse('reports:ListReports'), user=self.user).context
+        self.assertIn('fiscal_years', context)
+        self.assertIn('starting_report_date', context)
+
+    def test_ReportList_excludes_dates_before_setting(self):
+        """
+        ReportList returns only objects which take place
+        after `settings.STARTING_FY_FOR_REPORTS_PAGE`
+        """
+        hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(self.start_year - 2, 1, 1),
+            end_date=datetime.date(self.start_year - 1, 1, 7),
+            exact_working_hours=40)
         response = self.app.get(reverse('reports:ListReports'), user=self.user)
-        act_fiscal_years = response.context['fiscal_years']
-        self.assertNotEqual(0, act_fiscal_years)
-        # check at least first item
-        self.assertEqual({'year': 2017,
-            'start_date': datetime.date(2016, 10, 2),
-            'end_date': datetime.date(2017, 9, 30)}, act_fiscal_years[0])
+        self.assertNotContains(response, str(self.start_year - 2))
 
     def test_report_list_authenticated(self):
         """ Check that main page loads with reporting periods for authenticated
