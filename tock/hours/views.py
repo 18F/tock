@@ -744,7 +744,7 @@ def ReportingPeriodCSVView(request, reporting_period):
 
     writer = csv.writer(response)
     timecard_objects = TimecardObject.objects.filter(
-        timecard__reporting_period__start_date=reporting_period
+        timecard__reporting_period__start_date=reporting_period, timecard__submitted=True
     ).order_by(
         'timecard__reporting_period__start_date'
     ).select_related(
@@ -764,10 +764,6 @@ def ReportingPeriodCSVView(request, reporting_period):
     ])
 
     for timecard_object in timecard_objects:
-        # skip entries if timecard not submitted yet
-        if not timecard_object.timecard.submitted:
-            continue
-
         writer.writerow(timecard_object.to_csv_row())
 
     return response

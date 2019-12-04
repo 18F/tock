@@ -67,7 +67,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
                 additional queries hitting the database.
                 """
                 user_timecards = TimecardObject.objects.filter(
-                    submitted=True,
+                    timecard__submitted=True,
                     timecard__user=staffer.user,
                     timecard__reporting_period__start_date__gte=self.recent_rps[3]
                 ).select_related(
@@ -166,12 +166,12 @@ class GroupUtilizationView(PermissionMixin, ListView):
 
             last_total_hours = sum(TimecardObject.objects.filter(
                 timecard__reporting_period__start_date=self.recent_rps[4],
-                submitted=True,
+                timecard__submitted=True,
                 timecard__user__user_data__unit=unit['id'],
                 ).values_list('hours_spent', flat=True)
             )
             last_billable_hours = sum(TimecardObject.objects.filter(
-                submitted=True,
+                timecard__submitted=True,
                 timecard__reporting_period__start_date=self.recent_rps[4],
                 timecard__user__user_data__unit=unit['id'],
                 project__accounting_code__billable=True
@@ -179,14 +179,14 @@ class GroupUtilizationView(PermissionMixin, ListView):
             )
             # Query and calculate last in RP hours.
             recent_total_hours = sum(TimecardObject.objects.filter(
-                submitted=True,
+                timecard__submitted=True,
                 timecard__reporting_period__start_date__gte=self.recent_rps[1],
                 timecard__user__user_data__unit=unit['id']
                 ).values_list('hours_spent', flat=True)
             )
             recent_billable_hours = sum(
                 TimecardObject.objects.filter(
-                    submitted=True,
+                    timecard__submitted=True,
                     timecard__reporting_period__start_date__gte=self.recent_rps[1],
                     timecard__user__user_data__unit=unit['id'],
                     project__accounting_code__billable=True
@@ -195,13 +195,13 @@ class GroupUtilizationView(PermissionMixin, ListView):
             # Query and calculate all RP hours for FY to date.
             fytd_total_hours = sum(
                 TimecardObject.objects.filter(
-                    submitted=True,
+                    timecard__submitted=True,
                     timecard__reporting_period__start_date__gte=self.recent_rps[2],
                     timecard__user__user_data__unit=unit['id'],
                 ).values_list('hours_spent', flat=True)
             )
             fytd_billable_hours = sum(TimecardObject.objects.filter(
-                submitted=True,
+                timecard__submitted=True,
                 timecard__reporting_period__start_date__gte=self.recent_rps[2],
                 timecard__user__user_data__unit=unit['id'],
                 project__accounting_code__billable=True

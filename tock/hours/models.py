@@ -333,7 +333,6 @@ class TimecardObject(models.Model):
         default='',
         help_text='Please provide details about how you spent your time.'
     )
-    submitted = models.BooleanField(default=False)
     revenue_profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         blank=True,
@@ -372,8 +371,6 @@ class TimecardObject(models.Model):
             self.timecard.reporting_period.end_date,
             self.timecard.user
         )
-
-        self.submitted = self.timecard.submitted
 
         p_pl = self.project.profit_loss_account # Project PL info.
         u_pl = self.timecard.user.user_data.profit_loss_account # User PL info.

@@ -71,7 +71,6 @@ class TimecardObjectInline(admin.TabularInline):
     formset = TimecardObjectFormset
     model = TimecardObject
     readonly_fields = [
-        'submitted',
         'grade',
         'revenue_profit_loss_account',
         'expense_profit_loss_account'
@@ -80,7 +79,7 @@ class TimecardObjectInline(admin.TabularInline):
 
 class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
-    list_display = ('user', 'reporting_period',)
+    list_display = ('user', 'reporting_period', 'submitted')
     list_filter = (ReportingPeriodListFilter, 'reporting_period',)
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
 
