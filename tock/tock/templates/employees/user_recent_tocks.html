@@ -4,14 +4,10 @@
   <thead>
     <th>Project</th>
     {% for tc in recent_timecards %}
-    {{tc}}
     <th><a
-            href={% url 'reports:ReportingPeriodUserDetailView'
-                    reporting_period=tc.reporting_period.start_date
-                    username=tc.user.username %}
-        >
-            {{tc.reporting_period.start_date}}
-        </a>
+        href={% url "reports:ReportingPeriodUserDetailView" reporting_period=tc.reporting_period.start_date username=tc.user.username %}>
+        {{tc.reporting_period.start_date}}
+      </a>
     </th>
     {% endfor %}
   </thead>
