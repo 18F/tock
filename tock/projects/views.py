@@ -30,10 +30,10 @@ class ProjectView(PermissionMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['table'] = project_timeline(kwargs['object'])
         context['total_hours_submitted'] = TimecardObject.objects.filter(
-            project=kwargs['object'].id, submitted=True
+            project=kwargs['object'].id, timecard__submitted=True
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'] or 0
         context['total_hours_saved'] = TimecardObject.objects.filter(
-            project=kwargs['object'].id, submitted=False
+            project=kwargs['object'].id, timecard__submitted=False
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'] or 0
         context['total_hours_all'] = context['total_hours_submitted'] + context['total_hours_saved']
         return context

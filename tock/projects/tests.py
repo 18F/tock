@@ -494,13 +494,11 @@ class ProjectViewTests(WebTest):
         TimecardObject.objects.create(
             timecard = Timecard.objects.get(pk=1),
             project=Project.objects.get(pk=1),
-            submitted = True,
             hours_spent= 10
         )
         TimecardObject.objects.create(
             timecard = Timecard.objects.get(pk=2),
             project=Project.objects.get(pk=1),
-            submitted = False,
             hours_spent= 5
         )
 

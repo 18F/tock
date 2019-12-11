@@ -91,14 +91,12 @@ class TestGroupUtilizationView(WebTest):
             timecard=self.timecard,
             project=nb_project,
             hours_spent=15,
-            submitted=True
         )
 
         self.b_timecard_object = TimecardObject.objects.create(
             timecard=self.timecard,
             project=b_project,
             hours_spent=25,
-            submitted=True
         )
 
     def test_utilization(self):
