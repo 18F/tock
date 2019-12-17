@@ -37,12 +37,12 @@
 <h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
 
 {% if reporting_period.message_enabled and reporting_period.message %}
-  <div class="usa-alert usa-alert-{{ reporting_period.message_style }}">
-    <div class="usa-alert-body">
+  <div class="usa-alert usa-alert--{{ reporting_period.message_style }}">
+    <div class="usa-alert__body">
       {% if reporting_period.message_title %}
-        <h3 class="usa-alert-heading">{{ reporting_period.message_title }}</h3>
+        <h3 class="usa-alert__heading">{{ reporting_period.message_title }}</h3>
       {% endif %}
-      <p class="usa-alert-text">
+      <p class="usa-alert__text">
         {{ reporting_period.rendered_message|safe }}
       </p>
     </div>
@@ -50,19 +50,19 @@
 {% endif %}
 
 {% for timecard_note in timecard_notes %}
-  <div class="usa-alert usa-alert-{{ timecard_note.style }}">
-    <div class="usa-alert-body">
-      <h3 class="usa-alert-heading">{{ timecard_note.title }}</h3>
-      <p class="usa-alert-text">
+  <div class="usa-alert usa-alert--{{ timecard_note.style }}">
+    <div class="usa-alert__body">
+      <h3 class="usa-alert__heading">{{ timecard_note.title }}</h3>
+      <p class="usa-alert__text">
         {{ timecard_note.rendered_body|safe }}
       </p>
     </div>
   </div>
 {% endfor %}
 
-<div class="usa-alert usa-alert-info">
-  <div class="usa-alert-body">
-    <p class="usa-alert-text">
+<div class="usa-alert usa-alert--info">
+  <div class="usa-alert__body">
+    <p class="usa-alert__text">
       For additional help and guidance with using Tock and entering hours, please consult the <a href="https://handbook.18f.gov/tock/">TTS Handbook page on Tock</a>.
     </p>
   </div>
@@ -71,7 +71,7 @@
 <form method="post" action="{% url 'reportingperiod:UpdateTimesheet' reporting_period=object.reporting_period.start_date %}">
   {% csrf_token %}
   {{ formset.management_form }}
-  <div class="entries usa-grid">
+  <div class="entries grid-container">
     {% for project_entry in formset %}
       <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
         <div class="entry-hidden">
@@ -87,21 +87,7 @@
                 {{ project_entry.non_field_errors }}
               </div>
             {% endif %}
-            <div class="entry-alerts"></div>
-            <div class="entry-hidden entry-note-field">
-              {{ project_entry.notes.label_tag }}
-              {{ project_entry.notes.help_text }}
-              {% if project_entry.notes.errors %}
-                <div class="invalid">
-                  {{ project_entry.notes.errors }}
-                </div>
-              {% endif %}
-              {{ project_entry.notes }}
-            </div>
-          </div>
-          <div class="entry-amount usa-width-one-third">
-            {{ project_entry.hours_spent.label_tag }}
-            {{ project_entry.hours_spent }}
+            {{ project_entry.notes }}
           </div>
         </div>
         <div class="usa-grid">
@@ -113,6 +99,7 @@
           {% endif %}
         </div>
       </div>
+    </div>
     {% endfor %}
   </div>
   <div class="timecard-footer">

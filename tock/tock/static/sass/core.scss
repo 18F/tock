@@ -1,5 +1,5 @@
 @import "base/variables";
-@import "all";
+@import "uswds";
 @import "base/base";
 
 @import "banner";
@@ -8,6 +8,29 @@
 @import "utils";
 @import "alert";
 
+.tock-header {
+  background-color: $color-primary-alt-light;
+}
+
+// backwards compat with USWDS 1.x
+li {
+    line-height: 1.5;
+    margin-bottom: 0.5em;
+}
+
+// hack to adjust forms to USWDS 1.x
+.usa-form label {
+  @extend .usa-label;
+}
+.usa-form select {
+  @extend .usa-select;
+}
+.usa-form input[type=text], .usa-form input[type=number] {
+  @extend .usa-input;
+}
+.usa-form input[type=submit], .usa-form input[type=file]{
+  @extend .usa-button;
+}
 
 .container {
   margin-top: 5rem;
@@ -18,7 +41,7 @@ html .chosen-container-single {
   font-size:initial;
   width: 100% !important;
   .chosen-single {
-    padding: 1rem 0.7em;
+    padding: 0.7em;
     height: inherit;
     background: #fff;
     border-radius: 0;
@@ -29,7 +52,7 @@ html .chosen-container-single {
 
     div b {
       width: 13px;
-      background: url(../../vendor/uswds/images/arrow-down.svg) no-repeat 0 1.5rem;
+      background: url(../../vendor/uswds_v2.3.1/img/angle-arrow-down-primary.svg) no-repeat 0 1.1rem;
       background-size: 100%;
     }
   }
@@ -37,7 +60,7 @@ html .chosen-container-single {
 html .chosen-container-active.chosen-with-drop .chosen-single {
   background: #fff;
   div b {
-    background: url(../../vendor/uswds/images/arrow-up.svg) no-repeat 0 1.5rem;
+    background: url(../../vendor/uswds_v2.3.1/img/angle-arrow-up-primary.svg) no-repeat 0 1.1rem;
   }
 }
 
@@ -53,14 +76,6 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
   margin-left: .5rem;
   font-style: normal;
   float: right;
-}
-.usa-header {
-  background-color: $color-primary-alt-light;
-}
-
-.usa-footer {
-  background-color: #fff;
-
 }
 
 @media screen and (max-width: 780px) {
@@ -129,7 +144,7 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
   content: "";
   display: block;
 }
-.usa-grid .usa-grid {
+.grid-container .grid-container {
   padding-left: 0;
   padding-right: 0;
 }

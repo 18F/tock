@@ -6,7 +6,7 @@
 {% block content %}
 <h1>Create New Reporting Period</h1>
 
-<form action="" method="post">{% csrf_token %}
+<form class="usa-form" action="" method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Create" />
 </form>
