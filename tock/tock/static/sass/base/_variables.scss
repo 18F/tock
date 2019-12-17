@@ -18,6 +18,25 @@ $color-medium:       #046b99; // $color-medium / $color-primary
 $color-dark:         #1C304A; // $color-dark / $color-primary-dark
 $color-base:         #1F2E4A;
 
+// imported from USWDS 1.x, should change to whatever is current in 2.x
+$color-gray: #5b616b !default;
+$color-gray-light: #aeb0b5 !default;
+$color-gray-lighter: #d6d7d9 !default;
+$color-green-lightest: #e7f4e4 !default;
+$color-red-dark: #cd2026 !default;
+$color-secondary-dark: $color-red-dark !default;
+$color-aqua-light: #9bdaf1 !default;
+$color-primary-alt-light: $color-aqua-light !default;
+$site-margins: 3rem !default;
+$nav-width: 951px !default;
+// Mobile-first media query helper
+@mixin media($bp) {
+  @media screen and (min-width: #{$bp}) {
+    @content;
+  }
+}
+// end import
+
 $color-bright-hover: #00A7CE;
 $color-medium-hover: #00547A;
 
