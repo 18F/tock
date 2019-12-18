@@ -5,33 +5,33 @@
       <img src="{% static 'vendor/uswds/images/close.svg' %}" alt="close">
     </button>
     <ul class="usa-nav__primary usa-accordion">
-      <li>
+      <li class="usa-nav__primary-item">
         <a href="{% url 'ProjectListView' %}" class="usa-nav__link">
           <span>Projects</span>
         </a>
       </li>
-      <li>
+      <li class="usa-nav__primary-item">
         <a href="{% url 'reports:ListReports' %}" class="usa-nav__link">
           <span>Reports</span>
         </a>
       </li>
-      <li>
+      <li class="usa-nav__primary-item">
         <a href="{% url 'employees:UserListView' %}" class="usa-nav__link">
           <span>Users</span>
         </a>
       </li>
-      <li>
+      <li class="usa-nav__primary-item">
         <a href="{% url 'logout' %}" class="usa-nav__link">
           <span>Log out</span>
         </a>
       </li>
-      <li>
+      <li class="usa-nav__primary-item">
         <a class="usa-external_link usa-nav__link" href="{{ x_tock_change_request_form_url }}" target="_blank">
           <span>Tock Change Request Form</span>
         </a>
       </li>
       {% if request.user.is_staff or request.user.is_superuser %}
-      <li>
+      <li class="usa-nav__primary-item">
         <button class="
         usa-accordion-button usa-nav__link" aria-expanded="false" aria-controls="side-nav-2">
           <span>Administrative</span>
