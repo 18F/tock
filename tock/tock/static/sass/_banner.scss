@@ -4,13 +4,13 @@
     }
 }
 
-.usa-logo-text {
+.usa-logo__text {
     img {
         display: inline-block;
         height: 28px;
         vertical-align: middle;
     }
-    @include media($nav-width) {
+    @media screen and (min-width: $nav-width) {
         img {
             height: 50px;
         }

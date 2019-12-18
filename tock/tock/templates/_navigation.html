@@ -35,7 +35,7 @@
         <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="side-nav-2">
           <span>Administrative</span>
         </button>
-        <ul id="side-nav-2" class="usa-nav__submenu" aria-hidden="true">
+        <ul id="side-nav-2" class="usa-nav__submenu" aria-expanded="false">
           {% if request.user.is_staff %}
           <li class="usa-nav__submenu-item">
             <a href="/admin">Tock Admin</a>
