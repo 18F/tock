@@ -26,31 +26,29 @@
         </a>
       </li>
       <li class="usa-nav__primary-item">
-        <a class="usa-external_link usa-nav__link" href="{{ x_tock_change_request_form_url }}" target="_blank">
+        <a class="usa-link usa-link--external usa-nav__link" href="{{ x_tock_change_request_form_url }}" target="_blank">
           <span>Tock Change Request Form</span>
         </a>
       </li>
       {% if request.user.is_staff or request.user.is_superuser %}
       <li class="usa-nav__primary-item">
-        <button class="
-        usa-accordion-button usa-nav__link" aria-expanded="false" aria-controls="side-nav-2">
+        <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="side-nav-2">
           <span>Administrative</span>
         </button>
         <ul id="side-nav-2" class="usa-nav__submenu" aria-hidden="true">
           {% if request.user.is_staff %}
-          <li>
-              <a href="/admin">Tock Admin</a>
-            </li>
-          <li>
-              <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
+          <li class="usa-nav__submenu-item">
+            <a href="/admin">Tock Admin</a>
+          </li>
+          <li class="usa-nav__submenu-item">
+            <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
           </li>
           {% endif %}
           {% if request.user.is_superuser %}
-
-          <li>
+          <li class="usa-nav__submenu-item">
             <a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Create reporting period</a>
           </li>
-          <li>
+          <li class="usa-nav__submenu-item">
             <a href="{% url 'reports:BulkTimecardList' %}">Bulk timecard CSV</a>
           </li>
           {% endif %}
