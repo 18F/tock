@@ -1,16 +1,3 @@
-// Typography
-$h1-font-size:       3.6rem;
-$h2-font-size:       3.2rem;
-$h3-font-size:       2.4rem;
-$h5-font-size:       1.4rem;
-$h6-font-size:       1.2rem;
-
-$tiny-font-size:     1.2rem;
-
-$font-sans:          'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-$font-monospace:     Consolas, Monaco, "Andale Mono", monospace;
-
-
 // Color
 $color-light:        #b3efff; // $color-light / $color-secondary-light
 $color-bright:       #00cfff; // $color-bright / $color-secondary
@@ -33,16 +20,14 @@ $nav-width: 951px !default;
 
 $color-bright-hover: #00A7CE;
 $color-medium-hover: #00547A;
-
-$color-gray-lightest: #f1f1f1; // Adding bc used in our $border-light in this file.
+$color-gray-lightest: #f1f1f1;
 
 // Spacing
 $section-margins:    6rem;
 $nav-width-extra:    88px; // width needed to add so nav doesn't break on medium-screen size
 $text-max-width:     60.6rem;
 
-// Miscellaneous
-$border-accent:      1rem solid $color-bright;
-$border-light:       1px solid $color-gray-lightest;
-
-$theme-image-path:   "../../vendor/uswds/images";
+// USWDS theme settings
+$theme-image-path:         "../../vendor/uswds/images";
+$theme-font-path:          "../../vendor/uswds/fonts";
+$theme-font-type-sans:     "public-sans";
