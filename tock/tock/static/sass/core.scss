@@ -8,6 +8,26 @@
 @import "utils";
 @import "alert";
 
+// confirmed
+.tock-header {
+  background-color: $color-primary-alt-light;
+}
+
+[href *='.xls'],
+[href *='.csv'] {
+  display: inline-block;
+}
+
+[href *='.xls']::after,
+[href *='.csv']::after {
+  font-family: 'FontAwesome';
+  content: '\f0ce';
+  margin-left: .5rem;
+  font-style: normal;
+  float: right;
+}
+
+// unsure
 
 .container {
   margin-top: 5rem;
@@ -39,28 +59,6 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
   div b {
     background: url(../../vendor/uswds/images/arrow-up.svg) no-repeat 0 1.5rem;
   }
-}
-
-[href *='.xls'],
-[href *='.csv'] {
-  display: inline-block;
-}
-
-[href *='.xls']::after,
-[href *='.csv']::after {
-  font-family: 'FontAwesome';
-  content: '\f0ce';
-  margin-left: .5rem;
-  font-style: normal;
-  float: right;
-}
-.usa-header {
-  background-color: $color-primary-alt-light;
-}
-
-.usa-footer {
-  background-color: #fff;
-
 }
 
 @media screen and (max-width: 780px) {
