@@ -9,12 +9,12 @@
 
 <div class="reporting-periods">
     {% if messages %}
-        <div class="usa-grid">
+        <div class="grid-container">
         {% for message in messages %}
-            <div class="usa-alert usa-alert-{{ message.level_tag }}">
-              <div class="usa-alert-body">
-                <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
-                <p class="usa-alert-text">{{ message.message }}</p>
+            <div class="usa-alert usa-alert--{{ message.level_tag }}">
+              <div class="usa-alert__body">
+                <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
+                <p class="usa-alert__text">{{ message.message }}</p>
               </div>
             </div>
         {% endfor %}
