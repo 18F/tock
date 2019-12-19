@@ -219,7 +219,10 @@ class Project(models.Model):
     )
     project_lead = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
-
+    exclude_from_billability = models.BooleanField(
+        default=False,
+        help_text='Check if this project should be excluded from calculations of billable hours, e.g. Out of Office'
+    )
     objects = ProjectManager()
 
     class Meta:
