@@ -185,6 +185,12 @@ class ProjectManager(models.Manager):
     def inactive(self):
         return self.get_queryset().filter(active=False)
 
+    def excluded_from_billability(self):
+        return self.get_queryset().filter(exclude_from_billability=True)
+
+    def non_billable(self):
+        return self.get_queryset().filter(exclude_from_billability=False, accounting_code__billable=False)
+
 
 class Project(models.Model):
     """ Stores information about a specific project"""

@@ -138,6 +138,10 @@
 
 
  <script>
+  const excludedFromBillability = {{excluded_from_billability|safe}};
+  const billableExpectation = {{billable_expectation|safe}};
+  const nonBillableProjects = {{non_billable_projects|safe}};
+
  function clearLocalStorage() {
    // Clear anything saved locally.
    if(window.localStorage) {
