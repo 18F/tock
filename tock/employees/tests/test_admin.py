@@ -34,7 +34,8 @@ class TestUserDataForm(TestCase):
             'is_18f_employee': '',
             'is_billable': '',
             'unit': '',
-            'profit_loss_account': ProfitLossAccount.objects.first().id
+            'profit_loss_account': ProfitLossAccount.objects.first().id,
+            'billable_expectation': 0.80
         }
         form = UserDataForm(data=form_data)
         self.assertTrue(form.is_valid())
