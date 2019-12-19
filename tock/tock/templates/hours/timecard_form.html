@@ -6,10 +6,10 @@
 {% block content %}
 
 {% if formset.errors %}
-    <div class="usa-alert usa-alert-error">
-      <div class="usa-alert-body">
-        <h3 class="usa-alert-heading">There was an error processing your time card</h3>
-        <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+    <div class="usa-alert usa-alert--error">
+      <div class="usa-alert__body">
+        <h3 class="usa-alert__heading">There was an error processing your time card</h3>
+        <p class="usa-alert__text">{{ formset.non_form_errors }}</p>
         {% for form in formset.errors %}
             {% with form_id=forloop.counter0 %}
             {% for error_message in form.values %}
@@ -22,12 +22,12 @@
 {% endif %}
 
 {% if messages %}
-    <div class="usa-grid">
+    <div class="grid-container">
     {% for message in messages %}
-        <div class="usa-alert usa-alert-{{ message.level_tag }}">
-          <div class="usa-alert-body">
-            <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
-            <p class="usa-alert-text">{{ message.message }}</p>
+        <div class="usa-alert usa-alert--{{ message.level_tag }}">
+          <div class="usa-alert__body">
+            <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
+            <p class="usa-alert__text">{{ message.message }}</p>
           </div>
         </div>
     {% endfor %}
@@ -37,12 +37,12 @@
 <h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
 
 {% if reporting_period.message_enabled and reporting_period.message %}
-  <div class="usa-alert usa-alert-{{ reporting_period.message_style }}">
-    <div class="usa-alert-body">
+  <div class="usa-alert usa-alert--{{ reporting_period.message_style }}">
+    <div class="usa-alert__body">
       {% if reporting_period.message_title %}
-        <h3 class="usa-alert-heading">{{ reporting_period.message_title }}</h3>
+        <h3 class="usa-alert__heading">{{ reporting_period.message_title }}</h3>
       {% endif %}
-      <p class="usa-alert-text">
+      <p class="usa-alert__text">
         {{ reporting_period.rendered_message|safe }}
       </p>
     </div>
@@ -50,19 +50,19 @@
 {% endif %}
 
 {% for timecard_note in timecard_notes %}
-  <div class="usa-alert usa-alert-{{ timecard_note.style }}">
-    <div class="usa-alert-body">
-      <h3 class="usa-alert-heading">{{ timecard_note.title }}</h3>
-      <p class="usa-alert-text">
+  <div class="usa-alert usa-alert--{{ timecard_note.style }}">
+    <div class="usa-alert__body">
+      <h3 class="usa-alert__heading">{{ timecard_note.title }}</h3>
+      <p class="usa-alert__text">
         {{ timecard_note.rendered_body|safe }}
       </p>
     </div>
   </div>
 {% endfor %}
 
-<div class="usa-alert usa-alert-info">
-  <div class="usa-alert-body">
-    <p class="usa-alert-text">
+<div class="usa-alert usa-alert--info">
+  <div class="usa-alert__body">
+    <p class="usa-alert__text">
       For additional help and guidance with using Tock and entering hours, please consult the <a href="https://handbook.18f.gov/tock/">TTS Handbook page on Tock</a>.
     </p>
   </div>
@@ -71,15 +71,15 @@
 <form method="post" action="{% url 'reportingperiod:UpdateTimesheet' reporting_period=object.reporting_period.start_date %}">
   {% csrf_token %}
   {{ formset.management_form }}
-  <div class="entries usa-grid">
+  <div class="entries grid-container">
     {% for project_entry in formset %}
       <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
         <div class="entry-hidden">
           {{ project_entry.timecard }}
           {{ project_entry.id }}
         </div>
-        <div class="usa-grid">
-          <div class="entry-project usa-width-two-thirds">
+        <div class="grid-row grid-gap">
+          <div class="entry-project grid-col-8">
             {{ project_entry.project.label_tag }}
             {{ project_entry.project }}
             {% if project_entry.non_field_errors %}
@@ -99,14 +99,14 @@
               {{ project_entry.notes }}
             </div>
           </div>
-          <div class="entry-amount usa-width-one-third">
+          <div class="entry-amount grid-col-4">
             {{ project_entry.hours_spent.label_tag }}
             {{ project_entry.hours_spent }}
           </div>
         </div>
-      <div class="usa-grid">
+        <div class="grid-row grid-gap">
       {% if unsubmitted %}
-      <div class="entry-delete usa-width-two-thirds">
+      <div class="entry-delete grid-col-8">
         {{ project_entry.DELETE }}
         <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
       </div>
@@ -116,22 +116,20 @@
     {% endfor %}
   </div>
   <div class="timecard-footer">
-    <div class="entries-total">
-      <div class="usa-grid">
-          <div class="usa-width-two-thirds">
-        <button type="button" class="add-timecard-entry usa-button-gray">Add item</button>
-      </div
-        </div>
-        <div class="usa-width-one-third">Total hours
+    <div class="entries-total grid-container">
+      <div class="grid-row grid-gap">
+        <div class="grid-col-8">
+          <button type="button" class="add-timecard-entry usa-button usa-button--base">Add item</button>
+        </div
+      </div>
+        <div class="grid-col-4">Total hours
             <span class="entries-total-reported-amount">0</span>
-        </div>
       </div>
     </div>
+  </div>
     <div class="submit-form">
-      <div class="usa-grid">
-        <button type="button" class="usa-button-big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
-        <button type="button" class="usa-button-secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
-      </div>
+        <button type="button" class="usa-button usa-button--big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
+        <button type="button" class="usa-button usa-button--outline save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
     </div>
   </div>
 </form>
