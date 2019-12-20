@@ -6,7 +6,7 @@
 {% block content %}
 <h1>Let's Tock about {{ username }}!</h1>
 
-<form action="" method="post">{% csrf_token %}
+<form action="" method="post" class="usa-form">{% csrf_token %}
     <!--{{ form.as_p }}-->
     {{ form.first_name.label_tag }}
     {{ form.first_name }}
