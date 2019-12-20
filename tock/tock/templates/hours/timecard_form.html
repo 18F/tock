@@ -73,69 +73,68 @@
   {{ formset.management_form }}
   <div class="entries grid-container">
     {% for project_entry in formset %}
-      <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
-        <div class="entry-hidden">
-          {{ project_entry.timecard }}
-          {{ project_entry.id }}
-        </div>
-        <div class="grid-row grid-gap">
-          <div class="entry-project grid-col-8">
-            {{ project_entry.project.label_tag }}
-            {{ project_entry.project }}
-            {% if project_entry.non_field_errors %}
+    <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
+      <div class="entry-hidden">
+        {{ project_entry.timecard }}
+        {{ project_entry.id }}
+      </div>
+      <div class="grid-row grid-gap">
+        <div class="entry-project grid-col-8">
+          {{ project_entry.project.label_tag }}
+          {{ project_entry.project }}
+          {% if project_entry.non_field_errors %}
+          <div class="invalid">
+            {{ project_entry.non_field_errors }}
+          </div>
+          {% endif %}
+          <div class="entry-alerts"></div>
+          <div class="entry-hidden entry-note-field">
+            {{ project_entry.notes.label_tag }}
+            {{ project_entry.notes.help_text }}
+            {% if project_entry.notes.errors %}
             <div class="invalid">
-              {{ project_entry.non_field_errors }}
+              {{ project_entry.notes.errors }}
             </div>
             {% endif %}
-            <div class="entry-alerts"></div>
-            <div class="entry-hidden entry-note-field">
-              {{ project_entry.notes.label_tag }}
-              {{ project_entry.notes.help_text }}
-              {% if project_entry.notes.errors %}
-                <div class="invalid">
-                  {{ project_entry.notes.errors }}
-                </div>
-              {% endif %}
-              {{ project_entry.notes }}
-            </div>
-          </div>
-          <div class="entry-amount grid-col-4">
-            {{ project_entry.hours_spent.label_tag }}
-            {{ project_entry.hours_spent }}
+            {{ project_entry.notes }}
           </div>
         </div>
-        <div class="grid-row grid-gap">
-      {% if unsubmitted %}
-      <div class="entry-delete grid-col-8">
-        {{ project_entry.DELETE }}
-        <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
+        <div class="entry-amount grid-col-4">
+          {{ project_entry.hours_spent.label_tag }}
+          {{ project_entry.hours_spent }}
+        </div>
       </div>
-      {% endif %}
-    </div>
-      </div>
-    {% endfor %}
-  </div>
-  <div class="timecard-footer">
-    <div class="entries-total grid-container">
       <div class="grid-row grid-gap">
-        <div class="grid-col-8">
-          <button type="button" class="add-timecard-entry usa-button usa-button--base">Add item</button>
-        </div
-      </div>
-        <div class="grid-col-4">Total hours
-            <span class="entries-total-reported-amount">0</span>
+        {% if unsubmitted %}
+        <div class="entry-delete grid-col-8">
+          {{ project_entry.DELETE }}
+          <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
+        </div>
+        {% endif %}
       </div>
     </div>
-  </div>
-    <div class="submit-form">
+    {% endfor %}
+    <div class="timecard-footer">
+      <div class="entries-total">
+        <div class="grid-row grid-gap">
+          <div class="grid-col-8">
+            <button type="button" class="add-timecard-entry usa-button usa-button--base">Add item</button>
+          </div>
+          <div class="grid-col-4">Total hours
+            <span class="entries-total-reported-amount">0</span>
+          </div>
+        </div>
+      </div>
+      <div class="submit-form">
         <button type="button" class="usa-button usa-button--big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
         <button type="button" class="usa-button usa-button--outline save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
+      </div>
     </div>
   </div>
 </form>
 
 
- <script>
+<script>
  function clearLocalStorage() {
    // Clear anything saved locally.
    if(window.localStorage) {
