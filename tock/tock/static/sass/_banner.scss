@@ -1,18 +1,18 @@
 .usa-logo {
-    a {
-        vertical-align: middle;
-    }
+  a {
+    vertical-align: middle;
+       }
 }
 
 .usa-logo__text {
+  img {
+    display: inline-block;
+    height: 28px;
+    vertical-align: middle;
+       }
+  @media screen and (min-width: $nav-width) {
     img {
-        display: inline-block;
-        height: 28px;
-        vertical-align: middle;
+      height: 50px;
     }
-    @media screen and (min-width: $nav-width) {
-        img {
-            height: 50px;
-        }
-    }
+  }
 }

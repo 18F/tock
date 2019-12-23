@@ -8,23 +8,8 @@
 @import "utils";
 @import "alert";
 
-// confirmed
 .tock-header {
   background-color: $color-primary-alt-light;
-}
-
-[href *='.xls'],
-[href *='.csv'] {
-  display: inline-block;
-}
-
-[href *='.xls']::after,
-[href *='.csv']::after {
-  font-family: 'FontAwesome';
-  content: '\f0ce';
-  margin-left: .5rem;
-  font-style: normal;
-  float: right;
 }
 
 // backwards compat with USWDS 1.x
@@ -32,7 +17,20 @@ li {
     line-height: 1.5;
     margin-bottom: 0.5em;
 }
-// unsure
+
+// hack to adjust forms to USWDS 1.x
+.usa-form label {
+  @extend .usa-label;
+}
+.usa-form select {
+  @extend .usa-select;
+}
+.usa-form input[type=text], .usa-form input[type=number] {
+  @extend .usa-input;
+}
+.usa-form input[type=submit], .usa-form input[type=file]{
+  @extend .usa-button;
+}
 
 .container {
   margin-top: 5rem;
@@ -64,6 +62,20 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
   div b {
     background: url(../../vendor/uswds/images/arrow-up.svg) no-repeat 0 1.5rem;
   }
+}
+
+[href *='.xls'],
+[href *='.csv'] {
+  display: inline-block;
+}
+
+[href *='.xls']::after,
+[href *='.csv']::after {
+  font-family: 'FontAwesome';
+  content: '\f0ce';
+  margin-left: .5rem;
+  font-style: normal;
+  float: right;
 }
 
 @media screen and (max-width: 780px) {
