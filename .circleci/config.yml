@@ -70,7 +70,7 @@ jobs:
             python manage.py loaddata test_data/data-update-deduped.json --settings=tock.settings.test
             python manage.py createsuperuser --username admin.user --email admin.user@gsa.gov --noinput --settings=tock.settings.test
             python manage.py runserver 0.0.0.0:8000 --settings=tock.settings.test &
-            sleep 5
+            while ! nc -G 1 -z 0.0.0.0 8000; do sleep 0.1; done;
             cd ..
             npm run test
 
