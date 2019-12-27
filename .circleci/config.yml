@@ -8,8 +8,6 @@ cf-docker-image: &CF_DOCKER_IMAGE
       environment:
         - TZ=America/New_York
         - CF_API: https://api.fr.cloud.gov
-working-directory: &WORKING_DIRECTORY
-  working_directory: ~/repo
 
 version: 2
 jobs:
@@ -29,8 +27,6 @@ jobs:
         environment:
           - POSTGRES_USER=circleci
           - POSTGRES_DB=tock-test
-
-    <<: *WORKING_DIRECTORY
 
     steps:
       - checkout
@@ -86,8 +82,6 @@ jobs:
   deploy_to_staging:
     <<: *CF_DOCKER_IMAGE
 
-    <<: *WORKING_DIRECTORY
-
     steps:
       - attach_workspace:
           at: .
@@ -104,8 +98,6 @@ jobs:
   deploy_to_production:
     <<: *CF_DOCKER_IMAGE
 
-    <<: *WORKING_DIRECTORY
-
     steps:
       - attach_workspace:
           at: .
@@ -121,8 +113,6 @@ jobs:
 
   recycle_production:
     <<: *CF_DOCKER_IMAGE
-
-    <<: *WORKING_DIRECTORY
 
     steps:
       - run:
