@@ -8,8 +8,6 @@ cf-docker-image: &CF_DOCKER_IMAGE
       environment:
         - TZ=America/New_York
         - CF_API: https://api.fr.cloud.gov
-working-directory: &WORKING_DIRECTORY
-  working_directory: ~/repo
 
 version: 2
 jobs:
@@ -30,30 +28,32 @@ jobs:
           - POSTGRES_USER=circleci
           - POSTGRES_DB=tock-test
 
-    <<: *WORKING_DIRECTORY
-
     steps:
       - checkout
 
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
+            - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
+
+      - run:
+          name: update npm
+          command: sudo npm install -g npm
 
       - run:
           name: install dependencies
           command: |
             pip install pipenv
             pipenv install --dev --deploy
-            npm install
+            npm ci
 
       - save_cache:
           paths:
             - ./.venv
-            - ./node_modules
-          key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package.json" }}
+            - ~/.npm
+          key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
 
       # run tests!
       - run:
@@ -70,7 +70,7 @@ jobs:
             python manage.py loaddata test_data/data-update-deduped.json --settings=tock.settings.test
             python manage.py createsuperuser --username admin.user --email admin.user@gsa.gov --noinput --settings=tock.settings.test
             python manage.py runserver 0.0.0.0:8000 --settings=tock.settings.test &
-            sleep 5
+            while ! nc -w 1 -z 0.0.0.0 8000; do sleep 0.1; done;
             cd ..
             npm run test
 
@@ -85,8 +85,6 @@ jobs:
 
   deploy_to_staging:
     <<: *CF_DOCKER_IMAGE
-
-    <<: *WORKING_DIRECTORY
 
     steps:
       - attach_workspace:
@@ -104,8 +102,6 @@ jobs:
   deploy_to_production:
     <<: *CF_DOCKER_IMAGE
 
-    <<: *WORKING_DIRECTORY
-
     steps:
       - attach_workspace:
           at: .
@@ -121,8 +117,6 @@ jobs:
 
   recycle_production:
     <<: *CF_DOCKER_IMAGE
-
-    <<: *WORKING_DIRECTORY
 
     steps:
       - run:
