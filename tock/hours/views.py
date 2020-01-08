@@ -1,6 +1,7 @@
 import csv
 import datetime as dt
 import io
+import json
 from itertools import chain
 from operator import attrgetter
 
@@ -504,6 +505,9 @@ class TimecardView(PermissionMixin, UpdateView):
             'timecard_notes': TimecardNote.objects.enabled(),
             'unsubmitted': not self.object.submitted,
             'reporting_period': reporting_period,
+            'excluded_from_billability': json.dumps(list(Project.objects.excluded_from_billability().values_list('id', flat=True))),
+            'billable_expectation': json.dumps(str(self.object.billable_expectation)),
+            'non_billable_projects': json.dumps(list(Project.objects.non_billable().values_list('id', flat=True)))
         })
 
         return context

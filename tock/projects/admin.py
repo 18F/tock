@@ -85,6 +85,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'start_date',
         'end_date',
         'active',
+        'exclude_from_billability',
         'agreement_URL',
         'description',
         'alerts',
