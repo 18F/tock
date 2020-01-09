@@ -6,32 +6,32 @@
 {% block content %}
 
 {% if formset.errors %}
-    <div class="usa-alert usa-alert-error">
-      <div class="usa-alert-body">
-        <h3 class="usa-alert-heading">There was an error processing your time card</h3>
-        <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
-        {% for form in formset.errors %}
-            {% with form_id=forloop.counter0 %}
-            {% for error_message in form.values %}
-              <a href='#entry-{{form_id}}'>{{error_message}}</a>
-            {% endfor %}
-            {% endwith %}
+  <div class="usa-alert usa-alert-error">
+    <div class="usa-alert-body">
+      <h3 class="usa-alert-heading">There was an error processing your time card</h3>
+      <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+      {% for form in formset.errors %}
+        {% with form_id=forloop.counter0 %}
+          {% for error_message in form.values %}
+            <a href="#entry-{{form_id}}">{{error_message}}</a>
           {% endfor %}
-      </div>
+        {% endwith %}
+      {% endfor %}
     </div>
+  </div>
 {% endif %}
 
 {% if messages %}
-    <div class="usa-grid">
+  <div class="usa-grid">
     {% for message in messages %}
-        <div class="usa-alert usa-alert-{{ message.level_tag }}">
-          <div class="usa-alert-body">
-            <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
-            <p class="usa-alert-text">{{ message.message }}</p>
-          </div>
+      <div class="usa-alert usa-alert-{{ message.level_tag }}">
+        <div class="usa-alert-body">
+          <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
+          <p class="usa-alert-text">{{ message.message }}</p>
         </div>
+      </div>
     {% endfor %}
-    </div>
+  </div>
 {% endif %}
 
 <h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
@@ -83,9 +83,9 @@
             {{ project_entry.project.label_tag }}
             {{ project_entry.project }}
             {% if project_entry.non_field_errors %}
-            <div class="invalid">
-              {{ project_entry.non_field_errors }}
-            </div>
+              <div class="invalid">
+                {{ project_entry.non_field_errors }}
+              </div>
             {% endif %}
             <div class="entry-alerts"></div>
             <div class="entry-hidden entry-note-field">
@@ -104,40 +104,39 @@
             {{ project_entry.hours_spent }}
           </div>
         </div>
-      <div class="usa-grid">
-      {% if unsubmitted %}
-      <div class="entry-delete usa-width-two-thirds">
-        {{ project_entry.DELETE }}
-        <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
-      </div>
-      {% endif %}
-    </div>
+        <div class="usa-grid">
+          {% if unsubmitted %}
+            <div class="entry-delete usa-width-two-thirds">
+              {{ project_entry.DELETE }}
+              <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
+            </div>
+          {% endif %}
+        </div>
       </div>
     {% endfor %}
   </div>
   <div class="timecard-footer">
     <div class="entries-total">
       <div class="usa-grid">
-          <div class="usa-width-two-thirds">
-        <button type="button" class="add-timecard-entry usa-button-gray">Add item</button>
-      </div
+        <div class="usa-width-two-thirds">
+          <button type="button" class="add-timecard-entry usa-button-gray">Add item</button>
         </div>
         <div class="usa-width-one-third">Total hours
-            <span class="entries-total-reported-amount">0</span>
+          <span class="entries-total-reported-amount">0</span>
         </div>
       </div>
     </div>
-    <div class="submit-form">
-      <div class="usa-grid">
-        <button type="button" class="usa-button-big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
-        <button type="button" class="usa-button-secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
-      </div>
+  </div>
+  <div class="submit-form">
+    <div class="usa-grid">
+      <button type="button" class="usa-button-big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
+      <button type="button" class="usa-button-secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
     </div>
   </div>
 </form>
 
 
- <script>
+<script>
   const excludedFromBillability = {{excluded_from_billability|safe}};
   const billableExpectation = {{billable_expectation|safe}};
   const nonBillableProjects = {{non_billable_projects|safe}};
