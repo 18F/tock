@@ -121,8 +121,25 @@
         <div class="usa-width-two-thirds">
           <button type="button" class="add-timecard-entry usa-button-gray">Add item</button>
         </div>
-        <div class="usa-width-one-third">Total hours
-          <span class="entries-total-reported-amount">0</span>
+        <div class="usa-width-one-sixth">
+          <span class="text-label">Total hours</span>
+          <span class="entries-total-reported-amount">
+            <svg class="circular-graph">
+              <circle class="background" cx="30" cy="30" r="28"></circle>
+              <circle class="fill" cx="30" cy="30" r="28" stroke-dasharray="0 1" pathLength=".99"></circle>
+            </svg>
+            <span class="number-label">0</span>
+          </span>
+        </div>
+        <div class="usa-width-one-sixth">
+          <span class="text-label"><a href="https://handbook.18f.gov/tock/#weekly-billable-hour-expectations" target="_blank" rel="noopener noreferrer">Billable hours</a></span>
+          <span class="entries-total-billable-amount">
+            <svg class="circular-graph">
+              <circle class="background" cx="30" cy="30" r="28"></circle>
+              <circle class="fill" cx="30" cy="30" r="28" stroke-dasharray="0 1" pathLength=".99"></circle>
+            </svg>
+            <span class="number-label">0</span>
+          </span>
         </div>
       </div>
     </div>
@@ -137,28 +154,66 @@
 
 
 <script>
+  const totalHoursTarget = 40;
   const excludedFromBillability = {{excluded_from_billability|safe}};
   const billableExpectation = {{billable_expectation|safe}};
   const nonBillableProjects = {{non_billable_projects|safe}};
 
- function clearLocalStorage() {
-   // Clear anything saved locally.
-   if(window.localStorage) {
-     window.localStorage.removeItem('tock-entered-hours-{{ object.id }}');
-   }
- }
+  function clearLocalStorage() {
+    // Clear anything saved locally.
+    if(window.localStorage) {
+      window.localStorage.removeItem('tock-entered-hours-{{ object.id }}');
+    }
+  }
 
- function getHourTotals() {
-    // Get the total of all timecard object entries
-    var hoursTotal = 0;
-    $('.entry-amount input').each(function(i) {
-      var is_checked = $(this).parents('.entry')
-          .find('.entry-delete input')
-          .prop('checked');
+  function getFormData() {
+    return $('.entry').map((i, entry) => {
+      const markedForDeletion = $('.entry-delete input', entry).prop('checked');
 
-      if (!is_checked) hoursTotal += ($(this).val() / 1);
+      if (markedForDeletion) {
+        return;
+      }
+
+      const project = parseInt($('.entry-project select', entry).val(), 10) || null;
+      const isExcluded = project ? excludedFromBillability.includes(project) : null;
+      const isBillable = project ? !isExcluded && !nonBillableProjects.includes(project) : null;
+      const hours = parseFloat($('.entry-amount input', entry).val()) || 0;
+
+      return { project, isBillable, isExcluded, hours };
+    }).toArray();
+  }
+
+  function roundToNearestHalf(number) {
+    return Math.ceil(number * 2) / 2;
+  }
+
+  function round(number) {
+    return parseFloat(number.toFixed(2));
+  }
+
+  function getHoursReport() {
+    const data = getFormData();
+
+    const r = data.reduce((sums, entry) => {
+      sums.totalHours += entry.hours;
+      if (entry.isExcluded) sums.excludedHours += entry.hours;
+      if (entry.isBillable) sums.billableHours += entry.hours;
+
+      return sums;
+    }, {
+      totalHours: 0,
+      excludedHours: 0,
+      billableHours: 0
     });
-    return {'hoursTotal': parseFloat(hoursTotal.toFixed(2))};
+
+    // Round user input to .01; round system to .5
+    return {
+      totalHours: round(r.totalHours),
+      excludedHours: round(r.excludedHours),
+      nonBillableHours: round(r.totalHours - r.billableHours - r.excludedHours),
+      billableHours: round(r.billableHours),
+      billableHoursTarget: roundToNearestHalf((totalHoursTarget - r.excludedHours) * billableExpectation),
+    };
   }
 
   function populateHourTotals(){
@@ -177,15 +232,34 @@
     }
 
     // Populate The Bottom Addon Items with Totals
-    var totals = getHourTotals();
-    $('.entries-total-reported-amount').html();
+    const totals = getHoursReport();
+    const totalElement = $('.entries-total-reported-amount');
+    const billableElement = $('.entries-total-billable-amount');
 
-    $('.entries-total-reported-amount').html(totals['hoursTotal']);
-    if (totals['hoursTotal'] != 40) {
-      $('.entries-total-reported-amount').addClass('invalid');
+    $('.fill', totalElement).attr('stroke-dasharray', `${totals.totalHours / totalHoursTarget} 1`)
+    $('.fill', billableElement).attr('stroke-dasharray', `${totals.billableHours / totals.billableHoursTarget} 1`)
+
+    $('.number-label', totalElement).html(totals.totalHours);
+    $('.number-label', billableElement).html(totals.billableHours);
+
+    if (totals.totalHours === 0) {
+      totalElement.removeClass('valid invalid');
+    }
+    else if (totals.totalHours === totalHoursTarget) {
+      totalElement.addClass('valid').removeClass('invalid');
     }
     else {
-      $('.entries-total-reported-amount').removeClass('invalid');
+      totalElement.addClass('invalid').removeClass('valid');
+    }
+
+    if (totals.billableHours === 0) {
+      billableElement.removeClass('valid invalid');
+    }
+    else if (totals.billableHours >= totals.billableHoursTarget) {
+      billableElement.addClass('valid').removeClass('invalid');
+    }
+    else {
+      billableElement.addClass('invalid').removeClass('valid');
     }
   }
 

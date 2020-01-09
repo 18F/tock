@@ -154,26 +154,58 @@
 	padding-top: 1.5rem;
 }
 
-.entries-total-reported-amount {
-	display:block;
-border: 1px solid #5b616b;
-border-radius: 0;
-box-sizing: border-box;
-color: #1F2E4A;
-display: block;
-font-size: 1.7rem;
-height: 4.4rem;
-line-height: 1.3;
-margin: 0.2em 0;
-max-width: 46rem;
-outline: none;
-padding: 1rem 0.7em;
-width: 65%;
-background-color: $color-green-lightest;
-&.invalid {
-	background-color: $color-secondary-dark;
-	color: #fff;
+.entries-total {
+  .text-label {
+    display: inline-block;
+    margin-bottom: 1rem;
+  }
 }
+
+.entries-total-reported-amount, .entries-total-billable-amount {
+  &, .number-label, .circular-graph {
+    width: 60px;
+    height: 60px;
+  }
+
+  .number-label {
+    position: relative;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .circular-graph {
+    transform: rotate(-90deg);
+    position: absolute;
+    left: 0;
+
+    .background {
+      fill: none;
+      stroke: $color-primary-alt-lightest;
+      stroke-width: 3;
+      transition: stroke-dasharray 0.3s ease-out;
+    }
+
+    .fill {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 3;
+      transition: stroke-dasharray 0.3s ease-out;
+    }
+  }
+
+  &.invalid {
+    color: $color-secondary-dark;
+  }
+
+  &.valid {
+    color: $color-green;
+  }
+
+  display: block;
+  position: relative;
+  color: $color-primary-alt-lightest;
 }
 
 .entries-total {
@@ -196,15 +228,6 @@ background-color: $color-green-lightest;
     [type="submit"] {
       margin-top: 0.5em;
     }
-	}
-	.entries-total-billable-amount {
-		color: green;
-	}
-	.entries-total-non-billable-amount {
-		color: #1188ff;
-	}
-	.entries-total-reported-wrapper {
-		font-weight:bold;
 	}
 }
 
