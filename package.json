@@ -14,7 +14,7 @@
   "dependencies": {
     "chosen-js": "^1.8.7",
     "jquery": "^3.4.1",
-    "node-sass": "^4.9.1",
+    "node-sass": "^4.13.1",
     "uswds": "^1.6.9"
   },
   "devDependencies": {
