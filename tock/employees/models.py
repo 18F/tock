@@ -95,9 +95,9 @@ class UserData(models.Model):
         (13, 'Business-Transformation Services'),
         (14, 'PIF-Fellows'),
         (15, 'PIF-Operations'),
-        (16, 'Unknown / N/A')
+        (16, 'Unknown / N/A'),
         (17, 'Chapters-Account Management'),
-        (18, 'Portfolio-Human Services')
+        (18, 'Portfolio-Human Services'),
         (19, 'Portfolio-National Security & Intelligence')
     )
 
