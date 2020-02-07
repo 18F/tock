@@ -10,11 +10,24 @@
           <span>Projects</span>
         </a>
       </li>
-      <li>
-        <a href="{% url 'reports:ListReports' %}" class="usa-nav-link">
-          <span>Reports</span>
-        </a>
-      </li>
+      {% if user.is_staff %}
+        <li>
+          <button class="
+            usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-2">
+            <span>Reports</span>
+          </button>
+          <ul id="side-nav-2" class="usa-nav-submenu" aria-hidden="true">
+            <li>
+              <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
+            </li>
+            <li>
+              <a href="{% url 'reports:ListReports' %}" class="usa-nav-link">
+                <span>Timecard Reports</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      {% endif %}
       <li>
         <a href="{% url 'employees:UserListView' %}" class="usa-nav-link">
           <span>Users</span>
@@ -41,12 +54,8 @@
           <li>
               <a href="/admin">Tock Admin</a>
             </li>
-          <li>
-              <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
-          </li>
           {% endif %}
           {% if request.user.is_superuser %}
-
           <li>
             <a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Create reporting period</a>
           </li>
