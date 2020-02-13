@@ -255,7 +255,7 @@
     if (totals.billableHours === 0) {
       billableElement.removeClass('valid invalid');
     }
-    else if (totals.billableHours >= totals.billableHoursTarget) {
+    else if (totals.billableHours >= totals.billableHoursTarget && totals.totalHours <= totalHoursTarget) {
       billableElement.addClass('valid').removeClass('invalid');
     }
     else {
