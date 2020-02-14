@@ -81,11 +81,11 @@ class UserData(models.Model):
         (1, 'Operations-Talent'),
         (2, 'Operations-Infrastructure'),
         (3, 'Operations-Front Office'),
-        (4, 'Chapters-Acquisition Managers'),
+        (4, 'Chapters-Acquisition'),
         (5, 'Chapters-Engineering'),
-        (6, 'Chapters-Experience Design'),
+        (6, 'Chapters-Design'),
         (7, 'Chapters-Product'),
-        (8, 'Chapters-Strategists'),
+        #(8, 'Chapters-Strategists'), Deprecated. Should not be used.
         (9, 'Business-Acquisition Services'),
         (10, 'Business-Custom Partner Solutions'),
         (11, 'Business-Learn'),
@@ -93,7 +93,10 @@ class UserData(models.Model):
         (13, 'Business-Transformation Services'),
         (14, 'PIF-Fellows'),
         (15, 'PIF-Operations'),
-        (16, 'Unknown / N/A')
+        (16, 'Unknown / N/A'),
+        (17, 'Chapters-Account Management'),
+        (18, 'Portfolio-Human Services'),
+        (19, 'Portfolio-National Security & Intelligence')
     )
 
     user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username', on_delete=models.CASCADE)
