@@ -180,7 +180,8 @@ class TimecardInlineFormSetTransactionTests(TransactionTestCase):
 
 class TimecardInlineFormSetTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
+        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json',
+        'employees/fixtures/user_data.json']
 
     setUp = time_card_inlineformset_setup
 

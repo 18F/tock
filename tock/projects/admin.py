@@ -10,6 +10,7 @@ class AgencyAdmin(admin.ModelAdmin):
 class AccountingCodeAdmin(admin.ModelAdmin):
     search_fields = ['agency__name', 'office',]
 
+
 class ProfitLossAccountForm(forms.ModelForm):
     class Meta:
         model = ProfitLossAccount
@@ -26,12 +27,14 @@ class ProfitLossAccountForm(forms.ModelForm):
 
         return self.cleaned_data
 
+
 class ProfitLossAccountAdmin(admin.ModelAdmin):
     actions_on_bottom = True
     form = ProfitLossAccountForm
     list_display = ('name', 'accounting_string', 'as_start_date', 'as_end_date', 'account_type',)
     list_editable = ('accounting_string', 'account_type',)
     search_fields = ('name', 'accounting_string',)
+
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -73,6 +76,7 @@ class ProjectForm(forms.ModelForm):
             pass
         return self.cleaned_data
 
+
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
     # inlines = (TimecardPrefillDataInline,) This is too slow. Will fix.
@@ -85,6 +89,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'start_date',
         'end_date',
         'active',
+        'exclude_from_billability',
         'agreement_URL',
         'description',
         'alerts',
@@ -92,6 +97,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'notes_displayed',
     ]
     list_display = (
+        'id',
         'name',
         'mbnumber',
         'accounting_code',
@@ -117,6 +123,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
         return '-'
     get_organization_name.short_description = 'Organization Name'
+
 
 class ProjectAlertAdmin(admin.ModelAdmin):
     search_fields = ['title',]

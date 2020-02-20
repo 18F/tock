@@ -1,9 +1,9 @@
 import datetime
 
 from django.contrib.auth.models import User
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Q
-
 from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
 
@@ -218,6 +218,9 @@ class Timecard(models.Model):
     submitted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
+                                            default=0.80, decimal_places=2, max_digits=3,
+                                            verbose_name="Percentage of hours which are expected to be billable this week")
 
     class Meta:
         unique_together = ('user', 'reporting_period')
@@ -226,6 +229,14 @@ class Timecard(models.Model):
     def __str__(self):
         return "%s - %s" % (self.user, self.reporting_period.start_date)
 
+    def save(self, *args, **kwargs):
+        """
+        If this is a new timecard,
+        Set weekly billing expectation from user.user_data
+        """
+        if not self.id and self.user:
+            self.billable_expectation = self.user.user_data.billable_expectation
+        super().save(*args, **kwargs)
 
 class TimecardNoteManager(models.Manager):
     def enabled(self):
@@ -312,7 +323,6 @@ class TimecardNote(models.Model):
         if self.body:
            self.rendered_body = render_markdown(self.body)
         super(TimecardNote, self).save(*args, **kwargs)
-
 
 class TimecardObject(models.Model):
     timecard = models.ForeignKey(Timecard, related_name='timecardobjects', on_delete=models.CASCADE)

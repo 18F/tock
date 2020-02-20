@@ -171,7 +171,8 @@ class ProfitLossAccount(models.Model):
 
 
 class ProjectManager(models.Manager):
-    """Provides convenience methods for filtering Project models.
+    """
+    Provides convenience methods for filtering Project models.
 
     Also, not to be confused with a human in a similarly named role. :-)
     """
@@ -185,24 +186,42 @@ class ProjectManager(models.Manager):
     def inactive(self):
         return self.get_queryset().filter(active=False)
 
+    # Get the projects that are categorized as excluded from billability, i.e. out of office, which means
+    # the hours tocked in these projects will not be used in the total hours calculation when tryng to figure
+    # out how many hours should be billable in a reporting period.
+    def excluded_from_billability(self):
+        return self.get_queryset().filter(exclude_from_billability=True)
+
+    # Get the projects that are categorized as nonbillable, which means the hours tocked in these projects
+    # will be used in the total hourse calcuation when trying to figure out how many hours should be billable
+    # in a reporting period.
+    def non_billable(self):
+        return self.get_queryset().filter(exclude_from_billability=False, accounting_code__billable=False)
+
 
 class Project(models.Model):
-    """ Stores information about a specific project"""
+    """
+    Stores information about a specific project
+    """
     name = models.CharField(max_length=200)
     mbnumber = models.CharField(max_length=200, blank=True, verbose_name="MB Number")
-    accounting_code = models.ForeignKey(AccountingCode,
-                                        on_delete=models.CASCADE,
-                                        verbose_name="Accounting Code")
+    accounting_code = models.ForeignKey(
+        AccountingCode,
+        on_delete=models.CASCADE,
+        verbose_name="Accounting Code"
+    )
     description = models.TextField(blank=True, null=True)
     start_date = models.DateField(blank=True, null=True, verbose_name='Project Start Date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Project End Date')
     active = models.BooleanField(default=True)
     notes_required = models.BooleanField(
         default=False,
-        help_text='Check this if notes should be required for time entries against this project.  Note:  Checking this will enable notes to be displayed as well.'
+        verbose_name="Notes are required",
+        help_text='Check if notes should be required for time entries against this project. Note: Checking this enables notes display as well.'
     )
     notes_displayed = models.BooleanField(
         default=False,
+        verbose_name="Notes are requested (not required)",
         help_text='Check this if a notes field should be displayed along with a time entry against a project.'
     )
     alerts = models.ManyToManyField(
@@ -210,7 +229,11 @@ class Project(models.Model):
         blank=True,
         help_text='Attach one or more alerts to be displayed with this project if need be.'
     )
-    agreement_URL = models.URLField(blank=True, max_length=1000, verbose_name="Link to Agreement Folder")
+    agreement_URL = models.URLField(
+        blank=True,
+        max_length=1000,
+        verbose_name="Link to Agreement Folder"
+    )
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         null=True,
@@ -219,7 +242,10 @@ class Project(models.Model):
     )
     project_lead = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
-
+    exclude_from_billability = models.BooleanField(
+        default=False,
+        help_text='Check if this project should be excluded from calculations of billable hours, e.g. Out of Office'
+    )
     objects = ProjectManager()
 
     class Meta:
@@ -228,7 +254,7 @@ class Project(models.Model):
         ordering = ('name',)
 
     def __str__(self):
-        return '%s' % (self.name)
+        return '%s - %s' % (self.id, self.name)
 
     def is_billable(self):
         return self.accounting_code.billable

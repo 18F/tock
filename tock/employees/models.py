@@ -2,14 +2,12 @@ import datetime
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.db import models, IntegrityError
+from django.core.validators import MaxValueValidator
+from django.db import IntegrityError, models
 from django.db.models import Q
-
-from rest_framework.authtoken.models import Token
-
 from organizations.models import Organization
 from projects.models import ProfitLossAccount
-
+from rest_framework.authtoken.models import Token
 
 User = get_user_model()
 
@@ -108,6 +106,9 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
+    billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
+                                              default=0.80, decimal_places=2, max_digits=3,
+                                              verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         on_delete=models.CASCADE,
