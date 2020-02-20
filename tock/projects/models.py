@@ -186,6 +186,18 @@ class ProjectManager(models.Manager):
     def inactive(self):
         return self.get_queryset().filter(active=False)
 
+    # Get the projects that are categorized as excluded from billability, i.e. out of office, which means
+    # the hours tocked in these projects will not be used in the total hours calculation when tryng to figure
+    # out how many hours should be billable in a reporting period.
+    def excluded_from_billability(self):
+        return self.get_queryset().filter(exclude_from_billability=True)
+
+    # Get the projects that are categorized as nonbillable, which means the hours tocked in these projects
+    # will be used in the total hourse calcuation when trying to figure out how many hours should be billable
+    # in a reporting period.
+    def non_billable(self):
+        return self.get_queryset().filter(exclude_from_billability=False, accounting_code__billable=False)
+
 
 class Project(models.Model):
     """
@@ -230,7 +242,10 @@ class Project(models.Model):
     )
     project_lead = models.ForeignKey(User, null=True, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
-
+    exclude_from_billability = models.BooleanField(
+        default=False,
+        help_text='Check if this project should be excluded from calculations of billable hours, e.g. Out of Office'
+    )
     objects = ProjectManager()
 
     class Meta:
