@@ -706,7 +706,7 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
             'user',
             'reporting_period',
             "user__user_data"
-        ).distinct().order_by('user__last_name', 'user__first_name')
+        ).distinct().order_by('user__user_data__organization__name', 'user__last_name', 'user__first_name')
 
     def get_context_data(self, **kwargs):
         """
@@ -729,8 +729,8 @@ class ReportingPeriodDetailView(PermissionMixin, ListView):
             .filter(is_active=True) \
             .filter(user_data__current_employee=True) \
             .exclude(user_data__start_date__gte=self.report_period.end_date) \
-            .select_related('user_data') \
-            .order_by('last_name', 'first_name')
+            .select_related('user_data', 'user_data__organization') \
+            .order_by('user_data__organization__name', 'last_name', 'first_name')
 
         context.update({
             'users_without_filed_timecards': unfiled_users,
