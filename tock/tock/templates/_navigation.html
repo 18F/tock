@@ -13,10 +13,10 @@
       {% if request.user.is_staff %}
         <li>
           <button class="
-            usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-2">
+            usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="reports-nav">
             <span>Reports</span>
           </button>
-          <ul id="side-nav-2" class="usa-nav-submenu" aria-hidden="true">
+          <ul id="reports-nav" class="usa-nav-submenu" aria-hidden="true">
             <li>
               <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
             </li>
@@ -46,10 +46,10 @@
       {% if request.user.is_staff or request.user.is_superuser %}
       <li>
         <button class="
-        usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="side-nav-2">
+        usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="admin-nav">
           <span>Administrative</span>
         </button>
-        <ul id="side-nav-2" class="usa-nav-submenu" aria-hidden="true">
+        <ul id="admin-nav" class="usa-nav-submenu" aria-hidden="true">
           {% if request.user.is_staff %}
           <li>
               <a href="/admin">Tock Admin</a>
