@@ -211,6 +211,16 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
            self.rendered_message = render_markdown(self.message)
         super().save(*args, **kwargs)
 
+    @classmethod
+    def get_most_recent_periods(cls, number_of_periods=1):
+        """
+        Return the most recent N completed reporting periods
+        A reporting period is complete if it's end date
+        has is today or in the past.
+        """
+        today = datetime.date.today()
+        return ReportingPeriod.objects.filter(end_date__lte=today).order_by('-start_date')[:number_of_periods]
+
 class Timecard(models.Model):
     user = models.ForeignKey(User, related_name='timecards', on_delete=models.CASCADE)
     reporting_period = models.ForeignKey(ReportingPeriod, on_delete=models.CASCADE)
