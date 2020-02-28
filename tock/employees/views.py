@@ -97,7 +97,7 @@ def _add_recent_tock_table(user, context):
     recent_tocks = list(reversed(recent_tocks))
     billing_table = {}
     for n, timecard in enumerate(recent_tocks):
-        for tco in timecard.timecardobjects.all():
+        for tco in timecard.timecardobjects.all().select_related('project'):
             project_billing = billing_table.setdefault(tco.project, [0] * len(recent_tocks))
             project_billing[n] = tco.hours_spent
     context['recent_billing_table'] = billing_table
