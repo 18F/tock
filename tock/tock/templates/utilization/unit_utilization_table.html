@@ -1,0 +1,52 @@
+{% load index %}
+<table class="report_table">
+    <thead>
+        <th scope="col">Name</th>
+        <th scope="col">
+            Last Week<br>
+            <small>(Ending {{ unit.utilization.last_week_end_date }})</small><br>
+            <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
+        </th>
+        <th scope="col">
+            Last Month <br>
+            <small>({{ unit.utilization.last_month_start_date }} - {{ unit.utilization.last_month_end_date }})</small><br>
+            <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
+        </th>
+        <th scope="col">Fiscal Year to Date<br>
+            <small>(Ending {{ unit.utilization.this_fy_end_date }})</small><br>
+            <small class="usa-form-hint usa-additional_text">% billable (billable hrs / total hrs)</small>
+        </th>
+    </thead>
+    <tbody>
+        {% for employee in unit.utilization.last_week_data %}
+        <tr>
+            <td>
+                {{employee.username}}
+            </td>
+            {% with unit.utilization.last_week_data|index:forloop.counter0 as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+            {% with unit.utilization.last_month_data|index:forloop.counter0 as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+            {% with unit.utilization.this_fy_data|index:forloop.counter0 as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+        </tr>
+        {% endfor %}
+        <tfoot>
+            <tr>
+        <th scope="row"><b>Totals</b></th>
+            {% with unit.utilization.last_week_totals as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+            {% with unit.utilization.last_month_totals as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+            {% with unit.utilization.this_fy_totals as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+        </tr>
+        </tfoot>
+    </tbody>
+</table>

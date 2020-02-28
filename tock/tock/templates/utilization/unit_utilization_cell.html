@@ -1,0 +1,6 @@
+<td>
+    {{ data.utilization }}<br>
+    {% if data.total %}
+        ({{ data.billable }} / {{ data.total }})
+    {% endif %}
+</td>
