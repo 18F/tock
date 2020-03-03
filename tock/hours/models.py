@@ -358,8 +358,8 @@ class TimecardObject(models.Model):
         on_delete=models.CASCADE
     )
 
-    class Meta:
-        unique_together = ('timecard', 'project')
+    #class Meta:
+    #    unique_together = ('timecard', 'project')
 
     def project_alerts(self):
         return self.project.alerts.all()
