@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
 from django.db import IntegrityError, models
 from django.db.models import Q
-from organizations.models import Organization
+from organizations.models import Organization, Unit
 from projects.models import ProfitLossAccount
 from rest_framework.authtoken.models import Token
 
@@ -75,37 +75,12 @@ class EmployeeGrade(models.Model):
 
 
 class UserData(models.Model):
-
-    UNIT_CHOICES = (
-        (0, 'Operations-Team Operations'),
-        (1, 'Operations-Talent'),
-        (2, 'Operations-Infrastructure'),
-        (3, 'Operations-Front Office'),
-        (4, 'Chapters-Acquisition'),
-        (5, 'Chapters-Engineering'),
-        (6, 'Chapters-Design'),
-        (7, 'Chapters-Product'),
-        #(8, 'Chapters-Strategists'), Deprecated. Should not be used.
-        (9, 'Business-Acquisition Services'),
-        (10, 'Business-Custom Partner Solutions'),
-        (11, 'Business-Learn'),
-        (12, 'Business-Products & Platforms'),
-        (13, 'Business-Transformation Services'),
-        (14, 'PIF-Fellows'),
-        (15, 'PIF-Operations'),
-        (16, 'Unknown / N/A'),
-        (17, 'Chapters-Account Management'),
-        (18, 'Portfolio-Human Services'),
-        (19, 'Portfolio-National Security & Intelligence')
-    )
-
     user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username', on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
-    unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                               default=0.80, decimal_places=2, max_digits=3,
                                               verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
@@ -122,6 +97,7 @@ class UserData(models.Model):
         verbose_name='Is alternative work schedule eligible'
     )
     organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=True, verbose_name="Select organization unit", on_delete=models.CASCADE)
 
     class Meta:
         verbose_name='Employee'

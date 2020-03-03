@@ -105,7 +105,7 @@ class TestGroupUtilizationView(WebTest):
             user=self.req_user
         )
         self.assertEqual(len(
-            response.context['object_list']), len(UserData.UNIT_CHOICES)
+            response.context['object_list']), len(Unit.objects.values())
         )
         self.assertContains(response, 'regular.user')
         self.assertContains(response, 'aaron.snow')

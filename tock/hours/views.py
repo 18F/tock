@@ -104,7 +104,7 @@ class GeneralSnippetsTimecardSerializer(serializers.Serializer):
 
     def get_unit(self, obj):
         try:
-            unit = obj.timecard.user.user_data.get_unit_display()
+            unit = obj.timecard.user.user_data.unit()
         except ObjectDoesNotExist:
             unit = ''
         return unit

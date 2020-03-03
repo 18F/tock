@@ -41,19 +41,13 @@ class GroupUtilizationView(PermissionMixin, ListView):
         Gets submitted timecards for billable staff
         limited to the reporting periods in question.
         """
-        # Start stubbing a dict for our units, using a quick list comprehension
-        units = [{
-            'id': choice[0],
-            'name': choice[1],
-            'slug': slugify(choice[1])
-         } for choice in UserData.UNIT_CHOICES]
         # now we'll start building out that dict further,
         # starting with the staff for each unit
-        for unit in units:
+        for unit in Unit.models.all():
             billable_staff = UserData.objects.filter(
                 is_billable=True,
                 current_employee=True,
-                unit = unit['id']
+                unit = unit.pk
             ).prefetch_related('user')
 
             for staffer in billable_staff:
