@@ -97,7 +97,7 @@ class UserData(models.Model):
         verbose_name='Is alternative work schedule eligible'
     )
     organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
-    unit = models.ForeignKey(Unit, null=True, verbose_name="Select organization unit", on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=True, verbose_name="Organization business unit", blank=True, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name='Employee'

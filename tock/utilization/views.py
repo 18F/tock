@@ -167,7 +167,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
             last_billable_hours = sum(TimecardObject.objects.filter(
                 timecard__submitted=True,
                 timecard__reporting_period__start_date=self.recent_rps[4],
-                timecard__user__user_data__unit=unit['id'],
+                timecard__user__user_data__unit=unit.pk,
                 project__accounting_code__billable=True
                 ).values_list('hours_spent', flat=True)
             )
@@ -175,14 +175,14 @@ class GroupUtilizationView(PermissionMixin, ListView):
             recent_total_hours = sum(TimecardObject.objects.filter(
                 timecard__submitted=True,
                 timecard__reporting_period__start_date__gte=self.recent_rps[1],
-                timecard__user__user_data__unit=unit['id']
+                timecard__user__user_data__unit=unit.pk
                 ).values_list('hours_spent', flat=True)
             )
             recent_billable_hours = sum(
                 TimecardObject.objects.filter(
                     timecard__submitted=True,
                     timecard__reporting_period__start_date__gte=self.recent_rps[1],
-                    timecard__user__user_data__unit=unit['id'],
+                    timecard__user__user_data__unit=unit.pk,
                     project__accounting_code__billable=True
                 ).values_list('hours_spent', flat=True)
             )
@@ -191,20 +191,20 @@ class GroupUtilizationView(PermissionMixin, ListView):
                 TimecardObject.objects.filter(
                     timecard__submitted=True,
                     timecard__reporting_period__start_date__gte=self.recent_rps[2],
-                    timecard__user__user_data__unit=unit['id'],
+                    timecard__user__user_data__unit=unit.pk,
                 ).values_list('hours_spent', flat=True)
             )
             fytd_billable_hours = sum(TimecardObject.objects.filter(
                 timecard__submitted=True,
                 timecard__reporting_period__start_date__gte=self.recent_rps[2],
-                timecard__user__user_data__unit=unit['id'],
+                timecard__user__user_data__unit=unit.pk,
                 project__accounting_code__billable=True
                 ).values_list('hours_spent', flat=True)
             )
 
             unit.update({
                 'last': {
-                    'unit_name': unit['name'],
+                    'unit_name': unit.name,
                     'billable_hours': last_billable_hours,
                     'total_hours': last_total_hours,
                     'utilization': calculate_utilization(
@@ -213,7 +213,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
                     )
                 },
                 'recent': {
-                    'unit_name': unit['name'],
+                    'unit_name': unit.name,
                     'billable_hours': recent_billable_hours,
                     'total_hours': recent_total_hours,
                     'utilization': calculate_utilization(
@@ -222,7 +222,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
                     )
                 },
                 'fytd': {
-                    'unit_name': unit['name'],
+                    'unit_name': unit.name,
                     'billable_hours': fytd_billable_hours,
                     'total_hours': fytd_total_hours,
                     'utilization': calculate_utilization(
