@@ -4,15 +4,35 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
+    """
+    At this point the migration project state
+    is out of sync with the database.
 
+    In 0045 and 0046_deferrable_unique, we manually re-created
+    the unique constraint for `timecardobject` but did not update
+    the project state as well.
+
+    This migration brings the project state up to date such that
+    makemigrations is aware that this unique constraint exists and
+    does not need a new migration to create it.
+    """
     dependencies = [
-        ('projects', '0025_auto_20200303_1821'),
         ('hours', '0048_auto_20191219_0925'),
     ]
 
-    operations = [
-        migrations.AlterUniqueTogether(
+    # Make no changes to the database with this migration
+    database_operations = []
+
+    # Update the Django project state to be aware that we've already
+    # created this constraint in 0046_deferrable_unique
+    # This prevents makemigrations from attempting to recreate it
+    state_operations = [migrations.AlterUniqueTogether(
             name='timecardobject',
             unique_together={('timecard', 'project')},
-        ),
+        )]
+
+    operations = [
+      migrations.SeparateDatabaseAndState(
+        database_operations=[],
+        state_operations=state_operations)
     ]
