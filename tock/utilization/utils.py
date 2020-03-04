@@ -13,7 +13,7 @@ def calculate_utilization(billable_hours, all_hours):
         return 'No hours submitted.'
     if not billable_hours:
         return '0.00%'
-    return '{:.3}%'.format((billable_hours / all_hours * 100))
+    return '{:.3}%'.format((billable_hours / all_hours) * 100)
 
 def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False):
     """
@@ -30,22 +30,16 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False):
         fiscal_year - If True, aggregate utilization from the beginning of the current fiscal year
     """
 
-    billable_base_filter = Q(timecards__timecardobjects__project__accounting_code__billable=True)
-    non_billable_base_filter = Q(timecards__timecardobjects__project__accounting_code__billable=False,
-                          timecards__timecardobjects__project__exclude_from_billability=False)
-
     if not fiscal_year:
-        billable_filter = billable_base_filter & _limit_to_recent_periods(recent_periods)
-        non_billable_filter = non_billable_base_filter & _limit_to_recent_periods(recent_periods)
+        period_filter =  _limit_to_recent_periods(recent_periods)
     else:
-        billable_filter = billable_base_filter & _limit_to_fy()
-        non_billable_filter = non_billable_base_filter & _limit_to_fy()
+        period_filter = _limit_to_fy()
 
     # Using Coalesce to set a default value of 0 if no data is available
-    billable = Coalesce(Sum('timecards__timecardobjects__hours_spent', filter=billable_filter), 0)
-    non_billable = Coalesce(Sum('timecards__timecardobjects__hours_spent', filter=non_billable_filter), 0)
+    billable = Coalesce(Sum('timecards__billable_hours', filter=period_filter), 0)
+    target_billable = Coalesce(Sum('timecards__target_hours', filter=period_filter), 0)
     if users:
-        return users.annotate(billable=billable).annotate(non_billable=non_billable).annotate(total=billable + non_billable)
+        return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=target_billable)
     raise NotImplementedError
 
 def utilization_report(user_qs=None,recent_periods=1, fiscal_year=False):
