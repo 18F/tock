@@ -7,6 +7,7 @@ from .utils import (_build_utilization_context, calculate_utilization,
 
 User = get_user_model()
 
+# Building context for display of business unit level utilization data
 def unit_billing_context(unit):
     """Build context dict for utilization by unit"""
     last_week = _get_unit_billing_data(unit)
