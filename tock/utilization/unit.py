@@ -38,12 +38,11 @@ def _get_unit_billing_data(unit, recent_periods=None, fiscal_year=False):
     else:
         start, end, utilization = utilization_report(users)
 
-    data = utilization.values('username', 'id', 'billable', 'total')
+    data = utilization.values('username', 'billable', 'total')
 
     # Build context for each employee
     output_data = [{
             'username': employee['username'],
-            'id': employee['id'],
             'total': employee['total'],
             'billable': employee['billable'],
             'utilization': calculate_utilization(employee['billable'], employee['total'])
