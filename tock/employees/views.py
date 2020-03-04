@@ -10,6 +10,7 @@ from tock.utils import IsSuperUserOrSelf, PermissionMixin
 
 from .forms import UserForm
 from .models import UserData
+from utilization.employee import user_billing_context
 
 
 def parse_date(date):
@@ -39,7 +40,9 @@ class UserDetailView(PermissionMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(UserDetailView, self).get_context_data(**kwargs)
-        return _add_recent_tock_table(self.get_object().user, context)
+        user = self.get_object().user
+        context.update(user_billing_context(user))
+        return _add_recent_tock_table(user, context)
 
 
 class UserFormView(PermissionMixin, FormView):

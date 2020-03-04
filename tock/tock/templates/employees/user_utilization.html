@@ -1,0 +1,31 @@
+<h2>Utilization</h2>
+<table>
+    <thead>
+        <th>Last Week<br>
+        <small>(Ending {{ last_week_end_date }})</small><br>
+        <small class="usa-form-hint usa-additional_text">% billable (billable hrs / target hrs)</small>
+        </th>
+        <th>
+        Last Month <br>
+        <small>({{ last_month_start_date }} - {{ last_month_end_date }})</small><br>
+        <small class="usa-form-hint usa-additional_text">% billable (billable hrs / target hrs)</small>
+        </th>
+        <th scope="col">Fiscal Year to Date<br>
+        <small>(Ending {{ this_fy_end_date }})</small><br>
+        <small class="usa-form-hint usa-additional_text">% billable (billable hrs / target hrs)</small>
+        </th>
+    </thead>
+    <tbody>
+        <tr>
+            {% with last_week_totals as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+            {% with last_month_totals as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+            {% with this_fy_totals as data %}
+                {% include 'utilization/unit_utilization_cell.html' %}
+            {% endwith %}
+        </tr>
+    </tbody>
+</table>
