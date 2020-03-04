@@ -21,7 +21,7 @@
         {% for employee in unit.utilization.last_week_data %}
         <tr>
             <td>
-                {{employee.username}}
+                <a href="{% url 'employees:UserDetailView' employee.username %}">{{employee.username}}</a>
             </td>
             {% with unit.utilization.last_week_data|index:forloop.counter0 as data %}
                 {% include 'utilization/unit_utilization_cell.html' %}
