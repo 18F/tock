@@ -5,6 +5,7 @@ from django.views.generic import ListView
 
 from hours.models import TimecardObject, ReportingPeriod
 from employees.models import UserData
+from organizations.models import Unit
 
 from tock.utils import PermissionMixin
 from .utils import get_dates, calculate_utilization
@@ -41,13 +42,9 @@ class GroupUtilizationView(PermissionMixin, ListView):
         Gets submitted timecards for billable staff
         limited to the reporting periods in question.
         """
-        # Start stubbing a dict for our units, using a quick list comprehension
-        units = [{
-            'id': choice[0],
-            'name': choice[1],
-            'slug': slugify(choice[1])
-         } for choice in UserData.UNIT_CHOICES]
-        # now we'll start building out that dict further,
+        # Start stubbing out our units, using a quick list
+        units = list(Unit.objects.filter(active=True).values('id', 'name','slug'))
+        # Build out that dict further,
         # starting with the staff for each unit
         for unit in units:
             billable_staff = UserData.objects.filter(

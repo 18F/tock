@@ -65,7 +65,7 @@ class UserDataAdmin(admin.ModelAdmin):
     search_fields = ('user__username',)
 
     def unit_info(self, obj):
-        return obj.get_unit_display()
+        return obj.unit.name()
     unit_info.short_description = 'Unit'
 
     def get_organization_name(self, obj):

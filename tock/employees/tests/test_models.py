@@ -5,7 +5,7 @@ from django.db import IntegrityError
 from django.contrib.auth.models import User
 
 from rest_framework.authtoken.models import Token
-from organizations.models import Organization
+from organizations.models import Organization, Unit
 from employees.models import EmployeeGrade, UserData
 
 from hours.models import (
@@ -57,8 +57,15 @@ class UserDataTests(TestCase):
         )
         # Create Organization.
         self.regular_user_org = Organization.objects.create(
+            name='18F',
+            description='18F',
+            active=True
+        )
+        # Create Unit.
+        self.regular_user_unit = Unit.objects.create(
             name='Engineering',
             description='18F Engineering Chapter',
+            org=self.regular_user_org,
             active=True
         )
         # Create UserData object related to regular_user.
@@ -66,10 +73,10 @@ class UserDataTests(TestCase):
             user=self.regular_user,
             start_date= datetime.date(2014, 1, 1),
             end_date=datetime.date(2100, 1, 1),
-            unit=1,
             is_18f_employee=True,
             current_employee=True,
-            organization=self.regular_user_org
+            organization=self.regular_user_org,
+            unit=self.regular_user_unit
         )
         # Create a sample reporting period
         self.reporting_period = ReportingPeriod.objects.create(
@@ -100,7 +107,7 @@ class UserDataTests(TestCase):
             userdata.end_date,
             datetime.date(2100, 1, 1)
         )
-        self.assertEqual(userdata.unit, 1)
+        self.assertEqual(userdata.unit, self.regular_user_unit)
 
     def test_is_late(self):
         """ Check if the user is late when no Timecard is present """
@@ -112,9 +119,15 @@ class UserDataTests(TestCase):
         self.assertEqual(userdata.is_late, False)
 
     def test_organization_name(self):
-        """ Check to see if we can get organization name correctly"""
+        """ 
+        Check to see if we can get organization name and unit correctly.
+        And that the organization_name shortcut matches 
+        the name from the relationship.
+        """
         userdata = self.regular_user_userdata
-        self.assertEqual(userdata.organization_name, 'Engineering')
+        self.assertEqual(userdata.organization.name, '18F')
+        self.assertEqual(userdata.organization_name, '18F')
+        self.assertEqual(userdata.unit.name, 'Engineering')
 
     def test_organization_name_empty(self):
         """ Check to see if we can get empty organization name"""
@@ -130,7 +143,7 @@ class UserDataTests(TestCase):
             user=user1,
             start_date= datetime.date(2014, 1, 1),
             end_date=datetime.date(2100, 1, 1),
-            unit=1,
+            unit=self.regular_user_unit,
             is_18f_employee=True,
             current_employee=True
         )
