@@ -94,7 +94,6 @@ class GeneralSnippetsTimecardSerializer(serializers.Serializer):
     )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     notes = serializers.CharField()
-    unit = serializers.SerializerMethodField()
     employee_organization = serializers.CharField(
         source='timecard.user.user_data.organization_name'
     )
