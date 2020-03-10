@@ -233,15 +233,15 @@ class Timecard(models.Model):
                                             verbose_name="Percentage of hours which are expected to be billable this week")
 
     # Utilization reporting
-    target_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True,
+    target_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
                                        verbose_name="# of hours which were expected to be billable")
-    billable_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True,
+    billable_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
                                         verbose_name="# of hours which were billable")
-    non_billable_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True,
+    non_billable_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
                                             verbose_name="# of hours which were non-billable")
-    excluded_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True,
+    excluded_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
                                          verbose_name="# of hours which were excluded from utilization calculations (e.g. Out of office)")
-    utilization = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True,
+    utilization = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
                                       verbose_name="Calculated Utilization for this timecard")
 
     class Meta:
@@ -292,12 +292,6 @@ class Timecard(models.Model):
         self.target_hours = self.calculate_target_hours()
         self.utilization = self.calculate_utilization()
 
-    def _update_utilization_fields(self):
-        self.target_hours = self.calculate_target_hours()
-        self.billable_hours = self.calculate_billable_hours()
-        self.non_billable_hours = self.calculate_non_billable_hours()
-        self.excluded_hours = self.calculate_excluded_hours()
-        self.utilization = self.calculate_utilization()
 
 class TimecardNoteManager(models.Manager):
     def enabled(self):
