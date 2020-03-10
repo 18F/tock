@@ -21,13 +21,13 @@
     <tbody>
         <tr>
             {% with org_totals.last_week_totals as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
             {% with org_totals.last_month_totals as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
             {% with org_totals.this_fy_totals as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
         </tr>
     </tbody>

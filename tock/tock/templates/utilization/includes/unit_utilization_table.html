@@ -24,13 +24,13 @@
                 <a href="{% url 'employees:UserDetailView' employee.username %}">{{employee.username}}</a>
             </td>
             {% with unit.utilization.last_week_data|index:forloop.counter0 as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
             {% with unit.utilization.last_month_data|index:forloop.counter0 as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
             {% with unit.utilization.this_fy_data|index:forloop.counter0 as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
         </tr>
         {% endfor %}
@@ -38,13 +38,13 @@
             <tr>
         <th scope="row"><b>Totals</b></th>
             {% with unit.utilization.last_week_totals as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
             {% with unit.utilization.last_month_totals as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
             {% with unit.utilization.this_fy_totals as data %}
-                {% include 'utilization/unit_utilization_cell.html' %}
+                {% include 'utilization/includes/unit_utilization_cell.html' %}
             {% endwith %}
         </tr>
         </tfoot>

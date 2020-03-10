@@ -30,14 +30,14 @@
       <li><a href="#{{unit.slug}}">{{unit.name}}</a></li>
     {% endfor %}
   </ul>
-  {% include 'utilization/org_utilization_table.html' %}
+  {% include 'utilization/includes/org_utilization_table.html' %}
 
   {% for unit in object_list %}
     <caption>
     <h3 id="{{unit.slug}}">{{unit.name}}</h3>
     </caption>
     {% if unit.utilization %}
-      {% include 'utilization/unit_utilization_table.html' %}
+      {% include 'utilization/includes/unit_utilization_table.html' %}
     {% else %}
       No data available
     {% endif %}
