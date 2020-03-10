@@ -119,9 +119,9 @@ class UserDataTests(TestCase):
         self.assertEqual(userdata.is_late, False)
 
     def test_organization_name(self):
-        """ 
+        """
         Check to see if we can get organization name and unit correctly.
-        And that the organization_name shortcut matches 
+        And that the organization_name shortcut matches
         the name from the relationship.
         """
         userdata = self.regular_user_userdata

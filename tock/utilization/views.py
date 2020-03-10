@@ -1,5 +1,4 @@
 from django.core.exceptions import PermissionDenied
-from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.views.generic import ListView
 

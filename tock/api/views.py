@@ -53,8 +53,6 @@ class UserDataSerializer(serializers.Serializer):
     unit = serializers.SerializerMethodField()
     organization = serializers.StringRelatedField()
 
-    def get_unit(self,obj):
-        return obj.unit
 
 class ReportingPeriodSerializer(serializers.ModelSerializer):
     class Meta:

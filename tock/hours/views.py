@@ -102,13 +102,6 @@ class GeneralSnippetsTimecardSerializer(serializers.Serializer):
         source='project.organization_name'
     )
 
-    def get_unit(self, obj):
-        try:
-            unit = obj.timecard.user.user_data.unit
-        except ObjectDoesNotExist:
-            unit = ''
-        return unit
-
 
 class SlimBulkTimecardSerializer(serializers.Serializer):
     project_name = serializers.CharField(source='project.name')
