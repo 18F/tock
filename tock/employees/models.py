@@ -81,7 +81,6 @@ class UserData(models.Model):
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
-    #unit = models.IntegerField(null=True, choices=UNIT_CHOICES, verbose_name="Select 18F unit", blank=True)
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                               default=0.80, decimal_places=2, max_digits=3,
                                               verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
