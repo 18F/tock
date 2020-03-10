@@ -61,9 +61,6 @@ class GroupUtilizationView(PermissionMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(GroupUtilizationView, self).get_context_data(**kwargs)
-        context.update(
-            {
-                'org_totals': org_billing_context()
-            }
+        context.update({'org_totals': org_billing_context()}
         )
         return context
