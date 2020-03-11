@@ -7,9 +7,10 @@ from django.urls import reverse
 from django_webtest import WebTest
 
 from ..utils import get_fy_first_day, get_dates
-from hours.models import ReportingPeriod, Timecard, TimecardObject
-from projects.models import Project, AccountingCode, Agency
 from employees.models import UserData
+from hours.models import ReportingPeriod, Timecard, TimecardObject
+from organizations.models import Organization, Unit
+from projects.models import Project, AccountingCode, Agency
 
 User = get_user_model()
 
@@ -59,12 +60,15 @@ class TestGroupUtilizationView(WebTest):
         b_project.accounting_code = b_acct
         b_project.save()
 
+        test_org = Organization.objects.get_or_create(id=1)[0]
+        test_unit = Unit.objects.get_or_create(org=test_org)[0]
+
         req_user = User.objects.get_or_create(username='aaron.snow')[0]
         req_user.is_staff = True
         req_user.save()
 
         req_user_data = UserData.objects.get_or_create(user=req_user)[0]
-        req_user_data.unit = 0
+        req_user_data.unit = test_unit
         req_user_data.is_billable = True
         req_user_data.save()
 
@@ -73,8 +77,10 @@ class TestGroupUtilizationView(WebTest):
         self.user = User.objects.create(
             username='regular.user'
         )
+        # When we create the user, we have to assign them a unit from test data
+        # or else we can't find them in test data.
         self.user_data = UserData.objects.get_or_create(user=self.user)[0]
-        self.user_data.unit = 0
+        self.user_data.unit = test_unit
         self.user_data.save()
 
         self.reporting_period = ReportingPeriod.objects.create(
@@ -105,7 +111,7 @@ class TestGroupUtilizationView(WebTest):
             user=self.req_user
         )
         self.assertEqual(len(
-            response.context['object_list']), len(UserData.UNIT_CHOICES)
+            response.context['object_list']), len(Unit.objects.values())
         )
         self.assertContains(response, 'regular.user')
         self.assertContains(response, 'aaron.snow')
@@ -115,9 +121,6 @@ class TestGroupUtilizationView(WebTest):
         self.assertTrue(response.context['object_list'][0]['last'])
         self.assertTrue(response.context['object_list'][0]['fytd'])
         self.assertTrue(response.context['object_list'][0]['recent'])
-        self.assertEqual(
-            response.context['object_list'][0]['billable_staff'][0].unit, 0
-        )
 
     def test_summary_rows(self):
         response = self.app.get(

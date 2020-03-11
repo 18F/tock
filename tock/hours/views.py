@@ -94,20 +94,12 @@ class GeneralSnippetsTimecardSerializer(serializers.Serializer):
     )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
     notes = serializers.CharField()
-    unit = serializers.SerializerMethodField()
     employee_organization = serializers.CharField(
         source='timecard.user.user_data.organization_name'
     )
     project_organization = serializers.CharField(
         source='project.organization_name'
     )
-
-    def get_unit(self, obj):
-        try:
-            unit = obj.timecard.user.user_data.get_unit_display()
-        except ObjectDoesNotExist:
-            unit = ''
-        return unit
 
 
 class SlimBulkTimecardSerializer(serializers.Serializer):

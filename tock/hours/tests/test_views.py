@@ -12,7 +12,8 @@ from django_webtest import WebTest
 
 from api.tests import client
 from api.views import UserDataSerializer, ProjectSerializer
-from employees.models import UserData, Organization
+from employees.models import UserData
+from organizations.models import Organization, Unit
 from hours.utils import number_of_hours
 from hours.forms import choice_label_for_project
 from hours.views import GeneralSnippetsTimecardSerializer, ReportsList
@@ -923,7 +924,8 @@ class PrefillDataViewTests(WebTest):
         self.user = User.objects.first()
         self.ud = UserData.objects.first()
         self.ud.user = self.user
-        self.ud.unit = 0
+        self.ud.organization = Organization.objects.first()
+        self.ud.unit = Unit.objects.first()
         self.ud.save()
         self.rp_1 = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2016, 10, 1),

@@ -65,7 +65,12 @@ class UserDataAdmin(admin.ModelAdmin):
     search_fields = ('user__username',)
 
     def unit_info(self, obj):
-        return obj.get_unit_display()
+        """
+        Because historically unit was not a required field,
+        don't follow the relationship to `unit.name` or we'll break the admin.
+        Instead, let Django resolve the object `str` if it doesn't exist.
+        """
+        return obj.unit
     unit_info.short_description = 'Unit'
 
     def get_organization_name(self, obj):
