@@ -1,6 +1,6 @@
 -i https://pypi.python.org/simple/
 beautifulsoup4==4.8.2
-bleach==3.1.1
+bleach==3.1.2
 certifi==2019.11.28
 cfenv==0.5.3
 cg-django-uaa==2.0.0
@@ -24,7 +24,7 @@ pytz==2019.3
 requests==2.23.0
 six==1.14.0
 soupsieve==2.0
-sqlparse==0.3.0
+sqlparse==0.3.1
 unicodecsv==0.14.1
 urllib3==1.25.8
 waitress==1.4.3
