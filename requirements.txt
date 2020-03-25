@@ -1,6 +1,6 @@
 -i https://pypi.python.org/simple/
 beautifulsoup4==4.8.2
-bleach==3.1.1
+bleach==3.1.2
 certifi==2019.11.28
 cfenv==0.5.3
 cg-django-uaa==2.0.0
