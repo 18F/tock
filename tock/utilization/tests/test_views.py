@@ -1,16 +1,12 @@
 import datetime
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.urls import reverse
-
 from django_webtest import WebTest
-
-from ..utils import get_fy_first_day, get_dates
 from employees.models import UserData
 from hours.models import ReportingPeriod, Timecard, TimecardObject
 from organizations.models import Organization, Unit
-from projects.models import Project, AccountingCode, Agency
+from projects.models import AccountingCode, Agency, Project
 
 User = get_user_model()
 
@@ -22,60 +18,41 @@ FIXTURES = [
 ]
 
 
-class TestUtils(TestCase):
-    fixtures = FIXTURES
-
-    def test_fy_first_date(self):
-        date = datetime.date(2014, 7, 4)
-        self.assertEqual(get_fy_first_day(date), datetime.date(2013, 10, 1))
-
-    def test_get_dates(self):
-        periods = ReportingPeriod.objects.count() -1
-        result = get_dates(periods)
-        self.assertEqual(len(result), 5)
-        self.assertTrue(result[1] <= result[2])
-        self.assertFalse(result[2] == result[3])
-
 class TestGroupUtilizationView(WebTest):
     fixtures = [
         'projects/fixtures/projects.json',
     ]
 
     def setUp(self):
-        nb_acct = AccountingCode.objects.create(
+        # Create non-billable and billable accounting codes
+        # Create Timecard populated with project lines
+        billable_acct = AccountingCode.objects.create(
+            code='foo',
+            billable=True,
+            agency=Agency.objects.first()
+        )
+
+        non_billable_acct = AccountingCode.objects.create(
             code='foo',
             billable=False,
             agency=Agency.objects.first()
         )
 
-        b_acct = nb_acct
-        b_acct.billable = True
-        b_acct.save()
+        # Grab projects to associate with the account codes
+        non_billable_project = Project.objects.first()
+        non_billable_project.accounting_code = non_billable_acct
+        non_billable_project.save()
 
-        nb_project = Project.objects.first()
-        nb_project.accounting_code = nb_acct
-        nb_project.save()
-
-        b_project = Project.objects.last()
-        b_project.accounting_code = b_acct
-        b_project.save()
+        billable_project = Project.objects.last()
+        billable_project.accounting_code = billable_acct
+        billable_project.save()
 
         test_org = Organization.objects.get_or_create(id=1)[0]
         test_unit = Unit.objects.get_or_create(org=test_org)[0]
 
-        req_user = User.objects.get_or_create(username='aaron.snow')[0]
-        req_user.is_staff = True
-        req_user.save()
-
-        req_user_data = UserData.objects.get_or_create(user=req_user)[0]
-        req_user_data.unit = test_unit
-        req_user_data.is_billable = True
-        req_user_data.save()
-
-        self.req_user = req_user
-
         self.user = User.objects.create(
-            username='regular.user'
+            username='regular.user',
+            is_staff=True
         )
         # When we create the user, we have to assign them a unit from test data
         # or else we can't find them in test data.
@@ -95,51 +72,37 @@ class TestGroupUtilizationView(WebTest):
 
         self.nb_timecard_object = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=nb_project,
+            project=non_billable_project,
             hours_spent=15,
         )
 
         self.b_timecard_object = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=b_project,
+            project=billable_project,
             hours_spent=25,
         )
 
-    def test_utilization(self):
-        response = self.app.get(
-            url=reverse('utilization:GroupUtilizationView'),
-            user=self.req_user
-        )
-        self.assertEqual(len(
-            response.context['object_list']), len(Unit.objects.values())
-        )
-        self.assertContains(response, 'regular.user')
-        self.assertContains(response, 'aaron.snow')
-        self.assertTrue(response.context['through_date'])
-        self.assertTrue(response.context['recent_start_date'])
-        self.assertEqual(len(response.context['object_list'][0]['billable_staff']), 2)
-        self.assertTrue(response.context['object_list'][0]['last'])
-        self.assertTrue(response.context['object_list'][0]['fytd'])
-        self.assertTrue(response.context['object_list'][0]['recent'])
+        # Save timecard to calculate utilization
+        self.timecard.save()
 
     def test_summary_rows(self):
+        """
+        Row data w/ accurate total present in context
+        for user created in setup
+        """
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
-            user=self.req_user
+            user=self.user
         )
+        utilization_data = response.context['object_list'][0]['utilization']
+
         self.assertEqual(
-            response.context['object_list'][0]['recent']['total_hours'],
+            utilization_data['last_week_data'][0]['total'],
             (self.b_timecard_object.hours_spent + \
             self.nb_timecard_object.hours_spent)
         )
-        # Update hours spent.
-        self.b_timecard_object.hours_spent = 33.33
-        self.b_timecard_object.save()
-        response = self.app.get(
-            url=reverse('utilization:GroupUtilizationView'),
-            user=self.req_user
-        )
-        self.assertContains(response,int(
-            self.b_timecard_object.hours_spent + \
-            self.nb_timecard_object.hours_spent)
+
+        self.assertEqual(
+            utilization_data['last_week_data'][0]['billable'],
+            self.b_timecard_object.hours_spent
         )
