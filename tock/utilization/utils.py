@@ -37,9 +37,10 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False):
 
     # Using Coalesce to set a default value of 0 if no data is available
     billable = Coalesce(Sum('timecards__billable_hours', filter=period_filter), 0)
+    non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=period_filter), 0)
     target_billable = Coalesce(Sum('timecards__target_hours', filter=period_filter), 0)
     if users:
-        return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=target_billable)
+        return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=billable + non_billable)
     raise NotImplementedError
 
 def utilization_report(user_qs=None,recent_periods=1, fiscal_year=False):
