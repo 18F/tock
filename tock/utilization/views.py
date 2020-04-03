@@ -1,8 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied
-from django.template.defaultfilters import slugify
 from django.views.generic import ListView
-from employees.models import UserData
 from hours.models import ReportingPeriod
 from organizations.models import Unit
 from tock.utils import PermissionMixin
@@ -44,8 +42,8 @@ class GroupUtilizationView(PermissionMixin, ListView):
         units = [{
             'id': unit.id,
             'name': unit.name,
-            'slug': unit.slug)
-         } for choice in Unit.objects.filter(active=True)]
+            'slug': unit.slug
+         } for unit in Unit.objects.filter(active=True)]
 
         # Iterate through each unit, calculating utilization for each
         # employee therein as well as overall
