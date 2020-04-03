@@ -6,13 +6,21 @@ from django_webtest import WebTest
 
 from employees.views import parse_date
 from employees.models import UserData
+from hours.models import ReportingPeriod
 
 from test_common import ProtectedViewTestCase
 
 
 class UserViewTests(ProtectedViewTestCase, WebTest):
-
     csrf_checks = False
+
+    def setUp(self):
+        ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 1),
+            end_date=datetime.date(2015, 1, 7),
+            exact_working_hours=40,
+            min_working_hours=40,
+            max_working_hours=60)
 
     def test_access_to_employee_static_view(self):
         self.login(username='regular.user')
@@ -63,7 +71,7 @@ class UserViewTests(ProtectedViewTestCase, WebTest):
         response = self.client.get(
             reverse('employees:UserFormView', args=["regular.user"])
         )
-        # Check that inital data for UserDate Populates
+        # Check that initial data for UserDate Populates
         self.assertContains(
             response,
             '<input class="datepicker" id="id_start_date" name="start_date" type="text" value="2014-01-01">',
