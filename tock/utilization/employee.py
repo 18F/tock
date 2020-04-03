@@ -21,18 +21,22 @@ def _get_employee_billing_data(user, recent_periods=None, fiscal_year=False):
     """
     user_qs = User.objects.filter(id=user.id)
 
-    if fiscal_year:
-        start, end, utilization = utilization_report(user_qs, fiscal_year=fiscal_year)
-    elif recent_periods:
-        start, end, utilization = utilization_report(user_qs, recent_periods=recent_periods)
-    else:
-        start, end, utilization = utilization_report(user_qs)
+    try:
+        if fiscal_year:
+            start, end, utilization = utilization_report(user_qs, fiscal_year=fiscal_year)
+        elif recent_periods:
+            start, end, utilization = utilization_report(user_qs, recent_periods=recent_periods)
+        else:
+            start, end, utilization = utilization_report(user_qs)
 
-    data = utilization.values('username', 'billable', 'total')[0]
+        data = utilization.values('username', 'billable', 'total')[0]
 
-    totals = {
-        'billable': data['billable'],
-        'total': data['total'],
-        'utilization': calculate_utilization(data['billable'], data['total'])
-    }
-    return {'start_date': start, 'end_date': end, 'totals': totals}
+        totals = {
+            'billable': data['billable'],
+            'total': data['total'],
+            'utilization': calculate_utilization(data['billable'], data['total'])
+        }
+        return {'start_date': start, 'end_date': end, 'totals': totals}
+    except AttributeError:
+        # No billing data available
+        return {'start_date': None, 'end_date': None, 'totals': 'N/A'}

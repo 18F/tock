@@ -54,8 +54,10 @@ def utilization_report(user_qs=None,recent_periods=1, fiscal_year=False):
     """
     users = utilization_users_queryset(user_qs).order_by('username')
     start_date, end_date, recent_periods = _get_reporting_periods(recent_periods)
-    utilization_data = _build_utilization_query(users=users, recent_periods=recent_periods, fiscal_year=fiscal_year)
-    return (start_date, end_date, utilization_data)
+    if recent_periods:
+        utilization_data = _build_utilization_query(users=users, recent_periods=recent_periods, fiscal_year=fiscal_year)
+        return (start_date, end_date, utilization_data)
+    return None, None, None
 
 def users_to_include_for_utilization():
     """
@@ -90,10 +92,13 @@ def _limit_to_fy():
 
 def _get_reporting_periods(count):
     """
-    Return
+    Return start, end, and objects of `count` reporting periods from today
     """
     rps = ReportingPeriod.get_most_recent_periods(number_of_periods=count)
-    start_date = rps[count - 1].start_date
+    if len(rps) == 1:
+        start_date = rps[0].start_date
+    else:
+        start_date = rps[count - 1].start_date
     end_date = rps[0].end_date
     return start_date, end_date, rps
 
