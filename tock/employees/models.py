@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -82,8 +83,8 @@ class UserData(models.Model):
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
-                                              default=0.80, decimal_places=2, max_digits=3,
-                                              verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
+                                             default=Decimal(0.80), decimal_places=2, max_digits=3,
+                                             verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         on_delete=models.CASCADE,

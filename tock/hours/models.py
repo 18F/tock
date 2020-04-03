@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
@@ -229,7 +230,7 @@ class Timecard(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
-                                            default=0.80, decimal_places=2, max_digits=3,
+                                            default=Decimal(0.80), decimal_places=2, max_digits=3,
                                             verbose_name="Percentage of hours which are expected to be billable this week")
 
     # Utilization reporting
@@ -258,7 +259,8 @@ class Timecard(models.Model):
         """
         if not self.id and self.user:
             self.billable_expectation = self.user.user_data.billable_expectation
-        self.calculate_hours()
+        if self.id:
+            self.calculate_hours()
         super().save(*args, **kwargs)
 
     def calculate_utilization_denominator(self):
@@ -282,6 +284,7 @@ class Timecard(models.Model):
         billable = Coalesce(Sum('timecardobjects__hours_spent', filter=billable_filter), 0)
         non_billable = Coalesce(Sum('timecardobjects__hours_spent', filter=non_billable_filter), 0)
         excluded = Coalesce(Sum('timecardobjects__hours_spent', filter=excluded_filter), 0)
+
 
         timecard = Timecard.objects.filter(id=self.id).annotate(billable=billable).annotate(non_billable=non_billable).annotate(excluded=excluded)[0]
 
