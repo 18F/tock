@@ -1,3 +1,5 @@
+{% load index %}
+
 {% if recent_timecards %}
 <h2>Recent Tocks</h2>
 <table>
@@ -21,5 +23,53 @@
     </tr>
     {% endfor %}
   </tbody>
+  <tfoot>
+    <tr><th scope="row"><b>Totals</b></th></tr>
+    <tr>
+    <th scope="row"><b>Billable</b></th>
+      {% for i in recent_timecards %}
+        {% with recent_timecards|index:forloop.counter0 as tc %}
+          <td>{{tc.billable_hours}}</td>
+        {% endwith %}
+      {% endfor %}
+    </tr>
+    <tr>
+    <th scope="row"><b>Non-Billable</b></th>
+      {% for i in recent_timecards %}
+      {% with recent_timecards|index:forloop.counter0 as tc %}
+        <td>{{tc.non_billable_hours}}</td>
+      {% endwith %}
+    {% endfor %}
+    </tr>
+    <tr>
+    <th scope="row"><b>Excluded from Utilization</b></th>
+    {% for i in recent_timecards %}
+      {% with recent_timecards|index:forloop.counter0 as tc %}
+        <td>{{tc.excluded_hours}}</td>
+      {% endwith %}
+    {% endfor %}
+    </tr>
+    <tr>
+      <th scope="row"><b>Billable Expectation</b></th>
+      {% for i in recent_timecards %}
+        {% with recent_timecards|index:forloop.counter0 as tc %}
+          <td>{{tc.billable_expectation}}</td>
+        {% endwith %}
+      {% endfor %}
+      </tr>
+    <th scope="row"><b>Target Hours</b></th>
+    {% for i in recent_timecards %}
+      {% with recent_timecards|index:forloop.counter0 as tc %}
+        <td>{{tc.target_hours}}</td>
+      {% endwith %}
+    {% endfor %}
+    </tr>
+    <th scope="row"><b>Utilization</b></th>
+    {% for i in recent_timecards %}
+      {% with recent_timecards|index:forloop.counter0 as tc %}
+        <td>{% widthratio tc.utilization 1 100 %}%</td>
+      {% endwith %}
+    {% endfor %}
+    </tr>
 </table>
 {% endif %}

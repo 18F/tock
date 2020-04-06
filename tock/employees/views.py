@@ -10,6 +10,7 @@ from tock.utils import IsSuperUserOrSelf, PermissionMixin
 
 from .forms import UserForm
 from .models import UserData
+from utilization.employee import user_billing_context
 
 
 def parse_date(date):
@@ -39,7 +40,9 @@ class UserDetailView(PermissionMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(UserDetailView, self).get_context_data(**kwargs)
-        return _add_recent_tock_table(self.get_object().user, context)
+        user = self.get_object().user
+        context.update(user_billing_context(user))
+        return _add_recent_tock_table(user, context)
 
 
 class UserFormView(PermissionMixin, FormView):
@@ -51,6 +54,7 @@ class UserFormView(PermissionMixin, FormView):
         kwargs['username'] = self.kwargs['username']
         user = User.objects.get(username=kwargs['username'])
         context = super(UserFormView, self).get_context_data(**kwargs)
+        context.update(user_billing_context(user))
         return _add_recent_tock_table(user, context)
 
     def get_initial(self):
@@ -97,7 +101,7 @@ def _add_recent_tock_table(user, context):
     recent_tocks = list(reversed(recent_tocks))
     billing_table = {}
     for n, timecard in enumerate(recent_tocks):
-        for tco in timecard.timecardobjects.all():
+        for tco in timecard.timecardobjects.all().select_related('project'):
             project_billing = billing_table.setdefault(tco.project, [0] * len(recent_tocks))
             project_billing[n] = tco.hours_spent
     context['recent_billing_table'] = billing_table

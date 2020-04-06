@@ -7,7 +7,6 @@
 <h1>Let's Tock about {{ username }}!</h1>
 
 <form action="" method="post">{% csrf_token %}
-    <!--{{ form.as_p }}-->
     {{ form.first_name.label_tag }}
     {{ form.first_name }}
     {{ form.last_name.label_tag }}
@@ -22,6 +21,7 @@
     <input type="submit" value="Update" />
 </form>
 
+{% include 'employees/user_utilization.html' %}
 {% include 'employees/user_recent_tocks.html' %}
 {% endblock %}
 

@@ -1,12 +1,13 @@
 import datetime
+from decimal import Decimal
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
+from django.db.models.functions import Coalesce
 from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
-
 from .utils import ValidateOnSaveMixin, render_markdown
 
 
@@ -211,6 +212,16 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
            self.rendered_message = render_markdown(self.message)
         super().save(*args, **kwargs)
 
+    @classmethod
+    def get_most_recent_periods(cls, number_of_periods=1):
+        """
+        Return the most recent N completed reporting periods
+        A reporting period is complete if it's end date
+        has is today or in the past.
+        """
+        today = datetime.date.today()
+        return ReportingPeriod.objects.filter(end_date__lte=today).order_by('-start_date')[:number_of_periods]
+
 class Timecard(models.Model):
     user = models.ForeignKey(User, related_name='timecards', on_delete=models.CASCADE)
     reporting_period = models.ForeignKey(ReportingPeriod, on_delete=models.CASCADE)
@@ -219,8 +230,20 @@ class Timecard(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
-                                            default=0.80, decimal_places=2, max_digits=3,
+                                            default=Decimal(0.80), decimal_places=2, max_digits=3,
                                             verbose_name="Percentage of hours which are expected to be billable this week")
+
+    # Utilization reporting
+    target_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
+                                       verbose_name="# of hours which were expected to be billable")
+    billable_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
+                                        verbose_name="# of hours which were billable")
+    non_billable_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
+                                            verbose_name="# of hours which were non-billable")
+    excluded_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
+                                         verbose_name="# of hours which were excluded from utilization calculations (e.g. Out of office)")
+    utilization = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
+                                      verbose_name="Calculated Utilization for this timecard")
 
     class Meta:
         unique_together = ('user', 'reporting_period')
@@ -236,7 +259,42 @@ class Timecard(models.Model):
         """
         if not self.id and self.user:
             self.billable_expectation = self.user.user_data.billable_expectation
+        if self.id:
+            self.calculate_hours()
         super().save(*args, **kwargs)
+
+    def calculate_utilization_denominator(self):
+        return self.billable_hours + self.non_billable_hours
+
+    def calculate_target_hours(self):
+        return round(self.billable_expectation * self.calculate_utilization_denominator(), 0)
+
+    def calculate_utilization(self):
+        if self.target_hours:
+            return self.billable_hours / self.target_hours
+        return 0
+
+    def calculate_hours(self):
+        billable_filter = Q(timecardobjects__project__accounting_code__billable=True)
+        non_billable_filter = Q(timecardobjects__project__accounting_code__billable=False,
+                          timecardobjects__project__exclude_from_billability=False)
+        excluded_filter = Q(timecardobjects__project__exclude_from_billability=True)
+
+        # Using Coalesce to set a default value of 0 if no data is available
+        billable = Coalesce(Sum('timecardobjects__hours_spent', filter=billable_filter), 0)
+        non_billable = Coalesce(Sum('timecardobjects__hours_spent', filter=non_billable_filter), 0)
+        excluded = Coalesce(Sum('timecardobjects__hours_spent', filter=excluded_filter), 0)
+
+
+        timecard = Timecard.objects.filter(id=self.id).annotate(billable=billable).annotate(non_billable=non_billable).annotate(excluded=excluded)[0]
+
+        self.billable_hours = round(timecard.billable, 2)
+        self.non_billable_hours = round(timecard.non_billable, 2)
+        self.excluded_hours = round(timecard.excluded, 2)
+
+        self.target_hours = self.calculate_target_hours()
+        self.utilization = self.calculate_utilization()
+
 
 class TimecardNoteManager(models.Manager):
     def enabled(self):
