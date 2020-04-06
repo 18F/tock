@@ -1,13 +1,13 @@
--i https://pypi.python.org/simple/
-beautifulsoup4==4.8.2
+-i https://pypi.python.org/simple
+beautifulsoup4==4.9.0
 bleach==3.1.4
-certifi==2019.11.28
+certifi==2020.4.5.1
 cfenv==0.5.3
 cg-django-uaa==2.0.0
 chardet==3.0.4
 dj-database-url==0.5.0
 django-webtest==1.9.7
-django==2.2.10
+django==2.2.12
 djangorestframework-csv==2.1.0
 djangorestframework==3.11.0
 furl==2.1.0
@@ -15,10 +15,10 @@ gevent==1.4.0
 greenlet==0.4.15 ; platform_python_implementation == 'CPython'
 gunicorn==20.0.4
 idna==2.9
-markdown==3.1.1
-newrelic==5.6.0.135
+markdown==3.2.1
+newrelic==5.10.0.138
 orderedmultidict==1.0.1
-psycopg2-binary==2.8.4
+psycopg2-binary==2.8.5
 pyjwt==1.7.1
 pytz==2019.3
 requests==2.23.0
