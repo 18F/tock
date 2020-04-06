@@ -10,7 +10,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-import sys
 
 from django.utils.crypto import get_random_string
 from pathlib import Path
@@ -138,5 +137,3 @@ SECURE_HSTS_PRELOAD = True
 RECENT_TOCKS_TO_REPORT = 5
 STARTING_FY_FOR_REPORTS_PAGE = 2019
 RECENT_TIMECARDS_FOR_BILLABILITY = 4
-
-TESTING = 'test' in sys.argv
