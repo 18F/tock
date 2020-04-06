@@ -5,23 +5,21 @@
 
 {% block content %}
   <h2>Utilization by Unit</h2>
-  <h3>Notes:</h3>
   <p>
-    The following report contains users who are marked as billable in Tock,
-    organized by their unit as listed in Tock. Both attributes may be easily
-    updated via the <b>Employees</b> page of the Tock <a href="/admin">admin</a>
-    interface. Within each unit, employees are ordered alphabetically by last name.
-  </p>
-  <p>
-    The contents of this page may only be viewed by Tock users who are marked as
-    "staff" users. This attribute may be updated via the Tock
-    <a href="/admin">admin</a> interface, as well, via the <b>Users</b> page.
+    This report contains active billable 18F employees by their current business unit.
   </p>
   <p>
     Utilization is calculated by dividing the total number of hours submitted on
     projects that are marked "billable" in Tock, divided by the total number of
-    hours submitted on all projects for the given period.
+    hours submitted on all projects for the given period. Out-of-Office project lines
+    are excluded from all calculations.
   </p>
+  <p>
+    This is the latest iteration in utilization reporting and an active <u>work
+    in progress</u>. If an employee is missing, the numbers seem off, or you have any
+    questions/concerns please don't hesitate to reach out in #tock-dev
+  </p>
+</p>
   <h3>Jump to:</h3>
 
   <ul>
