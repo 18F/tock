@@ -38,13 +38,14 @@ TARGET_BILLABLE_HOURS = (BILLABLE_HOURS + NON_BILLABLE_HOURS) * BILLING_EXPECTAT
 
 ### BILLING EXPECTATION
 
-The percent of `TOTAL HOURS` which are expected to be billable for a given reporting period. Set per user, per timecard, and will vary as an individual's role, position, or organization change.
+The percent of `TOTAL HOURS` which are expected to be billable for a given reporting period. Set per user, per timecard, and will vary as an individual's role, position, or organization change. See [the handbook](https://handbook.tts.gsa.gov/tock/#weekly-billable-hour-expectations) for additional details on billing expectations.
+
 
 **Default: 80%**
 
 ## Example
 
-Stacey is an active and billable 18F employee, here's a look at their recent tock activity! As an independent contributor, Stacey has a `BILLING_EXPECTATION` of 80%.
+Stacey is an active and billable 18F employee, here's a look at their recent tock activity! As an individual contributor, Stacey has a `BILLING_EXPECTATION` of 80%.
 
 Project | Week 1 | Week 2 | Week 3 | Week 4
 --------|--------|--------|--------|--------
