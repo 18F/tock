@@ -12,6 +12,8 @@
 - [Google Script Integration](google-script-integration.md)
 - [Logging](logging.md)
 - [Backup and Restore Database](backup-and-restore-database.md)
+- [Utilization Reporting](utilization.md)
+
 
 If you are a consumer of Tock APIs and data, you may want to consult the [API documentation](../api-docs)
 
