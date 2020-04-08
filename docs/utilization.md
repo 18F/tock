@@ -97,7 +97,7 @@ utilization = billable_hours / target_billable_hours
 ### Weeks 1-4
 Stacey's `utilization` over the last 4 weeks is 95%. Stacey tocked 116 of an expected ~122 billable hours over the 4 week period.
 
-Stacey had 8 hours of `Out of Office` time in week 2 which is excluded from all totals, notice the `total_hours` is 152 for the 4 weeks.
+Stacey had eight hours of `Out of Office` time in week 2, which is excluded from all totals. Notice the `total_hours` is 152 for the 4 weeks.
 
 ```python
 # Weeks 1-4
