@@ -29,12 +29,12 @@ def _get_employee_billing_data(user, recent_periods=None, fiscal_year=False):
         else:
             start, end, utilization = utilization_report(user_qs)
 
-        data = utilization.values('username', 'billable', 'total')[0]
+        data = utilization.values('username', 'billable', 'target')[0]
 
         totals = {
             'billable': data['billable'],
-            'total': data['total'],
-            'utilization': calculate_utilization(data['billable'], data['total'])
+            'denominator': data['target'],
+            'utilization': calculate_utilization(data['billable'], data['target'])
         }
         return {'start_date': start, 'end_date': end, 'totals': totals}
     except AttributeError:

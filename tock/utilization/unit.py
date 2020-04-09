@@ -39,22 +39,22 @@ def _get_unit_billing_data(unit, recent_periods=None, fiscal_year=False):
     else:
         start, end, utilization = utilization_report(users)
 
-    data = utilization.values('username', 'billable', 'total')
+    data = utilization.values('username', 'billable', 'target')
 
     # Build context for each employee
     output_data = [{
             'username': employee['username'],
-            'total': employee['total'],
+            'denominator': employee['target'],
             'billable': employee['billable'],
-            'utilization': calculate_utilization(employee['billable'], employee['total'])
+            'utilization': calculate_utilization(employee['billable'], employee['target'])
             } for employee in data]
 
     # Get totals for unit
-    unit_totals = data.aggregate(Sum('billable'), Sum('total'))
+    unit_totals = data.aggregate(Sum('billable'), Sum('target'))
 
     totals = {'billable': unit_totals['billable__sum'],
-    'total': unit_totals['total__sum'],
-    'utilization': calculate_utilization(unit_totals['billable__sum'],unit_totals['total__sum'])
+    'denominator': unit_totals['target__sum'],
+    'utilization': calculate_utilization(unit_totals['billable__sum'],unit_totals['target__sum'])
     }
 
     return {'start_date': start, 'end_date': end, 'data': output_data, 'totals': totals}

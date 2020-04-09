@@ -94,12 +94,12 @@ class TestGroupUtilizationView(WebTest):
             url=reverse('utilization:GroupUtilizationView'),
             user=self.user
         )
+
         utilization_data = response.context['object_list'][0]['utilization']
 
         self.assertEqual(
-            utilization_data['last_week_data'][0]['total'],
-            (self.b_timecard_object.hours_spent + \
-            self.nb_timecard_object.hours_spent)
+            utilization_data['last_week_data'][0]['denominator'],
+            self.timecard.target_hours
         )
 
         self.assertEqual(
