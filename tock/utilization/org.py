@@ -29,11 +29,11 @@ def _get_18f_billing_data(recent_periods=None, fiscal_year=False):
     else:
         start, end, utilization = utilization_report(user_qs)
 
-    org_totals = utilization.values('billable', 'total').aggregate(Sum('billable'), Sum('total'))
+    org_totals = utilization.values('billable', 'target').aggregate(Sum('billable'), Sum('target'))
 
     totals = {
         'billable': org_totals['billable__sum'],
-        'total': org_totals['total__sum'],
-        'utilization': calculate_utilization(org_totals['billable__sum'], org_totals['total__sum'])
+        'denominator': org_totals['target__sum'],
+        'utilization': calculate_utilization(org_totals['billable__sum'], org_totals['target__sum'])
     }
     return {'start_date': start, 'end_date': end, 'totals': totals}
