@@ -52,8 +52,8 @@ class TestGroupUtilizationView(WebTest):
 
         self.user = User.objects.create(
             username='regular.user',
-            is_staff=True
         )
+
         # When we create the user, we have to assign them a unit from test data
         # or else we can't find them in test data.
         self.user_data = UserData.objects.get_or_create(user=self.user)[0]
