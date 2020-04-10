@@ -11,25 +11,24 @@
         </a>
       </li>
       {% if request.user.is_staff %}
-        <li>
-          <button class="
-            usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="reports-nav">
+        <li class="usa-nav__primary-item">
+          <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="reports-nav">
             <span>Reports</span>
           </button>
-          <ul id="reports-nav" class="usa-nav-submenu" aria-hidden="true">
-            <li>
+          <ul id="reports-nav" class="usa-nav__submenu" aria-expanded="true">
+            <li class="usa-nav__submenu-item">
               <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
             </li>
-            <li>
-              <a href="{% url 'reports:ListReports' %}" class="usa-nav-link">
+            <li class="usa-nav__submenu-item">
+              <a href="{% url 'reports:ListReports' %}" class="usa-nav__link">
                 <span>Timecard Reports</span>
               </a>
             </li>
           </ul>
         </li>
       {% endif %}
-      <li>
-        <a href="{% url 'employees:UserListView' %}" class="usa-nav-link">
+      <li class="usa-nav__primary-item">
+        <a href="{% url 'employees:UserListView' %}" class="usa-nav__link">
           <span>Users</span>
         </a>
       </li>
@@ -44,19 +43,21 @@
         </a>
       </li>
       {% if request.user.is_staff or request.user.is_superuser %}
-      <li>
-        <button class="
-        usa-accordion-button usa-nav-link" aria-expanded="false" aria-controls="admin-nav">
+      <li class="usa-nav__primary-item">
+        <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="admin-nav">
           <span>Administrative</span>
         </button>
-        <ul id="admin-nav" class="usa-nav-submenu" aria-hidden="true">
+        <ul id="admin-nav" class="usa-nav__submenu" aria-expanded="true">
           {% if request.user.is_staff %}
-          <li>
-              <a href="/admin">Tock Admin</a>
-            </li>
+          <li class="usa-nav__submenu-item">
+            <a href="/admin">Tock Admin</a>
+          </li>
+          <li class="usa-nav__submenu-item">
+            <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
+          </li>
           {% endif %}
           {% if request.user.is_superuser %}
-          <li>
+          <li class="usa-nav__submenu-item">
             <a href="{% url 'reportingperiod:ReportingPeriodCreateView' %}">Create reporting period</a>
           </li>
           <li class="usa-nav__submenu-item">
