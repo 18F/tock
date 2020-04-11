@@ -31,6 +31,12 @@ li {
 .usa-form input[type=submit], .usa-form input[type=file]{
   @extend .usa-button;
 }
+.usa-checkbox input[type=checkbox] {
+  @extend .usa-checkbox__input;
+}
+.usa-checkbox label {
+  @extend .usa-checkbox__label;
+}
 
 .container {
   margin-top: 5rem;

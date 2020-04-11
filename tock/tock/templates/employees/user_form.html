@@ -15,9 +15,10 @@
     {{ form.start_date }}
     {{ form.end_date.label_tag }}
     {{ form.end_date }}
-    {{ form.current_employee }}
-    {{ form.current_employee.label_tag }}
-
+    <div class="usa-checkbox">
+      {{ form.current_employee }}
+      {{ form.current_employee.label_tag }}
+    </div>
     <input type="submit" value="Update" />
 </form>
 
