@@ -1,6 +1,7 @@
 import datetime
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -8,6 +9,7 @@ from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
 from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
+
 from .utils import ValidateOnSaveMixin, render_markdown
 
 
@@ -267,12 +269,24 @@ class Timecard(models.Model):
         return self.billable_hours + self.non_billable_hours
 
     def calculate_target_hours(self):
-        return round(self.billable_expectation * self.calculate_utilization_denominator(), 0)
+        """
+        If a user works over 40 hours in a week, their target hours
+        does not increase.
+
+        Therefore, set `target_hours` to the lesser of:
+            1. Target hours in a regular 40 hour work week
+            2. Billable expectation * number of hours worked
+        """
+        this_weeks_target = round(self.billable_expectation * self.calculate_utilization_denominator(), 0)
+        return min(this_weeks_target, self.max_target_hours())
 
     def calculate_utilization(self):
         if self.target_hours:
             return self.billable_hours / self.target_hours
         return 0
+
+    def max_target_hours(self):
+        return round(self.billable_expectation * settings.HOURS_IN_A_REGULAR_WORK_WEEK)
 
     def calculate_hours(self):
         billable_filter = Q(timecardobjects__project__accounting_code__billable=True)
