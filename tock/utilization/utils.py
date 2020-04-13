@@ -64,8 +64,7 @@ def users_to_include_for_utilization():
     """
     Limit to users which should be included in utilization reports
     """
-    return Q(user_data__is_billable=True,
-             is_active=True,
+    return Q(is_active=True,
              user_data__current_employee=True)
 
 def utilization_users_queryset(qs):
