@@ -115,3 +115,19 @@ target_billable_hours = (billable_hours + non_billable_hours) * billing_expectat
 utilization = billable_hours / target_billable_hours
 # 116 / 122 = 0.95
 ```
+
+
+## What if I Tock in excess of 40 hours?
+
+Target billable hours is capped for each period at the target for a 40 hour work week.
+
+### Example
+
+Stacey's `utilization` for week 1 is 156%. Stacey tocked 50 billable hours of an expected 32 for the week.
+
+Project | Week 1 |
+--------|--------|
+Out of Office| 0.0 |
+Billable | 50.0 |
+Non-Billable | 16.0 |
+
