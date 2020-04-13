@@ -79,15 +79,31 @@
           {{ project_entry.id }}
         </div>
         <div class="grid-container">
-          <div class="entry-project grid-col-8">
-            {{ project_entry.project.label_tag }}
-            {{ project_entry.project }}
-            {% if project_entry.non_field_errors %}
-              <div class="invalid">
-                {{ project_entry.non_field_errors }}
+          <div class="grid-row grid-gap">
+            <div class="entry-project grid-col-8">
+              {{ project_entry.project.label_tag }}
+              {{ project_entry.project }}
+              {% if project_entry.non_field_errors %}
+                <div class="invalid">
+                  {{ project_entry.non_field_errors }}
+                </div>
+              {% endif %}
+              <div class="entry-alerts"></div>
+              <div class="entry-hidden entry-note-field">
+                {{ project_entry.notes.label_tag }}
+                {{ project_entry.notes.help_text }}
+                {% if project_entry.notes.errors %}
+                  <div class="invalid">
+                    {{ project_entry.notes.errors }}
+                  </div>
+                {% endif %}
+                {{ project_entry.notes }}
               </div>
-            {% endif %}
-            {{ project_entry.notes }}
+            </div>
+            <div class="entry-amount grid-col-4">
+              {{ project_entry.hours_spent.label_tag }}
+              {{ project_entry.hours_spent }}
+            </div>
           </div>
         </div>
         <div class="grid-container">
