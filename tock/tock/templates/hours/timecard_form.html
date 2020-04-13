@@ -6,10 +6,10 @@
 {% block content %}
 
 {% if formset.errors %}
-  <div class="usa-alert usa-alert-error">
-    <div class="usa-alert-body">
-      <h3 class="usa-alert-heading">There was an error processing your time card</h3>
-      <p class="usa-alert-text">{{ formset.non_form_errors }}</p>
+  <div class="usa-alert usa-alert--error">
+    <div class="usa-alert__body">
+      <h3 class="usa-alert__heading">There was an error processing your time card</h3>
+      <p class="usa-alert__text">{{ formset.non_form_errors }}</p>
       {% for form in formset.errors %}
         {% with form_id=forloop.counter0 %}
           {% for error_message in form.values %}
@@ -22,12 +22,12 @@
 {% endif %}
 
 {% if messages %}
-  <div class="usa-grid">
+  <div class="grid-container">
     {% for message in messages %}
-      <div class="usa-alert usa-alert-{{ message.level_tag }}">
-        <div class="usa-alert-body">
-          <h3 class="usa-alert-heading">{{ message.extra_tags }}</h3>
-          <p class="usa-alert-text">{{ message.message }}</p>
+      <div class="usa-alert usa-alert--{{ message.level_tag }}">
+        <div class="usa-alert__body">
+          <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
+          <p class="usa-alert__text">{{ message.message }}</p>
         </div>
       </div>
     {% endfor %}
@@ -78,8 +78,8 @@
           {{ project_entry.timecard }}
           {{ project_entry.id }}
         </div>
-        <div class="usa-grid">
-          <div class="entry-project usa-width-two-thirds">
+        <div class="grid-container">
+          <div class="entry-project grid-col-8">
             {{ project_entry.project.label_tag }}
             {{ project_entry.project }}
             {% if project_entry.non_field_errors %}
@@ -90,9 +90,9 @@
             {{ project_entry.notes }}
           </div>
         </div>
-        <div class="usa-grid">
+        <div class="grid-container">
           {% if unsubmitted %}
-            <div class="entry-delete usa-width-two-thirds">
+            <div class="entry-delete grid-col-8">
               {{ project_entry.DELETE }}
               <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
             </div>
@@ -102,13 +102,13 @@
     </div>
     {% endfor %}
   </div>
-  <div class="timecard-footer">
+  <div class="grid-container timecard-footer">
     <div class="entries-total">
-      <div class="usa-grid">
-        <div class="usa-width-two-thirds">
-          <button type="button" class="add-timecard-entry usa-button-gray">Add item</button>
+      <div class="grid-row grid-gap">
+        <div class="grid-col-8">
+          <button type="button" class="add-timecard-entry usa-button usa-button--base">Add item</button>
         </div>
-        <div class="usa-width-one-sixth">
+        <div class="grid-col-2">
           <span class="text-label">Total hours</span>
           <span class="entries-total-reported-amount">
             <svg class="circular-graph">
@@ -118,7 +118,7 @@
             <span class="number-label">0</span>
           </span>
         </div>
-        <div class="usa-width-one-sixth">
+        <div class="grid-col-2">
           <span class="text-label"><a href="https://handbook.18f.gov/tock/#weekly-billable-hour-expectations" target="_blank" rel="noopener noreferrer">Billable hours</a></span>
           <span class="entries-total-billable-amount">
             <svg class="circular-graph">
@@ -132,9 +132,9 @@
     </div>
   </div>
   <div class="submit-form">
-    <div class="usa-grid">
-      <button type="button" class="usa-button-big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
-      <button type="button" class="usa-button-secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
+    <div class="grid-container">
+      <button type="button" class="usa-button usa-button--big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
+      <button type="button" class="usa-button usa-button--secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
     </div>
   </div>
 </form>
