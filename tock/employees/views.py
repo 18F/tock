@@ -7,10 +7,12 @@ from django.views.generic import DetailView, ListView
 from django.views.generic.edit import FormView
 from rest_framework.permissions import IsAuthenticated
 from tock.utils import IsSuperUserOrSelf, PermissionMixin
+from django.db.models import Prefetch
 
 from .forms import UserForm
 from .models import UserData
 from utilization.employee import user_billing_context
+from hours.models import TimecardObject
 
 
 def parse_date(date):
@@ -97,11 +99,14 @@ def _add_recent_tock_table(user, context):
     the data necessary to render a table of projects and hours billed
     for the last `settings.RECENT_TOCKS_TO_REPORT` time periods
     """
-    recent_tocks = user.timecards.order_by('-reporting_period__start_date')[:settings.RECENT_TOCKS_TO_REPORT]
+    prefetch = Prefetch('timecardobjects', queryset=TimecardObject.objects.all().select_related('project'))
+    recent_tocks = user.timecards.select_related('reporting_period')\
+                                 .order_by('-reporting_period__start_date')\
+                                 .prefetch_related(prefetch)[:settings.RECENT_TOCKS_TO_REPORT]
     recent_tocks = list(reversed(recent_tocks))
     billing_table = {}
     for n, timecard in enumerate(recent_tocks):
-        for tco in timecard.timecardobjects.all().select_related('project'):
+        for tco in timecard.timecardobjects.all():
             project_billing = billing_table.setdefault(tco.project, [0] * len(recent_tocks))
             project_billing[n] = tco.hours_spent
     context['recent_billing_table'] = billing_table
