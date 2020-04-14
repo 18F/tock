@@ -12,7 +12,7 @@
   background-color: $color-primary-alt-light;
 }
 
-.usa-header--extended [aria-expanded="true"] {
+.usa-header--extended ul[aria-expanded="true"] {
   position: absolute; // for some reason, USWDS 2.x overrides this to set position as relative, which breaks nav
 }
 
