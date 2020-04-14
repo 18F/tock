@@ -74,7 +74,7 @@ utilization = billable_hours / target_billable_hours
 ```
 
 ### Week 2
-Stacey's `utilization` for Week 1 is 109%.
+Stacey's `utilization` for Week 2 is 109%.
 Stacey tocked 28 hours when their target was ~25 billable hours.
 
 Stacey's target was less than the previous week because they were `Out of Office` for 8 hours in week 2.
