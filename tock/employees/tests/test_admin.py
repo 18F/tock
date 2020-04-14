@@ -32,7 +32,6 @@ class TestUserDataForm(TestCase):
             'end_date': '',
             'current_employee': '',
             'is_18f_employee': '',
-            'is_billable': '',
             'unit': '',
             'profit_loss_account': ProfitLossAccount.objects.first().id,
             'billable_expectation': 0.80
