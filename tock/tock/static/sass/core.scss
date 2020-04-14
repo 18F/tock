@@ -12,6 +12,10 @@
   background-color: $color-primary-alt-light;
 }
 
+.usa-header--extended [aria-expanded="true"] {
+  position: absolute; // for some reason, USWDS 2.x overrides this to set position as relative, which breaks nav
+}
+
 // backwards compat with USWDS 1.x
 li {
   line-height: 1.5;
