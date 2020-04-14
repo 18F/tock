@@ -175,6 +175,15 @@ class TimecardTests(TestCase):
         """Test the TimeCardObject hours method."""
         self.assertEqual(self.timecard_object_1.hours(), 12)
 
+    def test_timecard_max_target_hours(self):
+        """Target hours cannot excede billable * settings.HOURS_IN_A_REGULAR_WORK_WEEK"""
+        # Bill in excess of 40 hours
+        self.timecard_object_1.hours_spent = 40
+        self.timecard_object_1.save()
+        self.timecard.calculate_hours()
+
+        self.assertEqual(self.timecard.target_hours, self.timecard.max_target_hours())
+
 
 class TimecardNoteTests(TestCase):
     def setUp(self):
