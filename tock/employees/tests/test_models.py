@@ -113,8 +113,8 @@ class UserDataTests(TestCase):
         """ Check if the user is late when no Timecard is present """
         userdata = self.regular_user_userdata
         self.assertEqual(userdata.is_late, True)
-        # Now set is_billable to false and re-check:
-        userdata.is_billable = False
+        # Now set  to false and re-check:
+        userdata.billable_expectation = 0
         userdata.save()
         self.assertEqual(userdata.is_late, False)
 
