@@ -106,3 +106,15 @@ class TestGroupUtilizationView(WebTest):
             utilization_data['last_week_data'][0]['billable'],
             self.b_timecard_object.hours_spent
         )
+
+    def test_user_detail_with_utilization(self):
+        """UserDetail view is visible for non-billable users"""
+        self.user_data.billable_expectation = 0
+        self.user_data.save()
+
+        response = self.app.get(
+            url=reverse('employees:UserDetailView', args=[self.user.username]),
+            user=self.user
+        )
+
+        self.assertEqual(response.status_code, 200)

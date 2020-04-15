@@ -1,35 +1,10 @@
 {% extends "base.html" %}
 {% block navigation %}
-  {% include "_navigation.html" %}
+{% include "_navigation.html" %}
 {% endblock %}
 
 {% block content %}
 <h1>Let's Tock about {{ username }}!</h1>
-
-<form class="usa-form" action="" method="post">{% csrf_token %}
-    {{ form.first_name.label_tag }}
-    {{ form.first_name }}
-    {{ form.last_name.label_tag }}
-    {{ form.last_name }}
-    {{ form.start_date.label_tag }}
-    {{ form.start_date }}
-    {{ form.end_date.label_tag }}
-    {{ form.end_date }}
-    <div class="usa-checkbox">
-      {{ form.current_employee }}
-      {{ form.current_employee.label_tag }}
-    </div>
-    <input type="submit" value="Update" />
-</form>
-
 {% include 'employees/user_utilization.html' %}
 {% include 'employees/user_recent_tocks.html' %}
-{% endblock %}
-
-{% block js %}
-<script>
-$(function() {
-	$( ".datepicker" ).datepicker();
-});
-</script>
 {% endblock %}

@@ -1,6 +1,6 @@
 <td>
     {{ data.utilization }}<br>
-    {% if data.denominator %}
+    {% if data.denominator is not None  %}
         ({{ data.billable }} / {{ data.denominator }})
     {% endif %}
 </td>
