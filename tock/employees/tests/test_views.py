@@ -5,7 +5,6 @@ from django.urls import reverse
 from django_webtest import WebTest
 
 from employees.views import parse_date
-from employees.models import UserData
 from hours.models import ReportingPeriod
 
 from test_common import ProtectedViewTestCase
@@ -62,4 +61,3 @@ class UserViewTests(ProtectedViewTestCase, WebTest):
         self.assertEqual(parse_date(date=date), None)
         date = "01/01/2013"
         self.assertEqual(parse_date(date=date), datetime.datetime(2013, 1, 1))
-
