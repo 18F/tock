@@ -1,122 +1,127 @@
 {% extends "base.html" %}
+{% load static %}
 {% block navigation %}
-  {% include "_navigation.html" %}
+{% include "_navigation.html" %}
 {% endblock %}
 
 {% block content %}
 
 {% if formset.errors %}
-  <div class="usa-alert usa-alert--error">
-    <div class="usa-alert__body">
-      <h3 class="usa-alert__heading">There was an error processing your time card</h3>
-      <p class="usa-alert__text">{{ formset.non_form_errors }}</p>
-      {% for form in formset.errors %}
-        {% with form_id=forloop.counter0 %}
-          {% for error_message in form.values %}
-            <a href="#entry-{{form_id}}">{{error_message}}</a>
-          {% endfor %}
-        {% endwith %}
-      {% endfor %}
-    </div>
+<div class="usa-alert usa-alert--error">
+  <div class="usa-alert__body">
+    <h3 class="usa-alert__heading">There was an error processing your time card</h3>
+    <p class="usa-alert__text">{{ formset.non_form_errors }}</p>
+    {% for form in formset.errors %}
+    {% with form_id=forloop.counter0 %}
+    {% for error_message in form.values %}
+    <a href="#entry-{{form_id}}">{{error_message}}</a>
+    {% endfor %}
+    {% endwith %}
+    {% endfor %}
   </div>
+</div>
 {% endif %}
 
 {% if messages %}
-  <div class="grid-container">
-    {% for message in messages %}
-      <div class="usa-alert usa-alert--{{ message.level_tag }}">
-        <div class="usa-alert__body">
-          <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
-          <p class="usa-alert__text">{{ message.message }}</p>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
-
-<h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</span></h1>
-
-{% if reporting_period.message_enabled and reporting_period.message %}
-  <div class="usa-alert usa-alert--{{ reporting_period.message_style }}">
+<div class="grid-container">
+  {% for message in messages %}
+  <div class="usa-alert usa-alert--{{ message.level_tag }}">
     <div class="usa-alert__body">
-      {% if reporting_period.message_title %}
-        <h3 class="usa-alert__heading">{{ reporting_period.message_title }}</h3>
-      {% endif %}
-      <p class="usa-alert__text">
-        {{ reporting_period.rendered_message|safe }}
-      </p>
+      <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
+      <p class="usa-alert__text">{{ message.message }}</p>
     </div>
   </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<h1>Tell us about your time for <span class="reporting-period"> {{ object.reporting_period.start_date }} to
+    {{ object.reporting_period.end_date }}</span></h1>
+
+{% if reporting_period.message_enabled and reporting_period.message %}
+<div class="usa-alert usa-alert--{{ reporting_period.message_style }}">
+  <div class="usa-alert__body">
+    {% if reporting_period.message_title %}
+    <h3 class="usa-alert__heading">{{ reporting_period.message_title }}</h3>
+    {% endif %}
+    <p class="usa-alert__text">
+      {{ reporting_period.rendered_message|safe }}
+    </p>
+  </div>
+</div>
 {% endif %}
 
 {% for timecard_note in timecard_notes %}
-  <div class="usa-alert usa-alert--{{ timecard_note.style }}">
-    <div class="usa-alert__body">
-      <h3 class="usa-alert__heading">{{ timecard_note.title }}</h3>
-      <p class="usa-alert__text">
-        {{ timecard_note.rendered_body|safe }}
-      </p>
-    </div>
+<div class="usa-alert usa-alert--{{ timecard_note.style }}">
+  <div class="usa-alert__body">
+    <h3 class="usa-alert__heading">{{ timecard_note.title }}</h3>
+    <p class="usa-alert__text">
+      {{ timecard_note.rendered_body|safe }}
+    </p>
   </div>
+</div>
 {% endfor %}
 
 <div class="usa-alert usa-alert--info">
   <div class="usa-alert__body">
     <p class="usa-alert__text">
-      For additional help and guidance with using Tock and entering hours, please consult the <a href="https://handbook.18f.gov/tock/">TTS Handbook page on Tock</a>.
+      For additional help and guidance with using Tock and entering hours, please consult the <a
+        href="https://handbook.18f.gov/tock/">TTS Handbook page on Tock</a>.
     </p>
   </div>
 </div>
 
-<form method="post" action="{% url 'reportingperiod:UpdateTimesheet' reporting_period=object.reporting_period.start_date %}">
+<form method="post"
+  action="{% url 'reportingperiod:UpdateTimesheet' reporting_period=object.reporting_period.start_date %}">
   {% csrf_token %}
   {{ formset.management_form }}
   <div class="entries grid-container">
     {% for project_entry in formset %}
-      <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}" id="entry-{{ forloop.counter0 }}">
-        <div class="entry-hidden">
-          {{ project_entry.timecard }}
-          {{ project_entry.id }}
-        </div>
-        <div class="grid-container">
-          <div class="grid-row grid-gap">
-            <div class="entry-project grid-col-8">
-              {{ project_entry.project.label_tag }}
-              {{ project_entry.project }}
-              {% if project_entry.non_field_errors %}
-                <div class="invalid">
-                  {{ project_entry.non_field_errors }}
-                </div>
-              {% endif %}
-              <div class="entry-alerts"></div>
-              <div class="entry-hidden entry-note-field">
-                {{ project_entry.notes.label_tag }}
-                {{ project_entry.notes.help_text }}
-                {% if project_entry.notes.errors %}
-                  <div class="invalid">
-                    {{ project_entry.notes.errors }}
-                  </div>
-                {% endif %}
-                {{ project_entry.notes }}
-              </div>
+    <div class="entry {% if forloop.counter0|divisibleby:2 %}even{% else %}odd{% endif %}"
+      id="entry-{{ forloop.counter0 }}">
+      <div class="entry-hidden">
+        {{ project_entry.timecard }}
+        {{ project_entry.id }}
+      </div>
+      <div class="grid-container">
+        <div class="grid-row grid-gap">
+          <div class="entry-project grid-col-8">
+            {{ project_entry.project.label_tag }}
+            {{ project_entry.project }}
+            {% if project_entry.non_field_errors %}
+            <div class="invalid">
+              {{ project_entry.non_field_errors }}
             </div>
-            <div class="entry-amount grid-col-4">
-              {{ project_entry.hours_spent.label_tag }}
-              {{ project_entry.hours_spent }}
+            {% endif %}
+            <div class="entry-alerts"></div>
+            <div class="entry-hidden entry-note-field">
+              {{ project_entry.notes.label_tag }}
+              {{ project_entry.notes.help_text }}
+              {% if project_entry.notes.errors %}
+              <div class="invalid">
+                {{ project_entry.notes.errors }}
+              </div>
+              {% endif %}
+              {{ project_entry.notes }}
             </div>
           </div>
-        </div>
-        <div class="grid-container">
-          {% if unsubmitted %}
-            <div class="entry-delete grid-col-8">
-              {{ project_entry.DELETE }}
-              <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
-            </div>
-          {% endif %}
+          <div class="entry-amount grid-col-4">
+            {{ project_entry.hours_spent.label_tag }}
+            {{ project_entry.hours_spent }}
+          </div>
         </div>
       </div>
+      <div class="grid-container">
+        {% if unsubmitted %}
+        <div class="entry-delete grid-col-8">
+          {{ project_entry.DELETE }}
+          <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
+        </div>
+        {% endif %}
+      </div>
     </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
   </div>
   <div class="grid-container timecard-footer">
     <div class="entries-total">
@@ -135,7 +140,8 @@
           </span>
         </div>
         <div class="grid-col-2">
-          <span class="text-label"><a href="https://handbook.18f.gov/tock/#weekly-billable-hour-expectations" target="_blank" rel="noopener noreferrer">Billable hours</a></span>
+          <span class="text-label"><a href="https://handbook.18f.gov/tock/#weekly-billable-hour-expectations"
+              target="_blank" rel="noopener noreferrer">Billable hours</a></span>
           <span class="entries-total-billable-amount">
             <svg class="circular-graph">
               <circle class="background" cx="30" cy="30" r="28"></circle>
@@ -149,8 +155,10 @@
   </div>
   <div class="submit-form">
     <div class="grid-container">
-      <button type="button" class="usa-button usa-button--big" id="submit-timecard" title="Submit your time card now">Submit your time card now</button>
-      <button type="button" class="usa-button usa-button--secondary save-timecard" id="save-timecard" title="Save your time card for later">Save your time card for later</button>
+      <button type="button" class="usa-button usa-button--big" id="submit-timecard"
+        title="Submit your time card now">Submit your time card now</button>
+      <button type="button" class="usa-button usa-button--secondary save-timecard" id="save-timecard"
+        title="Save your time card for later">Save your time card for later</button>
     </div>
   </div>
 </form>
@@ -158,339 +166,10 @@
 
 <script>
   const totalHoursTarget = 40;
-  const excludedFromBillability = {{excluded_from_billability|safe}};
-  const billableExpectation = {{billable_expectation|safe}};
-  const nonBillableProjects = {{non_billable_projects|safe}};
-
-  function clearLocalStorage() {
-    // Clear anything saved locally.
-    if(window.localStorage) {
-      window.localStorage.removeItem('tock-entered-hours-{{ object.id }}');
-    }
-  }
-
-  function getFormData() {
-    return $('.entry').map((i, entry) => {
-      const markedForDeletion = $('.entry-delete input', entry).prop('checked');
-
-      if (markedForDeletion) {
-        return;
-      }
-
-      const project = parseInt($('.entry-project select', entry).val(), 10) || null;
-      const isExcluded = project ? excludedFromBillability.includes(project) : null;
-      const isBillable = project ? !isExcluded && !nonBillableProjects.includes(project) : null;
-      const hours = parseFloat($('.entry-amount input', entry).val()) || 0;
-
-      return { project, isBillable, isExcluded, hours };
-    }).toArray();
-  }
-
-  function roundToNearestHalf(number) {
-    return Math.ceil(number * 2) / 2;
-  }
-
-  function round(number) {
-    return parseFloat(number.toFixed(2));
-  }
-
-  function getHoursReport() {
-    const data = getFormData();
-
-    const r = data.reduce((sums, entry) => {
-      sums.totalHours += entry.hours;
-      if (entry.isExcluded) sums.excludedHours += entry.hours;
-      if (entry.isBillable) sums.billableHours += entry.hours;
-
-      return sums;
-    }, {
-      totalHours: 0,
-      excludedHours: 0,
-      billableHours: 0
-    });
-
-    // Round user input to .01; round system to .5
-    return {
-      totalHours: round(r.totalHours),
-      excludedHours: round(r.excludedHours),
-      nonBillableHours: round(r.totalHours - r.billableHours - r.excludedHours),
-      billableHours: round(r.billableHours),
-      billableHoursTarget: roundToNearestHalf((totalHoursTarget - r.excludedHours) * billableExpectation),
-    };
-  }
-
-  function populateHourTotals(){
-    // Save hours to localStorage, if available
-    if(window.localStorage) {
-      var hoursAsEntered = [ ];
-      $('.entries .entry').each(function(i, entry) {
-        entry = $(entry);
-        var project = $('.entry-project select', entry).val();
-        var hours = $('.entry-amount input', entry).val();
-        if(project) {
-          hoursAsEntered.push({ project: project, hours: hours });
-        }
-      });
-      window.localStorage.setItem('tock-entered-hours-{{ object.id }}', JSON.stringify(hoursAsEntered));
-    }
-
-    // Populate The Bottom Addon Items with Totals
-    const totals = getHoursReport();
-    const totalElement = $('.entries-total-reported-amount');
-    const billableElement = $('.entries-total-billable-amount');
-
-    $('.fill', totalElement).attr('stroke-dasharray', `${totals.totalHours / totalHoursTarget} 1`)
-    $('.fill', billableElement).attr('stroke-dasharray', `${totals.billableHours / totals.billableHoursTarget} 1`)
-
-    $('.number-label', totalElement).html(totals.totalHours);
-    $('.number-label', billableElement).html(totals.billableHours);
-
-    if (totals.totalHours === 0) {
-      totalElement.removeClass('valid invalid');
-    }
-    else if (totals.totalHours === totalHoursTarget) {
-      totalElement.addClass('valid').removeClass('invalid');
-    }
-    else {
-      totalElement.addClass('invalid').removeClass('valid');
-    }
-
-    if (totals.billableHours === 0) {
-      billableElement.removeClass('valid invalid');
-    }
-    else if (totals.billableHours >= totals.billableHoursTarget && totals.totalHours <= totalHoursTarget) {
-      billableElement.addClass('valid').removeClass('invalid');
-    }
-    else {
-      billableElement.addClass('invalid').removeClass('valid');
-    }
-  }
-
-  function toggleNotesField(selectBox) {
-    var $fieldset = $(selectBox).parents('.entry-project'),
-        $selected = $(selectBox).find(':selected'),
-        $notes = $fieldset.find('.entry-note-field'),
-        notesDisplayed = $selected.data('notes-displayed'),
-        notesRequired = $selected.data('notes-required');
-
-    if (notesRequired || notesDisplayed) {
-        $notes.toggleClass('entry-hidden', false);
-    } else {
-        $notes.toggleClass('entry-hidden', true);
-    }
-  }
-
-  function displayAlerts(selectBox) {
-    var $fieldset = $(selectBox).parents('.entry-project'),
-        $selected = $(selectBox).find(':selected'),
-        $alerts = $fieldset.find('.entry-alerts'),
-        all_alerts = $selected.data('alerts'),
-        alert_text;
-
-    $alerts.empty();
-
-    if (all_alerts !== undefined) {
-      all_alerts = JSON.parse(JSON.parse('"' + all_alerts + '"'));
-
-      for (var i = 0; i < all_alerts.length; i++) {
-        alert_text = all_alerts[i].text;
-
-        if (all_alerts[i].url !== '' && all_alerts[i].url !== undefined) {
-            alert_text = '<a href="' + all_alerts[i].url + '" target="_blank">' + alert_text + '</a>';
-        }
-
-        $alerts.append(
-            '<div class="' + all_alerts[i].style + '">' + alert_text + '</div>'
-        );
-      }
-    } else {
-      $alerts.empty();
-    }
-  }
-
-  function addTockLines(tockLines) {
-    // Pop off the top of the array
-    var line = tockLines.shift();
-
-    if(line) {
-      if(!line.project) {
-        addTockLines(tockLines);
-        return;
-      }
-
-      // If the last entry box isn't empty, add a new one
-      if($('div.entry:last .entry-project select').val() !== '') {
-        $(".add-timecard-entry").click();
-      }
-
-      // Wait a tick so the DOM can be updated, in case a new
-      // line item entry had to be created
-      setTimeout(function() {
-        // Set the project and trigger a GUI update
-        $("div.entry:last .entry-project select").val(line.project);
-        $("div.entry:last .entry-project select").trigger("chosen:updated");
-
-        // Set the hours and trigger a data update
-        $("div.entry:last .entry-amount input").val(line.hours);
-        $("div.entry:last .entry-amount input").change();
-
-        // Go again with the remaining tock lines
-        addTockLines(tockLines);
-      }, 20);
-    } else {
-      // If we're finished processing the list of tock lines,
-      // trigger a change event to update the hours total and
-      // re-sync any local storage.
-      $("div.entry:last select").change();
-    }
-  }
-
-  // When you change the hours, redo the totals
-  $( "body" ).on( "keyup", ".entry-amount input", function() {
-    populateHourTotals();
-  });
-
-  $( "body" ).on( "click", ".entry-amount input, .entry-delete input", function() {
-    populateHourTotals();
-  });
-
-  // When you change a project, redo the totals
-  $( "body" ).on( "change", ".entry-project select", function() {
-    populateHourTotals();
-  });
-
-
-$( document ).ready(function() {
-    var chosenOptions = {
-      search_contains: true,
-      group_search: false
-    };
-
-    $("#save-timecard").on("click", function() {
-      // Clear anything saved locally.  The server is the
-      // source of truth.
-      clearLocalStorage();
-
-      var form = $('form'),
-          save_input = '<input type="hidden" name="save_only" value="1"/>';
-
-      form.append(save_input);
-      form.submit();
-    });
-
-    $("#submit-timecard").on("click", function() {
-      // Clear anything saved locally.  The server is the
-      // source of truth.
-      clearLocalStorage();
-
-      $('form').submit();
-    })
-
-    $(".add-timecard-entry").on( "click", function() {
-        $('div.entry:last').clone().each(function(i) {
-          var entry = $(this);
-          entry.find('.chosen-container').remove();
-          entry.find('.entry-alerts').empty();
-          entry.find('.entry-note-field').toggleClass('entry-hidden', true);
-          entry.find('.entry-note-field .invalid').remove();
-          entry.find('select').show();
-          entry.find('input, select, textarea').val('');
-          entry.find(':checkbox').prop('checked', false);
-
-          // Remove any existing values
-          entry.val('');
-
-          var previousNumber = parseInt(entry.attr('id').split('-')[1]);
-          var nextNumber = previousNumber + 1;
-
-          entry.attr('id', 'entry-' + nextNumber);
-          nextNumber % 2 == 0 ? entry.addClass('even').removeClass('odd') :
-            entry.addClass('odd').removeClass('even');
-
-          entry.find('input, select, textarea, label').each(function(i) {
-            var formItem = $(this);
-
-            if (formItem[0].tagName.toLowerCase() !== 'label') {
-                var formerID = formItem.attr('id');
-                var nextID = formerID.replace(previousNumber, nextNumber);
-                formItem.attr('id', nextID);
-
-                var formerName = formItem.attr('name');
-                var nextName = formerName.replace(previousNumber, nextNumber);
-                formItem.attr('name', nextName);
-            } else {
-                var formerFor = formItem.attr('for');
-                var nextFor = formerFor.replace(previousNumber, nextNumber);
-                formItem.attr('for', nextFor);
-            }
-          });
-        }).appendTo('.entries');
-
-        $('div.entry:last').find('.entry-project select')
-          .chosen(chosenOptions)
-          .on('change', function(e) {
-            toggleNotesField(this);
-            displayAlerts(this);
-          });
-
-        // Increment the TOTAL_FORMS
-        $('#id_timecardobjects-TOTAL_FORMS').val(parseInt($('#id_timecardobjects-TOTAL_FORMS').val()) + 1);
-    });
-
-    // If there's localStorage, get hours from it and
-    // populate the form
-    if(window.localStorage) {
-      var fromStorage = window.localStorage.getItem('tock-entered-hours-{{ object.id }}');
-      if(fromStorage) {
-        fromStorage = JSON.parse(fromStorage);
-
-        $('.entries .entry').each(function(i, entry) {
-          entry = $(entry);
-          var project = $('.entry-project select', entry).val();
-          var storageIndex = fromStorage.findIndex(function(storedProject) {
-            return storedProject.project === project;
-          });
-
-          if(storageIndex >= 0) {
-            $('.entry-amount input', entry).val(Number(fromStorage[storageIndex].hours));
-            fromStorage.splice(storageIndex, 1);
-          }
-        });
-
-        // Anything still represented in "fromStorage" is a line
-        // that was added to the timesheet but not saved, meaning
-        // there's not a GUI element for it already. We should
-        // restore those lines now.
-        addTockLines(fromStorage);
-      }
-    }
-
-    // Run on initial load
-    populateHourTotals();
-
-    $('.entry-project select')
-      .chosen(chosenOptions)
-      .on('change', function(e) {
-          toggleNotesField(this);
-          displayAlerts(this);
-      });
-
-    // Force an update to each project selection menu in case a notes field
-    // needs to be re-displayed.
-    $('.entry-project select').trigger('change');
-
-    // Disable scrolling in numeric input form fields from the mouse
-    // wheel or touchpad.
-    // Adapted from https://stackoverflow.com/questions/9712295/disable-scrolling-on-input-type-number
-    $('form').on('focus', 'input[type=number]', function (e) {
-        $(this).on('mousewheel.disableScroll', function (e) {
-            e.preventDefault();
-        });
-    });
-
-    $('form').on('blur', 'input[type=number]', function (e) {
-        $(this).off('mousewheel.disableScroll');
-    });
-});
- </script>
+  const excludedFromBillability = {{ excluded_from_billability| safe}};
+  const billableExpectation = {{ billable_expectation| safe}};
+  const nonBillableProjects = {{ non_billable_projects| safe}};
+  let objectId = {{ object.id }};
+</script>
+<script src="{% static 'js/components/timecard.js' %}"></script>
 {% endblock %}

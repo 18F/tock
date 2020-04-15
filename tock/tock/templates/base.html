@@ -1,81 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tock</title>
 
-    {% load staticfiles %}
-    {% if request.user.is_authenticated and request.user.user_data.is_late %}
-      <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
-    {% else %}
-      <link rel="shortcut icon" href="{% static 'img/favicon-happy.png' %}">
-    {% endif %}
-    <meta name="tock-icon-happy" content="{% static 'img/favicon-happy' %}">
-    <meta name="tock-icon-angry" content="{% static 'img/favicon-angry' %}">
-    <link rel="stylesheet" href="{% static 'css/dist/core.css' %}">
-    <link rel="stylesheet" href="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.css' %}">
-    <link rel="stylesheet" href="{% static 'vendor/chosen_v1.8.7/chosen.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/vendor/font-awesome.min.css' %}">
-    <script src="{% static 'vendor/jquery_v3.4.1/jquery.min.js' %}" ></script>
-    <script src="{% static 'vendor/chosen_v1.8.7/chosen.jquery.min.js' %}"></script>
-    <script src="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.js' %}"></script>
-    <script src="{% static 'vendor/uswds_v2.3.1/js/uswds.min.js' %}"></script>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tock</title>
 
-    <script src="{% static 'js/components/notifications.js' %}"></script>
-    <script>
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-         ga('create', 'UA-48605964-39', 'auto');
-        ga('set', 'anonymizeIp', true);
-        ga('set', 'forceSSL', true);
-        ga('send', 'pageview');
-    </script>
-  </head>
-  <body>
-    <header class="usa-header usa-header--extended">
-      <div class="tock-header">
-        <div class="usa-navbar">
-          <button class="usa-menu-btn">Menu</button>
-          <div class="usa-logo" id="logo">
-            <em class="usa-logo__text">
-              <img src="{% static 'img/18F-Logo.svg' %}" alt="18F logo" />
-              <a href="/" accesskey="1" title="Home" aria-label="Home">Tock</a>
-            </em>
-          </div>
+  {% load staticfiles %}
+  {% if request.user.is_authenticated and request.user.user_data.is_late %}
+  <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
+  {% else %}
+  <link rel="shortcut icon" href="{% static 'img/favicon-happy.png' %}">
+  {% endif %}
+  <meta name="tock-icon-happy" content="{% static 'img/favicon-happy' %}">
+  <meta name="tock-icon-angry" content="{% static 'img/favicon-angry' %}">
+  <link rel="stylesheet" href="{% static 'css/dist/core.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/chosen_v1.8.7/chosen.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/vendor/font-awesome.min.css' %}">
+  <script src="{% static 'vendor/jquery_v3.4.1/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/chosen_v1.8.7/chosen.jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.js' %}"></script>
+  <script src="{% static 'vendor/uswds_v2.3.1/js/uswds.min.js' %}"></script>
+
+  <script src="{% static 'js/components/notifications.js' %}"></script>
+  <script>
+    (function (i, s, o, g, r, a, m) {
+    i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+      (i[r].q = i[r].q || []).push(arguments)
+    }, i[r].l = 1 * new Date(); a = s.createElement(o),
+      m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+    ga('create', 'UA-48605964-39', 'auto');
+    ga('set', 'anonymizeIp', true);
+    ga('set', 'forceSSL', true);
+    ga('send', 'pageview');
+  </script>
+</head>
+
+<body>
+  <header class="usa-header usa-header--extended">
+    <div class="tock-header">
+      <div class="usa-navbar">
+        <button class="usa-menu-btn">Menu</button>
+        <div class="usa-logo" id="logo">
+          <em class="usa-logo__text">
+            <img src="{% static 'img/18F-Logo.svg' %}" alt="18F logo" />
+            <a href="/" accesskey="1" title="Home" aria-label="Home">Tock</a>
+          </em>
         </div>
       </div>
-      {% block navigation %}
-      {% endblock navigation %}
-    </header>
-
-    <div class="usa-content usa-section">
-      <div class="grid-container">
-        {% block content %}
-        {% endblock %}
-        {% block js %}
-        {% endblock js %}
-      </div>
     </div>
+    {% block navigation %}
+    {% endblock navigation %}
+  </header>
 
-    <footer class="usa-footer usa-footer-slim" role="contentinfo">
-      <div class="grid-container">
-        <nav class="grid-row grid-gap">
-          <div class="grid-col-4">
-            <p><i>The current release is <code>{{ x_tock_release_name }}</code>, <a class="usa-link--external" href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}" target="_blank">view this release on GitHub</a></i>.</p>
-          </div>
-          <div class="grid-col-4">
-            <p><i>For questions, suggestions, or bug reports, please <a class="usa-link--external" href="https://github.com/18f/tock/issues" target="_blank">file an issue</a>.</i></p>
-          </div>
-          <div class="grid-col-4">
-            <p><i>To change your previously submitted hours in Tock, please <a class="usa-link--external" href="{{ x_tock_change_request_form_url }}" target="_blank">use the Tock Change Request Form</a>.</i></p>
-          </div>
-        </nav>
-      </div>
-    </footer>
+  <div class="usa-content usa-section">
+    <div class="grid-container">
+      {% block content %}
+      {% endblock %}
+      {% block js %}
+      {% endblock js %}
+    </div>
+  </div>
 
-  </body>
+  <footer class="usa-footer usa-footer-slim" role="contentinfo">
+    <div class="grid-container">
+      <nav class="grid-row grid-gap">
+        <div class="grid-col-4">
+          <p><i>The current release is <code>{{ x_tock_release_name }}</code>, <a class="usa-link--external"
+                href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}" target="_blank">view this release on
+                GitHub</a></i>.</p>
+        </div>
+        <div class="grid-col-4">
+          <p><i>For questions, suggestions, or bug reports, please <a class="usa-link--external"
+                href="https://github.com/18f/tock/issues" target="_blank">file an issue</a>.</i></p>
+        </div>
+        <div class="grid-col-4">
+          <p><i>To change your previously submitted hours in Tock, please <a class="usa-link--external"
+                href="{{ x_tock_change_request_form_url }}" target="_blank">use the Tock Change Request Form</a>.</i>
+          </p>
+        </div>
+      </nav>
+    </div>
+  </footer>
+
+</body>
+
 </html>
