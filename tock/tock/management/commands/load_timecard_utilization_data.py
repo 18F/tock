@@ -44,4 +44,3 @@ class Command(BaseCommand):
                         [self._update_timecard(timecard, float(target)) for timecard in timecards]
             except FileNotFoundError:
                 self.stdout.write(self.style.ERROR(f'File not found : {source_file}'))
-
