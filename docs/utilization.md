@@ -37,9 +37,13 @@ TARGET_BILLABLE_HOURS = (BILLABLE_HOURS + NON_BILLABLE_HOURS) * BILLING_EXPECTAT
 ```
 
 ### BILLING EXPECTATION
-
 The percent of `TOTAL HOURS` which are expected to be billable for a given reporting period. Set per user, per timecard, and will vary as an individual's role, position, or organization change. See [the handbook](https://handbook.tts.gsa.gov/tock/#weekly-billable-hour-expectations) for additional details on billing expectations.
 
+### NON-BILLABLE
+An employee is considered `Non billable` if their `TARGET BILLABLE HOURS` over a time period is 0. Utilization is not calculated for these individuals because
+we're currently unable to <a href="https://en.wikipedia.org/wiki/Division_by_zero">divide by zero</a>.
+
+All `BILLABLE HOURS` tocked by `Non billable` employees are included in aggregations for their respective business unit and organization.
 
 **Default: 80%**
 
@@ -131,3 +135,30 @@ Out of Office| 0.0 |
 Billable | 50.0 |
 Non-Billable | 16.0 |
 
+
+## What if I'm non-billable but worked on a billable project?
+
+All billable hours count towards unit and organizational targets.
+
+### Example
+
+Stacey is a `non-billable` employee, their billing expectation is 0 hours per week.
+Leslie's billing expectation is 32 hours per week.
+Stacey and Leslie are in the same Business unit: `Tockonauts`
+
+The `Tockonauts` utilization for week 1 is 100%
+
+Leslie's utilization for week 1 is 97%
+
+Stacey's utilization for week 1 is `undefined` but their 1 billable hour contributes to the overall calculations and utilization for `Tockonauts`.
+
+
+
+Employee | Project      | Week 1 |
+---------|--------------|--------|
+Stacey   | Billable     | 1.0 |
+Stacey   | Non-Billable | 39.0 |
+---------|--------------|----|
+Leslie   | Billable     | 31.0 |
+Leslie   | Non-Billable | 9.0 |
+---------|--------------|----|

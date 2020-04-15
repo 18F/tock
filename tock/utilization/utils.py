@@ -7,13 +7,15 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-def calculate_utilization(billable_hours, all_hours):
-    """Calculates utilization as hours billed divided by hours worked."""
-    if not all_hours:
+def calculate_utilization(billable_hours, target_hours):
+    """Calculates utilization as hours billed divided by target hours"""
+    if target_hours == 0:
+        return "Non-billable"
+    if target_hours is None:
         return 'No hours submitted.'
     if not billable_hours:
         return '0.00%'
-    return '{:.3}%'.format((billable_hours / all_hours) * 100)
+    return '{:.3}%'.format((billable_hours / target_hours) * 100)
 
 def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False):
     """
@@ -38,7 +40,7 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False):
     # Using Coalesce to set a default value of 0 if no data is available
     billable = Coalesce(Sum('timecards__billable_hours', filter=period_filter), 0)
     non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=period_filter), 0)
-    target_billable = Coalesce(Sum('timecards__target_hours', filter=period_filter), 0)
+    target_billable = Sum('timecards__target_hours', filter=period_filter)
     if users:
         return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=billable + non_billable)
     raise NotImplementedError

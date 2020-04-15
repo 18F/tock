@@ -109,7 +109,7 @@ class TestGroupUtilizationView(WebTest):
 
     def test_user_detail_with_utilization(self):
         """UserDetail view is visible for non-billable users"""
-        self.user_data.is_billable = False
+        self.user_data.billable_expectation = 0
         self.user_data.save()
 
         response = self.app.get(

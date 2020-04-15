@@ -81,7 +81,6 @@ class UserData(models.Model):
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
-    is_billable = models.BooleanField(default=True, verbose_name="Is 18F Billable Employee")
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                              default=Decimal(0.80), decimal_places=2, max_digits=3,
                                              verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
@@ -109,6 +108,14 @@ class UserData(models.Model):
 
     def __str__(self):
         return '{0}'.format(self.user)
+
+    @property
+    def is_billable(self):
+        """
+        True if user is currently expected to bill more
+        than 0 hours in a regular work week
+        """
+        return self.billable_expectation > Decimal(0.0)
 
     @property
     def organization_name(self):

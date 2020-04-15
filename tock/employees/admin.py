@@ -58,7 +58,6 @@ class UserDataAdmin(admin.ModelAdmin):
     list_filter = (
         'current_employee',
         'is_18f_employee',
-        'is_billable',
         'is_aws_eligible',
         'organization__name',
     )
