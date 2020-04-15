@@ -281,9 +281,9 @@ class Timecard(models.Model):
         return min(this_weeks_target, self.max_target_hours())
 
     def calculate_utilization(self):
-        if self.target_hours:
-            return self.billable_hours / self.target_hours
-        return 0
+        if self.target_hours == 0:
+            return None
+        return self.billable_hours / self.target_hours
 
     def max_target_hours(self):
         return round(self.billable_expectation * settings.HOURS_IN_A_REGULAR_WORK_WEEK)
