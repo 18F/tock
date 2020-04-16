@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 {% block navigation %}
-  {% include "_navigation.html" %}
+{% include "_navigation.html" %}
 {% endblock %}
 
 {% block content %}
-  <h1>Let's Tock about {{ username }}!</h1>
-  {% include 'employees/user_utilization.html' %}
-  {% include 'employees/user_recent_tocks.html' %}
+<h1>Let's Tock about {{ username }}!</h1>
+{% include 'employees/user_utilization.html' %}
+{% include 'employees/user_recent_tocks.html' %}
 {% endblock %}
-

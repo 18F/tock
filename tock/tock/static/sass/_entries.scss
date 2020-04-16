@@ -71,9 +71,9 @@
 .entry {
 	border-top: 2px solid $color-gray-lighter;
 	background-color: $color-gray-lightest;
-	padding: 1.5rem;
+	padding: 1em;
 
-.usa-grid {
+.grid-container {
 	padding-bottom: .25rem;
 	padding-top: .25rem;
 }
@@ -85,7 +85,7 @@
     }
 
     &.odd {
-			.usa-grid {
+			.grid-container {
 			background-color: $color-gray-lightest;
 }
 
@@ -141,8 +141,23 @@
 
 }
 
+.entry-project label, .entry-amount label, .entry-note-field label {
+  @extend .usa-label;
+}
+.entry-amount input[type=text], .entry-amount input[type=number] {
+  @extend .usa-input;
+}
 .entry-delete {
-
+  margin-top: 2em;
+  label {
+    @extend .usa-checkbox__label;
+  }
+  input[type=checkbox] {
+    @extend .usa-checkbox__input;
+  }
+}
+.entry-note-field textarea {
+  @extend .usa-textarea;
 }
 
 .entry-hidden {
@@ -210,10 +225,10 @@
 
 .entries-total {
 	background: $color-primary-alt-light;
-	padding: 1.5rem;
+	padding: 1em;
 	.add-timecard-entry,
 	.add-timecard-entry:first-child  {
-		margin-top: 1.7rem;
+		margin-top: 1em;
 	}
 	.entries-total-reported {
 		text-align:left;

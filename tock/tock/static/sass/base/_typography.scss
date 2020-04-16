@@ -5,15 +5,6 @@ body {
   overflow-x: hidden;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: $font-sans;
-}
-
 h2 {
   &:first-child {
     margin-top: 0;
@@ -32,5 +23,4 @@ hr {
   background: $color-gray-lighter;
   border: 0;
   height: 1px;
-  margin: $site-margins 0;
 }

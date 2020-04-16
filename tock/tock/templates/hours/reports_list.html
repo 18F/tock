@@ -6,8 +6,9 @@
 {% block content %}
   <h1>Tock Reports</h1>
   <!--TODO: use URLconf to link to the API URLs as opposed to hard coding. -->
-  <div class="usa-grid">
-    <div class="usa-width-one-half">
+  <div class="grid-container">
+    <div class="grid-row grid-gap">
+      <div class="grid-col-6">
       <h2>Regular Reports</h2>
       <ul>
         <li>Complete timecard data:
@@ -44,18 +45,19 @@
         <li><a href="{% url 'reports:UserDataView' %}">Download list of all users</a></li>
       </ul>
     </div>
-    <div class="usa-width-one-half">
+    <div class="grid-col-6">
     {% if user.is_superuser %}
-      <div class="usa-alert usa-alert-info">
-        <div class="usa-alert-body">
-        <h2 class="usa-alert-heading">Superuser Reports</h2>
-        <p class="usa-alert-text">Complete timecard data with grade info:</p>
+      <div class="usa-alert usa-alert--info">
+        <div class="usa-alert__body">
+        <h2 class="usa-alert__heading">Superuser Reports</h2>
+        <p class="usa-alert__text">Complete timecard data with grade info:</p>
             <a href="{% url 'reports:AdminBulkTimecardList' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
             {% for fy in fiscal_years %}
               <a href="{% url 'reports:AdminBulkTimecardList' %}?after={{ fy.start_date|date:'Y-m-d' }}&before={{ fy.end_date|date:'Y-m-d' }}">FY{{ fy.year }}</a>
             {% endfor %}
         </div>
       </div>
+    </div>
 
     {% endif %}
     </div>
