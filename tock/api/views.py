@@ -50,7 +50,7 @@ class UserDataSerializer(serializers.Serializer):
     current_employee = serializers.BooleanField()
     is_18f_employee = serializers.BooleanField()
     is_billable = serializers.BooleanField()
-    unit = serializers.SerializerMethodField()
+    unit = serializers.StringRelatedField()
     organization = serializers.StringRelatedField()
 
     def get_unit(self,obj):
