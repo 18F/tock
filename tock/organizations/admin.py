@@ -10,7 +10,8 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class UnitAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description')
+    list_display = ('name', 'description', 'org',)
+    list_filter = ('org', 'active',)
     search_fields = ('name',)
 
 admin.site.register(Organization, OrganizationAdmin)
