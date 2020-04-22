@@ -353,7 +353,7 @@ class TimecardNote(models.Model):
     )
     enabled = models.BooleanField(
         default=True,
-        help_text='Toggle whether or not the note is displayed in a timecard.'
+        help_text='Toggle whether or not the note is displayed in a timecard. Note that when this is checked any start and end date defined below will be ignored.'
     )
     display_period_start = models.DateField(
         null=True,
