@@ -86,10 +86,12 @@ class TimecardAdmin(admin.ModelAdmin):
 
 class TimecardNoteAdmin(admin.ModelAdmin):
     actions_on_bottom = True
-    fields = ('title', 'body', 'style', 'enabled', 'position',)
+    fields = ('title', 'body', 'style', 'enabled', 'display_period_start', 'display_period_end', 'position',)
     list_display = (
         'title',
         'enabled',
+        'display_period_start',
+        'display_period_end',
         'position',
         'style',
         'created',

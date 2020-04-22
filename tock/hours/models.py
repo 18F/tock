@@ -3,10 +3,12 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
+from django.utils import timezone
 from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
 
@@ -314,6 +316,10 @@ class TimecardNoteManager(models.Manager):
     def enabled(self):
         return super(TimecardNoteManager, self).get_queryset().filter(enabled=True)
 
+    def active(self):
+        now = timezone.now()
+        return super(TimecardNoteManager, self).get_queryset().filter(Q(enabled=True) | Q(display_period_start__lte=now, display_period_end__gt=now))
+
     def disabled(self):
         return super(TimecardNoteManager, self).get_queryset().filter(enabled=False)
 
@@ -349,6 +355,16 @@ class TimecardNote(models.Model):
         default=True,
         help_text='Toggle whether or not the note is displayed in a timecard.'
     )
+    display_period_start = models.DateField(
+        null=True,
+        blank=True,
+        help_text='The start date for displaying this note. Note: manually enabling will override this setting.'
+    )
+    display_period_end = models.DateField(
+        null=True,
+        blank=True,
+        help_text='The end date for displaying this note. Note: manually enabling will override this setting.'
+    )
     style = models.CharField(
         choices=USWDS_ALERT_CHOICES,
         default=USWDS_ALERT_INFO,
@@ -375,6 +391,14 @@ class TimecardNote(models.Model):
         verbose_name = 'Timecard Note'
         verbose_name_plural = 'Timecard Notes'
 
+    def clean(self):
+        if self.display_period_start is None:
+            if self.display_period_end is not None:
+                raise ValidationError('If you supply an end date, you must supply a start date!')
+        elif self.display_period_end is None:
+            raise ValidationError('If you supply a start date, you must supply an end date!')
+        elif self.display_period_start >= self.display_period_end:
+            raise ValidationError('Display period start must precede display period end!')
 
     def get_enabled_display(self):
         if not self.enabled:
