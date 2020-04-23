@@ -494,7 +494,7 @@ class TimecardView(PermissionMixin, UpdateView):
             'max_working_hours': base_reporting_period.max_working_hours,
             'formset': formset,
             'messages': messages.get_messages(self.request),
-            'timecard_notes': TimecardNote.objects.enabled(),
+            'timecard_notes': TimecardNote.objects.active(),
             'unsubmitted': not self.object.submitted,
             'reporting_period': reporting_period,
             'excluded_from_billability': json.dumps(list(Project.objects.excluded_from_billability().values_list('id', flat=True))),
