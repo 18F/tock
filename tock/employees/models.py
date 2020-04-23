@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 
 # DEFAULT_ORG_ID to correspond to '18F'
-DEFAULT_ORG_ID = 1
+DEFAULT_ORG_ID = 0
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
