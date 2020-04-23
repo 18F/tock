@@ -127,7 +127,7 @@ UAA_LOGOUT_URL = 'https://login.fr.cloud.gov/logout.do'
 
 AUTO_LOGOUT_DELAY_MINUTES = 60
 
-TOCK_CHANGE_REQUEST_FORM = 'https://docs.google.com/a/gsa.gov/forms/d/1EpVTxXgRNgYfoSA2J8Oi-csjhFKqFm5DT542vIlahpU/viewform?edit_requested=true'
+TOCK_CHANGE_REQUEST_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe5RDFOlyWm0IXv7_eXjZ3CEjaGj2CmM-_TNgqwMjdspfQz7Q/viewform'
 
 # enable HSTS according to https://cyber.dhs.gov/bod/18-01/
 SECURE_HSTS_SECONDS = 31536000
