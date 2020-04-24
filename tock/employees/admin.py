@@ -6,6 +6,8 @@ from hours.admin import TimecardPrefillDataInline
 
 
 class UserDataForm(forms.ModelForm):
+    billable_expectation = forms.DecimalField(initial=0.80)
+
     class Meta:
         model = UserData
         exclude = []

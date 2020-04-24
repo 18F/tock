@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
+from django.forms import DecimalField, ModelForm
 
 from .models import (
     HolidayPrefills,
@@ -77,11 +78,20 @@ class TimecardObjectInline(admin.TabularInline):
     ]
 
 
+class TimecardAdminForm(ModelForm):
+    billable_expectation = DecimalField(initial=0.80)
+
+    class Meta:
+        model = Timecard
+        fields = '__all__'
+
+
 class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
     list_display = ('user', 'reporting_period', 'submitted')
     list_filter = (ReportingPeriodListFilter, 'reporting_period',)
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
+    form = TimecardAdminForm
 
 
 class TimecardNoteAdmin(admin.ModelAdmin):
