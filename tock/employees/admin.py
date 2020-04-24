@@ -1,11 +1,14 @@
-from django.contrib import admin
 from django import forms
-
-from .models import UserData, EmployeeGrade
+from django.conf import settings
+from django.contrib import admin
 from hours.admin import TimecardPrefillDataInline
+
+from .models import EmployeeGrade, UserData
 
 
 class UserDataForm(forms.ModelForm):
+    billable_expectation = forms.DecimalField(initial=settings.DEFAULT_BILLABLE_EXPECTATION)
+
     class Meta:
         model = UserData
         exclude = []

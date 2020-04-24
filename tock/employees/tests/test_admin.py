@@ -1,10 +1,11 @@
 import datetime
 
-from django.test import TestCase
+from django.conf import settings
 from django.contrib.auth.models import User
-
+from django.test import TestCase
 from employees.admin import UserDataForm
 from projects.models import ProfitLossAccount
+
 
 class TestUserDataForm(TestCase):
     fixtures = [
@@ -34,7 +35,7 @@ class TestUserDataForm(TestCase):
             'is_18f_employee': '',
             'unit': '',
             'profit_loss_account': ProfitLossAccount.objects.first().id,
-            'billable_expectation': 0.80
+            'billable_expectation': settings.DEFAULT_BILLABLE_EXPECTATION
         }
         form = UserDataForm(data=form_data)
         self.assertTrue(form.is_valid())
