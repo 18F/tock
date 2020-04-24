@@ -2,6 +2,7 @@ import datetime
 from decimal import Decimal
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
 from django.db import IntegrityError, models
@@ -82,7 +83,7 @@ class UserData(models.Model):
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
     is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
-                                             default=Decimal(0.80), decimal_places=2, max_digits=3,
+                                             default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
                                              verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,

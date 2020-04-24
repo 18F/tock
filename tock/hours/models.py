@@ -234,7 +234,7 @@ class Timecard(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
-                                            default=Decimal(0.80), decimal_places=2, max_digits=3,
+                                            default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
                                             verbose_name="Percentage of hours which are expected to be billable this week")
 
     # Utilization reporting

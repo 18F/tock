@@ -1,19 +1,15 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ValidationError
-from django.forms.models import BaseInlineFormSet
 from django.forms import DecimalField, ModelForm
-
-from .models import (
-    HolidayPrefills,
-    ReportingPeriod,
-    Timecard,
-    TimecardNote,
-    TimecardObject,
-    TimecardPrefillData
-)
+from django.forms.models import BaseInlineFormSet
 from employees.models import UserData
+
+from .models import (HolidayPrefills, ReportingPeriod, Timecard, TimecardNote,
+                     TimecardObject, TimecardPrefillData)
+
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
     parameter_name = 'reporting_period'
@@ -79,7 +75,7 @@ class TimecardObjectInline(admin.TabularInline):
 
 
 class TimecardAdminForm(ModelForm):
-    billable_expectation = DecimalField(initial=0.80)
+    billable_expectation = DecimalField(initial=settings.DEFAULT_BILLABLE_EXPECTATION)
 
     class Meta:
         model = Timecard
