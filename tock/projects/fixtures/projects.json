@@ -238,7 +238,8 @@
       "fields":{
          "name":"Out Of Office",
          "description":"",
-         "accounting_code":1
+         "accounting_code":1,
+         "exclude_from_billability":true
       },
       "pk":1
    },

@@ -5,7 +5,7 @@
 
 {% block content %}
 
-<table class="table-responsive-reflow">
+<table class="usa-table table-responsive-reflow">
   <caption>
     <h1>{{ object.user }}'s time from {{ object.reporting_period.start_date }} to {{ object.reporting_period.end_date }}</h1>
   </caption>
@@ -14,6 +14,7 @@
       <th>Project</th>
       <th>Billable</th>
       <th>Hours spent</th>
+      <th>Notes</th>
     </tr>
   </thead>
   {% for entry in object.timecardobjects.all %}
@@ -28,39 +29,38 @@
       {% endif %}
       </td>
       <td data-title="Hours spent">{{ entry.hours_spent }}</td>
-    </tr>
-    {% if entry.notes %}
-    <tr>
-      <td colspan="3">
-        <strong>Notes entered for {{ entry.project }}</strong>
+      <td data-title="Notes">
         {% for note in entry.notes_list %}
-        <p>{{ note }}</p>
+          <p>{{ note }}</p>
         {% endfor %}
       </td>
     </tr>
   </tbody>
-  {% endif %}
   {% endfor %}
 </table>
 <div>First Submitted: {{ object.created }}</div>
 Last Changed: {{ object.modified }}
 
-<table class="table-responsive-reflow">
+<table class="usa-table table-responsive-reflow">
   <caption>
     <h3>Reporting Period Summary</h3>
   </caption>
   <thead>
     <tr>
       <th>Billable Hours</th>
-      <th>Total Hours</th>
-      <th>Billable %<br><span class="table-subtext">(billable hrs / total hrs)</span></th>
+      <th>Non-Billable Hours</th>
+      <th>Excluded Hours</th>
+      <th>Target Hours</th>
+      <th>Utilization</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td data-title="Billable hours"> {{ user_billable_hours }} </td>
-      <td data-title="Total hours"> {{ user_all_hours }} </td>
-      <td data-title="Billable %"> {{ user_utilization }} </td>
+      <td data-title="Non-Billable hours"> {{ user_non_billable_hours }} </td>
+      <td data-title="Excluded hours"> {{ user_excluded_hours }} </td>
+      <td data-title="Target hours"> {{ user_target_hours }} </td>
+      <td data-title="Utilization"> {% widthratio user_utilization 1 100 %}% </td>
     </tr>
   </tbody>
 </table>

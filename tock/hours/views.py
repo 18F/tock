@@ -783,31 +783,18 @@ class ReportingPeriodUserDetailView(PermissionMixin, DetailView):
     def get_context_data(self, **kwargs):
         rp_period = self.kwargs['reporting_period']
         username = self.kwargs['username']
-        user_billable_hours = TimecardObject.objects.filter(
-            timecard__reporting_period__start_date=rp_period,
-            timecard__user__username=username,
-            project__accounting_code__billable=True
-        ).aggregate(
-            (
-                Sum('hours_spent')
-            )
-        )['hours_spent__sum']
 
-        user_all_hours = TimecardObject.objects.filter(
-            timecard__reporting_period__start_date=rp_period,
-            timecard__user__username=username,
-        ).aggregate(
-            (
-                Sum('hours_spent')
-            )
-        )['hours_spent__sum']
+        timecard = Timecard.objects.get(
+            reporting_period__start_date=rp_period,
+            user__username=username
+        )
 
         context = super(
             ReportingPeriodUserDetailView, self).get_context_data(**kwargs)
-        context['user_billable_hours'] = user_billable_hours
-        context['user_all_hours'] = user_all_hours
-        context['user_utilization'] = calculate_utilization(
-            context['user_billable_hours'],
-            context['user_all_hours']
-        )
+        context['user_billable_hours'] = timecard.billable_hours
+        context['user_non_billable_hours'] = timecard.non_billable_hours
+        context['user_excluded_hours'] = timecard.excluded_hours
+        context['user_target_hours'] = timecard.target_hours
+        context['user_utilization'] = timecard.utilization
+
         return context
