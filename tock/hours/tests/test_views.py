@@ -226,16 +226,25 @@ class UserReportsTest(TestCase):
         self.billable_project = projects.models.Project.objects.filter(
             accounting_code__billable=True
         )[0]
+        self.excluded_project = projects.models.Project.objects.filter(
+            exclude_from_billability=True
+        )[0]
         self.timecard_obj_0 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.nonbillable_project,
-            hours_spent=13
+            hours_spent=11
         )
         self.timecard_obj_1 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.billable_project,
             hours_spent=27
         )
+        self.timecard_obj_2 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.excluded_project,
+            hours_spent=2
+        )
+        self.timecard.save()
 
     def test_user_reporting_period_report(self):
         self.client.force_login(self.user)
@@ -243,10 +252,12 @@ class UserReportsTest(TestCase):
             'reports:ReportingPeriodUserDetailView',
             kwargs={'reporting_period':'1999-12-31', 'username':'aaron.snow'}
         ))
-        self.assertEqual(response.context['user_utilization'], '67.5%')
-        self.assertEqual(response.context['user_all_hours'], 40.00)
+        self.assertEqual(response.context['user_utilization'], Decimal('0.90'))
+        self.assertEqual(response.context['user_target_hours'], 30.00)
         self.assertEqual(response.context['user_billable_hours'], 27)
-        self.assertContains(response, '67.5%')
+        self.assertEqual(response.context['user_non_billable_hours'], 11)
+        self.assertEqual(response.context['user_excluded_hours'], 2)
+        self.assertContains(response, '90%')
 
 @override_settings(STARTING_FY_FOR_REPORTS_PAGE=2015)
 class ReportTests(WebTest):
