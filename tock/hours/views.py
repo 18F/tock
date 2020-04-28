@@ -26,7 +26,6 @@ from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from tock.remote_user_auth import email_to_username
 from tock.utils import IsSuperUserOrSelf, PermissionMixin
-from utilization.utils import calculate_utilization
 
 from .forms import (ReportingPeriodForm, ReportingPeriodImportForm,
                     TimecardForm, TimecardFormSet, projects_as_choices,
