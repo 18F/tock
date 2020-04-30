@@ -6,7 +6,9 @@
     "prestart": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --quiet",
     "start": "npm run build-css && npm run watch-css",
     "predeploy": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --silent && npm run build-css",
-    "test": "JEST_PORT=8000 jest"
+    "test": "JEST_PORT=8000 jest",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "engines": {
     "node": ">=8.10.0"
@@ -15,11 +17,13 @@
     "chosen-js": "^1.8.7",
     "jquery": "^3.5.0",
     "node-sass": "^4.13.1",
-    "uswds": "^2.3.1"
+    "uswds": "^2.3.1",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "jest": "^23.6.0",
     "jest-puppeteer": "^3.9.1",
     "puppeteer": "^1.20.0"
-  }
+  },
+  "snyk": true
 }
