@@ -111,6 +111,10 @@ class UserData(models.Model):
         return '{0}'.format(self.user)
 
     @property
+    def is_active(self):
+        return self.user.is_active
+
+    @property
     def is_billable(self):
         """
         True if user is currently expected to bill more
