@@ -50,11 +50,17 @@ class UserDataTests(TestCase):
     def setUp(self):
         # Create regular_user.
         self.regular_user = User.objects.create(
-            username='aaron.snow',
+            username='brian.whittaker',
             is_superuser=True,
             is_staff=True,
             is_active=True
         )
+        self.inactive_user = User.objects.create(
+            username='aaron.snow',
+            is_superuser=True,
+            is_staff=True,
+            is_active=False
+)
         # Create Organization.
         self.regular_user_org = Organization.objects.create(
             name='18F',
@@ -71,6 +77,15 @@ class UserDataTests(TestCase):
         # Create UserData object related to regular_user.
         self.regular_user_userdata = UserData.objects.create(
             user=self.regular_user,
+            start_date= datetime.date(2014, 1, 1),
+            end_date=datetime.date(2100, 1, 1),
+            is_18f_employee=True,
+            current_employee=True,
+            organization=self.regular_user_org,
+            unit=self.regular_user_unit
+        )
+        self.inactive_user_userdata = UserData.objects.create(
+            user=self.inactive_user,
             start_date= datetime.date(2014, 1, 1),
             end_date=datetime.date(2100, 1, 1),
             is_18f_employee=True,
@@ -117,6 +132,12 @@ class UserDataTests(TestCase):
         userdata.billable_expectation = 0
         userdata.save()
         self.assertEqual(userdata.is_late, False)
+
+    def test_is_active(self):
+        userdata = self.regular_user_userdata
+        self.assertEqual(userdata.is_active, True)
+        userdata = self.inactive_user_userdata
+        self.assertEqual(userdata.is_active, False)
 
     def test_organization_name(self):
         """
