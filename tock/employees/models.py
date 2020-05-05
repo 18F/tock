@@ -84,7 +84,7 @@ class UserData(models.Model):
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                              default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
-                                             verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
+                                             help_text="Percentage of hours (expressed as a decimal) expected to be billable each week")
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         on_delete=models.CASCADE,

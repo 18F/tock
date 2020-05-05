@@ -62,6 +62,7 @@ class UserDataAdmin(admin.ModelAdmin):
         'current_employee',
         'is_aws_eligible',
         'organization__name',
+        'unit',
     )
     search_fields = ('user__username',)
 
