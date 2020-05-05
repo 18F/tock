@@ -79,7 +79,6 @@ class UserDataTests(TestCase):
             user=self.regular_user,
             start_date= datetime.date(2014, 1, 1),
             end_date=datetime.date(2100, 1, 1),
-            is_18f_employee=True,
             current_employee=True,
             organization=self.regular_user_org,
             unit=self.regular_user_unit
@@ -88,7 +87,6 @@ class UserDataTests(TestCase):
             user=self.inactive_user,
             start_date= datetime.date(2014, 1, 1),
             end_date=datetime.date(2100, 1, 1),
-            is_18f_employee=True,
             current_employee=True,
             organization=self.regular_user_org,
             unit=self.regular_user_unit
@@ -147,7 +145,6 @@ class UserDataTests(TestCase):
         """
         userdata = self.regular_user_userdata
         self.assertEqual(userdata.organization.name, '18F')
-        self.assertEqual(userdata.organization_name, '18F')
         self.assertEqual(userdata.unit.name, 'Engineering')
 
     def test_organization_name_empty(self):
@@ -165,7 +162,6 @@ class UserDataTests(TestCase):
             start_date= datetime.date(2014, 1, 1),
             end_date=datetime.date(2100, 1, 1),
             unit=self.regular_user_unit,
-            is_18f_employee=True,
             current_employee=True
         )
         self.assertEqual(userdata1.organization_name, '')
@@ -212,3 +208,24 @@ class UserDataTests(TestCase):
         except Token.DoesNotExist:
             token_after_save = None
         self.assertNotEqual(token_before_save, token_after_save)
+
+    def test_is_18f_employee_false_if_no_org(self):
+        """False if no org or not named 18F"""
+        self.regular_user_userdata.organization = None
+        self.regular_user_userdata.save()
+        self.assertFalse(self.regular_user_userdata.is_18f_employee)
+
+    def test_is_18f_employee_false_if_not_18f(self):
+        """False if org not named 18F"""
+        not_18f = Organization.objects.create(
+            name='not_18f',
+            description='not_18f',
+            active=True
+        )
+        self.regular_user_userdata.organization = not_18f
+        self.regular_user_userdata.save()
+        self.assertFalse(self.regular_user_userdata.is_18f_employee)
+
+    def test_is_18f_employee_true_if_18f(self):
+        """True if org is named 18F"""
+        self.assertTrue(self.regular_user_userdata.is_18f_employee)

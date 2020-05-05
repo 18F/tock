@@ -52,15 +52,14 @@ class UserDataAdmin(admin.ModelAdmin):
         'start_date',
         'end_date',
         'get_organization_name',
+        'billable_expectation',
         'unit_info',
         'current_employee',
-        'is_18f_employee',
         'is_billable',
         'is_aws_eligible',
     )
     list_filter = (
         'current_employee',
-        'is_18f_employee',
         'is_aws_eligible',
         'organization__name',
     )
