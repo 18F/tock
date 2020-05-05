@@ -49,6 +49,7 @@ class UserDataSerializer(serializers.Serializer):
     user = serializers.StringRelatedField()
     current_employee = serializers.BooleanField()
     is_18f_employee = serializers.BooleanField()
+    is_active = serializers.BooleanField()
     is_billable = serializers.BooleanField()
     unit = serializers.StringRelatedField()
     organization = serializers.StringRelatedField()
