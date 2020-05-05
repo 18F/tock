@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
 from django.db import IntegrityError, models
 from django.db.models import Q
+from django.utils.functional import cached_property
 from organizations.models import Organization, Unit
 from projects.models import ProfitLossAccount
 from rest_framework.authtoken.models import Token
@@ -81,7 +82,6 @@ class UserData(models.Model):
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
-    is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                              default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
                                              verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
@@ -109,6 +109,14 @@ class UserData(models.Model):
 
     def __str__(self):
         return '{0}'.format(self.user)
+
+    @cached_property
+    def is_18f_employee(self):
+        """
+        True if user's current organization is 18F
+        False if no organization or not named '18F'
+        """
+        return (self.organization and self.organization.name == "18F")
 
     @property
     def is_active(self):
