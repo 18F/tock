@@ -228,4 +228,5 @@ class UserDataTests(TestCase):
 
     def test_is_18f_employee_true_if_18f(self):
         """True if org is named 18F"""
+        # Org for `UserData` here defined in UserDataTests.setUp
         self.assertTrue(self.regular_user_userdata.is_18f_employee)

@@ -116,7 +116,7 @@ class UserData(models.Model):
         True if user's current organization is 18F
         False if no organization or not named '18F'
         """
-        return (self.organization and self.organization.name == "18F")
+        return bool(self.organization and self.organization.name == "18F")
 
     @property
     def is_active(self):
