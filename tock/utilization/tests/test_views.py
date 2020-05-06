@@ -133,7 +133,6 @@ class TestGroupUtilizationView(WebTest):
         )
 
         self.old_timecard.save()
-        
 
     def test_summary_rows(self):
         """
@@ -187,7 +186,6 @@ class TestGroupUtilizationView(WebTest):
             utilization_data['last_week_data'][0]['billable'],
             self.b_timecard_object.hours_spent
         )
-        
 
     def test_user_detail_with_utilization(self):
         """UserDetail view is visible for non-billable users"""

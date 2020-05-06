@@ -77,7 +77,7 @@ def _employee_has_no_hours(employee, billing_data):
     The denominator field in the billing data represents the employee's target hours. If the target hours for an employee across all
     of the billing data sums to zero, then they have not logged any hours applicable to utilization.
     """
-    return sum(filter(None, [employee_data['denominator'] for employee_data in billing_data if employee_data['username'] == employee.username])) == 0  
+    return sum(filter(None, [employee_data['denominator'] for employee_data in billing_data if employee_data['username'] == employee.username])) == 0
 
 def _employees_without_hours(employees, flattened_billing_data):
     """

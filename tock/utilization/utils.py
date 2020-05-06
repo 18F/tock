@@ -39,7 +39,6 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, 
 
     if unit:
         filter = Q(filter, Q(timecards__unit=unit))
-        
 
     # Using Coalesce to set a default value of 0 if no data is available
     billable = Coalesce(Sum('timecards__billable_hours', filter=filter), 0)
@@ -72,7 +71,7 @@ def _limit_to_recent_periods(reporting_periods):
     the provided reporting_periods
     """
     return Q(timecards__reporting_period__in=reporting_periods)
-    
+
 def _limit_to_fy():
     """
     Filter component to Limit timecard aggregation to the current fiscal year
