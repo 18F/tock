@@ -6,7 +6,6 @@ from tock.utils import PermissionMixin
 
 from .org import org_billing_context
 from .unit import unit_billing_context
-from .utils import utilization_users_queryset
 
 User = get_user_model()
 
@@ -41,14 +40,9 @@ class GroupUtilizationView(PermissionMixin, ListView):
 
         # Iterate through each unit, calculating utilization for each
         # employee therein as well as overall
-
         for unit in units:
-            unit_users = User.objects.filter(user_data__unit=unit['id'])
-            active_unit_users = utilization_users_queryset(unit_users)
-            if active_unit_users.exists():
-                unit['utilization'] = unit_billing_context(unit['id'])
-            else:
-                unit['utilization'] = []
+            unit['utilization'] = unit_billing_context(unit['id'])
+
         return units
 
     def get_context_data(self, **kwargs):

@@ -85,6 +85,56 @@ class TestGroupUtilizationView(WebTest):
         # Save timecard to calculate utilization
         self.timecard.save()
 
+        self.user_with_no_hours = User.objects.create(
+            username='user.no.hours',
+        )
+
+        self.user_data_no_hours = UserData.objects.get_or_create(user=self.user_with_no_hours)[0]
+        self.user_data_no_hours.unit = test_unit
+        self.user_data_no_hours.save()
+
+        self.new_rp = ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 9, 24),
+            end_date=datetime.date(2015, 9, 30)
+        )
+        ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 9, 17),
+            end_date=datetime.date(2015, 9, 23)
+        )
+        ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 9, 10),
+            end_date=datetime.date(2015, 9, 16)
+        )
+        ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 9, 3),
+            end_date=datetime.date(2015, 9, 9)
+        )
+        self.old_rp = ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 8, 27),
+            end_date=datetime.date(2015, 9, 2)
+        )
+
+        self.old_timecard = Timecard.objects.create(
+            reporting_period=self.old_rp,
+            user=self.user_with_no_hours,
+            submitted=True
+        )
+
+        self.nb_timecard_object = TimecardObject.objects.create(
+            timecard=self.old_timecard,
+            project=non_billable_project,
+            hours_spent=15,
+        )
+
+        self.b_timecard_object = TimecardObject.objects.create(
+            timecard=self.old_timecard,
+            project=billable_project,
+            hours_spent=25,
+        )
+
+        self.old_timecard.save()
+        
+
     def test_summary_rows(self):
         """
         Row data w/ accurate total present in context
@@ -106,6 +156,38 @@ class TestGroupUtilizationView(WebTest):
             utilization_data['last_week_data'][0]['billable'],
             self.b_timecard_object.hours_spent
         )
+
+    def test_excludes_user_with_no_recent_hours(self):
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            user=self.user
+        )
+
+        utilization_data = response.context['object_list'][0]['utilization']
+
+        self.assertEqual(0, len([u for u in utilization_data['last_week_data'] if u['username'] == self.user_with_no_hours.username]))
+        self.assertEqual(0, len([u for u in utilization_data['last_month_data'] if u['username'] == self.user_with_no_hours.username]))
+
+    def test_includes_user_no_longer_with_unit(self):
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            user=self.user
+        )
+
+        self.user_data.unit = None
+
+        utilization_data = response.context['object_list'][0]['utilization']
+
+        self.assertEqual(
+            utilization_data['last_week_data'][0]['denominator'],
+            self.timecard.target_hours
+        )
+
+        self.assertEqual(
+            utilization_data['last_week_data'][0]['billable'],
+            self.b_timecard_object.hours_spent
+        )
+        
 
     def test_user_detail_with_utilization(self):
         """UserDetail view is visible for non-billable users"""
