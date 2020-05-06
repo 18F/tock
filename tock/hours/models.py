@@ -238,8 +238,8 @@ class Timecard(models.Model):
                                             default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
                                             verbose_name="Percentage of hours which are expected to be billable this week")
 
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.CASCADE)
-    unit = models.ForeignKey(Unit, null=True, blank=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, null=True, blank=True, editable=False, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=True, blank=True, editable=False, on_delete=models.CASCADE)
 
     # Utilization reporting
     target_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
