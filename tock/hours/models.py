@@ -11,6 +11,7 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 from employees.models import EmployeeGrade, UserData
 from projects.models import ProfitLossAccount, Project
+from organizations.models import Organization, Unit
 
 from .utils import ValidateOnSaveMixin, render_markdown
 
@@ -237,6 +238,9 @@ class Timecard(models.Model):
                                             default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
                                             verbose_name="Percentage of hours which are expected to be billable this week")
 
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.CASCADE)
+    unit = models.ForeignKey(Unit, null=True, blank=True, on_delete=models.CASCADE)
+
     # Utilization reporting
     target_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
                                        verbose_name="# of hours which were expected to be billable")
@@ -265,6 +269,8 @@ class Timecard(models.Model):
             self.billable_expectation = self.user.user_data.billable_expectation
         if self.id:
             self.calculate_hours()
+            self.organization = self.user.user_data.organization
+            self.unit = self.user.user_data.unit
         super().save(*args, **kwargs)
 
     def calculate_utilization_denominator(self):

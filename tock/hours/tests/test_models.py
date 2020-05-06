@@ -17,6 +17,7 @@ from hours.models import (
 )
 from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade, UserData
+from organizations.models import Organization, Unit
 
 
 class HolidayPrefillsTests(TestCase):
@@ -112,7 +113,9 @@ class ReportingPeriodTests(TestCase):
 class TimecardTests(TestCase):
     fixtures = [
         'projects/fixtures/projects.json',
-        'tock/fixtures/prod_user.json'
+        'tock/fixtures/prod_user.json',
+        'organizations/fixtures/organizations.json',
+        'organizations/fixtures/units.json'
     ]
 
     def setUp(self):
@@ -137,6 +140,14 @@ class TimecardTests(TestCase):
             timecard=self.timecard,
             project=self.project_2,
             hours_spent=28)
+
+        self.user_18f_current = get_user_model().objects.create()
+        self.user_18f_current_data = UserData.objects.create(user=self.user_18f_current)
+        self.user_18f_current_data.organization = Organization.objects.get(pk=1)
+        self.user_18f_current_data.unit = Unit.objects.get(pk=1)
+        self.user_18f_current_data.current_employee = True
+        self.user_18f_current_data.is_18f_employee = True
+        self.user_18f_current.save()
 
     def test_time_card_saved(self):
         """Test that the time card was saved correctly."""
@@ -184,6 +195,24 @@ class TimecardTests(TestCase):
         self.timecard.calculate_hours()
 
         self.assertEqual(self.timecard.target_hours, self.timecard.max_target_hours())
+
+    def test_timecard_saves_user_organization(self):
+        timecard = Timecard.objects.create(
+            user=self.user_18f_current,
+            reporting_period=self.reporting_period
+        )
+        timecard.save()
+
+        self.assertEqual(timecard.organization, self.user_18f_current.user_data.organization)
+
+    def test_timecard_saves_user_unit(self):
+        timecard = Timecard.objects.create(
+            user=self.user_18f_current,
+            reporting_period=self.reporting_period
+        )
+        timecard.save()
+
+        self.assertEqual(timecard.unit, self.user_18f_current.user_data.unit)
 
 
 class TimecardNoteTests(TestCase):
