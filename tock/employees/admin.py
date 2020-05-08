@@ -9,8 +9,7 @@ from .models import EmployeeGrade, UserData
 class UserDataForm(forms.ModelForm):
     class Meta:
         model = UserData
-        exclude = [
-        ]
+        exclude = []
     def clean(self):
         try:
             pl_info = self.cleaned_data['profit_loss_account']
