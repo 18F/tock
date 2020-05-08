@@ -12,15 +12,17 @@
 <a href="{% url 'reports:ReportingPeriodCSVView' reporting_period %}">Download Full CSV Report</a>
 
 <h2>Users Who Have Not Filed a Timecard!</h2>
-<label for="unfiled-timecards-org-filter-select">
-  Filter users by organization
-</label>
-<select id="unfiled-timecards-org-filter-select">
-  <option value="all">All organizations</option>
-  {% for organization in orgs_without_filed_timecards %}
-    <option value="{{ organization }}">{{ organization }}</option>
-  {% endfor %}
-</select>
+<form class="usa-form">
+  <label class="usa-label" for="unfiled-timecards-org-filter-select">
+    Filter users by organization
+  </label>
+  <select class="usa-select" name="unfiled-timecards-org-filter-select" id="unfiled-timecards-org-filter-select">
+    <option value="all">All organizations</option>
+    {% for organization in orgs_without_filed_timecards %}
+      <option value="{{ organization }}">{{ organization }}</option>
+    {% endfor %}
+  </select>
+</form>
 <table class="usa-table table-responsive-reflow" id="js-unfiled-timecards">
   <caption class="usa-sr-only">
     Table of users that have not filed a timecard for the reporting period {{ reporting_period.start_date }} to {{ reporting_period.end_date }}
