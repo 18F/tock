@@ -38,7 +38,6 @@ class TestUserDataForm(TestCase):
 
         # Checks that a ProfitLossAccount object with a start date that is
         # after the employee's start date is accepted.
-        
         form = UserDataForm(data=self.form_data)
         self.assertTrue(form.is_valid())
 
@@ -71,5 +70,3 @@ class TestUserDataForm(TestCase):
         pl_update.save()
         form = UserDataForm(data=self.form_data)
         self.assertFalse(form.is_valid())
-
-        
