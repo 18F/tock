@@ -28,6 +28,9 @@ li {
 }
 .usa-form select {
   @extend .usa-select;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 .usa-form input[type=text], .usa-form input[type=number] {
   @extend .usa-input;
