@@ -23,4 +23,5 @@ class Migration(migrations.Migration):
             name='expected_billable_hours',
             field=models.IntegerField(default=32, help_text='Number of hours expected to be billable each week', validators=[django.core.validators.MaxValueValidator(limit_value=40)]),
         ),
+        migrations.RunPython(backfill_expected_billable_hours),
     ]

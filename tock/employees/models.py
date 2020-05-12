@@ -137,7 +137,7 @@ class UserData(models.Model):
         Returns the employee's billable expectation, expressed as a percentage
         of their hours worked
         """
-        return Decimal(self.expected_billable_hours / settings.HOURS_IN_A_REGULAR_WORK_WEEK)
+        return round(Decimal(self.expected_billable_hours / settings.HOURS_IN_A_REGULAR_WORK_WEEK), 2)
 
     @property
     def organization_name(self):
