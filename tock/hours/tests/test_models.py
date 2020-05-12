@@ -205,6 +205,14 @@ class TimecardTests(TestCase):
 
         self.assertEqual(timecard.organization, self.user_18f_current.user_data.organization)
 
+        # change employee org and verify that the timecard keeps the original one when resaved
+        old_org = self.user_18f_current_data.organization
+        self.user_18f_current_data.organization = None
+
+        timecard.save()
+
+        self.assertEqual(timecard.organization, old_org)
+
     def test_timecard_saves_user_unit(self):
         timecard = Timecard.objects.create(
             user=self.user_18f_current,
@@ -213,6 +221,14 @@ class TimecardTests(TestCase):
         timecard.save()
 
         self.assertEqual(timecard.unit, self.user_18f_current.user_data.unit)
+
+        # change employee unit and verify that the timecard keeps the original one when resaved
+        old_unit = self.user_18f_current_data.unit
+        self.user_18f_current_data.unit = None
+
+        timecard.save()
+
+        self.assertEqual(timecard.unit, old_unit)
 
 
 class TimecardNoteTests(TestCase):

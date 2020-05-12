@@ -267,10 +267,10 @@ class Timecard(models.Model):
         """
         if not self.id and self.user:
             self.billable_expectation = self.user.user_data.billable_expectation
-        if self.id:
-            self.calculate_hours()
             self.organization = self.user.user_data.organization
             self.unit = self.user.user_data.unit
+        if self.id:
+            self.calculate_hours()
         super().save(*args, **kwargs)
 
     def calculate_utilization_denominator(self):
