@@ -33,17 +33,17 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, 
     """
 
     if not fiscal_year:
-        filter =  _limit_to_recent_periods(recent_periods)
+        filter_ =  _limit_to_recent_periods(recent_periods)
     else:
-        filter = _limit_to_fy()
+        filter_ = _limit_to_fy()
 
     if unit:
-        filter = Q(filter, Q(timecards__unit=unit))
+        filter_ = Q(filter_, Q(timecards__unit=unit))
 
     # Using Coalesce to set a default value of 0 if no data is available
-    billable = Coalesce(Sum('timecards__billable_hours', filter=filter), 0)
-    non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=filter), 0)
-    target_billable = Sum('timecards__target_hours', filter=filter)
+    billable = Coalesce(Sum('timecards__billable_hours', filter=filter_), 0)
+    non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=filter_), 0)
+    target_billable = Sum('timecards__target_hours', filter=filter_)
     if users:
         return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=billable + non_billable)
     raise NotImplementedError
