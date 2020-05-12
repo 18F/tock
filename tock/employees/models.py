@@ -84,7 +84,7 @@ class UserData(models.Model):
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
     expected_billable_hours = models.IntegerField(validators=[MaxValueValidator(limit_value=settings.HOURS_IN_A_REGULAR_WORK_WEEK)],
                                                 default=settings.DEFAULT_EXPECTED_BILLABLE_HOURS,
-                                                help_text="Number of hours expected to be billable each week")
+                                                help_text="Number of hours expected to be billable in a 40 hour work week")
 
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
