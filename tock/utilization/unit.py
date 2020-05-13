@@ -10,7 +10,7 @@ User = get_user_model()
 def unit_billing_context(unit):
     """Build context dict for utilization by unit"""
 
-    # all users that have ever created a timecard for this unit
+    # all users who have created a timecard for this unit this FY
     users = User.objects.filter(Q(timecards__unit=unit), limit_to_fy()).distinct()
 
     last_week = _get_unit_billing_data(users, unit)
