@@ -61,9 +61,10 @@ class TestGroupUtilizationView(WebTest):
         self.user_data.save()
 
         self.reporting_period = ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 10, 1),
-            end_date=datetime.date(2015, 10, 7)
+            start_date=datetime.date.today() - datetime.timedelta(days=7),
+            end_date=datetime.date.today()
         )
+
         self.timecard = Timecard.objects.create(
             reporting_period=self.reporting_period,
             user=self.user,
@@ -94,24 +95,26 @@ class TestGroupUtilizationView(WebTest):
         self.user_data_no_hours.save()
 
         self.new_rp = ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 9, 24),
-            end_date=datetime.date(2015, 9, 30)
+            start_date=datetime.date.today() - datetime.timedelta(days=14),
+            end_date=datetime.date.today() - datetime.timedelta(days=8)
         )
         ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 9, 17),
-            end_date=datetime.date(2015, 9, 23)
+            start_date=datetime.date.today() - datetime.timedelta(days=21),
+            end_date=datetime.date.today() - datetime.timedelta(days=15)
         )
         ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 9, 10),
-            end_date=datetime.date(2015, 9, 16)
+            start_date=datetime.date.today() - datetime.timedelta(days=28),
+            end_date=datetime.date.today() - datetime.timedelta(days=22)
         )
         ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 9, 3),
-            end_date=datetime.date(2015, 9, 9)
+            start_date=datetime.date.today() - datetime.timedelta(days=35),
+            end_date=datetime.date.today() - datetime.timedelta(days=29)
         )
+
+        # more than a year ago (outside of current fy)
         self.old_rp = ReportingPeriod.objects.create(
-            start_date=datetime.date(2015, 8, 27),
-            end_date=datetime.date(2015, 9, 2)
+            start_date=datetime.date.today() - datetime.timedelta(days=385),
+            end_date=datetime.date.today() - datetime.timedelta(days=379)
         )
 
         self.old_timecard = Timecard.objects.create(

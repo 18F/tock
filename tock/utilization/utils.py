@@ -35,7 +35,7 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, 
     if not fiscal_year:
         filter_ =  _limit_to_recent_periods(recent_periods)
     else:
-        filter_ = _limit_to_fy()
+        filter_ = limit_to_fy()
 
     if unit:
         filter_ = Q(filter_, Q(timecards__unit=unit))
@@ -72,7 +72,7 @@ def _limit_to_recent_periods(reporting_periods):
     """
     return Q(timecards__reporting_period__in=reporting_periods)
 
-def _limit_to_fy():
+def limit_to_fy():
     """
     Filter component to Limit timecard aggregation to the current fiscal year
     """

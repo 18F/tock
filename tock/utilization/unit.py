@@ -1,9 +1,8 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
-
+from django.db.models import Sum, Q
 from .utils import (_build_utilization_context, calculate_utilization,
-                    utilization_report)
+                    utilization_report, limit_to_fy)
 
 User = get_user_model()
 
@@ -12,7 +11,7 @@ def unit_billing_context(unit):
     """Build context dict for utilization by unit"""
 
     # all users that have ever created a timecard for this unit
-    users = User.objects.filter(timecards__unit=unit).distinct()
+    users = User.objects.filter(Q(timecards__unit=unit), limit_to_fy()).distinct()
 
     last_week = _get_unit_billing_data(users, unit)
     last_month = _get_unit_billing_data(users, unit, recent_periods=settings.RECENT_TIMECARDS_FOR_BILLABILITY)
@@ -20,13 +19,11 @@ def unit_billing_context(unit):
 
     context = _build_utilization_context(last_week, last_month, this_fy)
 
-    usernames_without_hours = [e.username for e in _employees_without_hours(users, last_week['data'] + last_month['data'] + this_fy['data'])]
-
     # Add individual staff data to context
     staff_data = {
-            'last_week_data': [data for data in last_week['data'] if data['username'] not in usernames_without_hours],
-            'last_month_data': [data for data in last_month['data'] if data['username'] not in usernames_without_hours],
-            'this_fy_data': [data for data in this_fy['data'] if data['username'] not in usernames_without_hours],
+            'last_week_data': last_week['data'],
+            'last_month_data': last_month['data'],
+            'this_fy_data': this_fy['data']
     }
     context.update(staff_data)
 
@@ -71,16 +68,3 @@ def _get_unit_billing_data(users, unit, recent_periods=None, fiscal_year=False):
         }
 
     return {'start_date': start, 'end_date': end, 'data': output_data, 'totals': totals}
-
-def _employee_has_no_hours(employee, billing_data):
-    """
-    The denominator field in the billing data represents the employee's target hours. If the target hours for an employee across all
-    of the billing data sums to zero, then they have not logged any hours applicable to utilization.
-    """
-    return sum(filter(None, [employee_data['denominator'] for employee_data in billing_data if employee_data['username'] == employee.username])) == 0
-
-def _employees_without_hours(employees, flattened_billing_data):
-    """
-    Return a list of all employees that have no logged hours for the provided billing data
-    """
-    return list(filter(lambda e: _employee_has_no_hours(e, flattened_billing_data), employees))
