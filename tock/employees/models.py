@@ -82,9 +82,10 @@ class UserData(models.Model):
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
-    billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
-                                             default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
-                                             help_text="Percentage of hours (expressed as a decimal) expected to be billable each week")
+    expected_billable_hours = models.IntegerField(validators=[MaxValueValidator(limit_value=settings.HOURS_IN_A_REGULAR_WORK_WEEK)],
+                                                default=settings.DEFAULT_EXPECTED_BILLABLE_HOURS,
+                                                help_text="Number of hours expected to be billable in a 40 hour work week")
+
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         on_delete=models.CASCADE,
@@ -129,6 +130,14 @@ class UserData(models.Model):
         than 0 hours in a regular work week
         """
         return self.billable_expectation > Decimal(0.0)
+
+    @cached_property
+    def billable_expectation(self):
+        """
+        Returns the employee's billable expectation, expressed as a percentage
+        of their hours worked
+        """
+        return round(Decimal(self.expected_billable_hours / settings.HOURS_IN_A_REGULAR_WORK_WEEK), 2)
 
     @property
     def organization_name(self):
