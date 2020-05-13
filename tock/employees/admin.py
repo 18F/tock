@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.contrib import admin
 from hours.admin import TimecardPrefillDataInline
 
@@ -7,8 +6,6 @@ from .models import EmployeeGrade, UserData
 
 
 class UserDataForm(forms.ModelForm):
-    billable_expectation = forms.DecimalField(initial=settings.DEFAULT_BILLABLE_EXPECTATION)
-
     class Meta:
         model = UserData
         exclude = []
@@ -52,7 +49,7 @@ class UserDataAdmin(admin.ModelAdmin):
         'start_date',
         'end_date',
         'get_organization_name',
-        'billable_expectation',
+        'expected_billable_hours',
         'unit_info',
         'current_employee',
         'is_billable',

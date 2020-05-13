@@ -3,6 +3,7 @@ import datetime
 from django.test import TestCase
 from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from rest_framework.authtoken.models import Token
 from organizations.models import Organization, Unit
@@ -230,3 +231,8 @@ class UserDataTests(TestCase):
         """True if org is named 18F"""
         # Org for `UserData` here defined in UserDataTests.setUp
         self.assertTrue(self.regular_user_userdata.is_18f_employee)
+
+    def test_billable_expectation(self):
+        self.regular_user_userdata.expected_billable_hours = 30
+        expected = 30 / settings.HOURS_IN_A_REGULAR_WORK_WEEK
+        self.assertEqual(self.regular_user_userdata.billable_expectation, expected)

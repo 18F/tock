@@ -1,1 +1,1 @@
-[{"model": "employees.userdata", "pk": 1, "fields": {"user": 1, "start_date": "2013-06-17", "end_date": "2015-05-29", "current_employee": true, "unit": null, "billable_expectation": 0.80}}]
+[{"model": "employees.userdata", "pk": 1, "fields": {"user": 1, "start_date": "2013-06-17", "end_date": "2015-05-29", "current_employee": true, "unit": null, "expected_billable_hours": 32}}]
