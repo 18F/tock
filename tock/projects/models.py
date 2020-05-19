@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 
 from organizations.models import Organization
 
@@ -270,7 +271,7 @@ class Project(models.Model):
     @property
     def organization_name(self):
         """
-        Returns the organization name associated with the employee or an
+        Returns the organization name associated with the project or an
         empty string if no organization is set.
         """
         if self.organization is not None:
@@ -278,6 +279,10 @@ class Project(models.Model):
 
         return ''
 
+    def clean(self):
+        if self.accounting_code.billable and self.organization is None:
+            raise ValidationError('You must specify an organization for billable projects.')
+        
     def save(self, *args, **kwargs):
         if self.notes_required:
             self.notes_displayed = True
