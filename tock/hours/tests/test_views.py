@@ -498,6 +498,73 @@ class ReportTests(WebTest):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_project_choice_filtering(self):
+        """Tests that the project choices are filtered to only include those
+        assigned to the user's organization and those with no organization assignment."""
+
+        # additional test setup
+        org_18f = Organization.objects.create(name='18F')
+        org_18f.save()
+
+        org_coe = Organization.objects.create(name='CoE')
+        org_coe.save()
+
+        accounting_code = projects.models.AccountingCode.objects.get(pk=1)
+
+        project_18f = projects.models.Project.objects.create(
+            name='an 18f project',
+            accounting_code=accounting_code,
+            organization=org_18f
+        )
+        project_18f.save()
+
+        project_coe = projects.models.Project.objects.create(
+            name='a coe project',
+            accounting_code=accounting_code,
+            organization=org_coe
+        )
+        project_coe.save()
+
+        project_none = projects.models.Project.objects.create(
+            name='a project with no org assignment',
+            accounting_code=accounting_code,
+        )
+        project_none.save()
+        
+        user_18f = get_user_model().objects.create(
+            username='18f-user'
+        )
+        user_18f.save()
+        UserData(
+            user=user_18f,
+            organization=org_18f
+        ).save()
+
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            user=user_18f,
+        )
+
+        project_18f_found = False
+        project_coe_found = False
+        project_none_found = False
+        str_formset = str(response.context['formset']).split('\n')
+        for line in str_formset:
+            if line.find(f'option value="{project_18f.id}"') > 0:
+                project_18f_found = True
+            if line.find(f'option value="{project_coe.id}"') > 0:
+                project_coe_found = True
+            if line.find(f'option value="{project_none.id}"') > 0:
+                project_none_found = True
+
+        self.assertTrue(project_18f_found)
+        self.assertFalse(project_coe_found)
+        self.assertTrue(project_none_found)
+
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is
         contained in the timecard formset."""
