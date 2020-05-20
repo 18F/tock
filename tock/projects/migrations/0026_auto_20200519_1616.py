@@ -19,11 +19,11 @@ def populate_project_organizations(apps, schema_editor):
 
     for org_name in org_project_mapping.keys():
         try:
-            org = Organization.objects.get(name=org_name)
+            org = Organization.objects.filter(name=org_name)[0]
 
             for project_name_start in org_project_mapping[org_name]:
                 Project.objects.filter(name__istartswith=project_name_start).update(organization=org)
-        except:
+        except IndexError:
             pass
 
 class Migration(migrations.Migration):
