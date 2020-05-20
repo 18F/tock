@@ -282,7 +282,7 @@ class Project(models.Model):
     def clean(self):
         if self.accounting_code.billable and self.organization is None:
             raise ValidationError('You must specify an organization for billable projects.')
-        
+
     def save(self, *args, **kwargs):
         if self.notes_required:
             self.notes_displayed = True

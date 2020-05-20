@@ -530,7 +530,7 @@ class ReportTests(WebTest):
             accounting_code=accounting_code,
         )
         project_none.save()
-        
+
         user_18f = get_user_model().objects.create(
             username='18f-user'
         )
