@@ -1,0 +1,43 @@
+// To mimic behavior of primary nav dropdown
+.usa-nav__secondary {
+  button,
+  a {
+    padding: 1rem;
+    display: inline-block;
+  }
+  
+  .usa-accordion__button {
+    background-color: transparent;
+    width: auto;
+    font-weight: normal; 
+    color: #71767a;
+    font-size: 0.88rem;
+    background-repeat: no-repeat;
+    background-size: 0.5rem;
+    background-position: right 1rem top 53%;
+    
+    &[aria-expanded="false"] {
+      background-image: url("../../vendor/uswds_v2.3.1/img/angle-arrow-down.svg"), linear-gradient(transparent, transparent);
+    }
+
+    &[aria-expanded="true"] {
+      background-image: url("../../vendor/uswds_v2.3.1/img/angle-arrow-up-white.svg"), linear-gradient(transparent, transparent);
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-font-smoothing: antialiased;
+      background-color: #162e51;
+      color: white;
+    }
+    
+    span {
+      padding-right: 1rem;
+    }
+  }
+  
+  .usa-nav__secondary-links .usa-nav__secondary-item {
+    padding-left: 0; // uswds override
+  }
+  
+  .usa-nav__submenu {
+    margin-top: -2px;
+  }
+}
