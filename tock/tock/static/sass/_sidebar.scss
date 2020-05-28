@@ -1,0 +1,13 @@
+@import "base/variables";
+
+.sidebar {
+  h3 {
+    border-top: 4px solid $theme-color-primary-darker;
+    padding-top: 1rem;
+  }
+  
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
+}

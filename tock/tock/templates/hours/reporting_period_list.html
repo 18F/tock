@@ -5,29 +5,39 @@
 
 {% block content %}
 
-<h1>Welcome to Tock!</h1>
+<div class="grid-row">
+  <div class="tablet:grid-col-9">
+    <h1>Tock your time</h1>
+    <p>For those about to Tock, we salute you. 🕔🤘🇺🇸</p>
 
-<div class="reporting-periods">
-    {% if messages %}
-        <div class="grid-container">
-        {% for message in messages %}
-            <div class="usa-alert usa-alert--{{ message.level_tag }}">
-              <div class="usa-alert__body">
-                <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
-                <p class="usa-alert__text">{{ message.message }}</p>
-              </div>
+    <div class="grid-row usa-section">
+        {% if messages %}
+            <div class="grid-container">
+            {% for message in messages %}
+                <div class="usa-alert usa-alert--{{ message.level_tag }}">
+                  <div class="usa-alert__body">
+                    <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
+                    <p class="usa-alert__text">{{ message.message }}</p>
+                  </div>
+                </div>
+            {% endfor %}
             </div>
+        {% endif %}
+      <div class="tablet:grid-col-6">
+        <h2>Due</h2>
+
+        <ul>
+        {% for reporting_period in uncompleted_reporting_periods %}
+            <li><a href="{% url 'reportingperiod:UpdateTimesheet' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
         {% endfor %}
-        </div>
-    {% endif %}
-
-	<h2>Reporting Periods You Need to Fill Out</h2>
-
-	<ul>
-	{% for reporting_period in uncompleted_reporting_periods %}
-	    <li><a href="{% url 'reportingperiod:UpdateTimesheet' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
-	{% endfor %}
-	</ul>
+        </ul>
+      </div>
+      <div class="tablet:grid-col-6">
+        <h2>Recent time</h2>
+      </div>
+    </div>
+  </div>
+  {% include "_sidebar.html" %}
 </div>
 
 {% endblock %}

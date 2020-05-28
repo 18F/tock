@@ -1,0 +1,43 @@
+// General
+// This corresponds to the variables set in: 
+// https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-general.scss
+
+$theme-image-path:         "../../vendor/uswds_v2.3.1/img";
+
+// Typographic
+// This corresponds to variables set in:
+// https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-typography.scss
+
+$theme-font-path:          "../../vendor/uswds_v2.3.1/fonts";
+$theme-font-type-sans:     "public-sans";
+
+// Spacing
+// This corresponds to variables set in:
+// https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-spacing.scss
+
+$theme-site-margins:       3rem;
+
+// Color
+// This corresponds to variables set in:
+// https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-color.scss
+
+// These are all default colors, but without declaring the hex codes here, the variables
+// just compile to things like `blue warm 80v` instead of their actual hex values.
+// Probably something wrong somewhere preventing the compilation of design tokens to their CSS values.
+
+// site-palette doesn't seem to be documented anywhere
+$site-palette: (
+  'blue-60v': #005ea2,
+  'blue-warm-80v': #162e51,
+);
+
+// neither does project color shortcodes
+// https://github.com/uswds/uswds/blob/develop/src/stylesheets/core/_functions.scss#L943
+$project-color-shortcodes: $site-palette;
+
+$theme-color-primary: 'blue-60v';
+$theme-color-primary-darker: 'blue-warm-80v';
+
+// Utilities
+// This corresponds to variables set in:
+// https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-utilities.scss

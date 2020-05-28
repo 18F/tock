@@ -12,10 +12,10 @@ h2 {
 }
 
 a {
-  color: $color-medium;
+  color: $theme-color-primary;
 
   &:hover {
-    color: $color-medium-hover;
+    color: $theme-color-primary-darker;
   }
 }
 
