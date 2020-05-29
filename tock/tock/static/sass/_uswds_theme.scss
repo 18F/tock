@@ -21,22 +21,10 @@ $theme-site-margins:       3rem;
 // This corresponds to variables set in:
 // https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-color.scss
 
-// These are all default colors, but without declaring the hex codes here, the variables
-// just compile to things like `blue warm 80v` instead of their actual hex values.
-// Probably something wrong somewhere preventing the compilation of design tokens to their CSS values.
-
-// site-palette doesn't seem to be documented anywhere
-$site-palette: (
-  'blue-60v': #005ea2,
-  'blue-warm-80v': #162e51,
-);
-
-// neither does project color shortcodes
-// https://github.com/uswds/uswds/blob/develop/src/stylesheets/core/_functions.scss#L943
-$project-color-shortcodes: $site-palette;
-
-$theme-color-primary: 'blue-60v';
-$theme-color-primary-darker: 'blue-warm-80v';
+$theme-color-primary: color('blue-60v');
+$theme-color-primary-dark: color('blue-warm-70v');
+$theme-color-primary-darker: color('blue-warm-80v');
+$theme-color-accent-cool-darker : color('blue-cool-60v');
 
 // Utilities
 // This corresponds to variables set in:
