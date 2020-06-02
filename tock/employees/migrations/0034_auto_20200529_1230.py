@@ -7,16 +7,18 @@ from django.core.exceptions import ObjectDoesNotExist
 def backfillorgs(apps, schema_editor):
     Employees = apps.get_model('employees','UserData')
 
-    for orgs in Employees.all():
-        try:
-            i = 1
-            org_data = Employees.objects.get(organization=null)
-            orgs.organization = org_data.organization
-            orgs.organization = i
-            orgs.save
-            i++
-        except ObjectDoesNotExist:
-            pass 
+    for employee in Employees.objects.filter(organization=None):
+        employee.organization = 1
+        employee.save()
+
+#        try:
+#            i = 1
+#            org_data = Employees.objects.get()
+#            orgs.organization = org_data.organization
+#            orgs.organization = i
+#            orgs.save
+#        except ObjectDoesNotExist:
+#            pass 
 
 class Migration(migrations.Migration):
 
