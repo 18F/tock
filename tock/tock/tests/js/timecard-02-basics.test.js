@@ -8,6 +8,10 @@ beforeAll(async () => {
   await page.keyboard.press('Enter');
   await page.waitForNavigation();
   await expect(page).toMatch('Welcome to Tock!');
+
+  // Lets see more in screenshots.
+  await page.setViewport({ width: 1920, height: 2160 });
+
 });
 
 afterAll(async () => {
@@ -27,8 +31,15 @@ describe('Timecard', () => {
   beforeEach(() => page.goto(`${baseUrl}/reporting_period/2015-03-30/`));
 
   test('add a 1 hour item to project 109', async () => {
+    await page.evaluate( () => { 
+      return clearLocalStorage();
+    });
+
+
     // FIXME MCJ 20200604
     // It would be nice if we were consistent with - and _ in naming.
+    await page.screenshot({"path" : "t1.png"});
+
     await page.select("#id_timecardobjects-0-project", "109");
     await page.click("#id_timecardobjects-0-hours_spent", {clickCount: 3})
     await page.type("#id_timecardobjects-0-hours_spent", "1");
@@ -47,24 +58,22 @@ describe('Timecard', () => {
 
   
   test('add two elements', async () => {
-/*
-    await page.screenshot({"path" : "t1.png"});
+    await page.evaluate( () => { 
+      return clearLocalStorage();
+    });
+    await page.screenshot({ path: "t1.png" });
     await page.select("#id_timecardobjects-0-project", "109");
     await page.click("#id_timecardobjects-0-hours_spent", {clickCount: 3})
     await page.type("#id_timecardobjects-0-hours_spent", "1");
-
-    await page.waitFor(1000);
     await page.screenshot({"path" : "t2.png"});
-
+    
     await page.click('.add-timecard-entry');
-    await page.waitFor(1000);
+    
     await page.screenshot({"path" : "t3.png"});
-*/
-    await page.click('.add-timecard-entry');
+
     await page.select("#id_timecardobjects-1-project", "29");
     await page.click("#id_timecardobjects-1-hours_spent", {clickCount: 3})
     await page.type("#id_timecardobjects-1-hours_spent", "8");
-    await page.click('.add-timecard-entry');
 
     // Next, mark the first entry for deletion.
     // await page.click("#id_timecardobjects-0-DELETE");
