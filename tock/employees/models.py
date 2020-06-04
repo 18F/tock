@@ -98,7 +98,7 @@ class UserData(models.Model):
         default=False,
         verbose_name='Is alternative work schedule eligible'
     )
-    organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, required=True, on_delete=models.CASCADE)
     unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.CASCADE,
         verbose_name="Business Unit",
         help_text="The business unit within the organization in which this person sits."
