@@ -137,10 +137,26 @@ class TestGroupUtilizationView(WebTest):
 
         self.old_timecard.save()
 
+    def test_unsubmitted_card(self):
+        """
+        If our timecard is unsubmitted, we should have empty data.
+        """
+        self.timecard.submitted = False
+        self.timecard.save()
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            user=self.user
+        )
+        self.assertTrue(
+            len(response.context['object_list'][0]['utilization']['last_week_data']) == 0
+        )
+    
     def test_summary_rows(self):
         """
         Row data w/ accurate total present in context
-        for user created in setup
+        for user created in setup.
+
+        We'll need to submit our previously created timecard first.
         """
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),

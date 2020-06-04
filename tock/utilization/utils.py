@@ -38,7 +38,7 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, 
         filter_ = limit_to_fy()
 
     if unit:
-        filter_ = Q(filter_, Q(timecards__unit=unit))
+        filter_ = Q(filter_, Q(timecards__submitted=True, timecards__unit=unit))
 
     # Using Coalesce to set a default value of 0 if no data is available
     billable = Coalesce(Sum('timecards__billable_hours', filter=filter_), 0)
@@ -67,10 +67,10 @@ def utilization_report(user_qs=None, recent_periods=1, fiscal_year=False, unit=N
 
 def _limit_to_recent_periods(reporting_periods):
     """
-    Filter component to restrict timecards to those associated with
-    the provided reporting_periods
+    Filter component to restrict timecards to only those that have been submitted
+    and within the provided reporting_periods.
     """
-    return Q(timecards__reporting_period__in=reporting_periods)
+    return Q(timecards__submitted=True, timecards__reporting_period__in=reporting_periods)
 
 def limit_to_fy():
     """
@@ -78,7 +78,7 @@ def limit_to_fy():
     """
     current_fy = ReportingPeriod().get_fiscal_year_from_date(datetime.date.today())
     fy_start_date = ReportingPeriod().get_fiscal_year_start_date(current_fy)
-    return Q(timecards__reporting_period__start_date__gte=fy_start_date)
+    return Q(timecards__submitted=True, timecards__reporting_period__start_date__gte=fy_start_date)
 
 def _get_reporting_periods(count):
     """
