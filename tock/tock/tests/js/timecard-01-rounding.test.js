@@ -2,10 +2,15 @@ const baseUrl = `http://localhost:${process.env.JEST_PORT}`;
 
 beforeAll(async () => {
   await page.goto(baseUrl);
-  await page.type('input[name="email"]','admin.user@gsa.gov');
+
+  await page.type('#email', 'admin.user@gsa.gov');
   await page.keyboard.press('Enter');
   await page.waitForNavigation();
   await expect(page).toMatch('Welcome to Tock!');
+});
+
+afterAll(async () => {
+  await page.goto(`${baseUrl}/logout`);
 });
 
 beforeEach(async () => page.goto(baseUrl));
