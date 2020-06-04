@@ -6,17 +6,17 @@ function clearLocalStorage() {
 }
 
 function getFormData() {
-  return $('.entry').map((i, entry) => {
-    const markedForDeletion = $('.entry-delete input', entry).prop('checked');
+  return document.querySelectorAll('.entry').map((i, entry) => {
+    const markedForDeletion = entry.querySelector('.entry-delete input').prop('checked');
 
     if (markedForDeletion) {
       return;
     }
 
-    const project = parseInt($('.entry-project select', entry).val(), 10) || null;
+    const project = parseInt(entry.querySelector('.entry-project select').val(), 10) || null;
     const isExcluded = project ? excludedFromBillability.includes(project) : null;
     const isBillable = project ? !isExcluded && !nonBillableProjects.includes(project) : null;
-    const hours = parseFloat($('.entry-amount input', entry).val()) || 0;
+    const hours = parseFloat(entry.querySelector('.entry-amount input').val()) || 0;
 
     return { project, isBillable, isExcluded, hours };
   }).toArray();

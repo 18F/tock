@@ -46,7 +46,6 @@ describe('Timecard', () => {
     // Add it, so it is part of the page.
     await page.click('.add-timecard-entry');
     // Now, call getFormData, and see if we get one element in the array.
-
     var resultArray = null;
     resultArray = await page.evaluate( () => { 
       return getFormData();
@@ -57,20 +56,5 @@ describe('Timecard', () => {
     expect(resultArray.map( (e) => { return e.project } )).toEqual(expect.arrayContaining([109]));
   });
 
-  /*
-  test('sums the hours in each project entry and correctly rounds!', async () => {
-    // https://github.com/18F/tock/issues/848
-    await page.type('#id_timecardobjects-0-hours_spent', '.2');
-    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.2' });
-
-    await page.click('.add-timecard-entry');
-    await page.type('#id_timecardobjects-1-hours_spent', '.2');
-    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.4'});
-
-    await page.click('.add-timecard-entry');
-    await page.type('#id_timecardobjects-2-hours_spent', '.2');
-    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.6'});
-  });
-  */
 });
 
