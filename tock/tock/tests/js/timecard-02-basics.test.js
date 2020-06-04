@@ -30,9 +30,9 @@ describe('Timecard', () => {
     // FIXME MCJ 20200604
     // It would be nice if we were consistent with - and _ in naming.
     await page.select("#id_timecardobjects-0-project", "109");
+    await page.click("#id_timecardobjects-0-hours_spent", {clickCount: 3})
     await page.type("#id_timecardobjects-0-hours_spent", "1");
-    await page.keyboard.press('Enter');
-    // Add it, so it is part of the page.
+    // Add a new entry, for the next action
     await page.click('.add-timecard-entry');
     // Now, call getFormData, and see if we get one element in the array.
     var resultArray = null;
@@ -45,21 +45,24 @@ describe('Timecard', () => {
     expect(resultArray.map( (e) => { return e.project } )).toEqual(expect.arrayContaining([109]));
   });
 
-  /*
+  
   test('add two elements', async () => {
+/*
+    await page.screenshot({"path" : "t1.png"});
     await page.select("#id_timecardobjects-0-project", "109");
-
     await page.click("#id_timecardobjects-0-hours_spent", {clickCount: 3})
-    await page.keyboard.press('Backspace')
-
     await page.type("#id_timecardobjects-0-hours_spent", "1");
-    await page.keyboard.press('Enter');
-    await page.click('.add-timecard-entry');
 
+    await page.waitFor(1000);
+    await page.screenshot({"path" : "t2.png"});
+
+    await page.click('.add-timecard-entry');
+    await page.waitFor(1000);
+    await page.screenshot({"path" : "t3.png"});
+*/
+    await page.click('.add-timecard-entry');
     await page.select("#id_timecardobjects-1-project", "29");
     await page.click("#id_timecardobjects-1-hours_spent", {clickCount: 3})
-    await page.keyboard.press('Backspace')
-
     await page.type("#id_timecardobjects-1-hours_spent", "8");
     await page.click('.add-timecard-entry');
 
@@ -75,6 +78,6 @@ describe('Timecard', () => {
     expect(resultArray.map( (e) => { return e.hours } )).toEqual(expect.arrayContaining([8, 1]));
     expect(resultArray.map( (e) => { return e.project } )).toEqual(expect.arrayContaining([29, 109]));
   });
-  */
+
 });
 
