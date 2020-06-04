@@ -150,7 +150,7 @@ class TestGroupUtilizationView(WebTest):
         self.assertTrue(
             len(response.context['object_list'][0]['utilization']['last_week_data']) == 0
         )
-    
+
     def test_summary_rows(self):
         """
         Row data w/ accurate total present in context
