@@ -1,5 +1,5 @@
--i https://pypi.python.org/simple
-beautifulsoup4==4.9.0
+-i https://pypi.python.org/simple/
+beautifulsoup4==4.9.1
 bleach==3.1.4
 certifi==2020.4.5.1
 cfenv==0.5.3
@@ -12,7 +12,7 @@ djangorestframework-csv==2.1.0
 djangorestframework==3.11.0
 furl==2.1.0
 gevent==1.4.0
-greenlet==0.4.15 ; platform_python_implementation == 'CPython'
+greenlet==0.4.16 ; platform_python_implementation == 'CPython'
 gunicorn==20.0.4
 idna==2.9
 markdown==3.2.1
@@ -20,15 +20,15 @@ newrelic==5.10.0.138
 orderedmultidict==1.0.1
 psycopg2-binary==2.8.5
 pyjwt==1.7.1
-pytz==2019.3
+pytz==2020.1
 requests==2.23.0
-six==1.14.0
-soupsieve==2.0
+six==1.15.0
+soupsieve==2.0.1
 sqlparse==0.3.1
 unicodecsv==0.14.1
-urllib3==1.25.8
-waitress==1.4.3
+urllib3==1.25.9
+waitress==1.4.4
 webencodings==0.5.1
 webob==1.8.6
-webtest==2.0.34
+webtest==2.0.35
 whitenoise==5.0.1
