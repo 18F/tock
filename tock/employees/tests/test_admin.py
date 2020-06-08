@@ -4,8 +4,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from employees.admin import UserDataForm
-from employees.admin import UserData
-from organizations.models import Organization, Unit
 from projects.models import ProfitLossAccount
 
 
@@ -29,7 +27,6 @@ class TestUserDataForm(TestCase):
             'user': User.objects.first().id,
             'start_date': datetime.date.today(),
             'end_date': '',
-            'organization': Organization.objects.first().id,
             'current_employee': '',
             'unit': '',
             'profit_loss_account': ProfitLossAccount.objects.first().id,
