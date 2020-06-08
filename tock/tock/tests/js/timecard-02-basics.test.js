@@ -11,7 +11,6 @@ beforeAll(async () => {
 
   // Lets see more in screenshots.
   await page.setViewport({ width: 1920, height: 2160 });
-
 });
 
 afterAll(async () => {
@@ -61,16 +60,16 @@ describe('Timecard', () => {
     await page.evaluate( () => { 
       return clearLocalStorage();
     });
-    await page.screenshot({ path: "t1.png" });
+    // These are the console.log() statements of the jest world...
+    // await page.screenshot({ path: "t1.png" });
     await page.select("#id_timecardobjects-0-project", "109");
     await page.click("#id_timecardobjects-0-hours_spent", {clickCount: 3})
     await page.type("#id_timecardobjects-0-hours_spent", "1");
-    await page.screenshot({"path" : "t2.png"});
+    // await page.screenshot({"path" : "t2.png"});
     
     await page.click('.add-timecard-entry');
     
-    await page.screenshot({"path" : "t3.png"});
-
+    // await page.screenshot({"path" : "t3.png"});
     await page.select("#id_timecardobjects-1-project", "29");
     await page.click("#id_timecardobjects-1-hours_spent", {clickCount: 3})
     await page.type("#id_timecardobjects-1-hours_spent", "8");
@@ -86,6 +85,36 @@ describe('Timecard', () => {
     // Expect at leaset one entry to have hours == 1
     expect(resultArray.map( (e) => { return e.hours } )).toEqual(expect.arrayContaining([8, 1]));
     expect(resultArray.map( (e) => { return e.project } )).toEqual(expect.arrayContaining([29, 109]));
+  });
+
+  test('add two elements, delete one', async () => {
+    await page.evaluate( () => { 
+      return clearLocalStorage();
+    });
+
+    await page.select("#id_timecardobjects-0-project", "109");
+    await page.click("#id_timecardobjects-0-hours_spent", {clickCount: 3})
+    await page.type("#id_timecardobjects-0-hours_spent", "1");
+    await page.click('.add-timecard-entry');
+    // / / / /
+    await page.select("#id_timecardobjects-1-project", "29");
+    await page.click("#id_timecardobjects-1-hours_spent", {clickCount: 3})
+    await page.type("#id_timecardobjects-1-hours_spent", "8");
+    await page.click('.add-timecard-entry');
+
+    // Next, mark the first entry for deletion.
+    await page.click('label[for="id_timecardobjects-0-DELETE"]');
+
+    var resultArray = null;
+    resultArray = await page.evaluate( () => { 
+      return getFormData();
+    });
+
+    expect(resultArray.map( (e) => { return e.hours } )).toEqual(expect.arrayContaining([8]));
+    expect(resultArray.map( (e) => { return e.project } )).toEqual(expect.arrayContaining([29]));
+    expect(resultArray.map( (e) => { return e.hours } )).toEqual(expect.not.arrayContaining([1]));
+    expect(resultArray.map( (e) => { return e.project } )).toEqual(expect.not.arrayContaining([109]));
+        
   });
 
 });

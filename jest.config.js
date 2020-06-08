@@ -6,4 +6,5 @@ module.exports = {
   notify: true,
   preset: 'jest-puppeteer',
   testMatch: ['**/*.test.js'],
+  testTimeout: 15000,
 };
