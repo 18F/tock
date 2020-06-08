@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from employees.admin import UserDataForm
+from organizations.models import Organization, Unit
 from projects.models import ProfitLossAccount
 
 
@@ -23,11 +24,13 @@ class TestUserDataForm(TestCase):
             as_end_date=datetime.date.today() + datetime.timedelta(days=20),
             account_type='Expense'
         )
+        print(Organization.objects.first)
         self.form_data = {
             'user': User.objects.first().id,
             'start_date': datetime.date.today(),
             'end_date': '',
             'current_employee': '',
+            'organization': Organization.objects.first().id,
             'unit': '',
             'profit_loss_account': ProfitLossAccount.objects.first().id,
             'expected_billable_hours': settings.DEFAULT_EXPECTED_BILLABLE_HOURS
