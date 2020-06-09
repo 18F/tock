@@ -168,17 +168,19 @@ describe('Timecard', () => {
       await page.click('.add-timecard-entry');  
     }
 
-    // objectId is a magic variable set in the Jinja template for 
-    // the timecard page. It should be in scope when the page.evaluate()
-    // is executed. ¯\_(ツ)_/¯
-    // I don't like it, but this is the joy of front-end testing.
     const result = await page.evaluate( () => {
+      // The localStorage is mutated by this function call.
       populateHourTotals();
+      // objectId is a magic variable set in the Jinja template for 
+      // the timecard page. It should be in scope when the page.evaluate()
+      // is executed. ¯\_(ツ)_/¯
+      // I don't like it, but this is the joy of front-end testing.
       hoursAsEntered = window.localStorage.getItem(`tock-entered-hours-${objectId}`);
       // hoursAsEntered should be a stringified array of objects, each object having a
       // 'project' and 'hours' field. So, exactly like what was added above.
       return JSON.parse(hoursAsEntered);
     });
+
     var hoursArray = result.map( e => { return e.hours });
     var projectArray = result.map ( e => { return e.project });
 
@@ -186,6 +188,11 @@ describe('Timecard', () => {
       expect(hoursArray).toEqual(expect.arrayContaining([obj.hours]));
       expect(projectArray).toEqual(expect.arrayContaining([obj.project]));
     }
+
+    // And, because the state was cleared at the top, it should be an array
+    // of length three, no more, no less.
+    expect(result.length).toBe(3);
+
   }); // end test
 
 });
