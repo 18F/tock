@@ -11,7 +11,8 @@ from projects.models import ProfitLossAccount
 class TestUserDataForm(TestCase):
     fixtures = [
         'employees/fixtures/user_data.json',
-        'tock/fixtures/prod_user.json'
+        'tock/fixtures/prod_user.json',
+        'organizations/fixtures/organizations.json'
     ]
 
     def setUp(self):
@@ -24,7 +25,7 @@ class TestUserDataForm(TestCase):
             as_end_date=datetime.date.today() + datetime.timedelta(days=20),
             account_type='Expense'
         )
-        print(Organization.objects.first)
+        # Organization.objects.create(name="18F")
         self.form_data = {
             'user': User.objects.first().id,
             'start_date': datetime.date.today(),
