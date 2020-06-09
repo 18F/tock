@@ -25,11 +25,7 @@ class TestUserDataForm(TestCase):
             as_end_date=datetime.date.today() + datetime.timedelta(days=20),
             account_type='Expense'
         )
-<<<<<<< HEAD
         # Organization.objects.create(name="18F")
-=======
-        Organization.objects.create(name="18F")
->>>>>>> origin/junefix
         self.form_data = {
             'user': User.objects.first().id,
             'start_date': datetime.date.today(),
