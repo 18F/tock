@@ -59,14 +59,12 @@ function populateHourTotals() {
   // Save hours to localStorage, if available
   if (window.localStorage) {
     var hoursAsEntered = [];
-    $('.entries .entry').each(function (i, entry) {
-      entry = $(entry);
-      var project = $('.entry-project select', entry).val();
-      var hours = $('.entry-amount input', entry).val();
-      if (project) {
-        hoursAsEntered.push({ project: project, hours: hours });
-      }
-    });
+    
+    var formData = getFormData();
+    for (obj in formData) {
+      hoursAsEntered.push({ project: obj.project, hours: obj.hours});
+    }
+    
     window.localStorage.setItem(`tock-entered-hours-${objectId}`, JSON.stringify(hoursAsEntered));
   }
 
