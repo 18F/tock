@@ -34,8 +34,6 @@ describe('Timecard', () => {
       return clearLocalStorage();
     });
 
-    await page.screenshot({'path' : 't1.png'});
-
     await page.select('#id_timecardobjects-0-project', '109');
     await page.click('#id_timecardobjects-0-hours_spent', {clickCount: 3})
     await page.type('#id_timecardobjects-0-hours_spent', '1');
