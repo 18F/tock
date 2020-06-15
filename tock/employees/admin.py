@@ -58,7 +58,7 @@ class UserDataAdmin(admin.ModelAdmin):
     list_filter = (
         'current_employee',
         'is_aws_eligible',
-        'organization__name',
+        'organization',
         'unit',
     )
     search_fields = ('user__username',)
@@ -78,6 +78,7 @@ class UserDataAdmin(admin.ModelAdmin):
 
         return '-'
     get_organization_name.short_description = 'Organization Name'
+    get_organization_name.admin_order_field = 'organization'
 
 
 class EmployeeGradeAdmin(admin.ModelAdmin):
