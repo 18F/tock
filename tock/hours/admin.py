@@ -85,6 +85,7 @@ class TimecardAdminForm(ModelForm):
 class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
     list_display = ('user', 'reporting_period', 'billable_expectation', 'organization', 'submitted')
+    list_editable = ('organization',)
     list_filter = (ReportingPeriodListFilter, 'reporting_period',)
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
     form = TimecardAdminForm
