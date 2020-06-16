@@ -4,36 +4,52 @@
 {% endblock %}
 
 {% block content %}
-
+{% if messages %}
+  <div class="grid-container">
+  {% for message in messages %}
+      <div class="usa-alert usa-alert--{{ message.level_tag }}">
+        <div class="usa-alert__body">
+          <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
+          <p class="usa-alert__text">{{ message.message }}</p>
+        </div>
+      </div>
+  {% endfor %}
+  </div>
+{% endif %}
 <div class="grid-row">
   <div class="tablet:grid-col-9">
     <h1>Tock your time</h1>
     <p>For those about to Tock, we salute you. 🕔🤘🇺🇸</p>
-
     <div class="grid-row usa-section">
-        {% if messages %}
-            <div class="grid-container">
-            {% for message in messages %}
-                <div class="usa-alert usa-alert--{{ message.level_tag }}">
-                  <div class="usa-alert__body">
-                    <h3 class="usa-alert__heading">{{ message.extra_tags }}</h3>
-                    <p class="usa-alert__text">{{ message.message }}</p>
-                  </div>
-                </div>
-            {% endfor %}
-            </div>
-        {% endif %}
       <div class="tablet:grid-col-6">
         <h2>Due</h2>
-
-        <ul>
+        <p><small>WEEKS ENDING:</small></p>
+        <ul class="reporting-period--list">
         {% for reporting_period in uncompleted_reporting_periods %}
-            <li><a href="{% url 'reportingperiod:UpdateTimesheet' reporting_period %}">{{ reporting_period.start_date | date:"F j, Y" }} to {{ reporting_period.end_date | date:"F j, Y" }}</a></li>
+            <li class="reporting-period--item {% if reporting_period.end_date < today %}overdue{% endif %}">
+              <a href="{% url 'reportingperiod:UpdateTimesheet' reporting_period %}">{{ reporting_period.end_date | date:"F j, Y" }}</a>
+            </li>
         {% endfor %}
         </ul>
       </div>
       <div class="tablet:grid-col-6">
         <h2>Recent time</h2>
+        <p><small>WEEKS ENDING:</small></p>
+        <ul class="reporting-period--list">
+        {% for reporting_period in completed_reporting_periods %}
+        <li class="reporting-period--item">
+          <a
+            href={% url "reports:ReportingPeriodUserDetailView" reporting_period=reporting_period.start_date username=user.username %}>
+            {{reporting_period.end_date}}
+          </a>
+        </li>
+        {% endfor %}
+        </ul>
+        {% if request.user.is_superuser or request.user.username == user.username %}
+          <a class="reporting-period--timecard-list" href="/employees/e/{{ user.username }}">Previous weeks »</a>
+        {% else %}
+          <a class="reporting-period--timecard-list" href="/employees/{{ user.username }}">Previous weeks »</a>
+        {% endif %}
       </div>
     </div>
   </div>

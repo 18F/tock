@@ -354,7 +354,7 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__submitted=True,
             timecard__user=self.request.user.id
-        ).distinct()[:5]
+        ).distinct()[:3]
 
         try:
             unstarted_reporting_periods = self.queryset.exclude(
@@ -373,7 +373,10 @@ class ReportingPeriodListView(PermissionMixin, ListView):
 
         context['uncompleted_reporting_periods'] = sorted(list(chain(
             unstarted_reporting_periods, unfinished_reporting_periods)),
-            key=attrgetter('start_date'))
+            key=attrgetter('start_date'), reverse=True)
+
+        context['today'] = dt.datetime.utcnow().date()
+
         return context
 
 

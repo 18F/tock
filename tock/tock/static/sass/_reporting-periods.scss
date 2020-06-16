@@ -1,0 +1,18 @@
+.reporting-period--list {
+  padding-left: 1rem;
+}
+
+.reporting-period--item {
+  // add clock LI element
+  &.overdue::before {
+    content: "Overdue: ";
+    width: 0;
+    height: 0;
+    font-weight: bold;
+    color: $theme-color-secondary-dark;
+  }
+}
+
+.reporting-period--timecard-list {
+  font-weight: bold;
+}

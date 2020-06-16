@@ -1,4 +1,3 @@
-@import "base/variables";
 @import "uswds";
 @import "uswds_theme";
 @import "base/base";
@@ -9,6 +8,7 @@
 @import "utils";
 @import "alert";
 @import "header";
+@import "reporting-periods";
 @import "sidebar";
 
 .usa-header--extended ul[aria-expanded="true"] {
@@ -102,7 +102,7 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
     }
 
     tr:nth-child(odd) td, tr:nth-child(odd) th {
-      background-color: $color-gray-lightest !important;
+      background-color: $theme-color-base-lightest !important;
     }
 
     caption { display: block; }
