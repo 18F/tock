@@ -88,12 +88,26 @@ that case, restart the `tock_app` container with a `docker-compose up` command.
 
 ### Testing locally
 
-The easiest, most reliable way to test locally is from within the docker container, 
+There are two sets of tests you can run: tests in Python (against the backend/django framework) and tests in Javascript (against the front-end). The front-end tests are written using Cypress, an automation framework that drives Chrome to carry out all of the interactions a person would.
+
+The easiest, most reliable way to test the backend locally is from within the docker container, 
 which lets you access `manage.py`:
 
 ```
 docker-compose run app bash
 python manage.py test
+```
+
+To run the front-end tests, launch the container, and then separately, launch the tests. In one terminal:
+
+```
+docker-compose up
+```
+
+and, in another:
+
+```
+npm test
 ```
 
 ### Making CSS changes

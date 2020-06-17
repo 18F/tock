@@ -6,20 +6,27 @@ function clearLocalStorage() {
 }
 
 function getFormData() {
-  return document.querySelectorAll('.entry').map((i, entry) => {
-    const markedForDeletion = entry.querySelector('.entry-delete input').prop('checked');
+  var ls = document.querySelectorAll('.entry');
+  console.log("ls: ", ls);
+
+  return Array.from(ls).map( (entry) => {
+    console.log("entry: ", entry);
+    var entry_delete = entry.querySelector('.entry-delete input');
+    console.log(entry_delete);
+    var markedForDeletion = entry_delete.checked;
 
     if (markedForDeletion) {
       return;
     }
+    var project_select = entry.querySelector('.entry-project select');
+    var project = parseInt(project_select.val, 10) || null;
 
-    const project = parseInt(entry.querySelector('.entry-project select').val(), 10) || null;
     const isExcluded = project ? excludedFromBillability.includes(project) : null;
     const isBillable = project ? !isExcluded && !nonBillableProjects.includes(project) : null;
-    const hours = parseFloat(entry.querySelector('.entry-amount input').val()) || 0;
+    const hours = parseFloat(entry.querySelector('.entry-amount input').val) || 0;
 
     return { project, isBillable, isExcluded, hours };
-  }).toArray();
+  });
 }
 
 function roundToNearestHalf(number) {
@@ -100,12 +107,56 @@ function populateHourTotals() {
   }
 }
 
+function getParents(elem) {
+	// Set up a parent array
+	var parents = [];
+	// Push each parent element to the array
+	for ( ; elem && elem !== document; elem = elem.parentNode ) {
+		parents.push(elem);
+	}
+	// Return our parent array
+	return parents;
+};
+
+function getParentsBySelector(elem, selector) {
+	// Element.matches() polyfill
+	if (!Element.prototype.matches) {
+		Element.prototype.matches =
+			Element.prototype.matchesSelector ||
+			Element.prototype.mozMatchesSelector ||
+			Element.prototype.msMatchesSelector ||
+			Element.prototype.oMatchesSelector ||
+			Element.prototype.webkitMatchesSelector ||
+			function(s) {
+				var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+					i = matches.length;
+				while (--i >= 0 && matches.item(i) !== this) {}
+				return i > -1;
+			};
+	}
+	// Set up a parent array
+	var parents = [];
+	// Push each parent element to the array
+	for ( ; elem && elem !== document; elem = elem.parentNode ) {
+		if (selector) {
+			if (elem.matches(selector)) {
+				parents.push(elem);
+			}
+			continue;
+		}
+		parents.push(elem);
+	}
+	// Return our parent array
+	return parents;
+};
+
 function toggleNotesField(selectBox) {
-  var $fieldset = $(selectBox).parents('.entry-project'),
-    $selected = $(selectBox).find(':selected'),
-    $notes = $fieldset.find('.entry-note-field'),
-    notesDisplayed = $selected.data('notes-displayed'),
-    notesRequired = $selected.data('notes-required');
+  var $fieldset = $(selectBox).parents('.entry-project');
+  //var $fieldset = getParents(selectBox, '.entry-project');
+  var $selected = $(selectBox).find(':selected');
+  var $notes = $fieldset.find('.entry-note-field');
+  var notesDisplayed = $selected.data('notes-displayed');
+  var notesRequired = $selected.data('notes-required');
 
   if (notesRequired || notesDisplayed) {
     $notes.toggleClass('entry-hidden', false);
@@ -305,6 +356,10 @@ $(document).ready(function () {
   $('.entry-project select')
     .chosen(chosenOptions)
     .on('change', function (e) {
+      console.log("ENTRY PROJECT");
+      console.log("e ", e);
+      console.log("this ", this);
+      
       toggleNotesField(this);
       displayAlerts(this);
     });
