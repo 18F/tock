@@ -236,7 +236,7 @@ class Timecard(models.Model):
     modified = models.DateTimeField(auto_now=True)
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                             default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
-                                            verbose_name="Percentage of hours which are expected to be billable this week")
+                                            verbose_name="Percentage hours billable per week")
 
     organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.CASCADE)
     unit = models.ForeignKey(Unit, null=True, blank=True, on_delete=models.CASCADE)
