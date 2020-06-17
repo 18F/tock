@@ -4,13 +4,15 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from employees.admin import UserDataForm
+from organizations.models import Organization
 from projects.models import ProfitLossAccount
 
 
 class TestUserDataForm(TestCase):
     fixtures = [
         'employees/fixtures/user_data.json',
-        'tock/fixtures/prod_user.json'
+        'tock/fixtures/prod_user.json',
+        'organizations/fixtures/organizations.json'
     ]
 
     def setUp(self):
@@ -28,6 +30,7 @@ class TestUserDataForm(TestCase):
             'start_date': datetime.date.today(),
             'end_date': '',
             'current_employee': '',
+            'organization': Organization.objects.first().id,
             'unit': '',
             'profit_loss_account': ProfitLossAccount.objects.first().id,
             'expected_billable_hours': settings.DEFAULT_EXPECTED_BILLABLE_HOURS

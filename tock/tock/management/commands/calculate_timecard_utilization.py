@@ -15,4 +15,4 @@ class Command(BaseCommand):
         for timecard in Timecard.objects.filter(submitted=True):
             timecard.save()
 
-        self.stdout.write(self.style.SUCCESS(f'Successfully updated all timecards!'))
+        self.stdout.write(self.style.SUCCESS('Successfully updated all timecards!'))
