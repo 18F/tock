@@ -100,7 +100,7 @@ def _add_recent_tock_table(user, context):
     for the last `settings.RECENT_TOCKS_TO_REPORT` time periods
     """
     prefetch = Prefetch('timecardobjects', queryset=TimecardObject.objects.all().select_related('project'))
-    recent_tocks = user.timecards.select_related('reporting_period')\
+    recent_tocks = user.timecards.filter(submitted=True).select_related('reporting_period')\
                                  .order_by('-reporting_period__start_date')\
                                  .prefetch_related(prefetch)[:settings.RECENT_TOCKS_TO_REPORT]
     recent_tocks = list(reversed(recent_tocks))

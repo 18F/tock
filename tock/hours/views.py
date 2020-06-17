@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.exceptions import (ObjectDoesNotExist, PermissionDenied,
                                     ValidationError)
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -482,7 +482,8 @@ class TimecardView(PermissionMixin, UpdateView):
         # TODO: This is inefficient because we're writing over the
         # already-generated choices. Ideally we should be passing these
         # into the formset constructor.
-        choices = projects_as_choices(reporting_period.get_projects())
+        projects = reporting_period.get_projects().filter(Q(organization=self.request.user.user_data.organization) | Q(organization=None))
+        choices = projects_as_choices(projects)
 
         for form in formset.forms:
             form.fields['project'].choices = choices
