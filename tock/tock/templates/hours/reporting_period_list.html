@@ -26,7 +26,8 @@
         <p><small>WEEKS ENDING:</small></p>
         <ul class="reporting-period--list">
         {% for reporting_period in uncompleted_reporting_periods %}
-            <li class="reporting-period--item {% if reporting_period.end_date < today %}overdue{% endif %}">
+            <li class="reporting-period--item{% if reporting_period.end_date < today %} overdue{% endif %}">
+              {% if reporting_period.end_date < today %}<span>Overdue: </span>{% endif %}
               <a href="{% url 'reportingperiod:UpdateTimesheet' reporting_period %}">{{ reporting_period.end_date | date:"F j, Y" }}</a>
             </li>
         {% endfor %}
@@ -37,7 +38,7 @@
         <p><small>WEEKS ENDING:</small></p>
         <ul class="reporting-period--list">
         {% for reporting_period in completed_reporting_periods %}
-        <li class="reporting-period--item">
+        <li class="reporting-period--item completed">
           <a
             href={% url "reports:ReportingPeriodUserDetailView" reporting_period=reporting_period.start_date username=user.username %}>
             {{reporting_period.end_date}}

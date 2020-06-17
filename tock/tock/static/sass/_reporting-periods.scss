@@ -1,15 +1,34 @@
 .reporting-period--list {
+  list-style: none;
   padding-left: 1rem;
 }
 
 .reporting-period--item {
-  // add clock LI element
-  &.overdue::before {
-    content: "Overdue: ";
-    width: 0;
-    height: 0;
-    font-weight: bold;
-    color: $theme-color-secondary-dark;
+  display: flex;
+  align-items: center;
+  &:before {
+    background-image: url('/static/img/clock.svg');
+    background-repeat: no-repeat;
+    margin-left: -1rem;
+    padding-right: 2rem;
+    height: 21px;
+    width: 21px;
+    content: '';
+  }
+  &.overdue {
+    &::before {
+      background-image: url('/static/img/clock-overdue.svg');
+      margin-left: -1.2rem; // to align the clocks themselves, adjusting for the ! icon on the overdue clock
+    }
+    span {
+      font-weight: bold;
+      color: $theme-color-secondary-dark;
+      margin-right: 0.5rem;
+    }
+  }
+  &.completed::before {
+    background-image: url('/static/img/clock-completed.svg');
+      margin-left: -1.2rem; // for consistency with the overdue clock
   }
 }
 
