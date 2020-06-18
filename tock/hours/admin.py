@@ -24,6 +24,22 @@ class ReportingPeriodListFilter(admin.SimpleListFilter):
         return queryset
 
 
+class EmployeeListFilter(admin.SimpleListFilter):
+    parameter_name = 'user'
+    title = 'Employee'
+
+    def __getitem__(self,index):
+        return self.UserData.userId[index]
+
+    def lookups(self, request, model_admin):
+        data = UserData.objects.distinct().values_list('user')
+
+        return [(users[0], users[0]) for users in data]
+
+    def queryset(self, request, queryset):
+        return queryset
+
+
 class TimecardObjectFormset(BaseInlineFormSet):
     def clean(self):
         """
@@ -86,7 +102,7 @@ class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
     list_display = ('user', 'reporting_period', 'billable_expectation', 'organization', 'submitted')
     list_editable = ('organization', 'billable_expectation')
-    list_filter = (ReportingPeriodListFilter, 'reporting_period',)
+    list_filter = (ReportingPeriodListFilter, 'reporting_period', EmployeeListFilter, 'user')
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
     form = TimecardAdminForm
 
