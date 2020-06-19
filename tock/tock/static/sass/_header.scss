@@ -51,7 +51,7 @@
   .usa-nav__secondary-item {
     border-top: 1px solid #dcdee0;
     padding: 0.5rem 1rem;
-    color: #565c65;
+    color: $theme-color-base-dark;
     font-size: 1.06rem;
     &:hover {
       background-color: $theme-color-base-lightest;
