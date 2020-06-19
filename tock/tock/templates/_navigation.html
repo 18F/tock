@@ -10,12 +10,12 @@
       </li>
       <li class="usa-nav__primary-item">
         <a class="usa-nav__link" href="{{ x_tock_change_request_form_url }}" target="_blank">
-          <span class="usa-link--external">Request changes to your time</span>
+          <span class="usa-link--external">Request changes</span>
         </a>
       </li>
       <li class="usa-nav__primary-item">
         <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="reports-nav">
-          <span>Review summaries</span>
+          <span>View reports</span>
         </button>
         <ul id="reports-nav" class="usa-nav__submenu" aria-expanded="true">
           <li class="usa-nav__submenu-item">
@@ -30,12 +30,12 @@
       </li>
       <li class="usa-nav__primary-item">
         <a href="{% url 'ProjectListView' %}" class="usa-nav__link">
-          <span>View all projects</span>
+          <span>View projects</span>
         </a>
       </li>
       <li class="usa-nav__primary-item">
         <a href="{% url 'employees:UserListView' %}" class="usa-nav__link">
-          <span>View all users</span>
+          <span>View users</span>
         </a>
       </li>
 
@@ -51,7 +51,7 @@
         <ul id="admin-nav" class="usa-nav__submenu" aria-expanded="true">
           {% if request.user.is_staff %}
           <li class="usa-nav__submenu-item">
-            <a href="/admin">Tock Admin</a>
+            <a href="/admin">Tock admin</a>
           </li>
           <li class="usa-nav__submenu-item">
             <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
