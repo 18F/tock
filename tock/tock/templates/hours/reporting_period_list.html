@@ -19,11 +19,11 @@
 <div class="grid-row">
   <div class="tablet:grid-col-9">
     <h1>Tock your time</h1>
-    <p>For those about to Tock, we salute you. 🕔🤘🇺🇸</p>
+    <p class="intro-text">For those about to Tock, we salute you. 🕔🤘🇺🇸</p>
     <div class="grid-row usa-section">
       <div class="tablet:grid-col-6">
         <h2>Due</h2>
-        <p><small>WEEKS ENDING:</small></p>
+        <p class="list--label"><small>Weeks ending:</small></p>
         <ul class="reporting-period--list">
         {% for reporting_period in uncompleted_reporting_periods %}
             <li class="reporting-period--item{% if reporting_period.end_date < today %} overdue{% endif %}">
@@ -35,7 +35,7 @@
       </div>
       <div class="tablet:grid-col-6">
         <h2>Recent time</h2>
-        <p><small>WEEKS ENDING:</small></p>
+        <p class="list--label"><small>Weeks ending:</small></p>
         <ul class="reporting-period--list">
         {% for reporting_period in completed_reporting_periods %}
         <li class="reporting-period--item completed">

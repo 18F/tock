@@ -24,3 +24,7 @@ hr {
   border: 0;
   height: 1px;
 }
+
+.intro-text {
+  @include u-font-size('body', 'md');
+}
