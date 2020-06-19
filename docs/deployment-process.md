@@ -145,7 +145,7 @@ to supply the `NEW_RELIC_LICENSE_KEY` as part of each deployment's
 ### Staging server
 
 The staging server updates automatically when changes are merged into the
-`master` branch. Check out the `workflows` sections of
+`main` branch. Check out the `workflows` sections of
 the [CircleCI config](../.circleci/config.yml) for details and settings.
 
 Should you need to, you can push directly to tock.app.cloud.gov with the following:
@@ -158,7 +158,7 @@ cf zero-downtime-push tock-staging -f manifest-staging.yml
 ### Production servers
 
 Production deploys are also automated. They rely on the creation of a Git tag to
-be made against the `master` branch following the [_Automated Releases to
+be made against the `main` branch following the [_Automated Releases to
 Production_](#automated-releases-to-production) workflow.
 
 In some cases, you may need to make a manual deployment to production. If this is the case, please make

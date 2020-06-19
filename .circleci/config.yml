@@ -142,13 +142,13 @@ workflows:
       - build:
           filters:
             branches:
-              only: master
+              only: main
       - deploy_to_staging:
           requires:
             - build
           filters:
             branches:
-              only: master
+              only: main
   build_and_deploy_production:
     jobs:
       - build:
@@ -173,4 +173,4 @@ workflows:
           cron: "0 10 * * *" # Roughly 5am ET
           filters:
             branches:
-              only: master
+              only: main
