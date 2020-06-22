@@ -10,7 +10,6 @@
           <span>Projects</span>
         </a>
       </li>
-      {% if request.user.is_staff %}
       <li class="usa-nav__primary-item">
         <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="reports-nav">
           <span>Reports</span>
@@ -26,7 +25,6 @@
           </li>
         </ul>
       </li>
-      {% endif %}
       <li class="usa-nav__primary-item">
         <a href="{% url 'employees:UserListView' %}" class="usa-nav__link">
           <span>Users</span>
