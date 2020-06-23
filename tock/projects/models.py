@@ -247,6 +247,11 @@ class Project(models.Model):
         default=False,
         help_text='Check if this project should be excluded from calculations of billable hours, e.g. Out of Office'
     )
+    include_in_utilization = models.BooleanField(
+            # default=exclude_from_billability
+            help_text="For handling microrequests, per github.com/18F/tock/issues/1084"
+    )
+    
     objects = ProjectManager()
 
     class Meta:
