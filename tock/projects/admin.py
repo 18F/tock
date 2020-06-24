@@ -114,7 +114,8 @@ class ProjectAdmin(admin.ModelAdmin):
         'active',
         'notes_displayed',
         'notes_required',
-        'organization__name'
+        'organization__name',
+        'include_in_utilization'
     )
     list_editable = (
         'organization',
