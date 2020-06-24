@@ -251,7 +251,7 @@ class Project(models.Model):
             default=False,
             help_text="For handling microrequests, per github.com/18F/tock/issues/1084"
     )
-    
+
     objects = ProjectManager()
 
     class Meta:
