@@ -96,6 +96,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'alerts',
         'notes_required',
         'notes_displayed',
+        'include_in_utilization',
     ]
     list_display = (
         'id',
