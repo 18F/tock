@@ -110,6 +110,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'active',
         'notes_displayed',
         'notes_required',
+        'include_in_utilization',
     )
     list_filter = (
         'active',
@@ -120,6 +121,7 @@ class ProjectAdmin(admin.ModelAdmin):
     )
     list_editable = (
         'organization',
+        'include_in_utilization',
     )
     search_fields = ('name', 'accounting_code__code', 'mbnumber',)
 
