@@ -61,6 +61,7 @@ class AdminTests(TestCase):
             'notes_displayed':'',
             'alerts': '',
             'agreement_URL': '',
+            'include_in_utilization': '',
             'profit_loss_account': ProfitLossAccount.objects.first().id,
             'project_lead': User.objects.first().id
         }
