@@ -7,25 +7,25 @@ function clearLocalStorage() {
 
 function getFormData() {
   var ls = document.querySelectorAll('.entry');
-  console.log("ls: ", ls);
 
   return Array.from(ls).map( (entry) => {
-    console.log("entry: ", entry);
     var entry_delete = entry.querySelector('.entry-delete input');
-    console.log(entry_delete);
     var markedForDeletion = entry_delete.checked;
 
     if (markedForDeletion) {
       return;
     }
+
     var project_select = entry.querySelector('.entry-project select');
-    var project = parseInt(project_select.val, 10) || null;
+    var project = parseInt(project_select.value, 10) || null;
 
     const isExcluded = project ? excludedFromBillability.includes(project) : null;
     const isBillable = project ? !isExcluded && !nonBillableProjects.includes(project) : null;
-    const hours = parseFloat(entry.querySelector('.entry-amount input').val) || 0;
-
-    return { project, isBillable, isExcluded, hours };
+    
+    const selector = '.entry-amount input';
+    const hours = parseFloat(entry.querySelector(selector).value) || 0;
+    const objToReturn = { project, isBillable, isExcluded, hours };
+    return objToReturn;
   });
 }
 
@@ -68,42 +68,47 @@ function populateHourTotals() {
     var hoursAsEntered = [];
     
     var formData = getFormData();
-    for (obj in formData) {
+
+    for (obj of formData) {
       hoursAsEntered.push({ project: obj.project, hours: obj.hours});
     }
-    
+
     window.localStorage.setItem(`tock-entered-hours-${objectId}`, JSON.stringify(hoursAsEntered));
   }
 
   // Populate The Bottom Addon Items with Totals
   const totals = getHoursReport();
-  const totalElement = $('.entries-total-reported-amount');
-  const billableElement = $('.entries-total-billable-amount');
+  const totalElement = document.querySelector('.entries-total-reported-amount');
+  const billableElement = document.querySelector('.entries-total-billable-amount');
 
-  $('.fill', totalElement).attr('stroke-dasharray', `${totals.totalHours / totalHoursTarget} 1`)
-  $('.fill', billableElement).attr('stroke-dasharray', `${totals.billableHours / totals.billableHoursTarget} 1`)
+  totalElement.querySelector('.fill').setAttribute('stroke-dasharray', `${totals.totalHours / totalHoursTarget} 1`);
+  billableElement.querySelector('.fill').setAttribute('stroke-dasharray', `${totals.billableHours / totals.billableHoursTarget} 1`);
 
-  $('.number-label', totalElement).html(totals.totalHours);
-  $('.number-label', billableElement).html(totals.billableHours);
+  totalElement.querySelector('.number-label').innerHTML = totals.totalHours;
+  billableElement.querySelector('.number-label').innerHTML = totals.billableHours;
 
   if (totals.totalHours === 0) {
-    totalElement.removeClass('valid invalid');
+    totalElement.classList.remove('valid', 'invalid');
   }
   else if (totals.totalHours === totalHoursTarget) {
-    totalElement.addClass('valid').removeClass('invalid');
+    totalElement.classList.add('valid');
+    totalElement.classList.remove('invalid');
   }
   else {
-    totalElement.addClass('invalid').removeClass('valid');
+    totalElement.classList.add('invalid');
+    totalElement.classList.remove('valid');
   }
 
   if (totals.billableHours === 0) {
-    billableElement.removeClass('valid invalid');
+    billableElement.classList.remove('valid', 'invalid');
   }
   else if (totals.billableHours >= totals.billableHoursTarget && totals.totalHours <= totalHoursTarget) {
-    billableElement.addClass('valid').removeClass('invalid');
+    billableElement.classList.add('valid');
+    billableElement.classList.remove('invalid');
   }
   else {
-    billableElement.addClass('invalid').removeClass('valid');
+    billableElement.classList.add('invalid');
+    billableElement.classList.remove('valid');
   }
 }
 
