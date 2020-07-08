@@ -182,22 +182,26 @@ function populateHourTotals() {
 
 
 function toggleNotesField(selectBox) {
-  // var $fieldset = $(selectBox).parents('.entry-project');
-  // The fieldset is the complete "box" around a timecard entry.
+  // elements is the complete "box" around a timecard entry. It is a 
+  // list of elements, starting from the selectBox, walking all the way 
+  // up the DOM tree.
   // The zeroth element that comes back should be the select box. 
   const elements = getParents(selectBox, ".entry-project");
   const selectedElement = elements[0];
+  
   // To find out if the notes are required to be shown, we need to get the 
   // selected element, then extract data that the backend left hidden for us.
-  // This gives me the index into the select.
+  // I start by grabbing the selected element's index, then grabbing the option element.
   const selected = selectedElement.selectedIndex;
   const opt = selectedElement.options[selectedElement.selectedIndex];
+
   // .text is the full text of the entry
   // .value is the numeric value of the entry (e.g. project number)
   // .attributes is a NamedNodeMap. I want data-notes-required and data-notes-displayed.
   const attributes = opt.attributes;
 
-  // We want to work back up the parent chain to the object with an 'entry' class.
+  // Now, walking that array until we find the entry element, which
+  // we find by looking for the "entry" class.
   var entry = null;
   for (e of elements) {
     if (e.classList.contains("entry")) {
