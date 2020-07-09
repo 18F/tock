@@ -114,7 +114,7 @@ REST_FRAMEWORK = {
 try:
     VERSION = (Path(BASE_DIR) / '..' / 'VERSION').read_text().strip()
 except IOError:
-    VERSION = 'master'
+    VERSION = 'main'
 
 UAA_APPROVED_DOMAINS = {
     'gsa.gov',
