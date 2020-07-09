@@ -32,15 +32,7 @@ function getFormData() {
   var ls = document.querySelectorAll(".entry");
 
   return Array.from(ls).map((entry) => {
-    var entry_delete = entry.querySelector(".entry-delete input");
-    // FIXME
-    // var markedForDeletion = entry_delete.checked;
-    var markedForDeletion = false;
-
-    if (markedForDeletion) {
-      return;
-    }
-
+    const entry_delete = entry.querySelector(".entry-delete input");
     const project_select = entry.querySelector(".entry-project select");
     const project = parseInt(project_select.value, 10) || null;
     const isExcluded = project
@@ -121,17 +113,6 @@ function getHoursReport() {
 }
 
 function populateHourTotals() {
-  // // Save hours to localStorage, if available
-  // if (window.localStorage) {
-  // const formData = getFormData();
-  // var hoursAsEntered = [];
-  // for (obj of formData) {
-  //   hoursAsEntered.push({ project: obj.project, hours: obj.hours });
-  // }
-
-  //   window.localStorage.setItem(`tock-entered-hours-${objectId}`, JSON.stringify(hoursAsEntered));
-  // }
-
   // Populate The Bottom Addon Items with Totals
   const totals = getHoursReport();
   const totalElement = document.querySelector(".entries-total-reported-amount");
@@ -180,7 +161,13 @@ function populateHourTotals() {
   }
 }
 
-
+// CONTRACT
+// toggleNotesField :: select element -> void
+// PURPOSE
+// This function walks the timecard elements and makes sure
+// the notes field is present for all projects that require notes.
+// This information is stored in data- attributes in the <option> elements
+// of the <select> element.
 function toggleNotesField(selectBox) {
   // elements is the complete "box" around a timecard entry. It is a 
   // list of elements, starting from the selectBox, walking all the way 
@@ -209,13 +196,16 @@ function toggleNotesField(selectBox) {
       break;
     }
   }
-
+  // This is the actual notes element that we will want to hide or show.
   var notesElement = entry.querySelector(".entry-note-field");
   
-  // This comes in as a textual string. I need a boolean.
+  // Find out whether or not this is an entry that must be shown.
+  // The data elements are strings, so those must be compared to strings and thus
+  // be converted to booleans.
   var notesRequired  = (attributes["data-notes-required"].nodeValue === "true");
   var notesDisplayed = (attributes["data-notes-displayed"].nodeValue === "true");
 
+  // Toggle the hidden class on the notes elements.
   if (notesRequired || notesDisplayed) {
     notesElement.classList.remove("entry-hidden");
   } else {
@@ -256,156 +246,77 @@ function displayAlerts(selectBox) {
   }
 }
 
-// function addTockLines(tockLines) {
-//   // Pop off the top of the array
-//   var line = tockLines.shift();
-
-//   if (line) {
-//     if (!line.project) {
-//       addTockLines(tockLines);
-//       return;
-//     }
-
-//     // If the last entry box isn't empty, add a new one
-//     if ($("div.entry:last .entry-project select").val() !== "") {
-//       $(".add-timecard-entry").click();
-//     }
-
-//     // Wait a tick so the DOM can be updated, in case a new
-//     // line item entry had to be created
-//     setTimeout(function () {
-//       // Set the project and trigger a GUI update
-//       $("div.entry:last .entry-project select").val(line.project);
-//       $("div.entry:last .entry-project select").trigger("chosen:updated");
-
-//       // Set the hours and trigger a data update
-//       $("div.entry:last .entry-amount input").val(line.hours);
-//       $("div.entry:last .entry-amount input").change();
-
-//       // Go again with the remaining tock lines
-//       addTockLines(tockLines);
-//     }, 20);
-//   } else {
-//     // If we're finished processing the list of tock lines,
-//     // trigger a change event to update the hours total and
-//     // re-sync any local storage.
-//     $("div.entry:last select").change();
-//   }
-// }
-
-// CONTRACT
-// removeEntry :: string -> none
-// PURPOSE
-// Takes the ID of an entry formset, removes it, and
-// updates the hour totals afterwards.
-function removeEntry(elementId) {
-  // Removes an element from the document
-  var element = document.getElementById(elementId);
-  element.parentNode.removeChild(element);
-  populateHourTotals();
-}
-
-
 function addTockEntry(_) {
   console.log("BUTTON TO ADD PRESSED");
   var entries = document.querySelectorAll("div.entry");
   console.log("Number of entries: " + entries.length);
+  var newEntry = entries[0].cloneNode(true);
 
-  var lastEntry = entries[entries.length - 1];
-  entry = lastEntry.cloneNode(true);
-  
-  // FIXME 
-  // I have no idea why this mattered in the original at this point.
-  // Oh. This removes the chosen.js bullshit.
-  // entry.find('.chosen-container').remove();
-  _e = entry.querySelector(".chosen-container");
-  _e.parentNode.removeChild(_e);
-
-  // entry.find('.entry-alerts').empty();
   // FIXME
+  // Clean up the chosen.js bits. This will go away.
+  _e = newEntry.querySelector(".chosen-container");
+  _e.parentNode.removeChild(_e);
+  newEntry.querySelector(".entry-note-field").classList.add("entry-hidden");
 
-  // entry.find('.entry-note-field').toggleClass('entry-hidden', true);
-  entry.querySelector(".entry-note-field").classList.add("entry-hidden");
-
-  _e = entry.querySelector(".entry-note-field .invalid");
+  // Remove any invalid flags.
+  _e = newEntry.querySelector(".entry-note-field .invalid");
   if (_e) {
     _e.parentNode.removeChild(_e);
   }
 
-  // entry.find('select').show();
-  entry.querySelector("select").style.display = "";
+  // Make it visible.
+  newEntry.querySelector("select").style.display = "";
 
-  // entry.find('input, select, textarea').val('');
-  fields = entry.querySelectorAll("input, select, textarea");
+  // Empty the inputs.
+  fields = newEntry.querySelectorAll("input, select, textarea");
   for (f of fields) {
     f.value = "";
   }
-
-  // entry.find(':checkbox').prop('checked', false);
-  // box = entry.querySelector('input[type="checkbox"]');
-  // box.checked = false;
-
   // Remove any existing values
-  entry.value = "";
+  newEntry.value = "";
 
-  var previousNumber = parseInt(entry.getAttribute("id").split("-")[1]);
+  // Set the id for this entry. Make sure we get a new number.
+  var previousNumber = parseInt(newEntry.getAttribute("id").split("-")[1]);
   var nextNumber = entries.length + 1;
+  var newId = "entry-" + nextNumber;
+  newEntry.setAttribute("id", newId);
 
-  entry.setAttribute("id", "entry-" + nextNumber);
+  // Update the delete button.
+  var button = newEntry.querySelector("#delete-entry-0");
+  button.setAttribute("id", `delete-entry-${nextNumber}`);
+  button.setAttribute("onclick", `removeEntry('${newId}');`);
+  button.setAttribute("title", `Delete Item ${nextNumber}`);
 
-  if (nextNumber % 2 == 0) {
-    entry.classList.add("even");
-    entry.classList.remove("odd");
-  } else {
-    entry.classList.add("odd");
-    entry.classList.remove("even");
-  }
+  // Fix all the numbering on the fields.
+  newEntry.querySelectorAll('input, select, textarea, label').forEach(function (el, i, arr) {
+    var formItem = el;
 
-  if (nextNumber % 2 == 0) {
-    entry.classList.add("even");
-    entry.classList.remove("odd");
-  } else {
-    entry.classList.add("odd");
-    entry.classList.remove("even");
-  }
+    if (formItem.tagName.toLowerCase() !== 'label') {
+      var formerID = formItem.getAttribute('id');
+      var nextID = formerID.replace(previousNumber, nextNumber);
+      formItem.setAttribute('id', nextID);
 
-  // entry.find('input, select, textarea, label').each(function (i) {
-  //   var formItem = $(this);
+      var formerName = formItem.getAttribute('name');
+      var nextName = formerName.replace(previousNumber, nextNumber);
+      formItem.setAttribute('name', nextName);
+    } else {
+      var formerFor = formItem.getAttribute('for');
+      var nextFor = formerFor.replace(previousNumber, nextNumber);
+      formItem.setAttribute('for', nextFor);
+    }
+  });
 
-  //   if (formItem[0].tagName.toLowerCase() !== 'label') {
-  //     var formerID = formItem.attr('id');
-  //     var nextID = formerID.replace(previousNumber, nextNumber);
-  //     formItem.attr('id', nextID);
-
-  //     var formerName = formItem.attr('name');
-  //     var nextName = formerName.replace(previousNumber, nextNumber);
-  //     formItem.attr('name', nextName);
-  //   } else {
-  //     var formerFor = formItem.attr('for');
-  //     var nextFor = formerFor.replace(previousNumber, nextNumber);
-  //     formItem.attr('for', nextFor);
-  //   }
-  // });
-
-  // FIXME
-  // Append the entry to the .entries.
-
-  // ).appendTo('.entries');
-
-  lastEntry.after(entry);
-
-  $("div.entry:last")
-    .find(".entry-project select")
-    .chosen(chosenOptions)
-    .on("change", function (e) {
-      toggleNotesField(this);
-      displayAlerts(this);
-    });
+  // Append the new, improved blank entry.
+  document.querySelector(".entries").appendChild(newEntry);
 
   // Increment the TOTAL_FORMS
-  $("#id_timecardobjects-TOTAL_FORMS").val(
-    parseInt($("#id_timecardobjects-TOTAL_FORMS").val()) + 1
-  );
+  // FIXME
+  // Why do we have this piece of global state running around? 
+  // Should this just be calculated at the point that it is needed?
+  // For example, it should be set at form submission, not calculated dynamically.
+  // I'm not making this change now, because I'm not sure of the implications (yet).
+  const tf = parseInt(document.querySelector("#id_timecardobjects-TOTAL_FORMS").value);
+  document.querySelector("#id_timecardobjects-TOTAL_FORMS").value = tf + 1;
 }
 
 //////////////////////////////////////////////////////////////
@@ -520,6 +431,29 @@ $(document).ready(function () {
 // HELPERS
 // Utility functions.
 
+
+// CONTRACT
+// removeEntry :: string -> none
+// PURPOSE
+// Takes the ID of an entry formset, removes it, and
+// updates the hour totals afterwards.
+function removeEntry(elementId) {
+  // Removes an element from the document
+  var element = document.querySelector("#" + elementId);
+  element.parentNode.removeChild(element);
+  populateHourTotals();
+  // Decrement the TOTAL_FORMS
+  const tf = parseInt(document.querySelector("#id_timecardobjects-TOTAL_FORMS").value);
+  document.querySelector("#id_timecardobjects-TOTAL_FORMS").value = tf - 1;
+  
+}
+
+
+// CONTRACT
+// getParents :: element -> (array-of elements)
+// PURPOSE
+// Given an element, walk the DOM upwards until we hit 
+// the top, returning everything found in an array.
 function getParents(elem) {
   // Set up a parent array
   var parents = [];
@@ -531,6 +465,11 @@ function getParents(elem) {
   return parents;
 }
 
+// CONTRACT
+// getParentsBySelector :: element string -> (array-of elements)
+// PURPOSE
+// Walks the tree upwards, keeping those parent elements that 
+// match the given selector.
 function getParentsBySelector(elem, selector) {
   // Element.matches() polyfill
   if (!Element.prototype.matches) {
