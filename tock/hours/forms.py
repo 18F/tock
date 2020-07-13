@@ -36,7 +36,8 @@ class TimecardForm(forms.ModelForm):
 
     class Meta:
         model = Timecard
-        exclude = ['time_spent', 'reporting_period', 'user', 'billable_expectation']
+        exclude = ['time_spent', 'reporting_period', 'user',
+                   'billable_expectation', 'unit', 'organization']
 
 
 class SelectWithData(forms.widgets.Select):
