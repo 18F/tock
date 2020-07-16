@@ -2,6 +2,13 @@
 
 from django.db import migrations, models
 
+def make_default_utilization(apps, schema_editor):
+    Projects = apps.get_model('projects','Project')
+
+    for project in Projects.objects.all():
+        project.include_in_utilization = project.is_billable
+        project.save()
+
 
 class Migration(migrations.Migration):
 
@@ -15,4 +22,5 @@ class Migration(migrations.Migration):
             name='include_in_utilization',
             field=models.BooleanField(default=False, help_text='For handling microrequests, per github.com/18F/tock/issues/1084'),
         ),
+    migrations.RunPython(make_default_utilization) 
     ]
