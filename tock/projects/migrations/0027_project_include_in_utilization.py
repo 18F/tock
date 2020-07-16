@@ -22,5 +22,5 @@ class Migration(migrations.Migration):
             name='include_in_utilization',
             field=models.BooleanField(default=False, help_text='For handling microrequests, per github.com/18F/tock/issues/1084'),
         ),
-    migrations.RunPython(make_default_utilization) 
+    migrations.RunPython(make_default_utilization)
     ]
