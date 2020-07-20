@@ -1,25 +1,22 @@
-import datetime
 import csv
-
+import datetime
 from decimal import Decimal
-
-from django.contrib.auth import get_user_model
-from django.test import TestCase, RequestFactory, override_settings
-from django.urls import reverse
-from django.conf import settings
-
-from django_webtest import WebTest
-
-from api.tests import client
-from api.views import UserDataSerializer, ProjectSerializer
-from employees.models import UserData
-from organizations.models import Organization, Unit
-from hours.utils import number_of_hours
-from hours.forms import choice_label_for_project
-from hours.views import GeneralSnippetsTimecardSerializer, ReportsList
 
 import hours.models
 import projects.models
+from api.tests import client
+from api.views import ProjectSerializer, UserDataSerializer
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.test import RequestFactory, TestCase, override_settings
+from django.urls import reverse
+from django_webtest import WebTest
+from employees.models import UserData
+from hours.forms import choice_label_for_project
+from hours.utils import number_of_hours
+from hours.views import (GeneralSnippetsTimecardSerializer, ReportsList,
+                         TimecardView)
+from organizations.models import Organization, Unit
 
 User = get_user_model()
 
@@ -1167,3 +1164,41 @@ class PrefillDataViewTests(WebTest):
         # Check that our existing information is what we expect it to be.
         self.assertEqual(form.initial['project'], tco.project.id)
         self.assertEqual(form.initial['hours_spent'], tco.hours_spent)
+
+class TimecardViewTests(TestCase):
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'employees/fixtures/user_data.json',
+        'organizations/fixtures/units.json',
+        'organizations/fixtures/organizations.json',
+    ]
+
+    def setUp(self):
+        self.view = TimecardView()
+        self.reporting_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(1999, 12, 31),
+            end_date=datetime.date(2000, 1, 1)
+        )
+
+        self.factory = RequestFactory()
+        self.user = User.objects.first()
+        self.org = Organization.objects.first()
+        self.unit = Unit.objects.first()
+
+        user_data = self.user.user_data
+        user_data.organization = self.org
+        user_data.unit = self.unit
+        user_data.save()
+
+        self.kwargs = {'reporting_period': "1999-12-31"}
+        self.url = reverse('reportingperiod:UpdateTimesheet', kwargs=self.kwargs)
+
+    def test_org_and_unit_set_for_new_timecards(self):
+        """Timecard org and unit set to user's on creation"""
+        request = self.factory.get(self.url)
+        request.user = self.user
+        self.view.setup(request, reporting_period="1999-12-31")
+        created_timecard =  self.view.get_object()
+
+        self.assertEquals(self.org, created_timecard.organization)
+        self.assertEquals(self.unit, created_timecard.unit)

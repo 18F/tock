@@ -5,25 +5,25 @@ To fetch information about a specific project.
 * **URL**
 
   /projects/[integer].json
-  
-  *[integer] is the project's `id` or `pk` value. To get a list of these values, see [/projects.json documentation](https://github.com/18F/tock/blob/master/api-docs/projects.md).*
+
+  *[integer] is the project's `id` or `pk` value. To get a list of these values, see [/projects.json documentation](https://github.com/18F/tock/blob/main/api-docs/projects.md).*
 
 * **Method:**
 
   `GET`
-  
+
 *  **URL params**
 
    **Required:**
    None.
-   
+
    **Optional:**
    None.
 
 * **Success response:**
 
   * **Code:** `200` <br />
-    **Content:** 
+    **Content:**
 ```
 {
     "id": 1,
@@ -36,7 +36,7 @@ To fetch information about a specific project.
     "active": false
 },...
 ```
- 
+
 * **Error response:**
 
   * **Code:** `401 UNAUTHORIZED` <br />
@@ -49,4 +49,4 @@ $ curl https://tock.18f.gov/api/projects/100.json -H 'Authorization: Token rando
 ```
 
 * **Notes:** None.
- 
+

@@ -108,9 +108,9 @@ Some Data URLs:
 ## Tock Log Auditing
 
 To ensure that we are secure and that we are fulfilling our compliance duties, we
-do continuous monitoring of the events coming from the tock system.  
+do continuous monitoring of the events coming from the tock system.
 
-If you 
+If you
 are an admin who has been assigned this responsibility, you should have at least
 one issue open in the [Tock Issues Page](https://github.com/18F/tock/issues/)
 that is assigned to you.  The issues are titled something like
@@ -146,7 +146,7 @@ of events for the last week that you can review for signs of unusual activity.  
   users doing these activities, or unusual amounts of these events, you might need to
   verify that the users and activities are authorized.
 - **Deploy Logs:**  Unusually timed deployments should be investigated.  You should be
-  able to correlate deployment events with [CircleCI deploys](https://circleci.com/gh/18F/workflows/tock/tree/master).
+  able to correlate deployment events with [CircleCI deploys](https://circleci.com/gh/18F/workflows/tock/tree/main).
   If not, then somebody might be trying to push code out outside of the process.
 
 You should scan over the events netted by this search, using the criteria given above.

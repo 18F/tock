@@ -24,6 +24,7 @@ class ReportingPeriodListFilter(admin.SimpleListFilter):
         return queryset
 
 
+
 class TimecardObjectFormset(BaseInlineFormSet):
     def clean(self):
         """
@@ -86,7 +87,7 @@ class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
     list_display = ('user', 'reporting_period', 'billable_expectation', 'organization', 'submitted')
     list_editable = ('organization', 'billable_expectation')
-    list_filter = (ReportingPeriodListFilter, 'reporting_period',)
+    list_filter = ( 'user', ReportingPeriodListFilter, 'reporting_period')
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
     form = TimecardAdminForm
 
