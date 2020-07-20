@@ -2,10 +2,10 @@ const baseUrl = `http://localhost:${process.env.JEST_PORT}`;
 
 beforeAll(async () => {
   await page.goto(baseUrl);
-  await page.type('input[name="email"]','admin.user@gsa.gov');
+  await page.type('input[name="email"]', 'admin.user@gsa.gov');
   await page.keyboard.press('Enter');
   await page.waitForNavigation();
-  await expect(page).toMatch('Welcome to Tock!');
+  await expect(page).toMatch('Tock your time');
 });
 
 beforeEach(async () => page.goto(baseUrl));
@@ -13,7 +13,7 @@ beforeEach(async () => page.goto(baseUrl));
 describe('Login', () => {
   test('should have path of "/" after login', async () => {
     await expect(page.url()).toEqual(baseUrl + '/');
-    await expect(page).toMatch('Welcome to Tock!');
+    await expect(page).toMatch('Tock your time');
   });
 });
 
@@ -35,10 +35,10 @@ describe('Timecard', () => {
 
     await page.click('.add-timecard-entry');
     await page.type('#id_timecardobjects-1-hours_spent', '.2');
-    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.4'});
+    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.4' });
 
     await page.click('.add-timecard-entry');
     await page.type('#id_timecardobjects-2-hours_spent', '.2');
-    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.6'});
+    await expect(page).toMatchElement('.entries-total-reported-amount', { text: '0.6' });
   });
 });
