@@ -1,5 +1,7 @@
-@import "base/variables";
+$theme-image-path:         "../../vendor/uswds_v2.3.1/img";
+$theme-font-path:          "../../vendor/uswds_v2.3.1/fonts";
 @import "uswds";
+@import "uswds_theme";
 @import "base/base";
 
 @import "banner";
@@ -7,14 +9,14 @@
 @import "entries";
 @import "utils";
 @import "alert";
-
-.tock-header {
-  background-color: $color-primary-alt-light;
-}
+@import "header";
+@import "reporting-periods";
+@import "sidebar";
 
 .usa-header--extended ul[aria-expanded="true"] {
   position: absolute; // for some reason, USWDS 2.x overrides this to set position as relative, which breaks nav
 }
+
 
 // backwards compat with USWDS 1.x
 li {
@@ -65,7 +67,7 @@ html .chosen-container-single {
 
     div b {
       width: 13px;
-      background: url(../../vendor/uswds_v2.3.1/img/angle-arrow-down-primary.svg) no-repeat 0 1.1rem;
+      background: url("#{$theme-image-path}/angle-arrow-down-primary.svg") no-repeat 0 1.1rem;
       background-size: 100%;
     }
   }
@@ -73,7 +75,7 @@ html .chosen-container-single {
 html .chosen-container-active.chosen-with-drop .chosen-single {
   background: #fff;
   div b {
-    background: url(../../vendor/uswds_v2.3.1/img/angle-arrow-up-primary.svg) no-repeat 0 1.1rem;
+    background: url("#{$theme-image-path}/angle-arrow-up-primary.svg") no-repeat 0 1.1rem;
   }
 }
 
@@ -103,7 +105,7 @@ html .chosen-container-active.chosen-with-drop .chosen-single {
     }
 
     tr:nth-child(odd) td, tr:nth-child(odd) th {
-      background-color: $color-gray-lightest !important;
+      background-color: $theme-color-base-lightest !important;
     }
 
     caption { display: block; }
