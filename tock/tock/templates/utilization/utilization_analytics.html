@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block navigation %}
+  {% include "_navigation.html" %}
+{% endblock %}
+
+{% block content %}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+  <h2>Analytics</h2>
+
+  {{plot|safe}}
+
+{% endblock %}
