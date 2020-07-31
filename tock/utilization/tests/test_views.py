@@ -217,3 +217,15 @@ class TestGroupUtilizationView(WebTest):
         )
 
         self.assertEqual(response.status_code, 200)
+
+
+class TestAnalyticsView(TestGroupUtilizationView):
+
+    def test_analytics_view(self):
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView'),
+            user=self.user
+        )
+
+        self.assertEqual(response.status_code, 200)
