@@ -105,8 +105,10 @@ def _utilization_data(start_date, end_date):
                                     reporting_period__end_date__lte=end_date,
         )
         .values("reporting_period__start_date")
-        .annotate(billable=Sum("timecardobjects__hours_spent", filter=billable_filter))
-        .annotate(nonbillable=Sum("timecardobjects__hours_spent", filter=~billable_filter))
+        .annotate(billable=Sum("timecardobjects__hours_spent",
+            filter=billable_filter))  # TODO: could be replaced with Sum("billable_hours") after #986 is done
+        .annotate(nonbillable=Sum("timecardobjects__hours_spent",
+            filter=~billable_filter))  # TODO: could be replaced with Sum("non_billable_hours") after #986 is done
         .order_by("reporting_period__start_date")
     )
     dates = [item["reporting_period__start_date"] for item in data]
@@ -122,18 +124,6 @@ def utilization_plot(start_date, end_date):
 
 class UtilizationAnalyticsView(PermissionMixin, TemplateView):
     template_name = 'utilization/utilization_analytics.html'
-
-    def dispatch(self, *args, **kwargs):
-        """
-        Resolve recent reporting periods.
-
-        Although recent_rps is set to the last four reporting periods,
-        we could accept a form response that allows the user or app to
-        dynamically customize number of periods to include in the queryset.
-        """
-        if not self.request.user.is_authenticated:
-            return self.handle_no_permission()
-        return super().dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UtilizationAnalyticsView, self).get_context_data(**kwargs)
