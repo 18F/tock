@@ -2,7 +2,7 @@ from datetime import date
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.db.models import Q, Sum
+from django.db.models import Sum
 from django.views.generic import ListView, TemplateView
 from hours.models import ReportingPeriod
 from organizations.models import Unit
@@ -70,17 +70,17 @@ def _plot_utilization(dates, billable, nonbillable):
         x=dates,
         y=billable,
         line_shape="hv",
-        mode="lines+markers",
+        mode="lines",
         stackgroup="one",
-        name="billable",
+        name="Billable",
     ))
     fig.add_trace(go.Scatter(
         x=dates,
         y=nonbillable,
         line_shape="hv",
-        mode="lines+markers",
+        mode="lines",
         stackgroup="one",
-        name="nonbillable",
+        name="Non-Billable",
     ))
 
     fig.update_layout(
@@ -100,15 +100,13 @@ def _plot_utilization(dates, billable, nonbillable):
 
 def _utilization_data(start_date, end_date):
     Timecard = apps.get_model("hours", "Timecard")
-    billable_filter = Q(timecardobjects__project__accounting_code__billable=True)
     data = (Timecard.objects.filter(reporting_period__start_date__gte=start_date,
                                     reporting_period__end_date__lte=end_date,
+                                    submitted=True,
         )
         .values("reporting_period__start_date")
-        .annotate(billable=Sum("timecardobjects__hours_spent",
-            filter=billable_filter))  # TODO: could be replaced with Sum("billable_hours") after #986 is done
-        .annotate(nonbillable=Sum("timecardobjects__hours_spent",
-            filter=~billable_filter))  # TODO: could be replaced with Sum("non_billable_hours") after #986 is done
+        .annotate(billable=Sum("billable_hours"),
+                  nonbillable=Sum("non_billable_hours"))
         .order_by("reporting_period__start_date")
     )
     dates = [item["reporting_period__start_date"] for item in data]
