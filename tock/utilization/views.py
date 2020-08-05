@@ -1,18 +1,17 @@
 from datetime import date
 
-from django.apps import apps
 from django.contrib.auth import get_user_model
-from django.db.models import Sum
 from django.views.generic import ListView, TemplateView
 from hours.models import ReportingPeriod
 from organizations.models import Unit
 from tock.utils import PermissionMixin
 
-import plotly.graph_objects as go
-from plotly.offline import plot
-
 from .org import org_billing_context
 from .unit import unit_billing_context
+from .analytics import (
+    utilization_data,
+    utilization_plot,
+)
 
 User = get_user_model()
 
@@ -59,78 +58,24 @@ class GroupUtilizationView(PermissionMixin, ListView):
         return context
 
 
-def _plot_utilization(dates, billable, nonbillable):
-    """Make a stacked area plot of billable and nonbillable hours.
-
-    dates, billable, and nonbillable should be sequences with the same length
-    """
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(
-        x=dates,
-        y=billable,
-        line_shape="hv",
-        mode="lines",
-        stackgroup="one",
-        name="Billable",
-    ))
-    fig.add_trace(go.Scatter(
-        x=dates,
-        y=nonbillable,
-        line_shape="hv",
-        mode="lines",
-        stackgroup="one",
-        name="Non-Billable",
-    ))
-
-    fig.update_layout(
-        # autosize=False,
-        # width=900,
-        # height=500,
-        xaxis=dict(autorange=True),
-        yaxis=dict(autorange=True),
-        xaxis_title="Reporting Period Start Date",
-        yaxis_title="Hours",
-        title="Total Hours recorded vs. Time",
-    )
-
-    plot_div = plot(fig, output_type='div', include_plotlyjs=False)
-    return plot_div
-
-
-def _utilization_data(start_date, end_date):
-    Timecard = apps.get_model("hours", "Timecard")
-    data = (Timecard.objects.filter(reporting_period__start_date__gte=start_date,
-                                    reporting_period__end_date__lte=end_date,
-                                    submitted=True,
-        )
-        .values("reporting_period__start_date")
-        .annotate(billable=Sum("billable_hours"),
-                  nonbillable=Sum("non_billable_hours"))
-        .order_by("reporting_period__start_date")
-    )
-    dates = [item["reporting_period__start_date"] for item in data]
-    billable_hours = [item["billable"] for item in data]
-    nonbillable_hours = [item["nonbillable"] for item in data]
-    return dates, billable_hours, nonbillable_hours
-
-
-def utilization_plot(start_date, end_date):
-    """Fetch data and make a plot for total utilization."""
-    return _plot_utilization(*_utilization_data(start_date, end_date))
-
-
 class UtilizationAnalyticsView(PermissionMixin, TemplateView):
-    template_name = 'utilization/utilization_analytics.html'
+    template_name = "utilization/utilization_analytics.html"
 
     def get_context_data(self, **kwargs):
         context = super(UtilizationAnalyticsView, self).get_context_data(**kwargs)
 
         # use a date before Tock as the default start_date
-        start_date = self.request.GET.get("start", "2000-01-01")
+        start_date = self.request.GET.get("start", "2014-01-01")
         end_date = self.request.GET.get("end", date.today().isoformat())
+        context.update({"start_date": start_date, "end_date": end_date})
 
-        # add the plot div to the context
-        context.update({"plot": utilization_plot(start_date, end_date)})
+        # add the utilization plot to the context
+        utilization_data_frame = utilization_data(start_date, end_date)
+        context.update(
+            {
+                "utilization_data": utilization_data_frame.set_index("start_date"),
+                "utilization_plot": utilization_plot(utilization_data_frame),
+            }
+        )
 
         return context
