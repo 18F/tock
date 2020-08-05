@@ -18,6 +18,7 @@ cg-django-uaa = "*"
 "psycopg2-binary" = "*"
 markdown = "*"
 django-webtest = "~=1.9"
+plotly = "*"
 
 [dev-packages]
 bandit = "*"
