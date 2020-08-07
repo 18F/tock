@@ -18,7 +18,7 @@ def frame_table(frame, name_hint):
             </h2>
             <div id="{generated_id}" class="usa-accordion__content">
             <button
-                class="usa-button usa-button--base float-right margin-bottom-1" 
+                class="usa-button usa-button--base float-right margin-bottom-1"
                 onclick="download_table_as_csv('{generated_id}', '{name_hint}')"
             >Export CSV</button>
         """ + frame.to_html(
@@ -26,7 +26,7 @@ def frame_table(frame, name_hint):
             classes="usa-table",
             table_id=generated_id,
             na_rep=''
-        ) + f"""
+        ) + """
           </div>
         </div>
         """
