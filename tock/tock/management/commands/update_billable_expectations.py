@@ -11,7 +11,7 @@ from hours.models import ReportingPeriod, Timecard
 
 @transaction.atomic
 class Command(BaseCommand):
-    help = 'Load CSV file of (username, target_hours, from_date) to bulk update timecard billing expectation values'
+    help = 'Load CSV file of (username, target_hours, from_date) to bulk update timecard, and if desired UserData, billing expectation values'
 
     def add_arguments(self, parser):
         parser.add_argument('csv_path', nargs='+', type=str)
