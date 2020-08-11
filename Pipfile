@@ -19,6 +19,7 @@ cg-django-uaa = "*"
 markdown = "*"
 django-webtest = "~=1.9"
 plotly = "*"
+pandas = "*"
 
 [dev-packages]
 bandit = "*"
