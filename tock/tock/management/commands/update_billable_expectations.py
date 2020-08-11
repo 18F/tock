@@ -24,9 +24,15 @@ class Command(BaseCommand):
         return 0
 
     def _update_timecard(self, timecard, expectation):
-        """Update billable expectation from provided target hours and save"""
+        """Update Timecard billable expectation w/ provided target hours and save"""
         timecard.billable_expectation = expectation
         timecard.save()
+
+    def _update_userdata(self, username, target):
+        """Update UserData billable expectation w/ provided target hours and save"""
+        userdata = UserData.objects.get(user__username=username)
+        userdata.billable_expectation = target
+        userdata.save()
 
     @transaction.atomic
     def handle(self, *args, **options):
@@ -52,9 +58,7 @@ class Command(BaseCommand):
                         [self._update_timecard(timecard, target_billable_expectation) for timecard in timecards]
 
                         if update_user_data:
-                            userdata = UserData.objects.get(user__username=username)
-                            userdata.billable_expectation = target_billable_expectation
-                            userdata.save()
+                            self._update_userdata(username, target_billable_expectation)
                             self.stdout.write(f'Updated UserData.billable_expectation for {username} to target hours {target}')
 
             except FileNotFoundError:
