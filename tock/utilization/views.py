@@ -9,6 +9,9 @@ from tock.utils import PermissionMixin
 from .org import org_billing_context
 from .unit import unit_billing_context
 from .analytics import (
+    compute_utilization,
+    headcount_data,
+    headcount_plot,
     utilization_data,
     utilization_plot,
 )
@@ -71,10 +74,26 @@ class UtilizationAnalyticsView(PermissionMixin, TemplateView):
 
         # add the utilization plot to the context
         utilization_data_frame = utilization_data(start_date, end_date)
+        utilization_data_frame["utilization_rate"] = (
+            100 * compute_utilization(utilization_data_frame)
+        ).map("{:,.1f}%".format)
         context.update(
             {
                 "utilization_data": utilization_data_frame.set_index("start_date"),
                 "utilization_plot": utilization_plot(utilization_data_frame),
+            }
+        )
+
+        # add the headcount plot to the context
+        headcount_data_frame = headcount_data(start_date, end_date)
+        context.update(
+            {
+                "headcount_data": headcount_data_frame.pivot(
+                    index="start_date", values="headcount", columns="organization"
+                )
+                .applymap("{:.0f}".format)
+                .replace("nan", ""),
+                "headcount_plot": headcount_plot(headcount_data_frame),
             }
         )
 
