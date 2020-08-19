@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.db.models import Count, F, Sum
+from django.db.models import Count, F, Q, Sum
 
 import pandas as pd
 
@@ -14,6 +14,17 @@ def compute_utilization(data_frame):
     return data_frame["billable"].astype(float) / (
         data_frame["non_billable"] + data_frame["billable"]
     ).astype(float)
+
+
+def _get_org_query(org_id):
+    Organization = apps.get_model("organizations", "Organization")
+    # short circuit this one first
+    if org_id is None:
+        return Q(user__user_data__organization__id__isnull=True)
+    if org_id > 0:
+        return Q(user__user_data__organization__id=org_id)
+    # org_id = 0 gives all results
+    return Q()
 
 
 def utilization_plot(data_frame):
@@ -94,17 +105,22 @@ def utilization_plot(data_frame):
     return plot_div
 
 
-def utilization_data(start_date, end_date):
+def utilization_data(start_date, end_date, org_id):
     """Get a data frame of utilization data.
+
+    If org_id is 0, get results for all organizations, otherwise filter
+    to a single organization by id.
 
     Has start_date, billable, and nonbillable columns.
     """
+    org_query = _get_org_query(org_id)
     Timecard = apps.get_model("hours", "Timecard")
     data = (
         Timecard.objects.filter(
             reporting_period__start_date__gte=start_date,
             reporting_period__end_date__lte=end_date,
         )
+        .filter(org_query)
         .values(start_date=F("reporting_period__start_date"))
         .annotate(
             billable=Sum("billable_hours"),
@@ -115,6 +131,9 @@ def utilization_data(start_date, end_date):
         .order_by("start_date")
     )
     frame = pd.DataFrame.from_records(data)
+    if len(frame) == 0:
+        # data frame is empty, lets ensure it has the right columns
+        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "excluded"])
     return frame
 
 
@@ -123,14 +142,17 @@ def headcount_plot(data_frame):
 
     The data frame should have start_date and headcount columns
     """
-    fig = px.area(
-        data_frame, x="start_date", y="headcount", color="organization", line_shape="hv"
-    )
+    if len(data_frame) == 0:
+        fig = go.Figure()
+    else:
+        fig = px.area(
+            data_frame, x="start_date", y="headcount", color="organization", line_shape="hv"
+        )
 
     fig.update_layout(
         xaxis_title="Reporting Period Start Date",
         yaxis_title="",
-        title_text="Number of Tockers by organization vs. Time",
+        title_text="Number of Tockers vs. Time",
         hovermode="x",
     )
     fig.update_traces(hovertemplate="%{y}")
@@ -139,17 +161,23 @@ def headcount_plot(data_frame):
     return plot_div
 
 
-def headcount_data(start_date, end_date):
+def headcount_data(start_date, end_date, org_id):
     """Get a data frame of Tock head count.
+
+    If org_id is 0, get results for all organizations, otherwise filter
+    to a single organization by id.
 
     Result has start_date, headcount and organization columns.
     """
     Timecard = apps.get_model("hours", "Timecard")
+
+    org_query = _get_org_query(org_id)
     data = (
         Timecard.objects.filter(
             reporting_period__start_date__gte=start_date,
             reporting_period__end_date__lte=end_date,
         )
+        .filter(org_query)
         .values(
             start_date=F("reporting_period__start_date"),
             org=F(  # use "org" temporarily to avoid name collision
@@ -160,6 +188,9 @@ def headcount_data(start_date, end_date):
         .order_by("start_date")
     )
     frame = pd.DataFrame.from_records(data)
+    if len(frame) == 0:
+        # data frame is empty, lets ensure it has the right columns
+        frame = pd.DataFrame(columns=["start_date", "org", "headcount"])
     frame["organization"] = frame["org"].astype(str)
     frame.drop("org", axis=1, inplace=True)
     return frame

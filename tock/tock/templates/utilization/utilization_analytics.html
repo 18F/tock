@@ -9,9 +9,19 @@
   <script src="{% static 'js/plotly-1.54.7.min.js' %}"></script>
   <script src="{% static 'js/components/save_csv.js' %}"></script>
 
-  <h2>Analytics</h2>
+  <h2>Analytics ({{ current_org_name }})</h2>
 
     <form class="usa-form">
+
+        <div class="usa-form-group">
+        <label class="usa-label" id="end-date-label" for="org">Organization</label>
+		<select class="usa-select" name="org" id="org">
+		{% for id, name in org_choices %}
+			<option value="{{ id }}"{% if current_org == id %} selected{% endif %}>{{ name }}</option>
+		{% endfor %}
+		</select>
+        </div>
+
         <div class="usa-form-group">
         <label class="usa-label" id="start-date-label" for="start">Start date</label>
         <div class="usa-hint" id="start-date-hint">YYYY-MM-DD (after {{ min_date }})</div>
@@ -28,7 +38,7 @@
         </div>
         </div>
 
-        <input class="usa-button" type="submit" value="Change Dates">
+        <input class="usa-button" type="submit" value="Select Data">
     </form>
 
   <h3>Overall Utilization</h3>

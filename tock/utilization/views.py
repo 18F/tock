@@ -2,6 +2,7 @@ from datetime import date
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import F
 from django.views.generic import ListView, TemplateView
 from hours.models import ReportingPeriod
 from organizations.models import Unit
@@ -73,13 +74,44 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
         end_date = self.request.GET.get("end", d.isoformat())
         context.update({"start_date": start_date, "end_date": end_date})
 
+        # get organization ID from the URL and put it in the context
+        org_parameter = self.request.GET.get("org", 0)
+        if org_parameter == "None":
+            org_id = None
+        else:
+            org_id = int(org_parameter)
+        context.update({"current_org": org_id})
+
+        # Make a name too for the template
+        if org_id is None:
+            context.update({"current_org_name": "NULL Organization"})
+        elif org_id == 0:
+            context.update({"current_org_name": "All Organizations"})
+        else:
+            Organization = apps.get_model("organizations", "Organization")
+            name = Organization.objects.filter(id=org_id).values("name").first()["name"]
+            context.update({"current_org_name": name + " Organization"})
+
         # give a tip about the oldest possible date
         min_date_result = ReportingPeriod.objects.order_by("start_date").values("start_date").first()
         min_date = min_date_result.pop("start_date").isoformat()
         context.update({"min_date": min_date})
 
+        # organization choices
+        Timecard = apps.get_model("hours", "Timecard")
+        org_choices = [
+            (item["org_id"], item["name"])
+            for item in Timecard.objects.values(
+                org_id=F("user__user_data__organization__id"),
+                name=F("user__user_data__organization__name")
+            ).distinct("org_id")
+        ]
+        # add a 0 for everything
+        org_choices = [(0, 'All')] + org_choices
+        context.update({"org_choices": org_choices})
+
         # add the utilization plot to the context
-        utilization_data_frame = utilization_data(start_date, end_date)
+        utilization_data_frame = utilization_data(start_date, end_date, org_id)
         utilization_data_frame["utilization_rate"] = (
             100 * compute_utilization(utilization_data_frame)
         ).map("{:,.1f}%".format)
@@ -91,7 +123,7 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
         )
 
         # add the headcount plot to the context
-        headcount_data_frame = headcount_data(start_date, end_date)
+        headcount_data_frame = headcount_data(start_date, end_date, org_id)
         context.update(
             {
                 "headcount_data": headcount_data_frame.pivot(
