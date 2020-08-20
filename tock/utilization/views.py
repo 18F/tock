@@ -67,10 +67,16 @@ class UtilizationAnalyticsView(PermissionMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UtilizationAnalyticsView, self).get_context_data(**kwargs)
 
-        # use a date before Tock as the default start_date
-        start_date = self.request.GET.get("start", "2014-01-01")
-        end_date = self.request.GET.get("end", date.today().isoformat())
+        # use one year ago as the default start date
+        d = date.today()
+        start_date = self.request.GET.get("start", d.replace(year=d.year - 1).isoformat())
+        end_date = self.request.GET.get("end", d.isoformat())
         context.update({"start_date": start_date, "end_date": end_date})
+
+        # give a tip about the oldest possible date
+        min_date_result = ReportingPeriod.objects.order_by("start_date").values("start_date").first()
+        min_date = min_date_result.pop("start_date").isoformat()
+        context.update({"min_date": min_date})
 
         # add the utilization plot to the context
         utilization_data_frame = utilization_data(start_date, end_date)
