@@ -4,8 +4,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.views.generic import ListView, TemplateView
-from hours.models import ReportingPeriod
-from organizations.models import Unit
+from hours.models import ReportingPeriod, Timecard
+from organizations.models import Organization, Unit
 
 from .org import org_billing_context
 from .unit import unit_billing_context
@@ -88,7 +88,6 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
         elif org_id == 0:
             context.update({"current_org_name": "All Organizations"})
         else:
-            Organization = apps.get_model("organizations", "Organization")
             name = Organization.objects.filter(id=org_id).values("name").first()["name"]
             context.update({"current_org_name": name + " Organization"})
 
@@ -98,7 +97,6 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
         context.update({"min_date": min_date})
 
         # organization choices
-        Timecard = apps.get_model("hours", "Timecard")
         org_choices = [
             (item["org_id"], item["name"])
             for item in Timecard.objects.values(

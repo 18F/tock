@@ -93,12 +93,19 @@ def utilization_plot(data_frame):
 
     fig.update_layout(
         autosize=False,
-        width=1000,
-        height=700,
+        width=960,
+        height=720,
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),
         title_text="Total Hours recorded vs. Time",
         hovermode="x",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
     )
 
     plot_div = plot(fig, output_type="div", include_plotlyjs=False)
@@ -154,6 +161,13 @@ def headcount_plot(data_frame):
         yaxis_title="",
         title_text="Number of Tockers vs. Time",
         hovermode="x",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
     )
     fig.update_traces(hovertemplate="%{y}")
 
