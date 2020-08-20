@@ -17,7 +17,6 @@ def compute_utilization(data_frame):
 
 
 def _get_org_query(org_id):
-    Organization = apps.get_model("organizations", "Organization")
     # short circuit this one first
     if org_id is None:
         return Q(user__user_data__organization__id__isnull=True)
