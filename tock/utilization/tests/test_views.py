@@ -229,3 +229,33 @@ class TestAnalyticsView(TestGroupUtilizationView):
         )
 
         self.assertEqual(response.status_code, 200)
+
+    def test_analytics_start(self):
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?start=2020-01-01",
+            user=self.user
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_analytics_end(self):
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?end=2020-01-01",
+            user=self.user
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_analytics_all_orgs(self):
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?org=0",
+            user=self.user
+        )
+        self.assertContains(response, "All Organizations")
+
+    def test_analytics_one_org(self):
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?org=1",
+            user=self.user
+        )
+        self.assertContains(response, " Organization")
