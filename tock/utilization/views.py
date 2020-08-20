@@ -1,6 +1,5 @@
 from datetime import date
 
-from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.views.generic import ListView, TemplateView
 from hours.models import ReportingPeriod
@@ -75,7 +74,6 @@ class UtilizationAnalyticsView(PermissionMixin, TemplateView):
         context.update({"start_date": start_date, "end_date": end_date})
 
         # give a tip about the oldest possible date
-        ReportingPeriod = apps.get_model("hours", "ReportingPeriod")
         min_date_result = ReportingPeriod.objects.order_by("start_date").values("start_date").first()
         min_date = min_date_result.pop("start_date").isoformat()
         context.update({"min_date": min_date})
