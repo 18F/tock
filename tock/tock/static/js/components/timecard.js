@@ -410,6 +410,9 @@ document.querySelector("body").addEventListener("click", function (event) {
   const changeEvent = new Event('change');
   const selects = document.querySelectorAll(".entry-project select");
   selects.forEach(select => {
+    select.addEventListener("change", function (e) {
+      populateHourTotals();
+    });
     select.dispatchEvent(changeEvent);
   });
 
