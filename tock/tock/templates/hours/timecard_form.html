@@ -85,16 +85,6 @@
       </div>
       <div class="grid-container">
         <div class="grid-row grid-gap">
-          <div class="grid-col-1">
-            <button type="button" 
-                    class="usa-button usa-button--secondary" 
-                    id="delete-entry-{{forloop.counter0}}" 
-                    onclick="removeEntry('entry-{{ forloop.counter0 }}');"
-                    title="Delete Item {{forloop.counter0}}"> 
-          <!-- FIXME MCJ This does not change the font size. -->            
-          <span class="font-lang-micro">X</span>
-          </button>
-          </div>
           <div class="entry-project grid-col-7">
             {{ project_entry.project.label_tag }}
             {{ project_entry.project }}
@@ -120,6 +110,14 @@
             {{ project_entry.hours_spent }}
           </div>
         </div>
+      </div>
+      <div class="grid-container">
+        {% if unsubmitted %}
+        <div class="entry-delete grid-col-8">
+          {{ project_entry.DELETE }}
+          <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
+        </div>
+        {% endif %}
       </div>
     </div>
     {% endfor %}

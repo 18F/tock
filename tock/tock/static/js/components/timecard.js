@@ -175,7 +175,7 @@ function toggleNotesField(selectBox) {
   // The zeroth element that comes back should be the select box. 
   const elements = getParents(selectBox, ".entry-project");
   const selectedElement = elements[0];
-  
+
   // To find out if the notes are required to be shown, we need to get the 
   // selected element, then extract data that the backend left hidden for us.
   // I start by grabbing the selected element's index, then grabbing the option element.
@@ -198,11 +198,11 @@ function toggleNotesField(selectBox) {
   }
   // This is the actual notes element that we will want to hide or show.
   var notesElement = entry.querySelector(".entry-note-field");
-  
+
   // Find out whether or not this is an entry that must be shown.
   // The data elements are strings, so those must be compared to strings and thus
   // be converted to booleans.
-  var notesRequired  = (attributes["data-notes-required"].nodeValue === "true");
+  var notesRequired = (attributes["data-notes-required"].nodeValue === "true");
   var notesDisplayed = (attributes["data-notes-displayed"].nodeValue === "true");
 
   // Toggle the hidden class on the notes elements.
@@ -281,12 +281,6 @@ function addTockEntry(_) {
   var newId = "entry-" + nextNumber;
   newEntry.setAttribute("id", newId);
 
-  // Update the delete button.
-  var button = newEntry.querySelector("#delete-entry-0");
-  button.setAttribute("id", `delete-entry-${nextNumber}`);
-  button.setAttribute("onclick", `removeEntry('${newId}');`);
-  button.setAttribute("title", `Delete Item ${nextNumber}`);
-
   // Fix all the numbering on the fields.
   newEntry.querySelectorAll('input, select, textarea, label').forEach(function (el, i, arr) {
     var formItem = el;
@@ -324,47 +318,48 @@ function addTockEntry(_) {
 // Things that happen when things happen.
 
 // When you change the hours, redo the totals
-$("body").on("keyup", ".entry-amount input", function () {
-  populateHourTotals();
+document.querySelector("body").addEventListener("keyup", function (event) {
+  if (event.target.matches(".entry-amount input")) {
+    populateHourTotals();
+  }
 });
 
-$("body").on("click", ".entry-amount input, .entry-delete input", function () {
-  populateHourTotals();
+// When you delete a project or change a project, redo the totals
+// NOTE: Changing a project is currently tied to DOM nodes created by Chosen.js
+document.querySelector("body").addEventListener("click", function (event) {
+  if (event.target.matches(".entry-delete input") || event.target.matches(".chosen-results .result-selected")) {
+    populateHourTotals();
+  }
 });
 
-// When you change a project, redo the totals
-$("body").on("change", ".entry-project select", function () {
-  populateHourTotals();
-});
-
-$(document).ready(function () {
-
-  var chosenOptions = {
+(function () {
+  const chosenOptions = {
     search_contains: true,
     group_search: false,
   };
   populateHourTotals();
 
-  $("#save-timecard").on("click", function () {
+  document.getElementById("save-timecard").addEventListener("click", function () {
     // Clear anything saved locally.  The server is the
     // source of truth.
     clearLocalStorage();
 
-    var form = $("form"),
-      save_input = '<input type="hidden" name="save_only" value="1" />';
-
-    form.append(save_input);
+    // This feels like it should be rendered by the Django templates, not dynamically added.
+    const form = document.querySelector("form");
+    const save_input = document.createElement("input");
+    save_input.setAttribute("type", "hidden");
+    save_input.setAttribute("name", "save_only");
+    save_input.setAttribute("value", "1");
+    form.appendChild(save_input);
     form.submit();
   });
 
-  $("#submit-timecard").on("click", function () {
+  document.getElementById("submit-timecard").addEventListener("click", function () {
     // Clear anything saved locally.  The server is the
     // source of truth.
     clearLocalStorage();
-
-    $("form").submit();
+    document.querySelector("form").submit();
   });
-
 
   document
     .querySelector(".add-timecard-entry")
@@ -398,6 +393,7 @@ $(document).ready(function () {
   //   }
   // }
 
+  // This is the only jQuery left on this page. Chosen requires jQuery.
   $(".entry-project select")
     .chosen(chosenOptions)
     .on("change", function (e) {
@@ -411,21 +407,29 @@ $(document).ready(function () {
 
   // Force an update to each project selection menu in case a notes field
   // needs to be re-displayed.
-  $(".entry-project select").trigger("change");
+  const changeEvent = new Event('change');
+  const selects = document.querySelectorAll(".entry-project select");
+  selects.forEach(select => {
+    select.dispatchEvent(changeEvent);
+  });
 
   // Disable scrolling in numeric input form fields from the mouse
   // wheel or touchpad.
   // Adapted from https://stackoverflow.com/questions/9712295/disable-scrolling-on-input-type-number
-  $("form").on("focus", "input[type=number]", function (e) {
-    $(this).on("mousewheel.disableScroll", function (e) {
-      e.preventDefault();
-    });
+  document.querySelector("form").addEventListener("focus", function (event) {
+    if (event.target.matches("input[type=number]")) {
+      event.target.addEventListener("mousewheel.disableScroll", function (event) {
+        event.preventDefault();
+      });
+    }
   });
 
-  $("form").on("blur", "input[type=number]", function (e) {
-    $(this).off("mousewheel.disableScroll");
+  document.querySelector("form").addEventListener("blur", function (event) {
+    if (event.target.matches("input[type=number]")) {
+      event.target.removeEventListener("mousewheel.disableScroll");
+    }
   });
-});
+}());
 
 //////////////////////////////////////////////////////////////
 // HELPERS
@@ -445,7 +449,7 @@ function removeEntry(elementId) {
   // Decrement the TOTAL_FORMS
   const tf = parseInt(document.querySelector("#id_timecardobjects-TOTAL_FORMS").value);
   document.querySelector("#id_timecardobjects-TOTAL_FORMS").value = tf - 1;
-  
+
 }
 
 
@@ -482,7 +486,7 @@ function getParentsBySelector(elem, selector) {
       function (s) {
         var matches = (this.document || this.ownerDocument).querySelectorAll(s),
           i = matches.length;
-        while (--i >= 0 && matches.item(i) !== this) {}
+        while (--i >= 0 && matches.item(i) !== this) { }
         return i > -1;
       };
   }
