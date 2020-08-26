@@ -674,6 +674,7 @@ class ReportsList(PermissionMixin, ListView):
 class ReportingPeriodDetailView(PermissionMixin, ListView):
     template_name = 'hours/reporting_period_detail.html'
     context_object_name = 'timecard_list'
+    permission_classes = (IsAuthenticated, )
 
     def dispatch(self, *args, **kwargs):
         """

@@ -1,15 +1,15 @@
 from collections import defaultdict
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 
 from hours.models import TimecardObject
 from .models import Project
-from tock.utils import PermissionMixin
 
 
-class ProjectListView(PermissionMixin, ListView):
+class ProjectListView(LoginRequiredMixin, ListView):
     """ View for listing all of the projects, sort projects by name """
     model = Project
     template_name = 'projects/project_list.html'
@@ -21,7 +21,7 @@ class ProjectListView(PermissionMixin, ListView):
         return context
 
 
-class ProjectView(PermissionMixin, DetailView):
+class ProjectView(LoginRequiredMixin, DetailView):
     """ View for listing the details of a specific project """
     model = Project
     template_name = 'projects/project_detail.html'
