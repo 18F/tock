@@ -1,10 +1,10 @@
 from datetime import date
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, TemplateView
 from hours.models import ReportingPeriod
 from organizations.models import Unit
-from tock.utils import PermissionMixin
 
 from .org import org_billing_context
 from .unit import unit_billing_context
@@ -18,7 +18,7 @@ from .analytics import (
 
 User = get_user_model()
 
-class GroupUtilizationView(PermissionMixin, ListView):
+class GroupUtilizationView(LoginRequiredMixin, ListView):
     template_name = 'utilization/group_utilization.html'
     requested_periods = 4
 
@@ -61,7 +61,7 @@ class GroupUtilizationView(PermissionMixin, ListView):
         return context
 
 
-class UtilizationAnalyticsView(PermissionMixin, TemplateView):
+class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
     template_name = "utilization/utilization_analytics.html"
 
     def get_context_data(self, **kwargs):
