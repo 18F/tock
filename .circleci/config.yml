@@ -2,12 +2,14 @@
 #
 # Check https://circleci.com/docs/2.0/language-python/ for more details
 #
-cf-docker-image: &CF_DOCKER_IMAGE
-  docker:
-    - image: 18fgsa/cloud-foundry-cli
-      environment:
-        - TZ=America/New_York
-        - CF_API: https://api.fr.cloud.gov
+install-cf7: &install-cf7
+  run:
+    name: Install CF7
+    command: |
+      curl -L -o cf7.deb 'https://packages.cloudfoundry.org/stable?release=debian64&version=v7&source=github'
+      sudo dpkg -i cf7.deb
+      rm cf7.deb
+      cf7 api https://api.fr.cloud.gov
 
 version: 2
 jobs:
@@ -84,50 +86,62 @@ jobs:
             - ./*
 
   deploy_to_staging:
-    <<: *CF_DOCKER_IMAGE
-
+    docker:
+      - image: cimg/base:2020.01
+        environment:
+          - TZ=America/New_York
+          - CF_SPACE: staging
+          - CF_APP: tock
+          - CF_MANIFEST: manifest-staging.yml
     steps:
       - attach_workspace:
           at: .
+      - *install-cf7
       - run:
-          name: Login to cloud.gov Staging
-          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING}
+          name: Login to cloud.gov
+          command: cf7 login -u ${CF_DEPLOYER_USERNAME_STAGING} -p {CF_DEPLOYER_PASSWORD_STAGING} -o gsa-18f-tock -s ${CF_SPACE}
       - run:
           name: Save version to file system
           command: echo ${CIRCLE_SHA1} > tock/VERSION
       - run:
-          name: deploy Tock Staging to cloud.gov
-          command: cf_deploy.sh tock gsa-18f-tock staging manifest-staging.yml
+          name: Deploying Tock Staging to cloud.gov
+          command: cf7 push $CF_APP --strategy rolling -f ${CF_MANIFEST}
 
   deploy_to_production:
-    <<: *CF_DOCKER_IMAGE
-
+    docker:
+      - image: cimg/base:2020.01
+        environment:
+          - TZ=America/New_York
+          - CF_SPACE: prod
+          - CF_MANIFEST: manifest-production.yml
     steps:
       - attach_workspace:
           at: .
+      - *install-cf7
       - run:
           name: Login to cloud.gov Production
-          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION}
+          command: cf7 login -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION} -o gsa-18f-tock -s ${CF_SPACE}
       - run:
           name: Save version to file system
           command: echo ${CIRCLE_TAG} > tock/VERSION
       - run:
           name: Deploy Tock Production to cloud.gov
-          command: cf_deploy.sh tock gsa-18f-tock prod manifest-production.yml
+          command: cf7 push tock --strategy rolling -f ${CF_MANIFEST}
 
   recycle_production:
-    <<: *CF_DOCKER_IMAGE
-
+    docker:
+      - image: cimg/base:2020.01
+        environment:
+          - TZ=America/New_York
+          - CF_SPACE: prod
     steps:
+      - *install-cf7
       - run:
           name: Login to cloud.gov Production
-          command: cf login -a ${CF_API} -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION}
-      - run:
-          name: Install cf-rolling-restart
-          command: cf install-plugin -f -r CF-Community "cf-rolling-restart"
+          command: cf7 login -u ${CF_DEPLOYER_USERNAME_PRODUCTION} -p ${CF_DEPLOYER_PASSWORD_PRODUCTION} -o gsa-18f-tock -s ${CF_SPACE}
       - run:
           name: Performing a rolling restart of Tock Production instances
-          command: cf rolling-restart tock
+          command: cf restart tock --strategy rolling
 
 workflows:
   version: 2
