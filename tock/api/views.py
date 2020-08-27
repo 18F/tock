@@ -187,9 +187,9 @@ class TimecardList(generics.ListAPIView):
     serializer_class = TimecardSerializer
 
     def get_queryset(self):
-        return get_timecards(self.queryset, self.request.query_params)
+        return get_timecardobjects(self.queryset, self.request.query_params)
 
-def get_timecards(queryset, params=None):
+def get_timecardobjects(queryset, params=None):
     """
     Filter a TimecardObject queryset according to the provided GET
     query string parameters:
