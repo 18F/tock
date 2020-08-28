@@ -164,7 +164,7 @@ function addTockLines(tockLines) {
     setTimeout(function () {
       // Set the project and trigger a GUI update
       $("div.entry:last .entry-project select").val(line.project);
-      $("div.entry:last .entry-project select").trigger("chosen:updated");
+      // $("div.entry:last .entry-project select").trigger("chosen:updated");
 
       // Set the hours and trigger a data update
       $("div.entry:last .entry-amount input").val(line.hours);
@@ -197,10 +197,10 @@ $("body").on("change", ".entry-project select", function () {
 
 
 $(document).ready(function () {
-  var chosenOptions = {
-    search_contains: true,
-    group_search: false
-  };
+  // var chosenOptions = {
+  // search_contains: true,
+  // group_search: false
+  // };
 
   $("#save-timecard").on("click", function () {
     // Clear anything saved locally.  The server is the
@@ -225,7 +225,7 @@ $(document).ready(function () {
   $(".add-timecard-entry").on("click", function () {
     $('div.entry:last').clone().each(function (i) {
       var entry = $(this);
-      entry.find('.chosen-container').remove();
+      entry.find('.autocomplete__wrapper').remove();
       entry.find('.entry-alerts').empty();
       entry.find('.entry-note-field').toggleClass('entry-hidden', true);
       entry.find('.entry-note-field .invalid').remove();
@@ -262,8 +262,11 @@ $(document).ready(function () {
       });
     }).appendTo('.entries');
 
+    accessibleAutocomplete.enhanceSelectElement({
+      selectElement: document.querySelector('div.entry:last-child .entry-project select')
+    });
+
     $('div.entry:last').find('.entry-project select')
-      .chosen(chosenOptions)
       .on('change', function (e) {
         toggleNotesField(this);
         displayAlerts(this);
@@ -304,8 +307,14 @@ $(document).ready(function () {
   // Run on initial load
   populateHourTotals();
 
+  const selects = document.querySelectorAll('.entry-project select');
+  selects.forEach(select => {
+    accessibleAutocomplete.enhanceSelectElement({
+      selectElement: select
+    })
+  });
+
   $('.entry-project select')
-    .chosen(chosenOptions)
     .on('change', function (e) {
       toggleNotesField(this);
       displayAlerts(this);
