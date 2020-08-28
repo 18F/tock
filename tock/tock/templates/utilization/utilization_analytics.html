@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+{% load analytics %}
+{% block navigation %}
+  {% include "_navigation.html" %}
+{% endblock %}
+
+{% block content %}
+  <script src="{% static 'js/plotly-1.54.7.min.js' %}"></script>
+  <script src="{% static 'js/components/save_csv.js' %}"></script>
+
+  <h2>Analytics</h2>
+
+    <form class="usa-form">
+        <div class="usa-form-group">
+        <label class="usa-label" id="start-date-label" for="start">Start date</label>
+        <div class="usa-hint" id="start-date-hint">YYYY-MM-DD (after {{ min_date }})</div>
+        <div class="usa-date-picker">
+            <input class="usa-input usa-input--inline" id="start" name="start" type="text" aria-describedby="start-date-label start-date-hint" value="{{start_date}}">
+        </div>
+        </div>
+
+        <div class="usa-form-group">
+        <label class="usa-label" id="end-date-label" for="end">End date</label>
+        <div class="usa-hint" id="end-date-hint">YYYY-MM-DD</div>
+        <div class="usa-date-picker">
+            <input class="usa-input usa-input--inline" id="end" name="end" type="text" aria-describedby="end-date-label end-date-hint" value="{{end_date}}">
+        </div>
+        </div>
+
+        <input class="usa-button" type="submit" value="Change Dates">
+    </form>
+
+  <h3>Overall Utilization</h3>
+  {{utilization_plot|safe}}
+
+  {% frame_table utilization_data "utilization" as table1 %}{{table1|safe}}
+
+  <h3>Tock Headcount</h3>
+  {{headcount_plot|safe}}
+
+  {% frame_table headcount_data "headcount" as table2 %}{{table2|safe}}
+{% endblock %}

@@ -1,21 +1,19 @@
 import datetime
 
-from django.test import TestCase, TransactionTestCase
-from django.contrib.auth import get_user_model
-
 import hours.models
 import projects.models
-
-from hours.forms import (
-    TimecardForm, TimecardObjectForm,
-    TimecardFormSet, projects_as_choices,
-    choice_label_for_project
-)
+from django.contrib.auth import get_user_model
+from django.test import TestCase, TransactionTestCase
+from hours.forms import (TimecardForm, TimecardFormSet, TimecardObjectForm,
+                         choice_label_for_project, projects_as_choices)
+from organizations.models import Organization, Unit
 
 
 class TimecardFormTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json']
+        'projects/fixtures/projects.json', 'tock/fixtures/prod_user.json',
+        'employees/fixtures/user_data.json', 'organizations/fixtures/units.json',
+        'organizations/fixtures/organizations.json']
 
     def setUp(self):
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
@@ -24,7 +22,7 @@ class TimecardFormTests(TestCase):
             exact_working_hours=40,
             min_working_hours=40,
             max_working_hours=60)
-        self.user = get_user_model().objects.get(id=1)
+        self.user = get_user_model().objects.first()
         self.project_1 = projects.models.Project.objects.get(name="openFEC")
         self.project_2 = projects.models.Project.objects.get(name="Peace Corps")
         self.project_3 = projects.models.Project.objects.get(name="General")
@@ -45,11 +43,28 @@ class TimecardFormTests(TestCase):
         (2) look for that project inside projects_as_choices;
         (3) test should fail if it finds the project"""
         data_before_inactive_change = projects_as_choices()
-        project_test = projects.models.Project.objects.first() #get the first project in the db
-        project_test.active = False #set active field to to false
-        project_test.save() #save change to DB
+        project_test = projects.models.Project.objects.first()  # get the first project in the db
+        project_test.active = False  # set active field to to false
+        project_test.save()  # save change to DB
         data_after_inactive_change = projects_as_choices()
         self.assertNotEqual(data_before_inactive_change, data_after_inactive_change)
+
+    def test_org_and_unit_not_modifiable(self):
+        """Organization and unit are unchanged when saving a bound form instance"""
+        org = Organization.objects.first()
+        unit = Unit.objects.first()
+        user_data = self.user.user_data
+        user_data.organization = org
+        user_data.unit = unit
+        user_data.save()
+
+        timecard = hours.models.Timecard.objects.create(user=self.user, reporting_period=self.reporting_period)
+
+        form_data = {'user': self.user, 'reporting_period': self.reporting_period}
+        TimecardForm(form_data, instance=timecard).save()
+        timecard.refresh_from_db()
+        self.assertEqual(org, timecard.organization)
+        self.assertEqual(unit, timecard.unit)
 
 
 class TimecardObjectFormTests(TestCase):
