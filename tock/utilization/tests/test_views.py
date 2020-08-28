@@ -233,7 +233,7 @@ class TestAnalyticsView(TestGroupUtilizationView):
     def test_analytics_start(self):
 
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?start=2020-01-01",
+            url=reverse('utilization:UtilizationAnalyticsView') + "?after=2020-01-01",
             user=self.user
         )
         self.assertEqual(response.status_code, 200)
@@ -241,7 +241,7 @@ class TestAnalyticsView(TestGroupUtilizationView):
     def test_analytics_end(self):
 
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?end=2020-01-01",
+            url=reverse('utilization:UtilizationAnalyticsView') + "?before=2020-01-01",
             user=self.user
         )
         self.assertEqual(response.status_code, 200)

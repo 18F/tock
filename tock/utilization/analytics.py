@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.db.models import Count, F, Q, Sum
 
 import pandas as pd
@@ -111,22 +110,13 @@ def utilization_plot(data_frame):
     return plot_div
 
 
-def utilization_data(start_date, end_date, org_id):
+def utilization_data(timecard_queryset):
     """Get a data frame of utilization data.
-
-    If org_id is 0, get results for all organizations, otherwise filter
-    to a single organization by id.
 
     Has start_date, billable, and nonbillable columns.
     """
-    org_query = _get_org_query(org_id)
-    Timecard = apps.get_model("hours", "Timecard")
     data = (
-        Timecard.objects.filter(
-            reporting_period__start_date__gte=start_date,
-            reporting_period__end_date__lte=end_date,
-        )
-        .filter(org_query)
+        timecard_queryset
         .values(start_date=F("reporting_period__start_date"))
         .annotate(
             billable=Sum("billable_hours"),
@@ -174,23 +164,13 @@ def headcount_plot(data_frame):
     return plot_div
 
 
-def headcount_data(start_date, end_date, org_id):
+def headcount_data(timecard_queryset):
     """Get a data frame of Tock head count.
-
-    If org_id is 0, get results for all organizations, otherwise filter
-    to a single organization by id.
 
     Result has start_date, headcount and organization columns.
     """
-    Timecard = apps.get_model("hours", "Timecard")
-
-    org_query = _get_org_query(org_id)
     data = (
-        Timecard.objects.filter(
-            reporting_period__start_date__gte=start_date,
-            reporting_period__end_date__lte=end_date,
-        )
-        .filter(org_query)
+        timecard_queryset
         .values(
             start_date=F("reporting_period__start_date"),
             org=F(  # use "org" temporarily to avoid name collision

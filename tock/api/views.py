@@ -237,6 +237,15 @@ def filter_timecards(queryset, params={}):
             reporting_period__start_date__lte=before_date
         )
 
+    if 'org' in params:
+        # filter on organization, "0" to include all orgs, "None" for
+        # "organization IS NULL"
+        org_id = params.get('org')
+        if org_id.isnumeric() and org_id != "0": # 0 indicates all organizations, no filtering then
+            queryset = queryset.filter(user__user_data__organization__id=org_id)
+        elif org_id.lower() == "none":  # the only allowable value that isn't numeric is None
+            queryset = queryset.filter(user__user_data__organization__isnull=True)
+
     return queryset
 
 
