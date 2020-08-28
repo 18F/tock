@@ -45,7 +45,8 @@
 }
 
 @include at-media-max($theme-header-min-width) {
-  .usa-header--extended .usa-nav__secondary-links ul[aria-expanded="true"] {
+  .usa-header--extended .usa-nav__secondary-links ul[aria-expanded="true"],
+  .usa-header--extended .usa-nav__submenu[aria-expanded="true"] {
     position: relative;
   }
   .usa-nav__secondary-item {
