@@ -104,7 +104,7 @@ function populateHourTotals() {
 
 function toggleNotesField(selectBox) {
   var $fieldset = $(selectBox).parents('.entry-project'),
-    $selected = $(selectBox).find(':selected'),
+    $selected = $fieldset.find(':selected'),
     $notes = $fieldset.find('.entry-note-field'),
     notesDisplayed = $selected.data('notes-displayed'),
     notesRequired = $selected.data('notes-required');
@@ -118,7 +118,7 @@ function toggleNotesField(selectBox) {
 
 function displayAlerts(selectBox) {
   var $fieldset = $(selectBox).parents('.entry-project'),
-    $selected = $(selectBox).find(':selected'),
+    $selected = $fieldset.find(':selected'),
     $alerts = $fieldset.find('.entry-alerts'),
     all_alerts = $selected.data('alerts'),
     alert_text;
@@ -263,6 +263,8 @@ $(document).ready(function () {
     }).appendTo('.entries');
 
     accessibleAutocomplete.enhanceSelectElement({
+      showAllValues: true,
+      defaultValue: '',
       selectElement: document.querySelector('div.entry:last-child .entry-project select')
     });
 
@@ -310,12 +312,15 @@ $(document).ready(function () {
   const selects = document.querySelectorAll('.entry-project select');
   selects.forEach(select => {
     accessibleAutocomplete.enhanceSelectElement({
+      showAllValues: true,
+      defaultValue: '',
       selectElement: select
     })
   });
 
-  $('.entry-project select')
+  $('.entry-project input')
     .on('change', function (e) {
+      debugger;
       toggleNotesField(this);
       displayAlerts(this);
     });
