@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 
-from api.views import get_timecards, TimecardList
+from api.views import get_timecardobjects, TimecardList
 from employees.models import UserData, EmployeeGrade
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
@@ -83,76 +83,76 @@ class TimecardsAPITests(WebTest):
         self.assertEqual(res[0]['grade'], 4)
 
     # TODO: test with more diverse data
-    def test_get_timecards(self):
+    def test_get_timecardobjects(self):
         """ Check that get time cards returns the correct queryset """
         # Check with no params
-        queryset = get_timecards(TimecardList.queryset)
+        queryset = get_timecardobjects(TimecardList.queryset)
         self.assertEqual(len(queryset), 2)
         # Check with after param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
             params={'after': '2020-12-31'})
         self.assertEqual(len(queryset), 0)
 
         # Check with date param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'date': '2000-01-01'})
         self.assertEqual(len(queryset), 0)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'date': '2015-06-08'})
         self.assertEqual(len(queryset), 1)
         # Check with user param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'user': '1'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'user': 'aaron.snow'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'user': '22'})
         self.assertEqual(len(queryset), 0)
         # Check with project param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'project': '1'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'project': 'Out Of Office'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'project': '22'})
         self.assertEqual(len(queryset), 0)
 
         # Check with before param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'before': '2015-06-01'})
         self.assertEqual(len(queryset), 1)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'before': '2015-05-31'})
         self.assertEqual(len(queryset), 0)
 
         # Check with a range using before and after param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'after': '2015-06-01', 'before': '2016-05-31'})
         self.assertEqual(len(queryset), 1)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'after': '2015-06-01', 'before': '2016-06-01'})
         self.assertEqual(len(queryset), 2)
 
 
     def test_get_unsubmitted_timecards(self):
         """ Check that get time cards returns the correct queryset """
-        queryset = get_timecards(
+        queryset = get_timecardobjects(
             TimecardList.queryset,
             params={'submitted': 'no'}
         )
         self.assertEqual(len(queryset), 1)
 
-        queryset = get_timecards(
+        queryset = get_timecardobjects(
             TimecardList.queryset,
             params={'submitted': 'yes'}
         )
         self.assertEqual(len(queryset), 2)
 
-        queryset = get_timecards(
+        queryset = get_timecardobjects(
             TimecardList.queryset,
             params={'submitted': 'foo'}
         )

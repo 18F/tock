@@ -1,5 +1,4 @@
-from django.apps import apps
-from django.db.models import Count, F, Sum
+from django.db.models import Count, F, Q, Sum
 
 import pandas as pd
 
@@ -14,6 +13,16 @@ def compute_utilization(data_frame):
     return data_frame["billable"].astype(float) / (
         data_frame["non_billable"] + data_frame["billable"]
     ).astype(float)
+
+
+def _get_org_query(org_id):
+    # short circuit this one first
+    if org_id is None:
+        return Q(user__user_data__organization__id__isnull=True)
+    if org_id > 0:
+        return Q(user__user_data__organization__id=org_id)
+    # org_id = 0 gives all results
+    return Q()
 
 
 def utilization_plot(data_frame):
@@ -82,29 +91,32 @@ def utilization_plot(data_frame):
 
     fig.update_layout(
         autosize=False,
-        width=1000,
-        height=700,
+        width=960,
+        height=720,
         xaxis=dict(autorange=True),
         yaxis=dict(autorange=True),
         title_text="Total Hours recorded vs. Time",
         hovermode="x",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
     )
 
     plot_div = plot(fig, output_type="div", include_plotlyjs=False)
     return plot_div
 
 
-def utilization_data(start_date, end_date):
+def utilization_data(timecard_queryset):
     """Get a data frame of utilization data.
 
     Has start_date, billable, and nonbillable columns.
     """
-    Timecard = apps.get_model("hours", "Timecard")
     data = (
-        Timecard.objects.filter(
-            reporting_period__start_date__gte=start_date,
-            reporting_period__end_date__lte=end_date,
-        )
+        timecard_queryset
         .values(start_date=F("reporting_period__start_date"))
         .annotate(
             billable=Sum("billable_hours"),
@@ -115,6 +127,9 @@ def utilization_data(start_date, end_date):
         .order_by("start_date")
     )
     frame = pd.DataFrame.from_records(data)
+    if len(frame) == 0:
+        # data frame is empty, lets ensure it has the right columns
+        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "excluded"])
     return frame
 
 
@@ -123,15 +138,25 @@ def headcount_plot(data_frame):
 
     The data frame should have start_date and headcount columns
     """
-    fig = px.area(
-        data_frame, x="start_date", y="headcount", color="organization", line_shape="hv"
-    )
+    if len(data_frame) == 0:
+        fig = go.Figure()
+    else:
+        fig = px.area(
+            data_frame, x="start_date", y="headcount", color="organization", line_shape="hv"
+        )
 
     fig.update_layout(
         xaxis_title="Reporting Period Start Date",
         yaxis_title="",
-        title_text="Number of Tockers by organization vs. Time",
+        title_text="Number of Tockers vs. Time",
         hovermode="x",
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+        ),
     )
     fig.update_traces(hovertemplate="%{y}")
 
@@ -139,17 +164,13 @@ def headcount_plot(data_frame):
     return plot_div
 
 
-def headcount_data(start_date, end_date):
+def headcount_data(timecard_queryset):
     """Get a data frame of Tock head count.
 
     Result has start_date, headcount and organization columns.
     """
-    Timecard = apps.get_model("hours", "Timecard")
     data = (
-        Timecard.objects.filter(
-            reporting_period__start_date__gte=start_date,
-            reporting_period__end_date__lte=end_date,
-        )
+        timecard_queryset
         .values(
             start_date=F("reporting_period__start_date"),
             org=F(  # use "org" temporarily to avoid name collision
@@ -160,6 +181,9 @@ def headcount_data(start_date, end_date):
         .order_by("start_date")
     )
     frame = pd.DataFrame.from_records(data)
+    if len(frame) == 0:
+        # data frame is empty, lets ensure it has the right columns
+        frame = pd.DataFrame(columns=["start_date", "org", "headcount"])
     frame["organization"] = frame["org"].astype(str)
     frame.drop("org", axis=1, inplace=True)
     return frame
