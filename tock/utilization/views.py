@@ -2,9 +2,11 @@ from datetime import date
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import F
 from django.views.generic import ListView, TemplateView
-from hours.models import ReportingPeriod
-from organizations.models import Unit
+from api.views import filter_timecards
+from hours.models import ReportingPeriod, Timecard
+from organizations.models import Organization, Unit
 
 from .org import org_billing_context
 from .unit import unit_billing_context
@@ -67,19 +69,58 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(UtilizationAnalyticsView, self).get_context_data(**kwargs)
 
+        # we need a mutable copy of the request parameters so we can add
+        # defaults that might not be set
+        params = self.request.GET.copy()
+
         # use one year ago as the default start date
         d = date.today()
-        start_date = self.request.GET.get("start", d.replace(year=d.year - 1).isoformat())
-        end_date = self.request.GET.get("end", d.isoformat())
+        # use setdefault here because if these parameters aren't sent, then we
+        # want to add them with these default values so that they will get
+        # used later in filter_timecards
+        start_date = params.setdefault("after", d.replace(year=d.year - 1).isoformat())
+        end_date = params.setdefault("before", d.isoformat())
         context.update({"start_date": start_date, "end_date": end_date})
+
+        # get organization ID from the URL and put it in the context
+        org_parameter = params.get("org", 0)
+        if org_parameter == "None":
+            org_id = None
+        else:
+            org_id = int(org_parameter)
+        context.update({"current_org": org_id})
+
+        # Make a name too for the template
+        if org_id is None:
+            context.update({"current_org_name": "NULL Organization"})
+        elif org_id == 0:
+            context.update({"current_org_name": "All Organizations"})
+        else:
+            name = Organization.objects.get(id=org_id).name
+            context.update({"current_org_name": name + " Organization"})
 
         # give a tip about the oldest possible date
         min_date_result = ReportingPeriod.objects.order_by("start_date").values("start_date").first()
         min_date = min_date_result.pop("start_date").isoformat()
         context.update({"min_date": min_date})
 
+        # organization choices
+        org_choices = [
+            (item["org_id"], item["name"])
+            for item in Timecard.objects.values(
+                org_id=F("user__user_data__organization__id"),
+                name=F("user__user_data__organization__name")
+            ).distinct("org_id")
+        ]
+        # add a 0 for everything
+        org_choices = [(0, 'All')] + org_choices
+        context.update({"org_choices": org_choices})
+
+        # Use our common timecard query handling of parameters
+        timecard_queryset = filter_timecards(Timecard.objects, params=params)
+
         # add the utilization plot to the context
-        utilization_data_frame = utilization_data(start_date, end_date)
+        utilization_data_frame = utilization_data(timecard_queryset)
         utilization_data_frame["utilization_rate"] = (
             100 * compute_utilization(utilization_data_frame)
         ).map("{:,.1f}%".format)
@@ -91,7 +132,7 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
         )
 
         # add the headcount plot to the context
-        headcount_data_frame = headcount_data(start_date, end_date)
+        headcount_data_frame = headcount_data(timecard_queryset)
         context.update(
             {
                 "headcount_data": headcount_data_frame.pivot(
