@@ -8,7 +8,6 @@ from django.views.generic.detail import DetailView
 from hours.models import TimecardObject
 from .models import Project
 
-
 class ProjectListView(LoginRequiredMixin, ListView):
     """ View for listing all of the projects, sort projects by name """
     model = Project
@@ -72,7 +71,7 @@ def project_timeline(project, period_limit=5):
                 break
             periods.append(report_date)
 
-        groups[tc.user][report_date] = float(t.hours_spent)
+        groups[tc.user.get_full_name()][report_date] = float(t.hours_spent)
 
     return {
         'groups': dict(groups),
