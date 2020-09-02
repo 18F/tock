@@ -187,28 +187,22 @@ class TimecardList(generics.ListAPIView):
     serializer_class = TimecardSerializer
 
     def get_queryset(self):
-        return get_timecards(self.queryset, self.request.query_params)
+        return get_timecardobjects(self.queryset, self.request.query_params)
 
-def get_timecards(queryset, params=None):
+
+def filter_timecards(queryset, params={}):
     """
-    Filter a TimecardObject queryset according to the provided GET
-    query string parameters:
+    Filter a queryset of timecards according to the provided query
+    string parameters.
 
-    * if `date` (in YYYY-MM-DD format) is provided, get rows for
-      which the date falls within their reporting date range.
-
-    * if `user` (in either `first.last` or numeric id) is provided,
-      get rows for that user.
-
-    * if `project` is provided as a numeric id or name, get rows for
-      that project.
+    * `date`: filter for reporting periods that contain this date
+    * `user`: either username or numeric id for a user
+    * `after`: the reporting period ends after the given date
+    * `before`: the reporting period starts before the given date
     """
-
-    # include only submitted timecards unless submitted=no in params
-    submitted = True
-    if params and 'submitted' in params:
-        submitted = params['submitted'] != 'no'
-    queryset = queryset.filter(timecard__submitted=submitted)
+    submitted_param = params.get("submitted", "yes")  # default to only submitted cards
+    submitted = (submitted_param != "no")
+    queryset = queryset.filter(submitted=submitted)
 
     if not params:
         return queryset
@@ -217,17 +211,61 @@ def get_timecards(queryset, params=None):
         reporting_date = params.get('date')
         # TODO: validate YYYY-MM-DD format
         queryset = queryset.filter(
-            timecard__reporting_period__start_date__lte=reporting_date,
-            timecard__reporting_period__end_date__gte=reporting_date
+            reporting_period__start_date__lte=reporting_date,
+            reporting_period__end_date__gte=reporting_date
         )
 
     if 'user' in params:
         # allow either user name or ID
         user = params.get('user')
         if user.isnumeric():
-            queryset = queryset.filter(timecard__user__id=user)
+            queryset = queryset.filter(user__id=user)
         else:
-            queryset = queryset.filter(timecard__user__username=user)
+            queryset = queryset.filter(user__username=user)
+
+    if 'after' in params:
+        # get everything after a specified date
+        after_date = params.get('after')
+        queryset = queryset.filter(
+            reporting_period__end_date__gte=after_date
+        )
+
+    if 'before' in params:
+        # get everything before a specified date
+        before_date = params.get('before')
+        queryset = queryset.filter(
+            reporting_period__start_date__lte=before_date
+        )
+
+    if 'org' in params:
+        # filter on organization, "0" to include all orgs, "None" for
+        # "organization IS NULL"
+        org_id = params.get('org')
+        if org_id.isnumeric() and org_id != "0": # 0 indicates all organizations, no filtering then
+            queryset = queryset.filter(user__user_data__organization__id=org_id)
+        elif org_id.lower() == "none":  # the only allowable value that isn't numeric is None
+            queryset = queryset.filter(user__user_data__organization__isnull=True)
+
+    return queryset
+
+
+
+def get_timecardobjects(queryset, params={}):
+    """
+    Filter a TimecardObject queryset according to the provided GET
+    query string parameters:
+
+    * `project`: numeric id or name of a project
+    * `billable`: `True` or `False` to filter for projects that are or aren't billable
+    """
+
+    # queryset as passed is a queryset of TimecardObjects. Get a queryset of
+    # the matching Timecards that we can filter...
+    timecard_queryset = Timecard.objects.filter(timecardobjects__in=queryset)
+    timecard_queryset = filter_timecards(timecard_queryset, params)
+    # and now sub-select the matching timecardobjects from our original
+    # queryset
+    queryset = queryset.filter(timecard__in=timecard_queryset)
 
     if 'project' in params:
         # allow either project name or ID
@@ -237,25 +275,11 @@ def get_timecards(queryset, params=None):
         else:
             queryset = queryset.filter(project__name=project)
 
-    if 'after' in params:
-        # get everything after a specified date
-        after_date = params.get('after')
-        queryset = queryset.filter(
-            timecard__reporting_period__end_date__gte=after_date
-        )
-
     if 'billable' in params:
         # only pull records for billable projects
         billable = params.get('billable')
         queryset = queryset.filter(
             project__accounting_code__billable=billable
-        )
-
-    if 'before' in params:
-        # get everything before a specified date
-        before_date = params.get('before')
-        queryset = queryset.filter(
-            timecard__reporting_period__start_date__lte=before_date
         )
 
     return queryset

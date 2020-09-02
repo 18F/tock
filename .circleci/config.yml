@@ -91,7 +91,6 @@ jobs:
         environment:
           - TZ=America/New_York
           - CF_SPACE: staging
-          - CF_APP: tock
           - CF_MANIFEST: manifest-staging.yml
     steps:
       - attach_workspace:
@@ -99,13 +98,13 @@ jobs:
       - *install-cf7
       - run:
           name: Login to cloud.gov
-          command: cf7 login -u ${CF_DEPLOYER_USERNAME_STAGING} -p {CF_DEPLOYER_PASSWORD_STAGING} -o gsa-18f-tock -s ${CF_SPACE}
+          command: cf7 login -u ${CF_DEPLOYER_USERNAME_STAGING} -p ${CF_DEPLOYER_PASSWORD_STAGING} -o gsa-18f-tock -s ${CF_SPACE}
       - run:
           name: Save version to file system
           command: echo ${CIRCLE_SHA1} > tock/VERSION
       - run:
           name: Deploying Tock Staging to cloud.gov
-          command: cf7 push $CF_APP --strategy rolling -f ${CF_MANIFEST}
+          command: cf7 push tock --strategy rolling -f ${CF_MANIFEST}
 
   deploy_to_production:
     docker:
