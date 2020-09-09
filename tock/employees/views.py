@@ -27,7 +27,7 @@ class UserListView(PermissionMixin, ListView):
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
-        return User.objects.filter(is_active=True).select_related('user_data')
+        return User.objects.filter(is_active=True).select_related('user_data').order_by('last_name', 'first_name')
 
 
 class UserDetailView(PermissionMixin, DetailView):
