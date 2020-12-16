@@ -31,7 +31,7 @@ class Command(BaseCommand):
     def _update_userdata(self, username, target):
         """Update UserData billable expectation w/ provided target hours and save"""
         userdata = UserData.objects.get(user__username=username)
-        userdata.billable_expectation = target
+        userdata.expected_billable_hours = target
         userdata.save()
 
     @transaction.atomic
