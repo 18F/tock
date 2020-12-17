@@ -11,20 +11,21 @@ end note
 
 Deployment_Node(aws, "AWS GovCloud", "Amazon Web Services Region") {
 	System_Ext(aws_alb, "Cloud.gov elastic load balancer", "ELB")
-	Deployment_Node(cloudgov, "cloud.gov", "Cloud Foundry PaaS") {
+	Deployment_Node(cloudgov, "cloud.gov", "Core Tier B private subnet") {
         System_Ext(cloudgov_router, "cloud.gov router", "Cloud Foundry service")
         System_Ext(cloudgov_logdrain, "logs.fr.cloud.gov", "ELK")
         System_Ext(cloudgov_uaa, "cloud.gov User Authentication Server", "UAA (proxied to GSA secureauth)")
 
-
+       Boundary(cloudgov_db_tier, "Database Tier private subnet") {
         ContainerDb(cloudgov_services, "cloud.gov data services", "AWS RDS", "Stores persistent data for apps")
+        }
 
         Boundary(atob, "ATO boundary") {
             Deployment_Node(organization, "Tock organization") {
                 Deployment_Node(space, "Tock spaces") {
                     System(app, "Production", "tock.18f.gov")
                     System(app_staging, "Staging", "tock.app.cloud.gov", )
-}
+                }
             }
         }
     }
@@ -66,7 +67,7 @@ Rel(browser, cloudgov_uaa, "authenticates with MFA", "https GET/POST (443)")
 
 Rel(api_client, aws_alb, "interacts with application", "https GET (443) w/ token")
 
-Rel(cloudgov_router, app, "proxies to", "https GET/POST (443)")
-Rel(cloudgov_router, app_staging, "proxies to", "https GET/POST (443)")
+Rel(cloudgov_router, app, "proxies to", "https GET/POST (variable)")
+Rel(cloudgov_router, app_staging, "proxies to", "https GET/POST (variable)")
 
 @enduml
