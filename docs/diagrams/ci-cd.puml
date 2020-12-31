@@ -1,0 +1,46 @@
+@startuml
+!include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Deployment.puml
+
+title Tock CI/CD Network Interactions
+
+Deployment_Node(aws, "AWS GovCloud (US)") {
+  Deployment_Node(cloudgov, "cloud.gov") {
+    Deployment_Node(subnet, "Private Subnet - Core Tier B") {
+      Boundary(ato, "ATO boundary") {
+        System(tock, "Tock")
+      }
+    }
+
+    System_Ext(cloudgov_elb, "cloud.gov ELB")
+    System_Ext(cloudgov_cell, "cloud.gov Cell")
+    System_Ext(cloudgov_controller, "cloud.gov Cloud Controller")
+
+  }
+}
+
+Deployment_Node(internet, "Public Internet") {
+  System_Ext(browser, "Web Browser")
+  System_Ext(cf_client, "Cloud Foundry Client")
+
+  System_Ext(circleci, "CircleCI")
+  System_Ext(github, "GitHub")
+  System_Ext(snyk, "Snyk")
+  System_Ext(gsa_secureauth, "GSA SecureAuth")
+}
+
+Rel(browser, circleci, "uses","HTTPS 443 (T)")
+Rel_L(browser, gsa_secureauth, "authenticates with", "HTTPS 443 (T)")
+Rel(browser, github, "uses", "HTTPS 443 (T)")
+Rel(browser, cloudgov_elb, "uses", "HTTPS 443(T)")
+
+Rel(cf_client, cloudgov_elb, "uses", "HTTPS 443 (T)")
+
+Rel_R(cloudgov_elb, cloudgov_controller, "sends application traffic")
+Rel(cloudgov_controller, cloudgov_cell, "uses")
+
+BiRel(circleci, github, "uses", "HTTPS 443 (T)")
+Rel(circleci, cloudgov_elb, "uses", "HTTPS 443 (T)")
+
+Rel(github, snyk, "HTTPS 443 (T)")
+
+@enduml
