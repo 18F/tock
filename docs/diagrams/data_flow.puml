@@ -1,0 +1,22 @@
+@startuml
+!include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Container.puml
+
+System_Boundary(atob, "ATO Boundary") {
+    Container(app, "Tock", "process within ATO boundary")
+}
+Container_Ext(browser, "Web Browser", "external entity")
+Container_Ext(api_client, "Tock API Client", "external entity")
+ContainerDb(cloudgov_services, "RDS", "cloud.gov datastore")
+Container_Ext(newrelic, "New Relic", "external entity")
+Container_Ext(cloudgov_logdrain, "Cloud.gov ELK", "external entity")
+
+Rel(browser, app, "web page request")
+Rel(app, browser, "HTML, JavaScript, CSS")
+Rel(api_client, app, "API request with key")
+Rel(app, api_client, "Tock data as JSON response")
+Rel(cloudgov_services, app, "Timekeeping data rows")
+Rel(app, cloudgov_services, "Timekeeping data queries")
+Rel(app, cloudgov_services, "Timekeeping data as row imports")
+Rel(app, newrelic, "Monitoring data")
+Rel(app, cloudgov_logdrain, "Log data")
+@enduml
