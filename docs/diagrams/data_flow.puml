@@ -1,6 +1,50 @@
 @startuml
 !include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Container.puml
 
+!global $ELEMENT_FONT_COLOR = "#Black"
+!global $CONTAINER_BG_COLOR = "#LightSkyBlue"
+!global $CONTAINER_BORDER_COLOR = "#Black"
+!global $EXTERNAL_CONTAINER_BG_COLOR = "#LightGrey"
+!global $EXTERNAL_CONTAINER_BORDER_COLOR = "#Black"
+
+skinparam database<<container>> {
+    StereotypeFontColor $ELEMENT_FONT_COLOR
+    FontColor $ELEMENT_FONT_COLOR
+    BackgroundColor $CONTAINER_BG_COLOR
+    BorderColor $CONTAINER_BORDER_COLOR
+}
+
+skinparam rectangle<<external_container>> {
+    StereotypeFontColor $ELEMENT_FONT_COLOR
+    FontColor $ELEMENT_FONT_COLOR
+    BackgroundColor $EXTERNAL_CONTAINER_BG_COLOR
+    BorderColor $EXTERNAL_CONTAINER_BORDER_COLOR
+}
+
+skinparam database<<external_container>> {
+    StereotypeFontColor $ELEMENT_FONT_COLOR
+    FontColor $ELEMENT_FONT_COLOR
+    BackgroundColor $EXTERNAL_CONTAINER_BG_COLOR
+    BorderColor $EXTERNAL_CONTAINER_BORDER_COLOR
+}
+
+skinparam rectangle<<container>> {
+    StereotypeFontColor $ELEMENT_FONT_COLOR
+    FontColor $ELEMENT_FONT_COLOR
+    BackgroundColor $CONTAINER_BG_COLOR
+    BorderColor $CONTAINER_BORDER_COLOR
+}
+
+skinparam Arrow {
+    Color Black
+    FontColor Black
+}
+
+skinparam rectangle<<boundary>> {
+    FontColor Black
+    BorderColor Black
+}
+
 System_Boundary(atob, "ATO Boundary") {
     Container(app, "Tock", "process within ATO boundary")
 }
