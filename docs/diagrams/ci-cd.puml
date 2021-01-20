@@ -1,5 +1,6 @@
 @startuml
 !include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Deployment.puml
+!include styles.puml
 
 title Tock CI/CD Network Interactions
 
@@ -7,7 +8,9 @@ Deployment_Node(aws, "AWS GovCloud (US)") {
   Deployment_Node(cloudgov, "cloud.gov") {
     Deployment_Node(subnet, "Private Subnet - Core Tier B") {
       Boundary(ato, "ATO boundary") {
-        System(tock, "Tock")
+        System(tock_stage, "Tock", "Staging")
+        System(tock_prod, "Tock", "Production")
+
       }
     }
 
@@ -28,19 +31,21 @@ Deployment_Node(internet, "Public Internet") {
   System_Ext(gsa_secureauth, "GSA SecureAuth")
 }
 
-Rel(browser, circleci, "uses","HTTPS 443 (T)")
-Rel_L(browser, gsa_secureauth, "authenticates with", "HTTPS 443 (T)")
-Rel(browser, github, "uses", "HTTPS 443 (T)")
-Rel(browser, cloudgov_elb, "uses", "HTTPS 443(T)")
+Rel(browser, circleci, "uses","HTTPS 443 (T), OAuth")
+Rel_L(browser, gsa_secureauth, "authenticates with", "HTTPS 443 (T), 2FA")
+Rel(browser, github, "uses", "HTTPS 443 (T), Token Auth")
+Rel(browser, cloudgov_elb, "uses", "HTTPS 443(T), SecureAuth")
 
-Rel(cf_client, cloudgov_elb, "uses", "HTTPS 443 (T)")
+Rel(cf_client, cloudgov_elb, "uses", "HTTPS 443 (T), Token Auth")
 
 Rel_R(cloudgov_elb, cloudgov_controller, "sends application traffic")
 Rel(cloudgov_controller, cloudgov_cell, "uses")
+Rel(cloudgov_cell, tock_stage, "provisions instances")
+Rel(cloudgov_cell, tock_prod, "provisions instances")
 
-BiRel(circleci, github, "uses", "HTTPS 443 (T)")
-Rel(circleci, cloudgov_elb, "uses", "HTTPS 443 (T)")
+BiRel(circleci, github, "uses", "HTTPS 443 (T), Token Auth")
+Rel(circleci, cloudgov_elb, "uses", "HTTPS 443 (T), SAML or Token Auth")
 
-Rel(github, snyk, "HTTPS 443 (T)")
+Rel(github, snyk, "uses", "HTTPS 443 (T), Token Auth")
 
 @enduml

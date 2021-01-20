@@ -1,13 +1,12 @@
 @startuml
 !include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Deployment.puml
-
+!include styles.puml
 
 title Tock typical network interactions
 
 note as EncryptionNote
   All connections depicted are encrypted with TLS 1.2 unless otherwise noted.
 end note
-
 
 Deployment_Node(aws, "AWS GovCloud", "Amazon Web Services Region") {
 	System_Ext(aws_alb, "Cloud.gov elastic load balancer", "ELB")
