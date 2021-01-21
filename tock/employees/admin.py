@@ -61,6 +61,7 @@ class UserDataAdmin(admin.ModelAdmin):
         'organization',
         'unit',
     )
+    list_editable = ('expected_billable_hours',)
     search_fields = ('user__username',)
 
     def unit_info(self, obj):
