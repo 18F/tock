@@ -20,6 +20,7 @@ markdown = "*"
 django-webtest = "~=1.9"
 plotly = "*"
 pandas = "*"
+pyjwt = "~=1.7.1"
 
 [dev-packages]
 bandit = "*"
