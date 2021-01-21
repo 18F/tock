@@ -58,7 +58,7 @@ class Command(BaseCommand):
                         [self._update_timecard(timecard, target_billable_expectation) for timecard in timecards]
 
                         if update_user_data:
-                            self._update_userdata(username, target_billable_expectation)
+                            self._update_userdata(username, target)
                             self.stdout.write(f'Updated UserData.billable_expectation for {username} to target hours {target}')
 
             except FileNotFoundError:
