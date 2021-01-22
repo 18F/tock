@@ -76,7 +76,6 @@ class EmployeeGrade(models.Model):
             )
         super(EmployeeGrade, self).save(*args, **kwargs)
 
-
 class UserData(models.Model):
     user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username', on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
@@ -179,6 +178,15 @@ class UserData(models.Model):
             return True
         else:
             return False
+
+    def display_name(self):
+        user = self.user
+        if user.first_name and user.last_name:
+            return user.first_name + " " + user.last_name
+        elif user.first_name:
+            return user.first_name
+        else:
+            return user.username   
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""
