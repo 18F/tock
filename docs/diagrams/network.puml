@@ -2,6 +2,8 @@
 !include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Deployment.puml
 !include styles.puml
 
+LAYOUT_LEFT_RIGHT()
+
 title Tock typical network interactions
 
 note as EncryptionNote
@@ -54,7 +56,7 @@ Boundary(gsa_saas, "GSA-authorized SaaS") {
 	System_Ext(newrelic, "New Relic", "Monitoring SaaS")
 }
 
-Rel_L(newrelic, aws_alb, "monitors application", "https GET (443)")
+Rel(newrelic, aws_alb, "monitors application", "https GET (443)")
 Rel(app, newrelic, "reports telemetry", "tcp (443) w/ token")
 Rel(public, browser, "uses")
 Rel(public, api_client, "uses")
