@@ -183,8 +183,8 @@ class TestGroupUtilizationView(WebTest):
 
         utilization_data = response.context['object_list'][0]['utilization']
 
-        self.assertEqual(0, len([u for u in utilization_data['last_week_data'] if u['username'] == self.user_with_no_hours.username]))
-        self.assertEqual(0, len([u for u in utilization_data['last_month_data'] if u['username'] == self.user_with_no_hours.username]))
+        self.assertEqual(0, len([u for u in utilization_data['last_week_data'] if u['display_name'] == self.user_with_no_hours.user_data.display_name]))
+        self.assertEqual(0, len([u for u in utilization_data['last_month_data'] if u['display_name'] == self.user_with_no_hours.user_data.display_name]))
 
     def test_includes_user_no_longer_with_unit(self):
         response = self.app.get(

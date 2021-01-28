@@ -1,8 +1,11 @@
+import pdb
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Sum, Q
 from .utils import (_build_utilization_context, calculate_utilization,
                     utilization_report, limit_to_fy)
+
+from employees.models import UserData
 
 User = get_user_model()
 
@@ -50,9 +53,10 @@ def _get_unit_billing_data(users, unit, recent_periods=None, fiscal_year=False):
 
     if utilization:
         data = utilization.values('user_data', 'billable', 'target')
+
         # Build context for each employee
         output_data = [{
-                'full_name': employee['user_data'].display_name,
+                'display_name': UserData.objects.get(id=employee['user_data']).display_name,
                 'denominator': employee['target'],
                 'billable': employee['billable'],
                 'utilization': calculate_utilization(employee['billable'], employee['target'])

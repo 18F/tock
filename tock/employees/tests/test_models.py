@@ -236,3 +236,13 @@ class UserDataTests(TestCase):
         self.regular_user_userdata.expected_billable_hours = 30
         expected = 30 / settings.HOURS_IN_A_REGULAR_WORK_WEEK
         self.assertEqual(self.regular_user_userdata.billable_expectation, expected)
+
+    def test_display_name_if_no_full_name(self):
+        expected = self.regular_user.username
+        self.assertEqual(self.regular_user_userdata.display_name, expected)    
+        
+    def test_display_name_if_full_name(self):
+        self.regular_user.first_name = 'Hank'
+        self.regular_user.last_name = 'Venture'
+        expected = self.regular_user.get_full_name()
+        self.assertEqual(self.regular_user_userdata.display_name, expected)

@@ -179,14 +179,10 @@ class UserData(models.Model):
         else:
             return False
 
+    @cached_property
     def display_name(self):
-        user = self.user
-        if user.first_name and user.last_name:
-            return user.first_name + " " + user.last_name
-        elif user.first_name:
-            return user.first_name
-        else:
-            return user.username   
+       """If we have First/Last use those, otherwise fallback to username"""
+       return self.user.get_full_name() or self.user.username
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""

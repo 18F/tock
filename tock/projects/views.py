@@ -71,7 +71,7 @@ def project_timeline(project, period_limit=5):
                 break
             periods.append(report_date)
 
-        groups[tc.user.get_full_name()][report_date] = float(t.hours_spent)
+        groups[tc.user.user_data.display_name][report_date] = float(t.hours_spent)
 
     return {
         'groups': dict(groups),
