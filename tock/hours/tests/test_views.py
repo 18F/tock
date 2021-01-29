@@ -183,14 +183,6 @@ class TestAdminBulkTimecards(TestCase):
         for row in rows:
             self.assertEqual(set(row.keys()), expected_fields)
 
-class ProjectTimelineTests(WebTest):
-    fixtures = FIXTURES
-
-    def test_project_timeline(self):
-        res = client().get(reverse('reports:UserTimelineView'))
-        self.assertIn(
-            'aaron.snow,,2015-06-01,2015-06-08,False,20.00', str(res.content))
-
 class UtilTests(TestCase):
 
     def test_number_of_hours_util(self):
