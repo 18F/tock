@@ -12,7 +12,6 @@
     "node": ">=8.10.0"
   },
   "dependencies": {
-    "accessible-autocomplete": "^2.0.3",
     "jquery": "^3.5.1",
     "node-sass": "^4.14.1",
     "uswds": "^2.10.0"

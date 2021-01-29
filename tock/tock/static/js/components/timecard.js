@@ -164,7 +164,6 @@ function addTockLines(tockLines) {
     setTimeout(function () {
       // Set the project and trigger a GUI update
       $("div.entry:last .entry-project select").val(line.project);
-      // $("div.entry:last .entry-project select").trigger("chosen:updated");
 
       // Set the hours and trigger a data update
       $("div.entry:last .entry-amount input").val(line.hours);
@@ -197,11 +196,6 @@ $("body").on("change", ".entry-project select", function () {
 
 
 $(document).ready(function () {
-  // var chosenOptions = {
-  // search_contains: true,
-  // group_search: false
-  // };
-
   $("#save-timecard").on("click", function () {
     // Clear anything saved locally.  The server is the
     // source of truth.
@@ -320,7 +314,6 @@ $(document).ready(function () {
 
   $('.entry-project input')
     .on('change', function (e) {
-      debugger;
       toggleNotesField(this);
       displayAlerts(this);
     });
