@@ -54,7 +54,7 @@ class UserFormView(PermissionMixin, FormView):
 
     def get_context_data(self, **kwargs):
         user = User.objects.get(username=self.kwargs['username'])
-        kwargs['display_name'] = user.user_data.display_name 
+        kwargs['display_name'] = user.user_data.display_name
         context = super(UserFormView, self).get_context_data(**kwargs)
         context.update(user_billing_context(user))
         return _add_recent_tock_table(user, context)

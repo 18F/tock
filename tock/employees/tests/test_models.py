@@ -239,8 +239,8 @@ class UserDataTests(TestCase):
 
     def test_display_name_if_no_full_name(self):
         expected = self.regular_user.username
-        self.assertEqual(self.regular_user_userdata.display_name, expected)    
-        
+        self.assertEqual(self.regular_user_userdata.display_name, expected)
+
     def test_display_name_if_full_name(self):
         self.regular_user.first_name = 'Hank'
         self.regular_user.last_name = 'Venture'
