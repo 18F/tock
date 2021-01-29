@@ -494,7 +494,7 @@ class TestProjectTimeline(WebTest):
         self.assertEqual(
             res['groups'],
             {
-                self.user: {
+                self.user.user_data.display_name: {
                     obj.timecard.reporting_period.start_date: obj.hours_spent
                     for obj in self.objs_recent
                 }
