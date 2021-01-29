@@ -52,7 +52,7 @@ def project_timeline(project, period_limit=5):
     ).order_by(
         '-timecard__reporting_period__start_date'
     ).select_related(
-        'timecard__user',
+        'timecard__user__user_data',
         'timecard__reporting_period',
     )
 
