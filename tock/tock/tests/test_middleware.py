@@ -16,7 +16,7 @@ class MiddlewareAutoLogoutTests(ProtectedViewTestCase, TestCase):
         self.assertEqual(response_initial.status_code, 200)
         self.assertIn('tock_last_activity', response_initial.client.session)
 
-        # Sleep for an arbirary five seconds
+        # Sleep for five seconds
         time.sleep(5)
 
         response_after_expiry = self.client.get(

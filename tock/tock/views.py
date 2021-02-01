@@ -1,9 +1,14 @@
 import logging
 import urllib.parse
 
+from datetime import datetime, timedelta
+
 import django.contrib.auth
 from django.conf import settings
 from django.shortcuts import redirect, render
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 logger = logging.getLogger('tock')
 
@@ -32,3 +37,19 @@ def logout(request):
         )
     else:
         return render(request, 'logout.html')
+
+@api_view()
+def session_warning(request):
+    session_time = datetime.strptime(request.session['tock_last_activity'],'%Y%m%d%H%M%S')
+    warn_delta = timedelta(minutes=(settings.AUTO_LOGOUT_DELAY_MINUTES - 2)) 
+
+    if datetime.now() > session_time + warn_delta:
+        warn = True
+    else:
+        warn = False
+
+    return Response({"warn_about_expiration": warn})
+
+@api_view()
+def session_extend(request):
+    return Response({})
