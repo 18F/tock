@@ -8,10 +8,14 @@ Tock uses [Pipenv] to manage development and production dependencies.
 In both development and continuous integration, the Python environment is
 established with `pipenv install --dev`.
 
+To accommodate third-party tools that do not yet support [Pipenv], [Pipenv] generates a `requirements.txt` file (containing
+only production dependencies) and includes it in the repository.
+
 With pipenv installed locally, you can update development and production dependencies with the following:
 
 ```sh
 pipenv update --dev
+pipenv lock --requirements > requirements.txt
 ```
 
 Within the `app` docker container, the approach is slightly different due to the volumes and working_dir set in `docker-compose.yml`.
@@ -20,12 +24,15 @@ Within the `app` docker container, the approach is slightly different due to the
 docker-compose run app bash
 $ pipenv update --dev
 $ cp ../Pipfile.lock ./Pipfile.lock
+$ pipenv lock --requirements > requirements.txt
 # Exit docker container
 cp ./tock/Pipfile.lock ./Pipfile.lock
 rm ./tock/Pipfile.lock
+cp ./tock/requirements.txt ./requirements.txt
+rm ./tock/requirements.txt
 ```
 
-Either approach will result in an updated `Pipfile.lock` file located in your local copy of the codebase, ready for commit and submission of a pull request.
+Either approach will result in updated `Pipfile.lock` and `requirements.txt` files located in your local copy of the codebase, ready for commit and submission of a pull request.
 
 ## JavaScript
 
