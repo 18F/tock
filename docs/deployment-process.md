@@ -130,7 +130,7 @@ to main, and this restriction is enforced by Tock's GitHub settings. Your review
 Code review covers both code (such as Python or JavaScript) and configuration (such as
 Dockerfiles, CloudFoundry manifest files, etc.).
 
-Code review includes assessment of:
+Code reviews should be conducted [following the 18F Engineering Guide](https://engineering.18f.gov/code-review/) and include an assessment of:
 
 - Simplicity. Ideally the submission implements the feature/fix with as little complexity as possible.
 - Legibility. Ideally the submission is easy to understand.
