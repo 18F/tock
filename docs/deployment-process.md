@@ -125,7 +125,8 @@ staging and production environments.
 
 Submissions to the Tock codebase are made via GitHub, and are only accepted into the main
 branch after review. At least one approving review is required before a branch is merged
-to main, and this restriction is enforced by Tock's GitHub settings. Your reviewer will usually merge the branch for you.
+to main, and this restriction is enforced by Tock's GitHub settings.
+Your reviewer will usually merge the branch for you.
 
 Code review covers both code (such as Python or JavaScript) and configuration (such as
 Dockerfiles, CloudFoundry manifest files, etc.).
