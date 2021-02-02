@@ -41,7 +41,7 @@ def logout(request):
 @api_view()
 def session_warning(request):
     session_time = datetime.strptime(request.session['tock_last_activity'],'%Y%m%d%H%M%S')
-    warn_delta = timedelta(minutes=(settings.AUTO_LOGOUT_DELAY_MINUTES - 2)) 
+    warn_delta = timedelta(minutes=(settings.AUTO_LOGOUT_DELAY_MINUTES - 2))
 
     if datetime.now() > session_time + warn_delta:
         warn = True

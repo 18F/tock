@@ -22,7 +22,7 @@ class AutoLogout(object):
                     fmt
                 )
 
-                logout_time = timedelta(minutes=settings.AUTO_LOGOUT_DELAY_MINUTES) 
+                logout_time = timedelta(minutes=settings.AUTO_LOGOUT_DELAY_MINUTES)
 
                 if datetime.now() - session_time > logout_time:
                     auth.logout(request)
