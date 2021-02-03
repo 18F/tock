@@ -42,7 +42,7 @@ jobs:
 
       - run:
           name: update npm
-          command: sudo npm install -g npm
+          command: sudo npm install -g npm@latest-6
 
       - run:
           name: install dependencies
