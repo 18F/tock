@@ -187,3 +187,27 @@ def headcount_data(timecard_queryset):
     frame["organization"] = frame["org"].astype(str)
     frame.drop("org", axis=1, inplace=True)
     return frame
+
+
+def project_plot(data_frame):
+    """Make a line plot of headcount.
+
+    The data frame should have start_date and headcount columns
+    """
+    if len(data_frame) == 0:
+        fig = go.Figure()
+    else:
+        fig = px.area(
+            data_frame, x="start_date", y="hours_spent", color="user", line_shape="hv"
+        )
+
+    fig.update_layout(
+        xaxis_title="Reporting Period Start Date",
+        yaxis_title="",
+        title_text="Hours tocked vs. Time",
+        hovermode="x"
+    )
+    fig.update_traces(hovertemplate="%{y}")
+
+    plot_div = plot(fig, output_type="div", include_plotlyjs=False)
+    return plot_div

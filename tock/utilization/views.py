@@ -1,22 +1,20 @@
 from datetime import date
 
+import pandas as pd
+from api.views import filter_timecards, get_timecardobjects
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, TemplateView
-from api.views import filter_timecards
-from hours.models import ReportingPeriod, Timecard
+from hours.models import ReportingPeriod, Timecard, TimecardObject
 from organizations.models import Organization, Unit
+from projects.models import Project
 
+from .analytics import (compute_utilization, headcount_data, headcount_plot,
+                        utilization_data, utilization_plot, project_plot)
 from .org import org_billing_context
 from .unit import unit_billing_context
-from .analytics import (
-    compute_utilization,
-    headcount_data,
-    headcount_plot,
-    utilization_data,
-    utilization_plot,
-)
 
 User = get_user_model()
 
@@ -63,24 +61,31 @@ class GroupUtilizationView(LoginRequiredMixin, ListView):
         return context
 
 
-class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
-    template_name = "utilization/utilization_analytics.html"
 
-    def get_context_data(self, **kwargs):
-        context = super(UtilizationAnalyticsView, self).get_context_data(**kwargs)
+class FilteredAnalyticsView(LoginRequiredMixin):
 
+    def get_filter_params(self):
         # we need a mutable copy of the request parameters so we can add
         # defaults that might not be set
         params = self.request.GET.copy()
 
         # use one year ago as the default start date
         d = date.today()
+
         # use setdefault here because if these parameters aren't sent, then we
         # want to add them with these default values so that they will get
         # used later in filter_timecards
-        start_date = params.setdefault("after", d.replace(year=d.year - 1).isoformat())
-        end_date = params.setdefault("before", d.isoformat())
-        context.update({"start_date": start_date, "end_date": end_date})
+        params.setdefault("after", d.replace(year=d.year - 1).isoformat())
+        params.setdefault("before", d.isoformat())
+
+        return params
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        params = self.get_filter_params()
+
+        context.update({"start_date": params['after'], "end_date": params['before']})
 
         # get organization ID from the URL and put it in the context
         org_parameter = params.get("org", 0)
@@ -115,6 +120,16 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
         # add a 0 for everything
         org_choices = [(0, 'All')] + org_choices
         context.update({"org_choices": org_choices})
+        return context
+
+
+class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
+    template_name = "utilization/utilization_analytics.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        params = self.get_filter_params()
 
         # Use our common timecard query handling of parameters
         timecard_queryset = filter_timecards(Timecard.objects, params=params)
@@ -145,3 +160,46 @@ class UtilizationAnalyticsView(LoginRequiredMixin, TemplateView):
         )
 
         return context
+
+
+class ProjectAnalyticsView(FilteredAnalyticsView, TemplateView):
+    template_name = "utilization/project_analytics.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # we need a mutable copy of the request parameters so we can add
+        # defaults that might not be set
+        params = self.get_filter_params()
+        project = get_object_or_404(Project, id=self.kwargs['project_id'])
+
+        # Use our common timecard query handling of parameters
+        project_timecardobjects = get_timecardobjects(TimecardObject.objects.filter(project_id=project.id), params)
+
+        data = (
+            project_timecardobjects
+            .values(
+                'hours_spent',
+                start_date=F("timecard__reporting_period__start_date"),
+                user=F(
+                    "timecard__user__username"
+                ),
+            )
+            .order_by("start_date")
+        )
+        project_dataframe = pd.DataFrame.from_records(data)
+
+        context.update(
+            {
+                "project": project,
+                "project_data": project_dataframe.pivot(
+                    index="start_date", values="hours_spent", columns="user"
+                )
+                .applymap("{:.0f}".format)
+                .replace("nan", ""),
+                "project_plot": project_plot(project_dataframe),
+            }
+        )
+
+        return context
+
+
