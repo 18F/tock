@@ -37,6 +37,14 @@
     ga('set', 'forceSSL', true);
     ga('send', 'pageview');
   </script>
+
+  <script>
+    {% comment %}
+      x_tock_session_timeout_ms is provided by the tock_settings_for_context context processor
+    {% endcomment %}
+    const sessionTimeout = {{x_tock_session_timeout_ms}};
+    setTimeout(alert, sessionTimeout, "It's been awhile...");
+  </script>
 </head>
 
 <body>

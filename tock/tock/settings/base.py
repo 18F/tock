@@ -62,7 +62,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
                 'tock.context_processors.version_url',
-                'tock.context_processors.tock_request_form_url',
+                'tock.context_processors.tock_settings_for_context',
             ],
         },
     },
@@ -125,7 +125,7 @@ UAA_AUTH_URL = 'https://login.fr.cloud.gov/oauth/authorize'
 UAA_TOKEN_URL = 'https://uaa.fr.cloud.gov/oauth/token'  # nosec
 UAA_LOGOUT_URL = 'https://login.fr.cloud.gov/logout.do'
 
-AUTO_LOGOUT_DELAY_MINUTES = 60
+AUTO_LOGOUT_DELAY_MINUTES = 1
 
 TOCK_CHANGE_REQUEST_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe5RDFOlyWm0IXv7_eXjZ3CEjaGj2CmM-_TNgqwMjdspfQz7Q/viewform'
 
