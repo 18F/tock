@@ -135,7 +135,7 @@ Code reviews should be conducted [following the 18F Engineering Guide](https://e
 
 - Simplicity. Ideally the submission implements the feature/fix with as little complexity as possible.
 - Legibility. Ideally the submission is easy to understand.
-- Security. The submission is reviews for security considerations.
+- Security. The submission is reviewed for security considerations.
 
 Code review is in addition to the various automated checks, which include tests, linting,
 and checks on security flaws of Tock's dependencies.
