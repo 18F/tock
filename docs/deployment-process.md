@@ -121,6 +121,25 @@ cloud.gov UAA application for its users.
 Tock uses the cloud.gov service account service to provide deployer accounts for
 staging and production environments.
 
+### Code review
+
+Submissions to the Tock codebase are made via GitHub, and are only accepted into the main
+branch after review. At least one approving review is required before a branch is merged
+to main, and this restriction is enforced by Tock's GitHub settings.
+Your reviewer will usually merge the branch for you.
+
+Code review covers both code (such as Python or JavaScript) and configuration (such as
+Dockerfiles, CloudFoundry manifest files, etc.).
+
+Code reviews should be conducted [following the 18F Engineering Guide](https://engineering.18f.gov/code-review/) and include an assessment of:
+
+- Simplicity. Ideally the submission implements the feature/fix with as little complexity as possible.
+- Legibility. Ideally the submission is easy to understand.
+- Security. The submission is reviewed for security considerations.
+
+Code review is in addition to the various automated checks, which include tests, linting,
+and checks on security flaws of Tock's dependencies.
+
 ### CircleCI continuous integration, delivery, and deployment
 
 Tock uses CircleCI to continuously integrate code, deliver the code to staging
