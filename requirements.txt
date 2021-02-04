@@ -7,7 +7,7 @@
 
 -i https://pypi.python.org/simple
 beautifulsoup4==4.9.3
-bleach==3.2.3
+bleach==3.3.0
 certifi==2020.12.5
 cfenv==0.5.3
 cg-django-uaa==2.0.0
