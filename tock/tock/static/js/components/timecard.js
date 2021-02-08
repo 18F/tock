@@ -320,7 +320,7 @@ $(document).ready(function () {
 
   // Force an update to each project selection menu in case a notes field
   // needs to be re-displayed.
-  $('.entry-project select').trigger('change');
+  $('.entry-project input').trigger('change');
 
   // Disable scrolling in numeric input form fields from the mouse
   // wheel or touchpad.
