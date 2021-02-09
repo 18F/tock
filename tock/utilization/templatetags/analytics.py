@@ -20,14 +20,14 @@ def frame_table(frame, name_hint):
             <div class="grid-row">
                 <button
                     class="usa-button usa-button--base float-right margin-bottom-1"
-                    onclick="download_table_as_csv('{generated_id}', '{name_hint}')"
+                    onclick="download_table_as_csv('{generated_id}-table', '{name_hint}')"
                 >Export CSV</button>
             </div>
-            <div class="usa-table-container--scrollable grid-row">
+            <div class="usa-table-container--scrollable grid-row" tabindex=0>
                 """ + frame.to_html(
                     justify="center",
                     classes="usa-table usa-table--compressed",
-                    table_id=generated_id,
+                    table_id=generated_id + '-table',
                     na_rep=''
                 ) + """
             </div>
