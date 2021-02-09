@@ -106,17 +106,9 @@
     }
 }
 
-.entry-project {
-  .autocomplete__dropdown-arrow-down {
-    z-index: 1; //override to accessible-autocomplete's -1 index, which hides arrow
-    top: 18px; //override to accommodate extra margin on input
-  }
-  .autocomplete__hint, .autocomplete__input {
-    border: 1px solid #565c65;
-    color: #1b1b1b;
-    margin-top: 0.5rem;
-  }
-}
+/*.entry-project {
+	@include span-columns(6);
+}*/
 
 .entry-notes {
     textarea {
