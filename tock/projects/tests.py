@@ -1,18 +1,14 @@
 import datetime
-import random
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.dateformat import format as date_format
 
 from django_webtest import WebTest
 
-from hours.models import ReportingPeriod, Timecard, TimecardObject
+from hours.models import Timecard, TimecardObject
 from projects.models import AccountingCode, Agency, ProfitLossAccount, Project, ProjectAlert
-from employees.models import UserData
 from projects.admin import ProfitLossAccountForm, ProjectForm
 from organizations.models import Organization
 
