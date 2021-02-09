@@ -1,12 +1,13 @@
-from collections import defaultdict
-
+from api.views import get_timecardobjects
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Sum
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
-
 from hours.models import TimecardObject
+from utilization.analytics import project_chart_and_table
+
 from .models import Project
+
 
 class ProjectListView(LoginRequiredMixin, ListView):
     """ View for listing all of the projects, sort projects by name """
@@ -25,55 +26,26 @@ class ProjectView(LoginRequiredMixin, DetailView):
     model = Project
     template_name = 'projects/project_detail.html'
 
+    def get_analytics(self, timecard_entries):
+        """Return a dict ready for the context with a plotly chart and data table"""
+        plot, table = project_chart_and_table(timecard_entries)
+        return {
+                "project_data": table,
+                "project_plot": plot
+            }
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['table'] = project_timeline(kwargs['object'])
-        context['total_hours_submitted'] = TimecardObject.objects.filter(
-            project=kwargs['object'].id, timecard__submitted=True
+        timecard_entries = get_timecardobjects(TimecardObject.objects.filter(project=self.object))
+
+        context['total_hours_submitted'] = timecard_entries.filter(timecard__submitted=True
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'] or 0
-        context['total_hours_saved'] = TimecardObject.objects.filter(
-            project=kwargs['object'].id, timecard__submitted=False
+        context['total_hours_saved'] = timecard_entries.filter(timecard__submitted=False
         ).aggregate(Sum('hours_spent'))['hours_spent__sum'] or 0
         context['total_hours_all'] = context['total_hours_submitted'] + context['total_hours_saved']
+
+        if context['total_hours_all']:
+            context.update(self.get_analytics(timecard_entries))
+
+
         return context
-
-
-def project_timeline(project, period_limit=5):
-    """
-    Gather hours spent per user per reporting period for the specified
-    project, defaulted to the five most recent time periods. Returns hours
-    per user per period, plus an ordered list of periods.
-    """
-    groups, periods = defaultdict(dict), []
-
-    # fetch timecard objs, sorted by report period date
-    timecards = TimecardObject.objects.filter(
-        project=project
-    ).order_by(
-        '-timecard__reporting_period__start_date'
-    ).select_related(
-        'timecard__user__user_data',
-        'timecard__reporting_period',
-    )
-
-    for t in timecards:
-        tc = t.timecard
-        report_date = tc.reporting_period.start_date
-
-        # skip if timecard not submitted yet
-        if not tc.submitted:
-            continue
-
-        # add report date to period array if not present
-        # if period limit set, stop after limit reached
-        if report_date not in periods:
-            if len(periods) == period_limit:
-                break
-            periods.append(report_date)
-
-        groups[tc.user.user_data.display_name][report_date] = float(t.hours_spent)
-
-    return {
-        'groups': dict(groups),
-        'periods': sorted(periods),
-    }

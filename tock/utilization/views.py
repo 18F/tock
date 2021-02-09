@@ -1,18 +1,15 @@
 from datetime import date
 
-import pandas as pd
-from api.views import filter_timecards, get_timecardobjects
+from api.views import filter_timecards
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
-from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, TemplateView
-from hours.models import ReportingPeriod, Timecard, TimecardObject
+from hours.models import ReportingPeriod, Timecard
 from organizations.models import Organization, Unit
-from projects.models import Project
 
 from .analytics import (compute_utilization, headcount_data, headcount_plot,
-                        utilization_data, utilization_plot, project_plot)
+                        utilization_data, utilization_plot)
 from .org import org_billing_context
 from .unit import unit_billing_context
 
@@ -56,10 +53,8 @@ class GroupUtilizationView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(GroupUtilizationView, self).get_context_data(**kwargs)
-        context.update({'org_totals': org_billing_context()}
-        )
+        context.update({'org_totals': org_billing_context()})
         return context
-
 
 
 class FilteredAnalyticsView(LoginRequiredMixin):
@@ -75,7 +70,7 @@ class FilteredAnalyticsView(LoginRequiredMixin):
         # use setdefault here because if these parameters aren't sent, then we
         # want to add them with these default values so that they will get
         # used later in filter_timecards
-        params.setdefault("after", d.replace(year=d.year - 1).isoformat())
+        params.setdefault("after", d.replace(year=d.year - 10).isoformat())
         params.setdefault("before", d.isoformat())
 
         return params
@@ -94,6 +89,14 @@ class FilteredAnalyticsView(LoginRequiredMixin):
         else:
             org_id = int(org_parameter)
         context.update({"current_org": org_id})
+
+        # get project ID from the URL and put it in the context
+        project_parameter = params.get("project", 0)
+        if project_parameter == "None":
+            project_id = None
+        else:
+            project_id = int(project_parameter)
+        context.update({"current_project": project_id})
 
         # Make a name too for the template
         if org_id is None:
@@ -160,46 +163,3 @@ class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
         )
 
         return context
-
-
-class ProjectAnalyticsView(FilteredAnalyticsView, TemplateView):
-    template_name = "utilization/project_analytics.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # we need a mutable copy of the request parameters so we can add
-        # defaults that might not be set
-        params = self.get_filter_params()
-        project = get_object_or_404(Project, id=self.kwargs['project_id'])
-
-        # Use our common timecard query handling of parameters
-        project_timecardobjects = get_timecardobjects(TimecardObject.objects.filter(project_id=project.id), params)
-
-        data = (
-            project_timecardobjects
-            .values(
-                'hours_spent',
-                start_date=F("timecard__reporting_period__start_date"),
-                user=F(
-                    "timecard__user__username"
-                ),
-            )
-            .order_by("start_date")
-        )
-        project_dataframe = pd.DataFrame.from_records(data)
-
-        context.update(
-            {
-                "project": project,
-                "project_data": project_dataframe.pivot(
-                    index="start_date", values="hours_spent", columns="user"
-                )
-                .applymap("{:.0f}".format)
-                .replace("nan", ""),
-                "project_plot": project_plot(project_dataframe),
-            }
-        )
-
-        return context
-
-

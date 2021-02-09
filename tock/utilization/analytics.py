@@ -189,11 +189,24 @@ def headcount_data(timecard_queryset):
     return frame
 
 
-def project_plot(data_frame):
-    """Make a line plot of headcount.
+def project_dataframe(timecardobject_queryset):
+    data = timecardobject_queryset.values(
+                'hours_spent',
+                start_date=F("timecard__reporting_period__start_date"),
+                user=F(
+                    "timecard__user__username"
+                ),
+            ).order_by("start_date")
+    return pd.DataFrame.from_records(data)
+
+def project_chart_and_table(timecardobject_queryset):
+    """Make a line plot of headcount AND a table of the data
 
     The data frame should have start_date and headcount columns
     """
+    data_frame = project_dataframe(timecardobject_queryset)
+
+    # plot
     if len(data_frame) == 0:
         fig = go.Figure()
     else:
@@ -204,10 +217,15 @@ def project_plot(data_frame):
     fig.update_layout(
         xaxis_title="Reporting Period Start Date",
         yaxis_title="",
-        title_text="Hours tocked vs. Time",
+        title_text="Hours tocked by user and week",
         hovermode="x"
     )
     fig.update_traces(hovertemplate="%{y}")
 
     plot_div = plot(fig, output_type="div", include_plotlyjs=False)
-    return plot_div
+
+    # datatable
+    datatable = data_frame.pivot(
+                    index="start_date", values="hours_spent", columns="user"
+                ).applymap("{:.0f}".format).replace("nan", "")
+    return plot_div, datatable
