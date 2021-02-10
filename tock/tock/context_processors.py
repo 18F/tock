@@ -19,7 +19,12 @@ def version_url(request):
 
     return response
 
-def tock_request_form_url(request):
+
+def tock_settings_for_context(request):
+    """
+    Add select values from settings to every context
+    """
     return {
         'x_tock_change_request_form_url': settings.TOCK_CHANGE_REQUEST_FORM,
+        'x_tock_session_timeout_ms': settings.AUTO_LOGOUT_DELAY_MINUTES * 60000
     }

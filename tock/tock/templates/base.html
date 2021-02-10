@@ -37,6 +37,35 @@
     ga('set', 'forceSSL', true);
     ga('send', 'pageview');
   </script>
+  <script>
+      function extendSession() {
+        var request = new XMLHttpRequest();
+        request.open("GET", "/session-extend", true);
+        request.onload = function () {
+          if (request.status === 401) {
+            alert("Your session has expired. Please log back in.");
+            logout();
+          }
+        };
+        request.send();
+        setTimeout(setAlert, timeoutCount - 120 * 1000);
+      }
+
+      function logout() {
+        window.location.reload();
+      }
+
+      const timeoutCount = "{{x_tock_session_timeout_ms}}";
+
+      function setAlert() {
+        alert(
+          "Your session will expire in 2 minutes. Press OK or the enter key to extend your session."
+        );
+        extendSession();
+      }
+
+      setTimeout(setAlert, timeoutCount - 120 * 1000);
+  </script>
 </head>
 
 <body>
