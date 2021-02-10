@@ -62,7 +62,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
                 'tock.context_processors.version_url',
-                'tock.context_processors.tock_request_form_url',
+                'tock.context_processors.tock_settings_for_context',
             ],
         },
     },
