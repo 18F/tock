@@ -96,6 +96,16 @@ docker-compose run app bash
 python manage.py test
 ```
 
+You can currently run the javascript tests locally by installing local dependencies and then
+running the tests. (We will dockerize these at some point!)
+
+```
+npm install
+npm run test
+```
+
+If you need help debugging the jest-puppeteer tests, turning off the `headless` mode in [the puppeteer configuration file](jest-puppeteer.config.js)
+
 ### Making CSS changes
 
 `docker-compose up` will also launch a [Node] machine that compiles the [Sass]
