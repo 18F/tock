@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   &:before {
-    background-image: url('/static/img/clock.svg');
+    background-image: url('../../img/clock.svg');
     background-repeat: no-repeat;
     margin-left: -1rem;
     padding-right: 2rem;
@@ -17,7 +17,7 @@
   }
   &.overdue {
     &::before {
-      background-image: url('/static/img/clock-overdue.svg');
+      background-image: url('../../img/clock-overdue.svg');
       margin-left: -1.2rem; // to align the clocks themselves, adjusting for the ! icon on the overdue clock
     }
     span {
@@ -27,7 +27,7 @@
     }
   }
   &.completed::before {
-    background-image: url('/static/img/clock-completed.svg');
+    background-image: url('../../img/clock-completed.svg');
       margin-left: -1.2rem; // for consistency with the overdue clock
   }
 }
