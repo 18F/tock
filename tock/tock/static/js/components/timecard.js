@@ -102,23 +102,19 @@ function populateHourTotals() {
   }
 }
 
-function toggleNotesField(selectBox) {
-  var $fieldset = $(selectBox).parents('.entry-project'),
-    $selected = $(selectBox).find(':selected'),
+function toggleNotesField(selectBoxId) {
+  const $fieldset = $('#' + selectBoxId).parents('.entry-project'),
+    $selected = $fieldset.find(':selected'),
     $notes = $fieldset.find('.entry-note-field'),
     notesDisplayed = $selected.data('notes-displayed'),
     notesRequired = $selected.data('notes-required');
 
-  if (notesRequired || notesDisplayed) {
-    $notes.toggleClass('entry-hidden', false);
-  } else {
-    $notes.toggleClass('entry-hidden', true);
-  }
+  $notes.toggleClass('entry-hidden', !(notesDisplayed || notesRequired))
 }
 
-function displayAlerts(selectBox) {
-  var $fieldset = $(selectBox).parents('.entry-project'),
-    $selected = $(selectBox).find(':selected'),
+function displayAlerts(selectBoxId) {
+  var $fieldset = $('#' + selectBoxId).parents('.entry-project'),
+    $selected = $fieldset.find(':selected'),
     $alerts = $fieldset.find('.entry-alerts'),
     all_alerts = $selected.data('alerts'),
     alert_text;
@@ -154,21 +150,15 @@ function addTockLines(tockLines) {
       return;
     }
 
-    // If the last entry box isn't empty, add a new one
-    if ($('div.entry:last .entry-project select').val() !== '') {
-      $(".add-timecard-entry").click();
-    }
-
     // Wait a tick so the DOM can be updated, in case a new
     // line item entry had to be created
     setTimeout(function () {
       // Set the project and trigger a GUI update
-      $("div.entry:last .entry-project select").val(line.project);
-      $("div.entry:last .entry-project select").trigger("chosen:updated");
+      $('div.entry:last .entry-project select').val(line.project);
 
       // Set the hours and trigger a data update
-      $("div.entry:last .entry-amount input").val(line.hours);
-      $("div.entry:last .entry-amount input").change();
+      $('div.entry:last .entry-amount input').val(line.hours);
+      $('div.entry:last .entry-amount input').change();
 
       // Go again with the remaining tock lines
       addTockLines(tockLines);
@@ -177,32 +167,43 @@ function addTockLines(tockLines) {
     // If we're finished processing the list of tock lines,
     // trigger a change event to update the hours total and
     // re-sync any local storage.
-    $("div.entry:last select").change();
+    $('div.entry:last select').change();
   }
 }
 
 // When you change the hours, redo the totals
-$("body").on("keyup", ".entry-amount input", function () {
+$('body').on('keyup', '.entry-amount input', function () {
   populateHourTotals();
 });
 
-$("body").on("click", ".entry-amount input, .entry-delete input", function () {
+$('body').on('click', '.entry-amount input, .entry-delete input', function () {
   populateHourTotals();
 });
 
-// When you change a project, redo the totals
-$("body").on("change", ".entry-project select", function () {
+// When you change a project:
+// 1. redo the totals
+// 2. check if notes are needed
+// 3. display any necessary alerts
+function updateDisplays(targetId) {
   populateHourTotals();
-});
+  toggleNotesField(targetId);
+  displayAlerts(targetId);
+}
 
+function handleConfirm(val) {
+  // there is a fun race condition where the autocomplete select is not updated!
+  // before updating the displays we have to ensure that the correct option is selected.
+  if (val) {
+    const optValue = val.match(/\d+ -/)[0].replace(' -', '')
+    const idx = this.selectElement.querySelector(`option[value='${optValue}']`).index
+    this.selectElement.selectedIndex = idx
+
+    updateDisplays(this.id)
+  }
+}
 
 $(document).ready(function () {
-  var chosenOptions = {
-    search_contains: true,
-    group_search: false
-  };
-
-  $("#save-timecard").on("click", function () {
+  $('#save-timecard').on('click', function () {
     // Clear anything saved locally.  The server is the
     // source of truth.
     clearLocalStorage();
@@ -214,7 +215,7 @@ $(document).ready(function () {
     form.submit();
   });
 
-  $("#submit-timecard").on("click", function () {
+  $('#submit-timecard').on('click', function () {
     // Clear anything saved locally.  The server is the
     // source of truth.
     clearLocalStorage();
@@ -222,10 +223,10 @@ $(document).ready(function () {
     $('form').submit();
   })
 
-  $(".add-timecard-entry").on("click", function () {
+  $('.add-timecard-entry').on('click', function () {
     $('div.entry:last').clone().each(function (i) {
       var entry = $(this);
-      entry.find('.chosen-container').remove();
+      entry.find('.autocomplete__wrapper').remove();
       entry.find('.entry-alerts').empty();
       entry.find('.entry-note-field').toggleClass('entry-hidden', true);
       entry.find('.entry-note-field .invalid').remove();
@@ -248,7 +249,9 @@ $(document).ready(function () {
 
         if (formItem[0].tagName.toLowerCase() !== 'label') {
           var formerID = formItem.attr('id');
-          var nextID = formerID.replace(previousNumber, nextNumber);
+          // we need the input not to have the `-select` on the id -- it interferes with the accessible
+          // autocomplete library
+          var nextID = formerID.replace(previousNumber, nextNumber).replace('-select', '');
           formItem.attr('id', nextID);
 
           var formerName = formItem.attr('name');
@@ -262,12 +265,12 @@ $(document).ready(function () {
       });
     }).appendTo('.entries');
 
-    $('div.entry:last').find('.entry-project select')
-      .chosen(chosenOptions)
-      .on('change', function (e) {
-        toggleNotesField(this);
-        displayAlerts(this);
-      });
+    accessibleAutocomplete.enhanceSelectElement({
+      showAllValues: true,
+      defaultValue: '',
+      selectElement: document.querySelector('div.entry:last-child .entry-project select'),
+      onConfirm: handleConfirm
+    });
 
     // Increment the TOTAL_FORMS
     $('#id_timecardobjects-TOTAL_FORMS').val(parseInt($('#id_timecardobjects-TOTAL_FORMS').val()) + 1);
@@ -304,16 +307,19 @@ $(document).ready(function () {
   // Run on initial load
   populateHourTotals();
 
-  $('.entry-project select')
-    .chosen(chosenOptions)
-    .on('change', function (e) {
-      toggleNotesField(this);
-      displayAlerts(this);
-    });
+  // adds accessible autocomplete to existing <select> fields
+  const selects = document.querySelectorAll('.entry-project select');
+  selects.forEach(select => {
+    accessibleAutocomplete.enhanceSelectElement({
+      showAllValues: true,
+      defaultValue: '',
+      selectElement: select,
+      onConfirm: handleConfirm
+    })
 
-  // Force an update to each project selection menu in case a notes field
-  // needs to be re-displayed.
-  $('.entry-project select').trigger('change');
+    // make sure any necessary notes or alerts are present
+    updateDisplays(select.id.replace('-select', ''))
+  });
 
   // Disable scrolling in numeric input form fields from the mouse
   // wheel or touchpad.
