@@ -104,7 +104,7 @@ npm install
 npm run test
 ```
 
-If you need help debugging the jest-puppeteer tests, turning off the `headless` mode in [the puppeteer configuration file](jest-puppeteer.config.js)
+If you need help debugging the jest-puppeteer tests, try turning off the `headless` mode in [the puppeteer configuration file](jest-puppeteer.config.js)
 
 ### Making CSS changes
 
