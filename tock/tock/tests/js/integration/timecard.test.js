@@ -28,22 +28,28 @@ describe("Timecard", () => {
       const _entries = await page.$$(".entry");
       expect(_entries.length).toEqual(length + 1);
     });
-  
+
     test("sums the hours in each project entry and correctly rounds!", async () => {
       // https://github.com/18F/tock/issues/848
+      await page.evaluate(() => {
+        document.querySelector("#id_timecardobjects-0-hours_spent").value = ''
+      })
       await page.type("#id_timecardobjects-0-hours_spent", ".2");
+      await page.keyboard.press("Enter")
       await expect(page).toMatchElement(".entries-total-reported-amount", {
         text: "0.2",
       });
-  
+
       await page.click(".add-timecard-entry");
       await page.type("#id_timecardobjects-1-hours_spent", ".2");
+      await page.keyboard.press("Enter")
       await expect(page).toMatchElement(".entries-total-reported-amount", {
         text: "0.4",
       });
   
       await page.click(".add-timecard-entry");
       await page.type("#id_timecardobjects-2-hours_spent", ".2");
+      await page.keyboard.press("Enter")
       await expect(page).toMatchElement(".entries-total-reported-amount", {
         text: "0.6",
       });
