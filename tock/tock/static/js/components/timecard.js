@@ -15,7 +15,7 @@
  * */
 function getFormData() {
   return Array.from(document.querySelectorAll('.entry')).map((entry, i) => {
-    const markedForDeletion = $('.entry-delete input', entry).prop('checked');
+    const markedForDeletion = entry.querySelector('.entry-delete input').checked
 
     if (markedForDeletion) {
       return;
@@ -279,8 +279,9 @@ function addEntry() {
   });
 
   // Increment the TOTAL_FORMS
-  // FIXME
-  // Why is this needed? the post breaks if it's removed.
+  // This field is necessary for the ManagementForm template we are using.
+  // For more information, see:
+  // https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#understanding-the-managementform
   const tf = parseInt(
     document.querySelector('#id_timecardobjects-TOTAL_FORMS').value
   );
