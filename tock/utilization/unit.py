@@ -56,7 +56,8 @@ def _get_unit_billing_data(users, unit, recent_periods=None, fiscal_year=False):
                 'display_name': f"{employee['first_name']} {employee['last_name']}".strip() or employee['username'],
                 'denominator': employee['target'],
                 'billable': employee['billable'],
-                'utilization': calculate_utilization(employee['billable'], employee['target'])
+                'utilization': calculate_utilization(employee['billable'], employee['target']),
+                'username': employee['username']
                 } for employee in data]
 
         # Get totals for unit
