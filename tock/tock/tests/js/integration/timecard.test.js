@@ -29,6 +29,16 @@ describe("Timecard", () => {
       expect(_entries.length).toEqual(length + 1);
     });
 
+    test('increments the django management form when "Add Item" is clicked', async () => {
+      await page.click(".add-timecard-entry");
+      const _entries = await page.$$(".entry");
+      const totalforms = await page.evaluate(() => {
+        return parseInt(document.querySelector("#id_timecardobjects-TOTAL_FORMS").value)
+      })
+
+      expect(_entries.length).toEqual(totalforms);
+    });
+
     test("sums the hours in each project entry and correctly rounds!", async () => {
       // https://github.com/18F/tock/issues/848
       await page.evaluate(() => {
@@ -46,7 +56,7 @@ describe("Timecard", () => {
       await expect(page).toMatchElement(".entries-total-reported-amount", {
         text: "0.4",
       });
-  
+
       await page.click(".add-timecard-entry");
       await page.type("#id_timecardobjects-2-hours_spent", ".2");
       await page.keyboard.press("Enter")
@@ -55,7 +65,7 @@ describe("Timecard", () => {
       });
     });
   })
- 
+
   describe("notes", () => {
     beforeEach(() => {
       jest.setTimeout(20000);
@@ -72,7 +82,7 @@ describe("Timecard", () => {
           const id = 0
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: true 
+            visible: true
           });
         });
       });
@@ -87,7 +97,7 @@ describe("Timecard", () => {
           const id = 0
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: false 
+            visible: false
           });
         });
       });
@@ -104,7 +114,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: false 
+            visible: false
           });
 
           await page.type(`#id_timecardobjects-${id}-project`, "124 - notes Project")
@@ -112,7 +122,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: true 
+            visible: true
           });
         })
       })
@@ -126,7 +136,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: false 
+            visible: false
           });
 
           await page.type(`#id_timecardobjects-${id}-project`, "7nlE6t Project")
@@ -134,7 +144,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: false 
+            visible: false
           });
         })
       })
@@ -149,7 +159,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: false 
+            visible: false
           });
 
           await page.type(`#id_timecardobjects-${id}-project`, "124 - notes Project")
@@ -157,7 +167,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: true 
+            visible: true
           });
         })
       })
@@ -169,7 +179,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: false 
+            visible: false
           });
 
           await page.type(`#id_timecardobjects-${id}-project`, "7nlE6t Project")
@@ -177,7 +187,7 @@ describe("Timecard", () => {
 
           await page.waitForSelector(
             `#id_timecardobjects-${id}-notes`, {
-            visible: false 
+            visible: false
           });
         })
       })

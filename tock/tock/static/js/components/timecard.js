@@ -10,11 +10,13 @@
 /** @function
  * Pulls data from the form
  * @name getFormData
- * @returns {FormData}
+ * @returns {FormData[]}
  *
  * */
 function getFormData() {
-  return Array.from(document.querySelectorAll('.entry')).map((entry, i) => {
+  let data = []
+
+  Array.from(document.querySelectorAll('.entry')).forEach((entry, i) => {
     const markedForDeletion = entry.querySelector('.entry-delete input').checked
 
     if (markedForDeletion) {
@@ -32,8 +34,10 @@ function getFormData() {
     const hours =
       parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
 
-    return { project, isBillable, isExcluded, hours };
+    data.push({ project, isBillable, isExcluded, hours });
   });
+
+  return data
 }
 
 /** @function
@@ -76,6 +80,8 @@ function getHoursReport() {
 
   const r = data.reduce(
     (sums, entry) => {
+      if (!entry) return sums
+
       sums.totalHours += entry.hours;
       if (entry.isExcluded) sums.excludedHours += entry.hours;
       if (entry.isBillable) sums.billableHours += entry.hours;
@@ -278,14 +284,12 @@ function addEntry() {
     onConfirm: handleConfirm,
   });
 
-  // Increment the TOTAL_FORMS
-  // This field is necessary for the ManagementForm template we are using.
+  // Increment the TOTAL_FORMS value as we add lines
+  // This field is necessary for Django's ManagementForm.
+  // Should equal the number of `timecardobjects-#` values in the POSTed form data
   // For more information, see:
   // https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#understanding-the-managementform
-  const tf = parseInt(
-    document.querySelector('#id_timecardobjects-TOTAL_FORMS').value
-  );
-  document.querySelector('#id_timecardobjects-TOTAL_FORMS').value = tf + 1;
+  document.querySelector('#id_timecardobjects-TOTAL_FORMS').value++
 }
 
 /** @function
