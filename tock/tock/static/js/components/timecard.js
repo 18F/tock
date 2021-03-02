@@ -235,7 +235,12 @@ function addEntry() {
   let fields = newEntry.querySelectorAll('input, select, textarea');
   // remove values
   for (f of fields) {
-    f.value = '';
+    if (f.matches('[type="checkbox"]')) {
+      f.checked = false;
+    }
+    else {
+      f.value = '';
+    }
   }
 
   newEntry.querySelector('.autocomplete__wrapper').remove();
