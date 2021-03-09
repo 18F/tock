@@ -242,7 +242,7 @@ function addEntry() {
 
   newEntry.querySelector('.autocomplete__wrapper').remove();
 
-  const previousNumber = parseInt(newEntry.getAttribute('id').match(/\d/)[0]);
+  const previousNumber = parseInt(newEntry.getAttribute('id').match(/\d+/)[0]);
   const nextNumber = entries.length;
 
   if (nextNumber % 2 == 0) {
