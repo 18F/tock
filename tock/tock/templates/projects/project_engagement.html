@@ -31,7 +31,7 @@ hours relative to the number of project hours are listed first.</p>
     </td>
     <td data-title="Project Hours">{{ item.hours }}</td>
     <td data-title="EM Hours">{{ item.em_hours }}</td>
-    <td data-title="Ratio">{{ item.ratio }}</td>
+    <td data-title="Ratio">{{ item.ratio|floatformat:3 }}</td>
   </tr>
   {% endfor %}
 </tbody>
