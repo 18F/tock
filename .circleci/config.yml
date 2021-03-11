@@ -35,9 +35,9 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
+            - deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
             # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+            - deps-{{ .Environment.CACHE_VERSION }}-
 
       - run:
           name: update npm
@@ -54,7 +54,7 @@ jobs:
           paths:
             - ./.venv
             - ~/.npm
-          key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
+          key: deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
 
       # run tests!
       - run:
