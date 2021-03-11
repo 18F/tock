@@ -16,7 +16,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/python:3.8.5-jessie-node-browsers
+      - image: cimg/python:3.8.5-node
         environment:
           - TZ=America/New_York
           - PIPENV_VENV_IN_PROJECT=true
