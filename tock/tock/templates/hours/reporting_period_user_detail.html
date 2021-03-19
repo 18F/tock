@@ -38,8 +38,16 @@
   </tbody>
   {% endfor %}
 </table>
-<div>First Submitted: {{ object.created }}</div>
-Last Changed: {{ object.modified }}
+<div>First Created: {{ object.created }}</div>
+<div>Last Changed: {{ object.modified }}</div>
+<div>
+  {% if object.submitted %}
+    Submitted: {{ object.submitted_date }}
+    (on time: {{ object.on_time }})
+  {% else %}
+    Not submitted
+  {% endif %}
+</div>
 
 <table class="usa-table table-responsive-reflow">
   <caption>

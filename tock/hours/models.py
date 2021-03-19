@@ -234,6 +234,8 @@ class Timecard(models.Model):
     submitted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    submitted_date = models.DateField(null=True, blank=True)
+
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                             default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
                                             verbose_name="Percent hours billable per week")
@@ -271,10 +273,27 @@ class Timecard(models.Model):
             self.unit = self.user.user_data.unit
         if self.id:
             self.calculate_hours()
+        self.submitted_date = self.calculate_submitted_date()
+
         super().save(*args, **kwargs)
 
     def calculate_utilization_denominator(self):
         return self.billable_hours + self.non_billable_hours
+
+    def calculate_submitted_date(self):
+        """
+        If the submitted status is false, make sure submitted_date is unset
+            (self.submitted may have been unchecked in admin interface)
+        Otherwise, if timecard has been submitted but there is no submitted_date,
+        set to today's date
+        """
+        if not self.submitted:
+            return None
+        else:
+            if self.submitted_date:
+                return self.submitted_date
+            else:
+                return datetime.date.today()
 
     def calculate_target_hours(self):
         """
@@ -316,6 +335,14 @@ class Timecard(models.Model):
 
         self.target_hours = self.calculate_target_hours()
         self.utilization = self.calculate_utilization()
+
+    def on_time(self):
+        # rely on the modified date for those time cards which were recorded before submitted_date was added
+        if self.submitted_date and \
+        self.submitted_date <= self.reporting_period.end_date:
+            return True
+        else:
+            return False
 
 
 class TimecardNoteManager(models.Manager):

@@ -157,6 +157,53 @@ class TimecardTests(TestCase):
         self.assertEqual(timecard.created.day, datetime.datetime.utcnow().day)
         self.assertEqual(timecard.modified.day, datetime.datetime.utcnow().day)
         self.assertEqual(len(timecard.time_spent.all()), 2)
+        self.assertFalse(timecard.submitted)
+        self.assertFalse(timecard.submitted_date)
+
+    def test_time_card_submission(self):
+        timecard = Timecard.objects.first()
+        timecard.submitted = True
+        timecard.save()
+
+        self.assertTrue(timecard.submitted)
+        self.assertIsInstance(timecard.submitted_date, datetime.date)
+        self.assertFalse(timecard.on_time())
+
+    def test_time_card_submission_removal(self):
+        timecard = Timecard.objects.first()
+        timecard.submitted = False
+        timecard.save()
+
+        self.assertFalse(timecard.submitted)
+        self.assertIsNone(timecard.submitted_date)
+        self.assertFalse(timecard.on_time())
+
+    def test_time_card_submitted_modified_date_remains(self):
+        """
+        Test that the submitted date will remain set even if the object
+        is altered / saved
+        """
+        reporting_period = ReportingPeriod.objects.create(
+                    start_date=datetime.date(2016, 1, 1),
+                    end_date=datetime.date(2016, 1, 7),
+                    exact_working_hours=40)
+        userdata = get_user_model().objects.get(id=1)
+        timecard = Timecard.objects.create(
+            user=userdata,
+            reporting_period=reporting_period,
+            submitted=True,
+            submitted_date=datetime.date.fromisoformat("2016-01-07")
+            )
+        timecard.save()
+        date = timecard.submitted_date
+
+        # change a small thing about the timecard
+        timecard.unit = None
+        timecard.save()
+
+        self.assertEqual(date, timecard.submitted_date)
+        # check that the submitted date is considered "on time"
+        self.assertTrue(timecard.on_time())
 
     def test_time_card_unique_constraint(self):
         """Test that the time card model is constrained by user and reporting
