@@ -3,7 +3,7 @@
 from django.urls import path, re_path
 
 from api.views import ProjectList, ProjectInstanceView, UserList, ReportingPeriodList, ReportingPeriodAudit, \
-    TimecardList, hours_by_quarter, hours_by_quarter_by_user, UserDataView
+    Submissions, TimecardList, hours_by_quarter, hours_by_quarter_by_user, UserDataView
 
 urlpatterns = [
     path('projects.json', ProjectList.as_view(), name='ProjectList'),
@@ -13,6 +13,11 @@ urlpatterns = [
         r'^reporting_period_audit/(?P<reporting_period_start_date>[0-9]{4}-[0-9]{2}-[0-9]{2}).json$',
         ReportingPeriodAudit.as_view(),
         name='ReportingPeriodAudit'
+    ),
+    re_path(
+        r'^submissions/(?P<num_past_reporting_periods>\d+).json$',
+        Submissions.as_view(),
+        name='Submissions'
     ),
     path('timecards.json', TimecardList.as_view(), name='TimecardList'),
     path('hours/by_quarter.json', hours_by_quarter, name='HoursByQuarter'),
