@@ -8,8 +8,9 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 
-from api.views import get_timecardobjects, TimecardList, Submissions
-from employees.models import UserData, EmployeeGrade
+from api.views import get_timecardobjects, get_user_timecard_count, TimecardList
+from employees.models import EmployeeGrade, UserData
+from hours.models import Timecard
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
 )
@@ -59,7 +60,12 @@ class SubmissionsAPITests(WebTest):
     def test_submissions_json(self):
         res = client().get(reverse('Submissions', kwargs={'num_past_reporting_periods': '2'})).data
         self.assertEqual(len(res), 1)
-        self.assertEqual(res[0]["on_time_submissions"], '1')
+        self.assertEqual(res[0]["on_time_submissions"], "1")
+
+    def test_user_timecard_count(self):
+        """ Check with unfiltered query """
+        all_timecards = get_user_timecard_count(Timecard.objects.all())
+        self.assertEqual(all_timecards.first().tcount, 3)
 
 class UsersAPITests(TestCase):
     fixtures = FIXTURES
