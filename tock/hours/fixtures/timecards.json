@@ -22,6 +22,7 @@
       "user": 1,
       "reporting_period": 1,
       "submitted": true,
+      "submitted_date": "2015-06-09",
       "created": "2015-06-08T12:00:00.000Z",
       "modified": "2015-06-08T12:00:00.000Z"
     },
@@ -44,8 +45,8 @@
   {
     "model": "hours.reportingperiod",
     "fields": {
-      "start_date": "2016-06-01",
-      "end_date": "2016-06-08"
+      "start_date": "2016-06-09",
+      "end_date": "2016-06-15"
     },
     "pk": 2
   },
@@ -55,8 +56,9 @@
       "user": 1,
       "reporting_period": 2,
       "submitted": true,
-      "created": "2016-06-08T12:00:00.000Z",
-      "modified": "2016-06-08T12:00:00.000Z"
+      "submitted_date": "2016-06-15",
+      "created": "2016-06-14T12:00:00.000Z",
+      "modified": "2016-06-15T12:00:00.000Z"
     },
     "pk": 2
   },
@@ -66,8 +68,8 @@
       "timecard": 2,
       "project": 1,
       "hours_spent": 20,
-      "created": "2016-06-08T12:00:00.000Z",
-      "modified": "2016-06-08T12:00:00.000Z"
+      "created": "2016-06-14T12:00:00.000Z",
+      "modified": "2016-06-14T12:00:00.000Z"
     },
     "pk": 2
   },
@@ -76,8 +78,8 @@
   {
     "model": "hours.reportingperiod",
     "fields": {
-      "start_date": "2017-06-01",
-      "end_date": "2017-06-08"
+      "start_date": "2017-06-16",
+      "end_date": "2017-06-22"
     },
     "pk": 3
   },
@@ -87,8 +89,8 @@
       "user": 1,
       "reporting_period": 3,
       "submitted": false,
-      "created": "2017-06-08T12:00:00.000Z",
-      "modified": "2017-06-08T12:00:00.000Z"
+      "created": "2017-06-21T12:00:00.000Z",
+      "modified": "2017-06-21T12:00:00.000Z"
     },
     "pk": 3
   },
@@ -98,8 +100,8 @@
       "timecard": 3,
       "project": 1,
       "hours_spent": 20,
-      "created": "2017-06-08T12:00:00.000Z",
-      "modified": "2017-06-08T12:00:00.000Z"
+      "created": "2017-06-21T12:00:00.000Z",
+      "modified": "2017-06-21T12:00:00.000Z"
     },
     "pk": 3
   }

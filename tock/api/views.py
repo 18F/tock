@@ -71,7 +71,7 @@ class ReportingPeriodSerializer(serializers.ModelSerializer):
 
 class SubmissionSerializer(serializers.Serializer):
     user = serializers.CharField(source='id')
-    username = serializers.CharField(source='user_data')
+    username = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     email = serializers.CharField()

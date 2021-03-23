@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 
-from api.views import get_timecardobjects, TimecardList
+from api.views import get_timecardobjects, TimecardList, Submissions
 from employees.models import UserData, EmployeeGrade
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
@@ -52,6 +52,14 @@ class ProjectInstanceAPITests(WebTest):
         self.assertEqual(res['name'], "Consulting - Agile BPA")
         self.assertEqual(res['start_date'], "2016-01-01")
         self.assertEqual(res['end_date'], None)
+
+class SubmissionsAPITests(WebTest):
+    fixtures = FIXTURES
+
+    def test_submissions_json(self):
+        res = client().get(reverse('Submissions', kwargs={'num_past_reporting_periods': '2'})).data
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]["on_time_submissions"], '1')
 
 class UsersAPITests(TestCase):
     fixtures = FIXTURES
@@ -135,7 +143,7 @@ class TimecardsAPITests(WebTest):
         self.assertEqual(len(queryset), 1)
         queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'after': '2015-06-01', 'before': '2016-06-01'})
-        self.assertEqual(len(queryset), 2)
+        self.assertEqual(len(queryset), 1)
 
 
     def test_get_unsubmitted_timecards(self):
