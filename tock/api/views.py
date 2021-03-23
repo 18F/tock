@@ -70,7 +70,11 @@ class ReportingPeriodSerializer(serializers.ModelSerializer):
         )
 
 class SubmissionSerializer(serializers.Serializer):
-    user = serializers.CharField(source='user_data')
+    user = serializers.CharField(source='id')
+    username = serializers.CharField(source='user_data')
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.CharField()
     on_time_submissions = serializers.CharField(source='tcount')
 
 class TimecardSerializer(serializers.Serializer):
