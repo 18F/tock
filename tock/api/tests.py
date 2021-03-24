@@ -57,10 +57,14 @@ class ProjectInstanceAPITests(WebTest):
 class SubmissionsAPITests(WebTest):
     fixtures = FIXTURES
 
-    def test_submissions_json(self):
+    def test_submissions_json_counts_punctual_timecard(self):
         res = client().get(reverse('Submissions', kwargs={'num_past_reporting_periods': '2'})).data
         self.assertEqual(len(res), 1)
         self.assertEqual(res[0]["on_time_submissions"], "1")
+
+    def test_submissions_json_no_late_timecards(self):
+        res = client().get(reverse('Submissions', kwargs={'num_past_reporting_periods': '1'})).data
+        self.assertEqual(len(res), 0)
 
     def test_user_timecard_count(self):
         """ Check with unfiltered query """

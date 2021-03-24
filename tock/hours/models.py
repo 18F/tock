@@ -227,9 +227,10 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         today = datetime.date.today()
         periods = ReportingPeriod.objects.filter(end_date__lte=today)
 
-        if number_of_results:
-            range_end = number_of_periods + number_of_results
-            return periods.order_by('-start_date')[number_of_periods:range_end]
+        if number_of_periods and number_of_results:
+            starting_index = number_of_periods-1
+            range_end = starting_index + number_of_results
+            return periods.order_by('-start_date')[starting_index:range_end]
         else:
             return periods.order_by('-start_date')[:number_of_periods]
 
