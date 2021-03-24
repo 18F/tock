@@ -123,7 +123,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'organization',
         'include_in_utilization',
     )
-    search_fields = ('name', 'accounting_code__code', 'mbnumber',)
+    search_fields = ('name', 'accounting_code__code', 'mbnumber', 'id',)
 
     def get_organization_name(self, obj):
         if obj.organization is not None:

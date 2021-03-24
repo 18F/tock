@@ -5,6 +5,9 @@ import django.contrib.auth
 from django.conf import settings
 from django.shortcuts import redirect, render
 
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+
 logger = logging.getLogger('tock')
 
 
@@ -32,3 +35,8 @@ def logout(request):
         )
     else:
         return render(request, 'logout.html')
+
+
+@api_view()
+def session_extend(request):
+    return Response({})

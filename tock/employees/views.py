@@ -27,7 +27,7 @@ class UserListView(PermissionMixin, ListView):
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
-        return User.objects.filter(is_active=True).select_related('user_data')
+        return User.objects.filter(is_active=True).select_related('user_data').order_by('last_name', 'first_name')
 
 
 class UserDetailView(PermissionMixin, DetailView):
@@ -53,8 +53,8 @@ class UserFormView(PermissionMixin, FormView):
     permission_classes = (IsSuperUserOrSelf, )
 
     def get_context_data(self, **kwargs):
-        kwargs['username'] = self.kwargs['username']
-        user = User.objects.get(username=kwargs['username'])
+        user = User.objects.get(username=self.kwargs['username'])
+        kwargs['display_name'] = user.user_data.display_name
         context = super(UserFormView, self).get_context_data(**kwargs)
         context.update(user_billing_context(user))
         return _add_recent_tock_table(user, context)

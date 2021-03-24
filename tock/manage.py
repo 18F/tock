@@ -52,7 +52,7 @@ if __name__ == '__main__':
     if testing:
         import coverage
         cov = coverage.coverage(
-            source=['tock', 'employees', 'projects', 'hours', 'api'],
+            source=['tock', 'employees', 'projects', 'hours', 'api', 'utilization'],
             omit=['*/tests*', '*/migrations/*', '*/settings/*'],
         )
         cov.erase()

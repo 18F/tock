@@ -1,0 +1,37 @@
+<form class="usa-form maxw-full">
+
+    <div class="grid-row grid-gap flex-align-end margin-top-neg-3 ">
+        <div class="usa-form-group grid-col-2 grid-offset-6">
+            <label class="usa-label" id="end-date-label" for="org">Organization</label>
+            <select class="usa-select" name="org" id="org">
+                {% for id, name in org_choices %}
+                <option value="{{ id }}" {% if current_org == id %} selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="usa-form-group grid-col-2">
+            <label class="usa-label" id="start-date-label" for="after">Start date</label>
+            <div class="usa-hint" id="start-date-hint">YYYY-MM-DD (after {{ min_date }})</div>
+            <div class="usa-date-picker">
+                <input class="usa-input usa-input--inline" id="after" name="after" type="text"
+                    aria-describedby="start-date-label start-date-hint" value="{{start_date}}">
+            </div>
+        </div>
+
+        <div class="usa-form-group grid-col-2">
+            <label class="usa-label" id="end-date-label" for="before">End date</label>
+            <div class="usa-hint" id="end-date-hint">YYYY-MM-DD</div>
+            <div class="usa-date-picker">
+                <input class="usa-input usa-input--inline" id="before" name="before" type="text"
+                    aria-describedby="end-date-label end-date-hint" value="{{end_date}}">
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-row">
+        <div class="grid-col-2 grid-offset-6">
+            <input class="usa-button" type="submit" value="Select Data">
+        </div>
+    </div>
+</form>

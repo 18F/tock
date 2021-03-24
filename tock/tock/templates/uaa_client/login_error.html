@@ -4,17 +4,6 @@
 
   <h2>cloud.gov Login Error</h2>
 
-  {% if "_state" in error_code %}
+  <p>Oops! We weren't able to authenticate you. Please try logging in again or drop a message in <a href="https://slack.com/app_redirect?channel=C1JFYCX3P" target="_blank">#tock-dev</a> for help.</p>
 
-      <p>Bad session state</p>
-
-  {% elif error_code == "missing_code" %}
-
-    <p>Missing session code</p>
-
-  {% else %}
-
-    <p>Authentication failed:  {{ error_code }}</p>
-
-  {% endif %}
 {% endblock %}

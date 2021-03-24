@@ -183,8 +183,8 @@ class TestGroupUtilizationView(WebTest):
 
         utilization_data = response.context['object_list'][0]['utilization']
 
-        self.assertEqual(0, len([u for u in utilization_data['last_week_data'] if u['username'] == self.user_with_no_hours.username]))
-        self.assertEqual(0, len([u for u in utilization_data['last_month_data'] if u['username'] == self.user_with_no_hours.username]))
+        self.assertEqual(0, len([u for u in utilization_data['last_week_data'] if u['display_name'] == self.user_with_no_hours.user_data.display_name]))
+        self.assertEqual(0, len([u for u in utilization_data['last_month_data'] if u['display_name'] == self.user_with_no_hours.user_data.display_name]))
 
     def test_includes_user_no_longer_with_unit(self):
         response = self.app.get(
@@ -217,3 +217,45 @@ class TestGroupUtilizationView(WebTest):
         )
 
         self.assertEqual(response.status_code, 200)
+
+
+class TestAnalyticsView(TestGroupUtilizationView):
+
+    def test_analytics_view(self):
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView'),
+            user=self.user
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_analytics_start(self):
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?after=2020-01-01",
+            user=self.user
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_analytics_end(self):
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?before=2020-01-01",
+            user=self.user
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_analytics_all_orgs(self):
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?org=0",
+            user=self.user
+        )
+        self.assertContains(response, "All Organizations")
+
+    def test_analytics_one_org(self):
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?org=1",
+            user=self.user
+        )
+        self.assertContains(response, " Organization")

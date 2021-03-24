@@ -18,6 +18,9 @@ cg-django-uaa = "*"
 "psycopg2-binary" = "*"
 markdown = "*"
 django-webtest = "~=1.9"
+plotly = "*"
+pandas = "*"
+pyjwt = "~=1.7.1"
 
 [dev-packages]
 bandit = "*"
@@ -30,4 +33,4 @@ nplusone = "*"
 codecov = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.8.8"

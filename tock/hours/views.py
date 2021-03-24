@@ -7,7 +7,7 @@ from operator import attrgetter
 
 from api.renderers import stream_csv
 from api.views import (ProjectSerializer, TimecardList, UserDataSerializer,
-                       get_timecards)
+                       get_timecardobjects)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -197,7 +197,7 @@ def bulk_timecard_list(request):
     """
     Stream all the timecards as CSV.
     """
-    queryset = get_timecards(TimecardList.queryset, request.GET)
+    queryset = get_timecardobjects(TimecardList.queryset, request.GET)
     serializer = BulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
@@ -207,7 +207,7 @@ def slim_bulk_timecard_list(request):
     """
     Stream a slimmed down version of all the timecards as CSV.
     """
-    queryset = get_timecards(TimecardList.queryset, request.GET)
+    queryset = get_timecardobjects(TimecardList.queryset, request.GET)
     serializer = SlimBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
@@ -221,14 +221,14 @@ def general_snippets_only_timecard_list(request):
         project__accounting_code__billable=False,
         notes__isnull=False
     )
-    queryset = get_timecards(objects, request.GET)
+    queryset = get_timecardobjects(objects, request.GET)
     serializer = GeneralSnippetsTimecardSerializer()
     return stream_csv(queryset, serializer)
 
 
 def timeline_view(request, value_fields=(), **field_alias):
     """ CSV endpoint for the project timeline viz. """
-    queryset = get_timecards(TimecardList.queryset, request.GET)
+    queryset = get_timecardobjects(TimecardList.queryset, request.GET)
 
     fields = list(value_fields) + [
         'timecard__reporting_period__start_date',
@@ -299,7 +299,7 @@ def admin_bulk_timecard_list(request):
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    queryset = get_timecards(TimecardList.queryset, request.GET)
+    queryset = get_timecardobjects(TimecardList.queryset, request.GET)
     serializer = AdminBulkTimecardSerializer()
     return stream_csv(queryset, serializer)
 
@@ -354,7 +354,7 @@ class ReportingPeriodListView(PermissionMixin, ListView):
         context['completed_reporting_periods'] = self.queryset.filter(
             timecard__submitted=True,
             timecard__user=self.request.user.id
-        ).distinct()[:5]
+        ).distinct()[:3]
 
         try:
             unstarted_reporting_periods = self.queryset.exclude(
@@ -373,7 +373,10 @@ class ReportingPeriodListView(PermissionMixin, ListView):
 
         context['uncompleted_reporting_periods'] = sorted(list(chain(
             unstarted_reporting_periods, unfinished_reporting_periods)),
-            key=attrgetter('start_date'))
+            key=attrgetter('start_date'), reverse=True)
+
+        context['today'] = dt.datetime.utcnow().date()
+
         return context
 
 
@@ -671,6 +674,7 @@ class ReportsList(PermissionMixin, ListView):
 class ReportingPeriodDetailView(PermissionMixin, ListView):
     template_name = 'hours/reporting_period_detail.html'
     context_object_name = 'timecard_list'
+    permission_classes = (IsAuthenticated, )
 
     def dispatch(self, *args, **kwargs):
         """

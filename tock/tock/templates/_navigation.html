@@ -1,4 +1,4 @@
-<nav role="navigation" class="usa-nav">
+<nav class="usa-nav" aria-label="Primary navigation">
   <div class="usa-nav__inner">
     <button class="usa-nav__close">
       {% load static %}
@@ -6,49 +6,55 @@
     </button>
     <ul class="usa-nav__primary usa-accordion">
       <li class="usa-nav__primary-item">
-        <a href="{% url 'ProjectListView' %}" class="usa-nav__link">
-          <span>Projects</span>
+        <a href="/" accesskey="1" title="Home" aria-label="Home">Tock your time</a>
+      </li>
+      <li class="usa-nav__primary-item">
+        <a class="usa-nav__link" href="{{ x_tock_change_request_form_url }}" target="_blank">
+          <span class="usa-link--external">Request changes</span>
         </a>
       </li>
       <li class="usa-nav__primary-item">
         <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="reports-nav">
-          <span>Reports</span>
+          <span>View reports</span>
         </button>
         <ul id="reports-nav" class="usa-nav__submenu" aria-expanded="true">
           <li class="usa-nav__submenu-item">
             <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
           </li>
           <li class="usa-nav__submenu-item">
+            <a href="{% url 'utilization:UtilizationAnalyticsView' %}">Analytics</a>
+          </li>
+          <li class="usa-nav__submenu-item">
             <a href="{% url 'reports:ListReports' %}" class="usa-nav__link">
-              <span>Timecard Reports</span>
+              <span>Timecard reports</span>
             </a>
           </li>
         </ul>
       </li>
       <li class="usa-nav__primary-item">
+        <a href="{% url 'ProjectListView' %}" class="usa-nav__link">
+          <span>View projects</span>
+        </a>
+      </li>
+      <li class="usa-nav__primary-item">
         <a href="{% url 'employees:UserListView' %}" class="usa-nav__link">
-          <span>Users</span>
+          <span>View users</span>
         </a>
       </li>
-      <li class="usa-nav__primary-item">
-        <a href="{% url 'logout' %}" class="usa-nav__link">
-          <span>Log out</span>
-        </a>
-      </li>
-      <li class="usa-nav__primary-item">
-        <a class="usa-nav__link" href="{{ x_tock_change_request_form_url }}" target="_blank">
-          <span class="usa-link--external">Tock Change Request Form</span>
-        </a>
-      </li>
+
+      
+    </ul>
+    <div class="usa-nav__secondary">
+    <ul class="usa-nav__secondary-links usa-accordion">
       {% if request.user.is_staff or request.user.is_superuser %}
-      <li class="usa-nav__primary-item">
-        <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="admin-nav">
-          <span>Administrative</span>
+      <li class="usa-nav__secondary-item">
+        <button class="usa-accordion__button" aria-expanded="false" aria-controls="admin-nav">
+          <span>Admin</span>
         </button>
         <ul id="admin-nav" class="usa-nav__submenu" aria-expanded="true">
           {% if request.user.is_staff %}
           <li class="usa-nav__submenu-item">
-            <a href="/admin">Tock Admin</a>
+            <a href="/admin">Tock admin</a>
           </li>
           <li class="usa-nav__submenu-item">
             <a href="{% url 'utilization:GroupUtilizationView' %}">Utilization reports</a>
@@ -65,6 +71,12 @@
         </ul>
       </li>
       {% endif %}
-    </ul>
+      <li class="usa-nav__secondary-item">
+        <a href="{% url 'logout' %}">
+          <span>Log out</span>
+        </a>
+      </li>
+      </ul>
+    </div>
   </div>
 </nav>

@@ -27,7 +27,7 @@ class PermissionMixin(LoginRequiredMixin, object):
             self.request = request
             self.args = args
             self.kwargs = kwargs
-            for permission_class in getattr(cls, 'permission_classes', ()):
+            for permission_class in getattr(cls, 'permission_classes'):
                 if not permission_class().has_permission(request, self):
                     if isinstance(permission_class(), IsAuthenticated):
                         logger.info('User not authenticated, redirecting to UAA.')

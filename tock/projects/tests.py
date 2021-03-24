@@ -1,19 +1,14 @@
 import datetime
-import random
 
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.dateformat import format as date_format
 
 from django_webtest import WebTest
 
-from hours.models import ReportingPeriod, Timecard, TimecardObject
-from projects.views import project_timeline
+from hours.models import Timecard, TimecardObject
 from projects.models import AccountingCode, Agency, ProfitLossAccount, Project, ProjectAlert
-from employees.models import UserData
 from projects.admin import ProfitLossAccountForm, ProjectForm
 from organizations.models import Organization
 
@@ -442,92 +437,6 @@ class ProjectAlertTests(WebTest):
 
         self.assertFalse(self.project_alert.style_bold)
         self.assertFalse(self.project_alert.style_italic)
-
-
-class TestProjectTimeline(WebTest):
-    fixtures = ['tock/fixtures/prod_user.json']
-
-    def setUp(self):
-        super(TestProjectTimeline, self).setUp()
-        self.user = User.objects.first()
-        self.userdata = UserData.objects.create(user=self.user)
-        agency = Agency.objects.create(name='General Services Administration')
-        accounting_code = AccountingCode.objects.create(
-            code='abc',
-            agency=agency,
-            office='18F',
-            billable=True,
-        )
-        self.project = Project.objects.create(
-            accounting_code=accounting_code,
-            name='Test Project',
-        )
-        self.dates = [
-            datetime.date.today() + datetime.timedelta(weeks * 7)
-            for weeks in range(10)
-        ]
-        self.objs = [
-            TimecardObject.objects.create(
-                timecard=Timecard.objects.create(
-                    user=self.user,
-                    submitted=True,
-                    reporting_period=ReportingPeriod.objects.create(
-                        start_date=date,
-                        end_date=date + datetime.timedelta(days=6),
-                    ),
-                ),
-                project=self.project,
-                hours_spent=random.randint(5, 35), # nosec
-            )
-            for date in self.dates
-        ]
-        self.dates_recent = self.dates[-5:]
-        self.objs_recent = [
-            obj for obj in self.objs
-            if obj.timecard.reporting_period.start_date in self.dates_recent
-        ]
-        self.app.set_user(User.objects.get(pk=1))
-
-    def test_project_timeline(self):
-        res = project_timeline(self.project)
-        self.assertEqual(len(res['periods']), 5)
-        self.assertEqual(res['periods'], self.dates_recent)
-        self.assertEqual(
-            res['groups'],
-            {
-                self.user: {
-                    obj.timecard.reporting_period.start_date: obj.hours_spent
-                    for obj in self.objs_recent
-                }
-            },
-        )
-
-    def test_project_timeline_diff_limit(self):
-        limit = 8
-        res = project_timeline(self.project, period_limit=limit)
-        self.assertEqual(res['periods'], self.dates[-limit:])
-        self.assertEqual(len(list(res['groups'].values())[0]), limit)
-
-    def test_project_timeline_no_limit(self):
-        res = project_timeline(self.project, period_limit=None)
-        self.assertEqual(res['periods'], self.dates)
-        self.assertEqual(len(list(res['groups'].values())[0]), len(self.objs))
-
-    def test_project_timeline_view(self):
-        response = self.app.get(reverse('ProjectView', args=[self.project.pk]))
-        table = response.html.find('table')
-        self.assertEqual(
-            [each.text for each in table.find_all('th')[1:]],
-            [
-                date_format(each, settings.DATE_FORMAT)
-                for each in self.dates_recent
-            ],
-        )
-        self.assertEqual(
-            [each.text for each in table.find_all('td')[1:]],
-            [str(float(each.hours_spent)) for each in self.objs_recent],
-        )
-
 
 class ProjectViewTests(WebTest):
     fixtures = [

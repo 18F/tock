@@ -1,49 +1,99 @@
-function clearLocalStorage() {
-  // Clear anything saved locally.
-  if (window.localStorage) {
-    window.localStorage.removeItem(`tock-entered-hours-${objectId}`);
-  }
-}
+/**
+ * Data that gets populated into the form.
+ * @typedef {Object} FormData
+ * @property {?number} project
+ * @property {?boolean} isBillable
+ * @property {?boolean} isExcluded
+ * @property {number} hours
+ */
 
+/** @function
+ * Pulls data from the form
+ * @name getFormData
+ * @returns {FormData[]}
+ *
+ * */
 function getFormData() {
-  return $('.entry').map((i, entry) => {
-    const markedForDeletion = $('.entry-delete input', entry).prop('checked');
+  let data = []
+
+  Array.from(document.querySelectorAll('.entry')).forEach((entry, i) => {
+    const markedForDeletion = entry.querySelector('.entry-delete input').checked
 
     if (markedForDeletion) {
       return;
     }
 
-    const project = parseInt($('.entry-project select', entry).val(), 10) || null;
-    const isExcluded = project ? excludedFromBillability.includes(project) : null;
-    const isBillable = project ? !isExcluded && !nonBillableProjects.includes(project) : null;
-    const hours = parseFloat($('.entry-amount input', entry).val()) || 0;
+    const project =
+      parseInt(entry.querySelector('.entry-project select').value, 10) || null;
+    const isExcluded = project
+      ? excludedFromBillability.includes(project)
+      : null;
+    const isBillable = project
+      ? !isExcluded && !nonBillableProjects.includes(project)
+      : null;
+    const hours =
+      parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
 
-    return { project, isBillable, isExcluded, hours };
-  }).toArray();
+    data.push({ project, isBillable, isExcluded, hours });
+  });
+
+  return data
 }
 
+/** @function
+ * @name roundToNearestHalf
+ * @param {number} number
+ * @returns {number}
+ *
+ * */
 function roundToNearestHalf(number) {
   return Math.ceil(number * 2) / 2;
 }
 
+/** @function
+ * Rounds to two decimal places
+ * @name round
+ * @param {number} number
+ * @returns {number}
+ *
+ * */
 function round(number) {
   return parseFloat(number.toFixed(2));
 }
 
+/**
+ * Data about hours and billable expectations.
+ * @typedef {Object} HoursReport
+ * @property {number} totalHours
+ * @property {number} excludedHours
+ * @property {number} nonBillableHours
+ * @property {number} billableHours
+ */
+
+/** @function
+ * Calculates data about billable hours
+ * @name getHoursReport
+ * @returns {HoursReport}
+ * */
 function getHoursReport() {
   const data = getFormData();
 
-  const r = data.reduce((sums, entry) => {
-    sums.totalHours += entry.hours;
-    if (entry.isExcluded) sums.excludedHours += entry.hours;
-    if (entry.isBillable) sums.billableHours += entry.hours;
+  const r = data.reduce(
+    (sums, entry) => {
+      if (!entry) return sums
 
-    return sums;
-  }, {
-    totalHours: 0,
-    excludedHours: 0,
-    billableHours: 0
-  });
+      sums.totalHours += entry.hours;
+      if (entry.isExcluded) sums.excludedHours += entry.hours;
+      if (entry.isBillable) sums.billableHours += entry.hours;
+
+      return sums;
+    },
+    {
+      totalHours: 0,
+      excludedHours: 0,
+      billableHours: 0,
+    }
+  );
 
   // Round user input to .01; round system to .5
   return {
@@ -51,280 +101,298 @@ function getHoursReport() {
     excludedHours: round(r.excludedHours),
     nonBillableHours: round(r.totalHours - r.billableHours - r.excludedHours),
     billableHours: round(r.billableHours),
-    billableHoursTarget: roundToNearestHalf((totalHoursTarget - r.excludedHours) * billableExpectation),
+    billableHoursTarget: roundToNearestHalf(
+      (totalHoursTarget - r.excludedHours) * billableExpectation
+    ),
   };
 }
 
+/** @function
+ * Populates hour totals and fills in icons
+ * @name populateHourTotals
+ * */
 function populateHourTotals() {
-  // Save hours to localStorage, if available
-  if (window.localStorage) {
-    var hoursAsEntered = [];
-    $('.entries .entry').each(function (i, entry) {
-      entry = $(entry);
-      var project = $('.entry-project select', entry).val();
-      var hours = $('.entry-amount input', entry).val();
-      if (project) {
-        hoursAsEntered.push({ project: project, hours: hours });
-      }
-    });
-    window.localStorage.setItem(`tock-entered-hours-${objectId}`, JSON.stringify(hoursAsEntered));
-  }
-
   // Populate The Bottom Addon Items with Totals
   const totals = getHoursReport();
-  const totalElement = $('.entries-total-reported-amount');
-  const billableElement = $('.entries-total-billable-amount');
+  const totalElement = document.querySelector('.entries-total-reported-amount');
+  const billableElement = document.querySelector(
+    '.entries-total-billable-amount'
+  );
 
-  $('.fill', totalElement).attr('stroke-dasharray', `${totals.totalHours / totalHoursTarget} 1`)
-  $('.fill', billableElement).attr('stroke-dasharray', `${totals.billableHours / totals.billableHoursTarget} 1`)
+  totalElement
+    .querySelector('.fill')
+    .setAttribute(
+      'stroke-dasharray',
+      `${totals.totalHours / totalHoursTarget} 1`
+    );
 
-  $('.number-label', totalElement).html(totals.totalHours);
-  $('.number-label', billableElement).html(totals.billableHours);
+  billableElement
+    .querySelector('.fill')
+    .setAttribute(
+      'stroke-dasharray',
+      `${totals.billableHours / totals.billableHoursTarget} 1`
+    );
+
+  totalElement.querySelector('.number-label').innerHTML = totals.totalHours;
+  billableElement.querySelector('.number-label').innerHTML =
+    totals.billableHours;
 
   if (totals.totalHours === 0) {
-    totalElement.removeClass('valid invalid');
-  }
-  else if (totals.totalHours === totalHoursTarget) {
-    totalElement.addClass('valid').removeClass('invalid');
-  }
-  else {
-    totalElement.addClass('invalid').removeClass('valid');
+    totalElement.classList.remove('valid', 'invalid');
+  } else if (totals.totalHours === totalHoursTarget) {
+    totalElement.classList.add('valid');
+    totalElement.classList.remove('invalid');
+  } else {
+    totalElement.classList.add('invalid');
+    totalElement.classList.remove('valid');
   }
 
   if (totals.billableHours === 0) {
-    billableElement.removeClass('valid invalid');
-  }
-  else if (totals.billableHours >= totals.billableHoursTarget && totals.totalHours <= totalHoursTarget) {
-    billableElement.addClass('valid').removeClass('invalid');
-  }
-  else {
-    billableElement.addClass('invalid').removeClass('valid');
-  }
-}
-
-function toggleNotesField(selectBox) {
-  var $fieldset = $(selectBox).parents('.entry-project'),
-    $selected = $(selectBox).find(':selected'),
-    $notes = $fieldset.find('.entry-note-field'),
-    notesDisplayed = $selected.data('notes-displayed'),
-    notesRequired = $selected.data('notes-required');
-
-  if (notesRequired || notesDisplayed) {
-    $notes.toggleClass('entry-hidden', false);
+    billableElement.classList.remove('valid', 'invalid');
+  } else if (
+    totals.billableHours >= totals.billableHoursTarget &&
+    totals.totalHours <= totalHoursTarget
+  ) {
+    billableElement.classList.add('valid');
+    billableElement.classList.remove('invalid');
   } else {
-    $notes.toggleClass('entry-hidden', true);
+    billableElement.classList.add('invalid');
+    billableElement.classList.remove('valid');
   }
 }
 
-function displayAlerts(selectBox) {
-  var $fieldset = $(selectBox).parents('.entry-project'),
-    $selected = $(selectBox).find(':selected'),
-    $alerts = $fieldset.find('.entry-alerts'),
-    all_alerts = $selected.data('alerts'),
-    alert_text;
+/** @function
+ * Toggles the notes field on if the project requires them
+ * @name toggleNotesField
+ * @param {string} selectBoxId
+ * */
+function toggleNotesField(selectBoxId) {
+  const idx = selectBoxId.match(/\d/)[0];
+  const notes = document.querySelector('#id_timecardobjects-' + idx + '-notes')
+    .parentElement;
+  const options = document.querySelector('#' + selectBoxId + '-select')
+    .selectedOptions[0].dataset;
 
-  $alerts.empty();
+  if (options.notesDisplayed === 'true' || options.notesRequired === 'true') {
+    notes.classList.remove('entry-hidden');
+  } else {
+    notes.classList.add('entry-hidden');
+  }
+}
 
-  if (all_alerts !== undefined) {
-    all_alerts = JSON.parse(JSON.parse('"' + all_alerts + '"'));
+/** @function
+ * Populates and displays and alerts attached to the project
+ * @name displayAlerts
+ * @param {string} selectBoxId
+ * */
+function displayAlerts(selectBoxId) {
+  const alertElement = document
+    .querySelector('#' + selectBoxId + '-select')
+    .parentElement.querySelector('.entry-alerts');
+  const alerts = document.querySelector('#' + selectBoxId + '-select')
+    .selectedOptions[0].dataset.alerts;
 
-    for (var i = 0; i < all_alerts.length; i++) {
-      alert_text = all_alerts[i].text;
+  // clear out prior alerts
+  while (alertElement.firstChild) {
+    alertElement.removeChild(alertElement.firstChild);
+  }
 
-      if (all_alerts[i].url !== '' && all_alerts[i].url !== undefined) {
-        alert_text = '<a href="' + all_alerts[i].url + '" target="_blank">' + alert_text + '</a>';
+  if (alerts === undefined) {
+    return;
+  }
+
+  // TODO: fix the JSON on the python end so we don't need this double parse
+  alertData = JSON.parse(JSON.parse('"' + alerts + '"'));
+
+  for (var i = 0; i < alertData.length; i++) {
+    alert_text = alertData[i].text;
+
+    if (alertData[i].url !== '' && alertData[i].url !== undefined) {
+      alert_text =
+        '<a href="' +
+        alertData[i].url +
+        '" target="_blank">' +
+        alert_text +
+        '</a>';
+    }
+
+    alertElement.innerHTML +=
+      '<div class="' + alertData[i].style + '">' + alert_text + '</div>';
+  }
+}
+
+/** @function
+ * Adds new empty entry to the end of the list
+ * @name addEntry
+ * */
+function addEntry() {
+  const entries = document.querySelectorAll('div.entry');
+  let newEntry = entries[entries.length - 1].cloneNode(true);
+
+  // remove display: none style
+  newEntry.querySelector('select').style.display = '';
+
+  let non_checkbox_fields = newEntry.querySelectorAll('input:not([type="checkbox"]), select, textarea');
+  // remove values for fields we've cloned
+  for (f of non_checkbox_fields) {
+      f.value = '';
+  }
+  // Uncheck the cloned Delete input
+  newEntry.querySelector('.entry-delete input').checked = false
+
+  newEntry.querySelector('.autocomplete__wrapper').remove();
+
+  const previousNumber = parseInt(newEntry.getAttribute('id').match(/\d+/)[0]);
+  const nextNumber = entries.length;
+
+  if (nextNumber % 2 == 0) {
+    newEntry.classList.add('even');
+    newEntry.classList.remove('odd');
+  } else {
+    newEntry.classList.add('odd');
+    newEntry.classList.remove('even');
+  }
+
+  newEntry.setAttribute('id', 'entry-' + nextNumber);
+
+  newEntry
+    .querySelectorAll('input, select, textarea, label')
+    .forEach(function (formItem, i, arr) {
+      if (formItem.tagName.toLowerCase() !== 'label') {
+        let formerID = formItem.getAttribute('id');
+        // we need the input not to have the `-select` on the id -- it interferes with the accessible
+        // autocomplete library
+        let nextID = formerID
+          .replace(previousNumber, nextNumber)
+          .replace('-select', '');
+        formItem.setAttribute('id', nextID);
+
+        let formerName = formItem.getAttribute('name');
+        let nextName = formerName.replace(previousNumber, nextNumber);
+        formItem.setAttribute('name', nextName);
+      } else {
+        let formerFor = formItem.getAttribute('for');
+        let nextFor = formerFor.replace(previousNumber, nextNumber);
+        formItem.setAttribute('for', nextFor);
       }
-
-      $alerts.append(
-        '<div class="' + all_alerts[i].style + '">' + alert_text + '</div>'
-      );
-    }
-  } else {
-    $alerts.empty();
-  }
-}
-
-function addTockLines(tockLines) {
-  // Pop off the top of the array
-  var line = tockLines.shift();
-
-  if (line) {
-    if (!line.project) {
-      addTockLines(tockLines);
-      return;
-    }
-
-    // If the last entry box isn't empty, add a new one
-    if ($('div.entry:last .entry-project select').val() !== '') {
-      $(".add-timecard-entry").click();
-    }
-
-    // Wait a tick so the DOM can be updated, in case a new
-    // line item entry had to be created
-    setTimeout(function () {
-      // Set the project and trigger a GUI update
-      $("div.entry:last .entry-project select").val(line.project);
-      $("div.entry:last .entry-project select").trigger("chosen:updated");
-
-      // Set the hours and trigger a data update
-      $("div.entry:last .entry-amount input").val(line.hours);
-      $("div.entry:last .entry-amount input").change();
-
-      // Go again with the remaining tock lines
-      addTockLines(tockLines);
-    }, 20);
-  } else {
-    // If we're finished processing the list of tock lines,
-    // trigger a change event to update the hours total and
-    // re-sync any local storage.
-    $("div.entry:last select").change();
-  }
-}
-
-// When you change the hours, redo the totals
-$("body").on("keyup", ".entry-amount input", function () {
-  populateHourTotals();
-});
-
-$("body").on("click", ".entry-amount input, .entry-delete input", function () {
-  populateHourTotals();
-});
-
-// When you change a project, redo the totals
-$("body").on("change", ".entry-project select", function () {
-  populateHourTotals();
-});
-
-
-$(document).ready(function () {
-  var chosenOptions = {
-    search_contains: true,
-    group_search: false
-  };
-
-  $("#save-timecard").on("click", function () {
-    // Clear anything saved locally.  The server is the
-    // source of truth.
-    clearLocalStorage();
-
-    var form = $('form'),
-      save_input = '<input type="hidden" name="save_only" value="1" />';
-
-    form.append(save_input);
-    form.submit();
-  });
-
-  $("#submit-timecard").on("click", function () {
-    // Clear anything saved locally.  The server is the
-    // source of truth.
-    clearLocalStorage();
-
-    $('form').submit();
-  })
-
-  $(".add-timecard-entry").on("click", function () {
-    $('div.entry:last').clone().each(function (i) {
-      var entry = $(this);
-      entry.find('.chosen-container').remove();
-      entry.find('.entry-alerts').empty();
-      entry.find('.entry-note-field').toggleClass('entry-hidden', true);
-      entry.find('.entry-note-field .invalid').remove();
-      entry.find('select').show();
-      entry.find('input, select, textarea').val('');
-      entry.find(':checkbox').prop('checked', false);
-
-      // Remove any existing values
-      entry.val('');
-
-      var previousNumber = parseInt(entry.attr('id').split('-')[1]);
-      var nextNumber = previousNumber + 1;
-
-      entry.attr('id', 'entry-' + nextNumber);
-      nextNumber % 2 == 0 ? entry.addClass('even').removeClass('odd') :
-        entry.addClass('odd').removeClass('even');
-
-      entry.find('input, select, textarea, label').each(function (i) {
-        var formItem = $(this);
-
-        if (formItem[0].tagName.toLowerCase() !== 'label') {
-          var formerID = formItem.attr('id');
-          var nextID = formerID.replace(previousNumber, nextNumber);
-          formItem.attr('id', nextID);
-
-          var formerName = formItem.attr('name');
-          var nextName = formerName.replace(previousNumber, nextNumber);
-          formItem.attr('name', nextName);
-        } else {
-          var formerFor = formItem.attr('for');
-          var nextFor = formerFor.replace(previousNumber, nextNumber);
-          formItem.attr('for', nextFor);
-        }
-      });
-    }).appendTo('.entries');
-
-    $('div.entry:last').find('.entry-project select')
-      .chosen(chosenOptions)
-      .on('change', function (e) {
-        toggleNotesField(this);
-        displayAlerts(this);
-      });
-
-    // Increment the TOTAL_FORMS
-    $('#id_timecardobjects-TOTAL_FORMS').val(parseInt($('#id_timecardobjects-TOTAL_FORMS').val()) + 1);
-  });
-
-  // If there's localStorage, get hours from it and
-  // populate the form
-  if (window.localStorage) {
-    var fromStorage = window.localStorage.getItem(`tock-entered-hours-${objectId}`);
-    if (fromStorage) {
-      fromStorage = JSON.parse(fromStorage);
-
-      $('.entries .entry').each(function (i, entry) {
-        entry = $(entry);
-        var project = $('.entry-project select', entry).val();
-        var storageIndex = fromStorage.findIndex(function (storedProject) {
-          return storedProject.project === project;
-        });
-
-        if (storageIndex >= 0) {
-          $('.entry-amount input', entry).val(Number(fromStorage[storageIndex].hours));
-          fromStorage.splice(storageIndex, 1);
-        }
-      });
-
-      // Anything still represented in "fromStorage" is a line
-      // that was added to the timesheet but not saved, meaning
-      // there's not a GUI element for it already. We should
-      // restore those lines now.
-      addTockLines(fromStorage);
-    }
-  }
-
-  // Run on initial load
-  populateHourTotals();
-
-  $('.entry-project select')
-    .chosen(chosenOptions)
-    .on('change', function (e) {
-      toggleNotesField(this);
-      displayAlerts(this);
     });
 
-  // Force an update to each project selection menu in case a notes field
-  // needs to be re-displayed.
-  $('.entry-project select').trigger('change');
+  document.querySelector('.entries').appendChild(newEntry);
 
-  // Disable scrolling in numeric input form fields from the mouse
-  // wheel or touchpad.
-  // Adapted from https://stackoverflow.com/questions/9712295/disable-scrolling-on-input-type-number
-  $('form').on('focus', 'input[type=number]', function (e) {
-    $(this).on('mousewheel.disableScroll', function (e) {
+  accessibleAutocomplete.enhanceSelectElement({
+    showAllValues: true,
+    defaultValue: '',
+    selectElement: newEntry.querySelector('select'),
+    onConfirm: handleConfirm,
+  });
+
+  // Increment the TOTAL_FORMS value as we add lines
+  // This field is necessary for Django's ManagementForm.
+  // Should equal the number of `timecardobjects-#` values in the POSTed form data
+  // For more information, see:
+  // https://docs.djangoproject.com/en/2.2/topics/forms/formsets/#understanding-the-managementform
+  document.querySelector('#id_timecardobjects-TOTAL_FORMS').value++
+}
+
+/** @function
+ * When a project is changed, redo hour totals, check notes field and display alerts
+ * @name updateDisplays
+ * @param {string} targetId
+ * */
+function updateDisplays(targetId) {
+  populateHourTotals();
+  toggleNotesField(targetId);
+  displayAlerts(targetId);
+}
+
+/** @function
+ * Make sure autoAccessible select is correctly selected
+ * @name handleConfirm
+ * @param {string} val
+ * */
+function handleConfirm(val) {
+  // there is a fun race condition where the autocomplete select is not updated!
+  // before updating the displays we have to ensure that the correct option is selected.
+  if (val) {
+    const optValue = val.match(/\d+ -/)[0].replace(' -', '');
+    const idx = this.selectElement.querySelector(`option[value='${optValue}']`)
+      .index;
+
+    this.selectElement.selectedIndex = idx;
+
+    updateDisplays(this.id);
+  }
+}
+
+//////////////////////////////////////////////////////////////
+// EVENT HANDLERS
+
+// when the hour totals are changed, repopulate hours.
+document.querySelector('body').addEventListener('keyup', function (event) {
+  if (event.target.matches('.entry-amount input')) {
+    populateHourTotals();
+  }
+});
+
+// when an entry is deleted or a project is changed
+document.querySelector('body').addEventListener('click', function (event) {
+  if (
+    event.target.matches('.entry-delete input') ||
+    event.target.matches('.entry-amount input')
+  ) {
+    populateHourTotals();
+  }
+});
+
+// Disable scrolling in numeric input form fields from the mouse wheel or touchpad.
+// Adapted from https://stackoverflow.com/questions/9712295/disable-scrolling-on-input-type-number
+document.addEventListener('wheel',
+  function (e) {
+    if (document.activeElement.type === 'number') {
       e.preventDefault();
-    });
-  });
+    }
+  },
+  { passive: false }
+);
 
-  $('form').on('blur', 'input[type=number]', function (e) {
-    $(this).off('mousewheel.disableScroll');
+// On page load:
+document.addEventListener('DOMContentLoaded', () => {
+  document
+    .getElementById('save-timecard')
+    .addEventListener('click', function () {
+      // TODO: This feels like it should be rendered by the Django templates, not dynamically added.
+      const form = document.querySelector('form');
+      const save_input = document.createElement('input');
+      save_input.setAttribute('type', 'hidden');
+      save_input.setAttribute('name', 'save_only');
+      save_input.setAttribute('value', '1');
+      form.appendChild(save_input);
+      form.submit();
+    });
+
+  document
+    .getElementById('submit-timecard')
+    .addEventListener('click', function () {
+      document.querySelector('form').submit();
+    });
+
+  document
+    .querySelector('.add-timecard-entry')
+    .addEventListener('click', addEntry);
+
+  populateHourTotals();
+
+  // adds accessible autocomplete to existing <select> fields
+  const selects = document.querySelectorAll('.entry-project select');
+  selects.forEach((select) => {
+    accessibleAutocomplete.enhanceSelectElement({
+      showAllValues: true,
+      defaultValue: '',
+      selectElement: select,
+      onConfirm: handleConfirm,
+    });
+
+    // make sure any necessary notes or alerts are present
+    updateDisplays(select.id.replace('-select', ''));
   });
 });
