@@ -31,7 +31,7 @@ To access similar data in CSV format within Tock, please visit the
 - [Projects](projects.md): Fetches information about various projects.
 - [Reporting period (audit specific time period)](reporting-period-audit-specific.md): Fetches a list of all users who have not submitted a timecard for the specified period.
 - [Reporting periods](reporting-period-audit.md): Fetches a list of all available reporting periods and basic information about them.
-- [Submissions by range](submissions.md): Fetches a list of users and a count of punctual timecard submission by past periods
+- [Submissions by range](submissions.md): Fetches a list of users and a count of timecards submitted on or before the last day of each timecard's reporting period.
 - [Timecards](timecards.md): Fetches a list of all submitted timecards and related information.
 - [User data](user-data.md): Fetches a list of all users, along with organizational information for each.
 - [Users](users.md): Fetches a list of all users, along with basic information about them.
