@@ -218,21 +218,14 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         super().save(*args, **kwargs)
 
     @classmethod
-    def get_most_recent_periods(cls, number_of_periods=1, number_of_results=None):
+    def get_most_recent_periods(cls, number_of_periods=1):
         """
         Return the most recent N completed reporting periods
         A reporting period is complete if it's end date
         has is today or in the past.
         """
         today = datetime.date.today()
-        periods = ReportingPeriod.objects.filter(end_date__lte=today)
-
-        if number_of_periods and number_of_results:
-            starting_index = number_of_periods - 1
-            range_end = starting_index + number_of_results
-            return periods.order_by('-start_date')[starting_index:range_end]
-        else:
-            return periods.order_by('-start_date')[:number_of_periods]
+        return ReportingPeriod.objects.filter(end_date__lte=today).order_by('-start_date')[:number_of_periods]
 
 
 class Timecard(models.Model):

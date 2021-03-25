@@ -189,12 +189,11 @@ class Submissions(generics.ListAPIView):
     serializer_class = SubmissionSerializer
 
     def get_queryset(self):
-        rp_num = int(self.kwargs['num_past_reporting_periods'])
+        rp_num = self.kwargs['num_past_reporting_periods']
 
-        reporting_period = ReportingPeriod.get_most_recent_periods(
-            number_of_periods=rp_num,
-            number_of_results=1
-        ).get()
+        reporting_period = list(ReportingPeriod.get_most_recent_periods(
+            number_of_periods=rp_num
+        ))[-1]
 
         # filter to punctually submitted timecards
         # between the requested period and today

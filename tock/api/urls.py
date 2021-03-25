@@ -14,8 +14,8 @@ urlpatterns = [
         ReportingPeriodAudit.as_view(),
         name='ReportingPeriodAudit'
     ),
-    re_path(
-        r'^submissions/(?P<num_past_reporting_periods>\d+).json$',
+    path(
+        'submissions/<int:num_past_reporting_periods>.json',
         Submissions.as_view(),
         name='Submissions'
     ),
