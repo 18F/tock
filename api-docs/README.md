@@ -4,14 +4,14 @@
 
 
 ## Before you start
-You'll need to have an API authorization token. Contact a Tock developer 
+You'll need to have an API authorization token. Contact a Tock developer
 or ping the [`#tock-dev`](https://gsa-tts.slack.com/messages/tock-dev/) Slack channel for help.
 
 
 ## Usage
-You may issue GET requests to the various endpoints via the `/api/` path; 
-your results will be returned as JSON objects. 
-We use Django REST Framework's TokenAuthentication library, 
+You may issue GET requests to the various endpoints via the `/api/` path;
+your results will be returned as JSON objects.
+We use Django REST Framework's TokenAuthentication library,
 which requires all requests to include a token value in the request header using the following format:
 
 ```sh
@@ -31,12 +31,13 @@ To access similar data in CSV format within Tock, please visit the
 - [Projects](projects.md): Fetches information about various projects.
 - [Reporting period (audit specific time period)](reporting-period-audit-specific.md): Fetches a list of all users who have not submitted a timecard for the specified period.
 - [Reporting periods](reporting-period-audit.md): Fetches a list of all available reporting periods and basic information about them.
-- [Timecards](timecards.md): Fetches a list of all submitted timecards and related information.
+- [Timecards](timecards.md): Fetches a list of all submitted timecards and projects tocked to them.
+- [Timecard Summary](timecard-summary.md): Fetches a list of summary data for submitted timecards.
 - [User data](user-data.md): Fetches a list of all users, along with organizational information for each.
 - [Users](users.md): Fetches a list of all users, along with basic information about them.
 
 
-## Examples 
+## Examples
 
 Tock administrators and users use the Tock API in various ways.
 Here are two common examples of Tock API usage:

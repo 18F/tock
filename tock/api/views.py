@@ -3,12 +3,14 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import connection
-
-from rest_framework import serializers, generics
-
-from hours.models import TimecardObject, Timecard, ReportingPeriod
-from projects.models import Project
 from employees.models import UserData
+from hours.models import ReportingPeriod, Timecard, TimecardObject
+from projects.models import Project
+from rest_framework import generics, serializers
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from .serializers import TimecardSummarySerializer
 
 User = get_user_model()
 
@@ -172,7 +174,7 @@ class ReportingPeriodAudit(generics.ListAPIView):
             .order_by('last_name', 'first_name')
 
 class TimecardList(generics.ListAPIView):
-    """ Endpoint for timecard data in csv or json """
+    """ Endpoint for timecard data in json """
 
     # Eagerly load related rows to avoid n+1 selects
     queryset = TimecardObject.objects.select_related(
@@ -188,6 +190,22 @@ class TimecardList(generics.ListAPIView):
 
     def get_queryset(self):
         return get_timecardobjects(self.queryset, self.request.query_params)
+
+class TimecardSummaryList(generics.ListAPIView):
+    """
+    Endpoint for timecard summary and meta data
+    does not include individual project lines
+    """
+    serializer_class = TimecardSummarySerializer
+    queryset = Timecard.objects.filter(submitted=True).select_related(
+        'user',
+        'reporting_period',
+        'organization',
+        'unit'
+    )
+
+    def get_queryset(self):
+        return filter_timecards(self.queryset, self.request.query_params)
 
 
 def filter_timecards(queryset, params={}):
@@ -285,8 +303,6 @@ def get_timecardobjects(queryset, params={}):
     return queryset
 
 
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
 
 hours_by_quarter_query = '''
 with agg as (

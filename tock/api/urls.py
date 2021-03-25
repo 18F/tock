@@ -2,8 +2,10 @@
 
 from django.urls import path, re_path
 
-from api.views import ProjectList, ProjectInstanceView, UserList, ReportingPeriodList, ReportingPeriodAudit, \
-    TimecardList, hours_by_quarter, hours_by_quarter_by_user, UserDataView
+from api.views import (ProjectInstanceView, ProjectList, ReportingPeriodAudit,
+                       ReportingPeriodList, TimecardList, TimecardSummaryList,
+                       UserDataView, UserList, hours_by_quarter,
+                       hours_by_quarter_by_user)
 
 urlpatterns = [
     path('projects.json', ProjectList.as_view(), name='ProjectList'),
@@ -15,6 +17,7 @@ urlpatterns = [
         name='ReportingPeriodAudit'
     ),
     path('timecards.json', TimecardList.as_view(), name='TimecardList'),
+    path('timecard_summary.json', TimecardSummaryList.as_view(), name='TimecardSummaryList'),
     path('hours/by_quarter.json', hours_by_quarter, name='HoursByQuarter'),
     path('hours/by_quarter_by_user.json', hours_by_quarter_by_user, name='HoursByQuarterByUser'),
     path('users.json', UserList.as_view(), name='UserList'),
