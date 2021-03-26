@@ -3,6 +3,7 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import connection
+from django.db.models import Count, F
 
 from rest_framework import serializers, generics
 
@@ -67,6 +68,14 @@ class ReportingPeriodSerializer(serializers.ModelSerializer):
             'min_working_hours',
             'max_working_hours',
         )
+
+class SubmissionSerializer(serializers.Serializer):
+    user = serializers.CharField(source='id')
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.CharField()
+    on_time_submissions = serializers.CharField(source='tcount')
 
 class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
@@ -170,6 +179,32 @@ class ReportingPeriodAudit(generics.ListAPIView):
             .exclude(id__in=filed_users) \
             .filter(user_data__current_employee=True) \
             .order_by('last_name', 'first_name')
+
+class Submissions(generics.ListAPIView):
+    """
+    Returns a list of users and the number of timecards they have
+    submitted on time since the requested reporting period
+    """
+
+    serializer_class = SubmissionSerializer
+
+    def get_queryset(self):
+        rp_num = self.kwargs['num_past_reporting_periods']
+
+        reporting_period = list(ReportingPeriod.get_most_recent_periods(
+            number_of_periods=rp_num
+        ))[-1]
+
+        # filter to punctually submitted timecards
+        # between the requested period and today
+        today = datetime.date.today()
+        timecards = Timecard.objects.filter(
+            reporting_period__end_date__lt=today,
+            reporting_period__end_date__gte=reporting_period.end_date,
+            submitted_date__lte=F('reporting_period__end_date')
+        )
+
+        return get_user_timecard_count(timecards)
 
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """
@@ -283,6 +318,19 @@ def get_timecardobjects(queryset, params={}):
         )
 
     return queryset
+
+def get_user_timecard_count(queryset):
+    """
+    Get a list of users and the number of the timecards
+    from a queryset of timecards passed in
+    """
+    timecard_ids = queryset.values_list('id', flat=True)
+    user_timecard_counts = User.objects.filter(
+        timecards__id__in=timecard_ids
+    ).annotate(
+        tcount=Count('timecards')
+    )
+    return user_timecard_counts
 
 
 from rest_framework.response import Response
