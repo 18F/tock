@@ -17,6 +17,7 @@ SAMPLE_DOT_STAR_ARG = "foo"
 SAMPLE_KWARGS = {
     "reporting_period": "2018-01-01",
     "reporting_period_start_date": "2018-01-02",
+    "num_past_reporting_periods": "5",
     "username": "bar",
     "pk": "1",
     "id": "1",
