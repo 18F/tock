@@ -1,66 +1,42 @@
 @startuml
-!include https://raw.githubusercontent.com/adrianvlupu/C4-PlantUML/latest/C4_Container.puml
+!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/puml/source/diagrams/ssp.puml
+!include ./styles.puml
 
-!global $ELEMENT_FONT_COLOR = "#Black"
-!global $CONTAINER_BG_COLOR = "#LightSkyBlue"
-!global $CONTAINER_BORDER_COLOR = "#Black"
-!global $EXTERNAL_CONTAINER_BG_COLOR = "#LightGrey"
-!global $EXTERNAL_CONTAINER_BORDER_COLOR = "#Black"
-
-skinparam database<<container>> {
-    StereotypeFontColor $ELEMENT_FONT_COLOR
-    FontColor $ELEMENT_FONT_COLOR
-    BackgroundColor $CONTAINER_BG_COLOR
-    BorderColor $CONTAINER_BORDER_COLOR
+ATO_Boundary(atob, "ATO Boundary") {
+    System(app, "Tock", "Application")
 }
-
-skinparam rectangle<<external_container>> {
-    StereotypeFontColor $ELEMENT_FONT_COLOR
-    FontColor $ELEMENT_FONT_COLOR
-    BackgroundColor $EXTERNAL_CONTAINER_BG_COLOR
-    BorderColor $EXTERNAL_CONTAINER_BORDER_COLOR
-}
-
-skinparam database<<external_container>> {
-    StereotypeFontColor $ELEMENT_FONT_COLOR
-    FontColor $ELEMENT_FONT_COLOR
-    BackgroundColor $EXTERNAL_CONTAINER_BG_COLOR
-    BorderColor $EXTERNAL_CONTAINER_BORDER_COLOR
-}
-
-skinparam rectangle<<container>> {
-    StereotypeFontColor $ELEMENT_FONT_COLOR
-    FontColor $ELEMENT_FONT_COLOR
-    BackgroundColor $CONTAINER_BG_COLOR
-    BorderColor $CONTAINER_BORDER_COLOR
-}
-
-skinparam Arrow {
-    Color Black
-    FontColor Black
-}
-
-skinparam rectangle<<boundary>> {
-    FontColor Black
-    BorderColor Black
-}
-
-System_Boundary(atob, "ATO Boundary") {
-    Container(app, "Tock", "process within ATO boundary")
-}
-Container_Ext(browser, "Web Browser", "external entity")
-Container_Ext(api_client, "Tock API Client", "external entity")
-ContainerDb(cloudgov_services, "RDS", "cloud.gov datastore")
-Container_Ext(newrelic, "New Relic", "external entity")
-Container_Ext(cloudgov_logdrain, "Cloud.gov ELK", "external entity")
+System_Ext(browser, "Web Browser", "external entity")
+System_Ext(api_client, "Tock API Client", "external entity")
+ContainerDb(cloudgov_services, "cloud.gov data services", "AWS Postgres RDS")
+System_Ext(newrelic, "New Relic", "external entity")
+System_Ext(cloudgov_logdrain, "Cloud.gov ELK", "external entity")
 
 Rel(browser, app, "web page request")
+note on link
+  Auth: Session (via GSA SecureAuth)
+end note
 Rel(app, browser, "HTML, JavaScript, CSS")
-Rel(api_client, app, "API request with key")
+Rel(api_client, app, "API request")
+note on link
+  Auth: Token
+end note
+
 Rel(app, api_client, "Tock data as JSON response")
 Rel(cloudgov_services, app, "Timekeeping data rows")
 Rel(app, cloudgov_services, "Timekeeping data queries")
+note on link
+  Auth: Password
+end note
+
 Rel(app, cloudgov_services, "Timekeeping data as row imports")
+note on link
+  Auth: Password
+end note
+
 Rel(app, newrelic, "Monitoring data")
+note on link
+  Auth: Token
+end note
+
 Rel(app, cloudgov_logdrain, "Log data")
 @enduml

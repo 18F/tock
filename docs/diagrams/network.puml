@@ -1,10 +1,11 @@
 @startuml
 !include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/puml/source/diagrams/ssp.puml
+!include ./styles.puml
 
 hide stereotype
 legend right
 
-' LAYOUT_LEFT_RIGHT()
+LAYOUT_LEFT_RIGHT()
 
 title Tock typical network interactions
 
@@ -19,9 +20,9 @@ Boundary(awsgov, "AWS GovCloud") {
 
     ContainerDb(cloudgov_services, "cloud.gov data services", "AWS Postgres RDS", "Stores persistent data for apps")
 
-    Boundary(atob, "ATO boundary") {
-        Deployment_Node(organization, "Tock cloud.gov organization") {
-            Deployment_Node(space, "Tock cloud.gov spaces") {
+    ATO_Boundary(atob, "ATO boundary") {
+        Boundary(organization, "Tock cloud.gov organization") {
+            Boundary(space, "Tock cloud.gov spaces") {
                 System(app, "Production", "tock.18f.gov")
                 System(app_staging, "Staging", "tock.app.cloud.gov", )
             }
@@ -39,7 +40,7 @@ end note
 
 Rel(app_staging, cloudgov_services, "read/write (variable)")
 note on link
-  Auth: password
+  Auth: Password
 end note
 
 ' Logs flow
@@ -49,7 +50,7 @@ Rel(app_staging, cloudgov_logdrain, "logs to", "stdout/stderr")
 
 ' User access
 Person_Ext(public, "Tock User")
-Deployment_Node(computer, "Computing Device"){
+Boundary(computer, "Computing Device"){
     System_Ext(browser, "Web Browser")
     System_Ext(api_client, "API Client")
 }
@@ -80,7 +81,7 @@ end note
 
 Rel(api_client, cloudgov_elb, "interacts with application", "https GET (443)")
 note on link
-  Auth: token
+  Auth: Token
 end note
 
 Rel(cloudgov_elb, app, "proxies to", "https GET/POST (variable)")
