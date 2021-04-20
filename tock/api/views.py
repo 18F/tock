@@ -3,9 +3,10 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import Count, F
+from django.db.models import Count, F, Sum
 
 from rest_framework import serializers, generics
+from rest_framework.exceptions import ParseError
 
 from hours.models import TimecardObject, Timecard, ReportingPeriod
 from projects.models import Project
@@ -129,6 +130,41 @@ class TimecardSerializer(serializers.Serializer):
         allow_null=True
     )
 
+class FullTimecardSerializer(serializers.ModelSerializer):
+    # Fields that require accessing other models
+    user_name = serializers.CharField(source='user.username')
+    reporting_period_start_date = serializers.DateField(source='reporting_period.start_date')
+    reporting_period_end_date = serializers.DateField(source='reporting_period.end_date')
+    hours_spent = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Timecard
+        fields = [
+            # straight pass-through fields
+            'id',
+            'submitted',
+            'submitted_date',
+            'billable_expectation',
+            'target_hours',
+            'billable_hours',
+            'non_billable_hours',
+            'excluded_hours',
+            'utilization',
+            # fields from other models
+            'user_name',
+            'reporting_period_start_date',
+            'reporting_period_end_date',
+            # fields that require something more complicated (e.g. an aggregation)
+            'hours_spent'
+        ]
+
+    def get_hours_spent(self, obj):
+        # Each Timecard has many TimecardObjects, sum up the hours spent in each
+        # of those TimecardObject objects
+        total_hours_spent_agg = obj.timecardobjects.aggregate(total_hours=Sum('hours_spent'))
+
+        return total_hours_spent_agg['total_hours']
+
 # API Views
 
 class UserDataView(generics.ListAPIView):
@@ -205,6 +241,29 @@ class Submissions(generics.ListAPIView):
         )
 
         return get_user_timecard_count(timecards)
+
+class FullTimecardList(generics.ListAPIView):
+    serializer_class = FullTimecardSerializer
+
+    def get_queryset(self):
+        # Lookup the associated user and reporting_period in the original
+        # query since we'll be accessing them later. See https://docs.djangoproject.com/en/3.2/ref/models/querysets/#django.db.models.query.QuerySet.select_related
+        queryset = Timecard.objects.select_related(
+            'user',
+            'reporting_period',
+        )
+        if self.request.query_params.get('only_submitted') is not None:
+            queryset = queryset.filter(submitted=True)
+
+        earliest_reporting_period_start = self.request.query_params.get('earliest_reporting_period_start')
+        if earliest_reporting_period_start is not None:
+            try:
+                as_date = datetime.date.fromisoformat(earliest_reporting_period_start)
+            except ValueError:
+                raise ParseError(detail='Invalid date format. Got {}, expected YYYY-MM-DD'.format(earliest_reporting_period_start))
+            queryset = queryset.filter(reporting_period__start_date__gte=as_date)
+
+        return queryset
 
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """

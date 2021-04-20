@@ -345,3 +345,31 @@ class ReportingPeriodList(WebTest):
             )
         ).data
         self.assertEqual(len(res), 0)
+
+class FullTimecardsAPITests(WebTest):
+    fixtures = FIXTURES
+
+    def test_with_no_filters(self):
+        res = client().get(reverse('FullTimecardList')).data
+        self.assertEqual(len(res), 3)
+
+    def test_only_submitted_filter(self):
+        res = client().get(
+            reverse('FullTimecardList'), {'only_submitted': True}
+        ).data
+        self.assertEqual(len(res), 2)
+        self.assertTrue(all(tc['submitted'] for tc in res))
+
+    def test_earliest_reporting_period_start_filter(self):
+        res = client().get(
+            reverse('FullTimecardList'),
+            {'earliest_reporting_period_start': '2016-06-08'}
+        ).data
+        self.assertEqual({2, 3}, set(tc['id'] for tc in res))
+
+    def test_bad_date_format_returns_400(self):
+        res = client().get(
+            reverse('FullTimecardList'),
+            {'earliest_reporting_period_start': 'N0T-A-D8'}
+        )
+        self.assertEqual(res.status_code, 400)
