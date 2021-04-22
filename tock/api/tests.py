@@ -349,27 +349,51 @@ class ReportingPeriodList(WebTest):
 class FullTimecardsAPITests(WebTest):
     fixtures = FIXTURES
 
-    def test_with_no_filters(self):
+    def test_with_no_filters_only_returns_submitted_timecards(self):
         res = client().get(reverse('FullTimecardList')).data
-        self.assertEqual(len(res), 3)
-
-    def test_only_submitted_filter(self):
-        res = client().get(
-            reverse('FullTimecardList'), {'only_submitted': True}
-        ).data
         self.assertEqual(len(res), 2)
         self.assertTrue(all(tc['submitted'] for tc in res))
 
-    def test_earliest_reporting_period_start_filter(self):
+    def test_unsubmitted_filter(self):
         res = client().get(
-            reverse('FullTimecardList'),
-            {'earliest_reporting_period_start': '2016-06-08'}
+            reverse('FullTimecardList'), {'submitted': 'no'}
         ).data
-        self.assertEqual({2, 3}, set(tc['id'] for tc in res))
+        self.assertEqual(len(res), 1)
+        self.assertFalse(all(tc['submitted'] for tc in res))
+
+    def test_date_filter(self):
+        date_to_filter_on = '2015-06-04'
+        res = client().get(
+            reverse('FullTimecardList'), {'date': date_to_filter_on}
+        ).data
+        self.assertEqual(len(res), 1)
+        self.assertTrue(res[0]['reporting_period_start_date'] < date_to_filter_on)
+        self.assertTrue(res[0]['reporting_period_end_date'] > date_to_filter_on)
+
+    def test_after_filter(self):
+        # Note that the default behavior is to only return completed timecards, so even though
+        # there may be another later timecard (in our fixtures), it may or may not be
+        # submitted (and if not, won't show up in the response)
+        date_to_filter_on = '2016-01-01'
+        res = client().get(
+            reverse('FullTimecardList'), {'after': date_to_filter_on}
+        ).data
+        self.assertEqual(len(res), 1)
+        self.assertTrue(res[0]['reporting_period_start_date'] > date_to_filter_on)
+        self.assertTrue(res[0]['reporting_period_end_date'] > date_to_filter_on)
+
+    def test_before_filter(self):
+        date_to_filter_on = '2016-01-01'
+        res = client().get(
+            reverse('FullTimecardList'), {'after': date_to_filter_on}
+        ).data
+        self.assertEqual(len(res), 1)
+        self.assertTrue(res[0]['reporting_period_start_date'] > date_to_filter_on)
+        self.assertTrue(res[0]['reporting_period_end_date'] > date_to_filter_on)
 
     def test_bad_date_format_returns_400(self):
         res = client().get(
             reverse('FullTimecardList'),
-            {'earliest_reporting_period_start': 'N0T-A-D8'}
+            {'date': 'N0T-A-D8'}
         )
         self.assertEqual(res.status_code, 400)

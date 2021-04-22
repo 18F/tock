@@ -135,7 +135,6 @@ class FullTimecardSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.username')
     reporting_period_start_date = serializers.DateField(source='reporting_period.start_date')
     reporting_period_end_date = serializers.DateField(source='reporting_period.end_date')
-    hours_spent = serializers.SerializerMethodField()
 
     class Meta:
         model = Timecard
@@ -154,16 +153,7 @@ class FullTimecardSerializer(serializers.ModelSerializer):
             'user_name',
             'reporting_period_start_date',
             'reporting_period_end_date',
-            # fields that require something more complicated (e.g. an aggregation)
-            'hours_spent'
         ]
-
-    def get_hours_spent(self, obj):
-        # Each Timecard has many TimecardObjects, sum up the hours spent in each
-        # of those TimecardObject objects
-        total_hours_spent_agg = obj.timecardobjects.aggregate(total_hours=Sum('hours_spent'))
-
-        return total_hours_spent_agg['total_hours']
 
 # API Views
 
@@ -252,18 +242,7 @@ class FullTimecardList(generics.ListAPIView):
             'user',
             'reporting_period',
         )
-        if self.request.query_params.get('only_submitted') is not None:
-            queryset = queryset.filter(submitted=True)
-
-        earliest_reporting_period_start = self.request.query_params.get('earliest_reporting_period_start')
-        if earliest_reporting_period_start is not None:
-            try:
-                as_date = datetime.date.fromisoformat(earliest_reporting_period_start)
-            except ValueError:
-                raise ParseError(detail='Invalid date format. Got {}, expected YYYY-MM-DD'.format(earliest_reporting_period_start))
-            queryset = queryset.filter(reporting_period__start_date__gte=as_date)
-
-        return queryset
+        return filter_timecards(queryset, self.request.query_params)
 
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """
@@ -284,6 +263,16 @@ class TimecardList(generics.ListAPIView):
         return get_timecardobjects(self.queryset, self.request.query_params)
 
 
+def date_from_iso_format(date_str):
+    try:
+        return datetime.date.fromisoformat(date_str)
+    except ValueError:
+        raise ParseError(
+            detail='Invalid date format. Got {}, expected ISO format (YYYY-MM-DD)'.format(
+                date_str
+            )
+        )
+
 def filter_timecards(queryset, params={}):
     """
     Filter a queryset of timecards according to the provided query
@@ -302,8 +291,7 @@ def filter_timecards(queryset, params={}):
         return queryset
 
     if 'date' in params:
-        reporting_date = params.get('date')
-        # TODO: validate YYYY-MM-DD format
+        reporting_date = date_from_iso_format(params.get('date'))
         queryset = queryset.filter(
             reporting_period__start_date__lte=reporting_date,
             reporting_period__end_date__gte=reporting_date
@@ -319,14 +307,14 @@ def filter_timecards(queryset, params={}):
 
     if 'after' in params:
         # get everything after a specified date
-        after_date = params.get('after')
+        after_date = date_from_iso_format(params.get('after'))
         queryset = queryset.filter(
             reporting_period__end_date__gte=after_date
         )
 
     if 'before' in params:
         # get everything before a specified date
-        before_date = params.get('before')
+        before_date = date_from_iso_format(params.get('before'))
         queryset = queryset.filter(
             reporting_period__start_date__lte=before_date
         )
