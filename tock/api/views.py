@@ -3,7 +3,7 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.db.models import Count, F, Sum
+from django.db.models import Count, F
 
 from rest_framework import serializers, generics
 from rest_framework.exceptions import ParseError
