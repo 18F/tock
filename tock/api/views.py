@@ -6,6 +6,7 @@ from django.db import connection
 from django.db.models import Count, F
 
 from rest_framework import serializers, generics
+from rest_framework.exceptions import ParseError
 
 from hours.models import TimecardObject, Timecard, ReportingPeriod
 from projects.models import Project
@@ -129,6 +130,31 @@ class TimecardSerializer(serializers.Serializer):
         allow_null=True
     )
 
+class FullTimecardSerializer(serializers.ModelSerializer):
+    # Fields that require accessing other models
+    user_name = serializers.CharField(source='user.username')
+    reporting_period_start_date = serializers.DateField(source='reporting_period.start_date')
+    reporting_period_end_date = serializers.DateField(source='reporting_period.end_date')
+
+    class Meta:
+        model = Timecard
+        fields = [
+            # straight pass-through fields
+            'id',
+            'submitted',
+            'submitted_date',
+            'billable_expectation',
+            'target_hours',
+            'billable_hours',
+            'non_billable_hours',
+            'excluded_hours',
+            'utilization',
+            # fields from other models
+            'user_name',
+            'reporting_period_start_date',
+            'reporting_period_end_date',
+        ]
+
 # API Views
 
 class UserDataView(generics.ListAPIView):
@@ -206,6 +232,18 @@ class Submissions(generics.ListAPIView):
 
         return get_user_timecard_count(timecards)
 
+class FullTimecardList(generics.ListAPIView):
+    serializer_class = FullTimecardSerializer
+
+    def get_queryset(self):
+        # Lookup the associated user and reporting_period in the original
+        # query since we'll be accessing them later. See https://docs.djangoproject.com/en/3.2/ref/models/querysets/#django.db.models.query.QuerySet.select_related
+        queryset = Timecard.objects.select_related(
+            'user',
+            'reporting_period',
+        )
+        return filter_timecards(queryset, self.request.query_params)
+
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """
 
@@ -225,6 +263,16 @@ class TimecardList(generics.ListAPIView):
         return get_timecardobjects(self.queryset, self.request.query_params)
 
 
+def date_from_iso_format(date_str):
+    try:
+        return datetime.date.fromisoformat(date_str)
+    except ValueError:
+        raise ParseError(
+            detail='Invalid date format. Got {}, expected ISO format (YYYY-MM-DD)'.format(
+                date_str
+            )
+        )
+
 def filter_timecards(queryset, params={}):
     """
     Filter a queryset of timecards according to the provided query
@@ -243,8 +291,7 @@ def filter_timecards(queryset, params={}):
         return queryset
 
     if 'date' in params:
-        reporting_date = params.get('date')
-        # TODO: validate YYYY-MM-DD format
+        reporting_date = date_from_iso_format(params.get('date'))
         queryset = queryset.filter(
             reporting_period__start_date__lte=reporting_date,
             reporting_period__end_date__gte=reporting_date
@@ -260,14 +307,14 @@ def filter_timecards(queryset, params={}):
 
     if 'after' in params:
         # get everything after a specified date
-        after_date = params.get('after')
+        after_date = date_from_iso_format(params.get('after'))
         queryset = queryset.filter(
             reporting_period__end_date__gte=after_date
         )
 
     if 'before' in params:
         # get everything before a specified date
-        before_date = params.get('before')
+        before_date = date_from_iso_format(params.get('before'))
         queryset = queryset.filter(
             reporting_period__start_date__lte=before_date
         )

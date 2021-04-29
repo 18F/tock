@@ -229,6 +229,12 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
 
 
 class Timecard(models.Model):
+    """
+    A Timecard is a top-level representation of what a user worked on during a reporting period.
+
+    For details on what projects they worked on and for how long, you'll want to access the
+    associated `TimecardObject` objects, which store that level of detail.
+    """
     user = models.ForeignKey(User, related_name='timecards', on_delete=models.CASCADE)
     reporting_period = models.ForeignKey(ReportingPeriod, on_delete=models.CASCADE)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
@@ -455,6 +461,12 @@ class TimecardNote(models.Model):
         super(TimecardNote, self).save(*args, **kwargs)
 
 class TimecardObject(models.Model):
+    """
+    Not to be confused with a Timecard, a TimecardObject can be thought of as one "entry" in a Timecard,
+    i.e. for a given billing period, one person generally has one Timecard, but many TimecardObjects ("entries"). Each
+    represents a project that person worked on, and the amount of time (and some other data defined
+    below).
+    """
     timecard = models.ForeignKey(Timecard, related_name='timecardobjects', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     hours_spent = models.DecimalField(decimal_places=2,
