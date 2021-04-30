@@ -63,6 +63,8 @@ except ImportError:
   pass
 
 UAA_CLIENT_ID = 'testtesttesttesttesttesttesttesttesttesttest'
-UAA_CLIENT_SECRET = 'testtesttesttesttesttesttesttesttesttest' # nosec
+UAA_CLIENT_SECRET = 'testtesttesttesttesttesttesttesttesttest'  # nosec
 UAA_AUTH_URL = 'fake:'
-UAA_TOKEN_URL = 'fake:' # nosec
+UAA_TOKEN_URL = 'fake:'  # nosec
+
+AUTO_LOGOUT_DELAY_MINUTES = 60

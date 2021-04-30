@@ -17,6 +17,7 @@ from hours.models import (
 )
 from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade, UserData
+from organizations.models import Organization, Unit
 
 
 class HolidayPrefillsTests(TestCase):
@@ -112,7 +113,9 @@ class ReportingPeriodTests(TestCase):
 class TimecardTests(TestCase):
     fixtures = [
         'projects/fixtures/projects.json',
-        'tock/fixtures/prod_user.json'
+        'tock/fixtures/prod_user.json',
+        'organizations/fixtures/organizations.json',
+        'organizations/fixtures/units.json'
     ]
 
     def setUp(self):
@@ -138,6 +141,14 @@ class TimecardTests(TestCase):
             project=self.project_2,
             hours_spent=28)
 
+        self.user_18f_current = get_user_model().objects.create()
+        self.user_18f_current_data = UserData.objects.create(user=self.user_18f_current)
+        self.user_18f_current_data.organization = Organization.objects.get(pk=1)
+        self.user_18f_current_data.unit = Unit.objects.get(pk=1)
+        self.user_18f_current_data.current_employee = True
+        self.user_18f_current_data.is_18f_employee = True
+        self.user_18f_current.save()
+
     def test_time_card_saved(self):
         """Test that the time card was saved correctly."""
         timecard = Timecard.objects.first()
@@ -146,6 +157,53 @@ class TimecardTests(TestCase):
         self.assertEqual(timecard.created.day, datetime.datetime.utcnow().day)
         self.assertEqual(timecard.modified.day, datetime.datetime.utcnow().day)
         self.assertEqual(len(timecard.time_spent.all()), 2)
+        self.assertFalse(timecard.submitted)
+        self.assertFalse(timecard.submitted_date)
+
+    def test_time_card_submission(self):
+        timecard = Timecard.objects.first()
+        timecard.submitted = True
+        timecard.save()
+
+        self.assertTrue(timecard.submitted)
+        self.assertIsInstance(timecard.submitted_date, datetime.date)
+        self.assertFalse(timecard.on_time())
+
+    def test_time_card_submission_removal(self):
+        timecard = Timecard.objects.first()
+        timecard.submitted = False
+        timecard.save()
+
+        self.assertFalse(timecard.submitted)
+        self.assertIsNone(timecard.submitted_date)
+        self.assertFalse(timecard.on_time())
+
+    def test_time_card_submitted_modified_date_remains(self):
+        """
+        Test that the submitted date will remain set even if the object
+        is altered / saved
+        """
+        reporting_period = ReportingPeriod.objects.create(
+                    start_date=datetime.date(2016, 1, 1),
+                    end_date=datetime.date(2016, 1, 7),
+                    exact_working_hours=40)
+        userdata = get_user_model().objects.get(id=1)
+        timecard = Timecard.objects.create(
+            user=userdata,
+            reporting_period=reporting_period,
+            submitted=True,
+            submitted_date=datetime.date.fromisoformat("2016-01-07")
+            )
+        timecard.save()
+        date = timecard.submitted_date
+
+        # change a small thing about the timecard
+        timecard.unit = None
+        timecard.save()
+
+        self.assertEqual(date, timecard.submitted_date)
+        # check that the submitted date is considered "on time"
+        self.assertTrue(timecard.on_time())
 
     def test_time_card_unique_constraint(self):
         """Test that the time card model is constrained by user and reporting
@@ -184,6 +242,40 @@ class TimecardTests(TestCase):
         self.timecard.calculate_hours()
 
         self.assertEqual(self.timecard.target_hours, self.timecard.max_target_hours())
+
+    def test_timecard_saves_user_organization(self):
+        timecard = Timecard.objects.create(
+            user=self.user_18f_current,
+            reporting_period=self.reporting_period
+        )
+        timecard.save()
+
+        self.assertEqual(timecard.organization, self.user_18f_current.user_data.organization)
+
+        # change employee org and verify that the timecard keeps the original one when resaved
+        old_org = self.user_18f_current_data.organization
+        self.user_18f_current_data.organization = None
+
+        timecard.save()
+
+        self.assertEqual(timecard.organization, old_org)
+
+    def test_timecard_saves_user_unit(self):
+        timecard = Timecard.objects.create(
+            user=self.user_18f_current,
+            reporting_period=self.reporting_period
+        )
+        timecard.save()
+
+        self.assertEqual(timecard.unit, self.user_18f_current.user_data.unit)
+
+        # change employee unit and verify that the timecard keeps the original one when resaved
+        old_unit = self.user_18f_current_data.unit
+        self.user_18f_current_data.unit = None
+
+        timecard.save()
+
+        self.assertEqual(timecard.unit, old_unit)
 
 
 class TimecardNoteTests(TestCase):

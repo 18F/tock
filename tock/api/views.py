@@ -3,8 +3,10 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.db import connection
+from django.db.models import Count, F
 
 from rest_framework import serializers, generics
+from rest_framework.exceptions import ParseError
 
 from hours.models import TimecardObject, Timecard, ReportingPeriod
 from projects.models import Project
@@ -49,6 +51,7 @@ class UserDataSerializer(serializers.Serializer):
     user = serializers.StringRelatedField()
     current_employee = serializers.BooleanField()
     is_18f_employee = serializers.BooleanField()
+    is_active = serializers.BooleanField()
     is_billable = serializers.BooleanField()
     unit = serializers.StringRelatedField()
     organization = serializers.StringRelatedField()
@@ -66,6 +69,14 @@ class ReportingPeriodSerializer(serializers.ModelSerializer):
             'min_working_hours',
             'max_working_hours',
         )
+
+class SubmissionSerializer(serializers.Serializer):
+    user = serializers.CharField(source='id')
+    username = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.CharField()
+    on_time_submissions = serializers.CharField(source='tcount')
 
 class TimecardSerializer(serializers.Serializer):
     user = serializers.StringRelatedField(source='timecard.user')
@@ -119,6 +130,31 @@ class TimecardSerializer(serializers.Serializer):
         allow_null=True
     )
 
+class FullTimecardSerializer(serializers.ModelSerializer):
+    # Fields that require accessing other models
+    user_name = serializers.CharField(source='user.username')
+    reporting_period_start_date = serializers.DateField(source='reporting_period.start_date')
+    reporting_period_end_date = serializers.DateField(source='reporting_period.end_date')
+
+    class Meta:
+        model = Timecard
+        fields = [
+            # straight pass-through fields
+            'id',
+            'submitted',
+            'submitted_date',
+            'billable_expectation',
+            'target_hours',
+            'billable_hours',
+            'non_billable_hours',
+            'excluded_hours',
+            'utilization',
+            # fields from other models
+            'user_name',
+            'reporting_period_start_date',
+            'reporting_period_end_date',
+        ]
+
 # API Views
 
 class UserDataView(generics.ListAPIView):
@@ -170,6 +206,44 @@ class ReportingPeriodAudit(generics.ListAPIView):
             .filter(user_data__current_employee=True) \
             .order_by('last_name', 'first_name')
 
+class Submissions(generics.ListAPIView):
+    """
+    Returns a list of users and the number of timecards they have
+    submitted on time since the requested reporting period
+    """
+
+    serializer_class = SubmissionSerializer
+
+    def get_queryset(self):
+        rp_num = self.kwargs['num_past_reporting_periods']
+
+        reporting_period = list(ReportingPeriod.get_most_recent_periods(
+            number_of_periods=rp_num
+        ))[-1]
+
+        # filter to punctually submitted timecards
+        # between the requested period and today
+        today = datetime.date.today()
+        timecards = Timecard.objects.filter(
+            reporting_period__end_date__lt=today,
+            reporting_period__end_date__gte=reporting_period.end_date,
+            submitted_date__lte=F('reporting_period__end_date')
+        )
+
+        return get_user_timecard_count(timecards)
+
+class FullTimecardList(generics.ListAPIView):
+    serializer_class = FullTimecardSerializer
+
+    def get_queryset(self):
+        # Lookup the associated user and reporting_period in the original
+        # query since we'll be accessing them later. See https://docs.djangoproject.com/en/3.2/ref/models/querysets/#django.db.models.query.QuerySet.select_related
+        queryset = Timecard.objects.select_related(
+            'user',
+            'reporting_period',
+        )
+        return filter_timecards(queryset, self.request.query_params)
+
 class TimecardList(generics.ListAPIView):
     """ Endpoint for timecard data in csv or json """
 
@@ -186,47 +260,94 @@ class TimecardList(generics.ListAPIView):
     serializer_class = TimecardSerializer
 
     def get_queryset(self):
-        return get_timecards(self.queryset, self.request.query_params)
+        return get_timecardobjects(self.queryset, self.request.query_params)
 
-def get_timecards(queryset, params=None):
+
+def date_from_iso_format(date_str):
+    try:
+        return datetime.date.fromisoformat(date_str)
+    except ValueError:
+        raise ParseError(
+            detail='Invalid date format. Got {}, expected ISO format (YYYY-MM-DD)'.format(
+                date_str
+            )
+        )
+
+def filter_timecards(queryset, params={}):
     """
-    Filter a TimecardObject queryset according to the provided GET
-    query string parameters:
+    Filter a queryset of timecards according to the provided query
+    string parameters.
 
-    * if `date` (in YYYY-MM-DD format) is provided, get rows for
-      which the date falls within their reporting date range.
-
-    * if `user` (in either `first.last` or numeric id) is provided,
-      get rows for that user.
-
-    * if `project` is provided as a numeric id or name, get rows for
-      that project.
+    * `date`: filter for reporting periods that contain this date
+    * `user`: either username or numeric id for a user
+    * `after`: the reporting period ends after the given date
+    * `before`: the reporting period starts before the given date
     """
-
-    # include only submitted timecards unless submitted=no in params
-    submitted = True
-    if params and 'submitted' in params:
-        submitted = params['submitted'] != 'no'
-    queryset = queryset.filter(timecard__submitted=submitted)
+    submitted_param = params.get("submitted", "yes")  # default to only submitted cards
+    submitted = (submitted_param != "no")
+    queryset = queryset.filter(submitted=submitted)
 
     if not params:
         return queryset
 
     if 'date' in params:
-        reporting_date = params.get('date')
-        # TODO: validate YYYY-MM-DD format
+        reporting_date = date_from_iso_format(params.get('date'))
         queryset = queryset.filter(
-            timecard__reporting_period__start_date__lte=reporting_date,
-            timecard__reporting_period__end_date__gte=reporting_date
+            reporting_period__start_date__lte=reporting_date,
+            reporting_period__end_date__gte=reporting_date
         )
 
     if 'user' in params:
         # allow either user name or ID
         user = params.get('user')
         if user.isnumeric():
-            queryset = queryset.filter(timecard__user__id=user)
+            queryset = queryset.filter(user__id=user)
         else:
-            queryset = queryset.filter(timecard__user__username=user)
+            queryset = queryset.filter(user__username=user)
+
+    if 'after' in params:
+        # get everything after a specified date
+        after_date = date_from_iso_format(params.get('after'))
+        queryset = queryset.filter(
+            reporting_period__end_date__gte=after_date
+        )
+
+    if 'before' in params:
+        # get everything before a specified date
+        before_date = date_from_iso_format(params.get('before'))
+        queryset = queryset.filter(
+            reporting_period__start_date__lte=before_date
+        )
+
+    if 'org' in params:
+        # filter on organization, "0" to include all orgs, "None" for
+        # "organization IS NULL"
+        org_id = params.get('org')
+        if org_id.isnumeric() and org_id != "0": # 0 indicates all organizations, no filtering then
+            queryset = queryset.filter(user__user_data__organization__id=org_id)
+        elif org_id.lower() == "none":  # the only allowable value that isn't numeric is None
+            queryset = queryset.filter(user__user_data__organization__isnull=True)
+
+    return queryset
+
+
+
+def get_timecardobjects(queryset, params={}):
+    """
+    Filter a TimecardObject queryset according to the provided GET
+    query string parameters:
+
+    * `project`: numeric id or name of a project
+    * `billable`: `True` or `False` to filter for projects that are or aren't billable
+    """
+
+    # queryset as passed is a queryset of TimecardObjects. Get a queryset of
+    # the matching Timecards that we can filter...
+    timecard_queryset = Timecard.objects.filter(timecardobjects__in=queryset)
+    timecard_queryset = filter_timecards(timecard_queryset, params)
+    # and now sub-select the matching timecardobjects from our original
+    # queryset
+    queryset = queryset.filter(timecard__in=timecard_queryset)
 
     if 'project' in params:
         # allow either project name or ID
@@ -236,13 +357,6 @@ def get_timecards(queryset, params=None):
         else:
             queryset = queryset.filter(project__name=project)
 
-    if 'after' in params:
-        # get everything after a specified date
-        after_date = params.get('after')
-        queryset = queryset.filter(
-            timecard__reporting_period__end_date__gte=after_date
-        )
-
     if 'billable' in params:
         # only pull records for billable projects
         billable = params.get('billable')
@@ -250,14 +364,20 @@ def get_timecards(queryset, params=None):
             project__accounting_code__billable=billable
         )
 
-    if 'before' in params:
-        # get everything before a specified date
-        before_date = params.get('before')
-        queryset = queryset.filter(
-            timecard__reporting_period__start_date__lte=before_date
-        )
-
     return queryset
+
+def get_user_timecard_count(queryset):
+    """
+    Get a list of users and the number of the timecards
+    from a queryset of timecards passed in
+    """
+    timecard_ids = queryset.values_list('id', flat=True)
+    user_timecard_counts = User.objects.filter(
+        timecards__id__in=timecard_ids
+    ).annotate(
+        tcount=Count('timecards')
+    )
+    return user_timecard_counts
 
 
 from rest_framework.response import Response

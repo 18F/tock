@@ -1,12 +1,12 @@
 .entries {
 	.entry:last-child {
-		border-bottom: 2px solid $color-gray-light;
+		border-bottom: 2px solid $theme-color-base-light;
 	}
 	select {
 		width:100%;
-		color: #555;
+		color: $theme-color-base-dark;
 		background-color: #fff;
-		border: 1px solid #5b616b;
+		border: 1px solid $theme-color-base-dark;
 		transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 		margin-bottom:0;
 	}
@@ -29,7 +29,7 @@
     margin-bottom: 10px;
 
     .warning {
-        color: crimson;
+        color: $theme-color-secondary;
 
         &.bold {
             font-weight: bold;
@@ -69,8 +69,8 @@
 
 
 .entry {
-	border-top: 2px solid $color-gray-lighter;
-	background-color: $color-gray-lightest;
+	border-top: 2px solid $theme-color-base-lighter;
+	background-color: $theme-color-base-lightest;
 	padding: 1em;
 
 .grid-container {
@@ -86,13 +86,13 @@
 
     &.odd {
 			.grid-container {
-			background-color: $color-gray-lightest;
+			background-color: $theme-color-base-lightest;
 }
 
 
         .entry-alerts {
             .warning {
-                color: #500;
+                color: $theme-color-secondary-dark;
             }
 
             .important {
@@ -106,17 +106,19 @@
     }
 }
 
-/*.entry-project {
-	@include span-columns(6);
-}*/
-
-.entry-billable {
-
+.entry-project {
+  .autocomplete__dropdown-arrow-down {
+    z-index: 1; //override to accessible-autocomplete's -1 index, which hides arrow
+    top: 18px; //override to accommodate extra margin on input
+  }
+  .autocomplete__hint, .autocomplete__input {
+    border: 1px solid #565c65;
+    color: #1b1b1b;
+    margin-top: 0.5rem;
+  }
 }
 
 .entry-notes {
-
-
     textarea {
         height: 100px;
     }
@@ -135,10 +137,6 @@
 	&.non-billable {
 		color: #1188ff;
 	}
-}
-
-.entry-amount {
-
 }
 
 .entry-project label, .entry-amount label, .entry-note-field label {
@@ -197,7 +195,7 @@
 
     .background {
       fill: none;
-      stroke: $color-primary-alt-lightest;
+      stroke: $theme-color-accent-cool-lighter;
       stroke-width: 3;
       transition: stroke-dasharray 0.3s ease-out;
     }
@@ -211,20 +209,20 @@
   }
 
   &.invalid {
-    color: $color-secondary-dark;
+    color: $theme-color-secondary-dark;
   }
 
   &.valid {
-    color: $color-green;
+    color: $theme-color-success;
   }
 
   display: block;
   position: relative;
-  color: $color-primary-alt-lightest;
+  color: $theme-color-accent-cool-lighter;
 }
 
 .entries-total {
-	background: $color-primary-alt-light;
+	background: $theme-color-accent-cool-light;
 	padding: 1em;
 	.add-timecard-entry,
 	.add-timecard-entry:first-child  {

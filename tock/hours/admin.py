@@ -1,18 +1,15 @@
 from decimal import Decimal
 
+from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.forms import DecimalField, ModelForm
 from django.forms.models import BaseInlineFormSet
-
-from .models import (
-    HolidayPrefills,
-    ReportingPeriod,
-    Timecard,
-    TimecardNote,
-    TimecardObject,
-    TimecardPrefillData
-)
 from employees.models import UserData
+
+from .models import (HolidayPrefills, ReportingPeriod, Timecard, TimecardNote,
+                     TimecardObject, TimecardPrefillData)
+
 
 class ReportingPeriodListFilter(admin.SimpleListFilter):
     parameter_name = 'reporting_period'
@@ -25,6 +22,7 @@ class ReportingPeriodListFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         return queryset
+
 
 
 class TimecardObjectFormset(BaseInlineFormSet):
@@ -77,11 +75,21 @@ class TimecardObjectInline(admin.TabularInline):
     ]
 
 
+class TimecardAdminForm(ModelForm):
+    billable_expectation = DecimalField(initial=settings.DEFAULT_BILLABLE_EXPECTATION)
+
+    class Meta:
+        model = Timecard
+        fields = '__all__'
+
+
 class TimecardAdmin(admin.ModelAdmin):
     inlines = (TimecardObjectInline,)
-    list_display = ('user', 'reporting_period', 'submitted')
-    list_filter = (ReportingPeriodListFilter, 'reporting_period',)
+    list_display = ('user', 'reporting_period', 'billable_expectation', 'organization', 'submitted')
+    list_editable = ('organization', 'billable_expectation')
+    list_filter = ( 'user', ReportingPeriodListFilter, 'reporting_period')
     search_fields = ['user__username', 'reporting_period__start_date', 'reporting_period__end_date',]
+    form = TimecardAdminForm
 
 
 class TimecardNoteAdmin(admin.ModelAdmin):

@@ -8,13 +8,7 @@ Download the Cloud Foundry CLI according to the [cloud.gov instructions][].
 
 [cloud.gov instructions]: https://docs.cloud.gov/getting-started/setup/
 
-You will also need to install the [`autopilot`](https://github.com/contraband/autopilot)
-plugin for Cloud Foundry, which is used for zero-downtime deploys:
-
-```shell
-# Install the plugin
-cf install-plugin autopilot -f -r CF-Community
-```
+We use the V7 Cloud Foundry CLI. If you're upgrading from V6, checkout [the CLI docs for instructions](https://github.com/cloudfoundry/cli).
 
 Tock will be deployed to the GovCloud instance of cloud.gov:
 
@@ -23,8 +17,11 @@ Tock will be deployed to the GovCloud instance of cloud.gov:
 cf login -a api.fr.cloud.gov --sso
 ```
 
-After this deployment, you'll need to target the org and space you want to work with. For example, if you wanted to work with the dev space:
-`cf target -o gsa-18f-tock -s dev`
+After authenticating, you'll need to target the org and space you want to work with. For example, if you wanted to work with the dev space:
+
+```
+cf target -o gsa-18f-tock -s dev
+```
 
 Manifest files, which contain import deploy configuration settings, are located
 in the root directory of this project, prefixed with `manifest-` and ending in a
@@ -32,9 +29,7 @@ in the root directory of this project, prefixed with `manifest-` and ending in a
 
 During local development and continuous integration testing,
 `pipenv install --dev` is used. This installs both development
-and production dependencies. During deployments, the Cloud Foundry
-Python buildpack generates a `requirements.txt` file with `pipenv lock -r`
-and installs only production dependencies.
+and production dependencies. During deployments, the `requirements.txt` file is used to install dependencies.
 
 ### Cloud Foundry structure
 
@@ -92,9 +87,8 @@ cf cups tock-credentials -p credentials-<ENVIRONMENT>.json
 # Binding the service to the app
 cf bind-service <APP_INSTANCE> tock-credentials
 
-# Restaging the app to make use of the updated credentials. This will cause
-# downtime in the application. It is better to use zero-downtime-push instead.
-cf restage <APP_INSTANCE>
+# Restaging the app to make use of the updated credentials.
+cf restage <APP_INSTANCE> --strategy rolling
 ```
 
 You can update the user-provided service with the following commands:
@@ -103,9 +97,8 @@ You can update the user-provided service with the following commands:
 # Uploading the new credentials to the service
 cf uups tock-credentials -p credentials-staging.json
 
-# Restaging the app to make use of the updated credentials. This will cause
-# downtime in the application. It is better to use zero-downtime-push instead.
-cf restage <APP_INSTANCE>
+# Restaging the app to make use of the updated credentials.
+cf restage <APP_INSTANCE> --strategy rolling
 ```
 
 #### Database service
@@ -128,6 +121,25 @@ cloud.gov UAA application for its users.
 Tock uses the cloud.gov service account service to provide deployer accounts for
 staging and production environments.
 
+### Code review
+
+Submissions to the Tock codebase are made via GitHub, and are only accepted into the main
+branch after review. At least one approving review is required before a branch is merged
+to main, and this restriction is enforced by Tock's GitHub settings.
+Your reviewer will usually merge the branch for you.
+
+Code review covers both code (such as Python or JavaScript) and configuration (such as
+Dockerfiles, CloudFoundry manifest files, etc.).
+
+Code reviews should be conducted [following the 18F Engineering Guide](https://engineering.18f.gov/code-review/) and include an assessment of:
+
+- Simplicity. Ideally the submission implements the feature/fix with as little complexity as possible.
+- Legibility. Ideally the submission is easy to understand.
+- Security. The submission is reviewed for security considerations.
+
+Code review is in addition to the various automated checks, which include tests, linting,
+and checks on security flaws of Tock's dependencies.
+
 ### CircleCI continuous integration, delivery, and deployment
 
 Tock uses CircleCI to continuously integrate code, deliver the code to staging
@@ -145,35 +157,29 @@ to supply the `NEW_RELIC_LICENSE_KEY` as part of each deployment's
 ### Staging server
 
 The staging server updates automatically when changes are merged into the
-`master` branch. Check out the `workflows` sections of
+`main` branch. Check out the `workflows` sections of
 the [CircleCI config](../.circleci/config.yml) for details and settings.
 
 Should you need to, you can push directly to tock.app.cloud.gov with the following:
 
 ```sh
 cf target -o gsa-18f-tock -s staging
-cf zero-downtime-push tock-staging -f manifest-staging.yml
+cf push tock-staging -f manifest-staging.yml --strategy rolling
 ```
 
 ### Production servers
 
 Production deploys are also automated. They rely on the creation of a Git tag to
-be made against the `master` branch following the [_Automated Releases to
+be made against the `main` branch following the [_Automated Releases to
 Production_](#automated-releases-to-production) workflow.
 
 In some cases, you may need to make a manual deployment to production. If this is the case, please make
-sure you're using the Cloud Foundry [autopilot plugin](https://github.com/contraband/autopilot).
+sure you're using the rolling deployment strategy with `--strategy rolling`
 
 To deploy, first make sure you're targeting the prod space:
 
 ```sh
 cf target -o gsa-18f-tock -s prod
-```
-
-If you don't already have the autopilot plugin, you can install it by running the following:
-
-```sh
-cf install-plugin autopilot -f -r CF-Community
 ```
 
 Create a `VERSION` file with the name of the version that is being deployed to
@@ -188,33 +194,20 @@ echo $(git rev-parse HEAD | head -c 7) > tock/VERSION
 echo $(git describe --abbrev=0 --tags) > tock/VERSION
 ```
 
-Then use the autopilot plugin's `zero-downtime-push` command to deploy:
+Then use the CLI to deploy:
 
 ```sh
-cf zero-downtime-push tock -f manifest-production.yml
+cf push tock -f manifest-production.yml --strategy rolling
 ```
 
-#### Troubleshooting failed manual zero-downtime deployments
+#### Troubleshooting failed deployments
 
-If at any point the deployment fails, there should still be zero-downtime for
-the production instance. Please verify that the Tock applications that are
-running are named correctly and cleaned up. In the following example commands,
-the variables should be replaced with the values found in the previous
-commands.
+If at any point the deployment fails, we can use the CLI to recover to our previous state.
 
-- `${STOPPED_TOCK_APP}` — The application that reads `stopped` from `cf apps`.
-- `${TOCK_VERNERABLE_APP_NAME}` — The application that reads `-venerable` from
-  `cf apps`.
+https://docs.cloudfoundry.org/devguide/deploy-apps/rolling-deploy.html#cancel
 
-```sh
-# List all applications in the targeted space
-cf apps
-
-# Delete the stopped application
-cf delete ${STOPPED_TOCK_APP} -f
-
-# Rename the started application to match project conventions
-cf rename ${TOCK_VERNERABLE_APP_NAME} tock
+```
+cf cancel-deployment tock
 ```
 
 ### Logs
@@ -310,7 +303,7 @@ number after the period (e.g., `v20180131.1` turns into `v20180131.2`).
 
 Once you push this tag up to GitHub, draft or assign it to an already
 drafted release in GitHub. CircleCI will deploy this tag to the Production
-instance of Tock using CF Autopilot.
+instance of Tock.
 
 
 ## Maintenance Mode

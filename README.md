@@ -8,7 +8,7 @@ We use Tock to track our time. You can read more about Tock in this [blog post](
 [![Known Vulnerabilities Node](https://snyk.io/test/github/18f/tock/badge.svg?targetFile=package.json)](https://snyk.io/test/github/18f/tock?targetFile=package.json) | Known `node.js` Vulnerabilities status provided by Snyk.
 [![Known Vulnerabilities Python](https://snyk.io/test/github/18f/tock/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/18f/tock?targetFile=requirements.txt) | Known `python` Vulnerabilities status provided by Snyk.
 
-![Screenshot of Tock](https://github.com/18F/tock/blob/master/Screen%20Shot%202016-12-05%20at%2011.30.54%20AM.png?raw=true)
+![Screenshot of Tock](/docs/screenshots/tock-homepage-screenshot-2021-3-15.png)
 
 If your team uses Tock and Slack, you might also find the ["angrytock" reminder bot](https://github.com/18F/angrytock) helpful.
 
@@ -17,5 +17,5 @@ If your team uses Tock and Slack, you might also find the ["angrytock" reminder 
 - [Developer Documentation][gh-docs]
 - [API Documentation][gh-api-docs]
 
-[gh-docs]: https://github.com/18F/tock/tree/master/docs
-[gh-api-docs]: https://github.com/18F/tock/tree/master/api-docs
+[gh-docs]: https://github.com/18F/tock/tree/main/docs
+[gh-api-docs]: https://github.com/18F/tock/tree/main/api-docs

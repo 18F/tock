@@ -96,6 +96,19 @@ docker-compose run app bash
 python manage.py test
 ```
 
+You can currently run the javascript tests locally by installing local dependencies and then
+running the tests. (We will dockerize these at some point!)
+
+```
+npm install
+npm run test
+```
+
+If you need help debugging the jest-puppeteer tests, try turning off the `headless` mode in [the puppeteer configuration file](jest-puppeteer.config.js)
+
+### Manually testing API endpoints
+All endpoints require a token in the request header. You can generate a token for yourself locally in the Django admin console, [under Auth Token](http://localhost:8000/admin/authtoken/), using any user. API endpoints can be tested manually using that token - see the [API docs for more detail](../api-docs/README.md).
+
 ### Making CSS changes
 
 `docker-compose up` will also launch a [Node] machine that compiles the [Sass]

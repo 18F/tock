@@ -1,25 +1,22 @@
-import datetime
 import csv
-
+import datetime
 from decimal import Decimal
-
-from django.contrib.auth import get_user_model
-from django.test import TestCase, RequestFactory, override_settings
-from django.urls import reverse
-from django.conf import settings
-
-from django_webtest import WebTest
-
-from api.tests import client
-from api.views import UserDataSerializer, ProjectSerializer
-from employees.models import UserData
-from organizations.models import Organization, Unit
-from hours.utils import number_of_hours
-from hours.forms import choice_label_for_project
-from hours.views import GeneralSnippetsTimecardSerializer, ReportsList
 
 import hours.models
 import projects.models
+from api.tests import client
+from api.views import ProjectSerializer, UserDataSerializer
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.test import RequestFactory, TestCase, override_settings
+from django.urls import reverse
+from django_webtest import WebTest
+from employees.models import UserData
+from hours.forms import choice_label_for_project
+from hours.utils import number_of_hours
+from hours.views import (GeneralSnippetsTimecardSerializer, ReportsList,
+                         TimecardView)
+from organizations.models import Organization, Unit
 
 User = get_user_model()
 
@@ -186,14 +183,6 @@ class TestAdminBulkTimecards(TestCase):
         for row in rows:
             self.assertEqual(set(row.keys()), expected_fields)
 
-class ProjectTimelineTests(WebTest):
-    fixtures = FIXTURES
-
-    def test_project_timeline(self):
-        res = client().get(reverse('reports:UserTimelineView'))
-        self.assertIn(
-            'aaron.snow,,2015-06-01,2015-06-08,False,20.00', str(res.content))
-
 class UtilTests(TestCase):
 
     def test_number_of_hours_util(self):
@@ -226,16 +215,25 @@ class UserReportsTest(TestCase):
         self.billable_project = projects.models.Project.objects.filter(
             accounting_code__billable=True
         )[0]
+        self.excluded_project = projects.models.Project.objects.filter(
+            exclude_from_billability=True
+        )[0]
         self.timecard_obj_0 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.nonbillable_project,
-            hours_spent=13
+            hours_spent=11
         )
         self.timecard_obj_1 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.billable_project,
             hours_spent=27
         )
+        self.timecard_obj_2 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.excluded_project,
+            hours_spent=2
+        )
+        self.timecard.save()
 
     def test_user_reporting_period_report(self):
         self.client.force_login(self.user)
@@ -243,10 +241,12 @@ class UserReportsTest(TestCase):
             'reports:ReportingPeriodUserDetailView',
             kwargs={'reporting_period':'1999-12-31', 'username':'aaron.snow'}
         ))
-        self.assertEqual(response.context['user_utilization'], '67.5%')
-        self.assertEqual(response.context['user_all_hours'], 40.00)
+        self.assertEqual(response.context['user_utilization'], Decimal('0.90'))
+        self.assertEqual(response.context['user_target_hours'], 30.00)
         self.assertEqual(response.context['user_billable_hours'], 27)
-        self.assertContains(response, '67.5%')
+        self.assertEqual(response.context['user_non_billable_hours'], 11)
+        self.assertEqual(response.context['user_excluded_hours'], 2)
+        self.assertContains(response, '90%')
 
 @override_settings(STARTING_FY_FOR_REPORTS_PAGE=2015)
 class ReportTests(WebTest):
@@ -486,6 +486,73 @@ class ReportTests(WebTest):
             expect_errors=True
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_project_choice_filtering(self):
+        """Tests that the project choices are filtered to only include those
+        assigned to the user's organization and those with no organization assignment."""
+
+        # additional test setup
+        org_18f = Organization.objects.create(name='18F')
+        org_18f.save()
+
+        org_coe = Organization.objects.create(name='CoE')
+        org_coe.save()
+
+        accounting_code = projects.models.AccountingCode.objects.get(pk=1)
+
+        project_18f = projects.models.Project.objects.create(
+            name='an 18f project',
+            accounting_code=accounting_code,
+            organization=org_18f
+        )
+        project_18f.save()
+
+        project_coe = projects.models.Project.objects.create(
+            name='a coe project',
+            accounting_code=accounting_code,
+            organization=org_coe
+        )
+        project_coe.save()
+
+        project_none = projects.models.Project.objects.create(
+            name='a project with no org assignment',
+            accounting_code=accounting_code,
+        )
+        project_none.save()
+
+        user_18f = get_user_model().objects.create(
+            username='18f-user'
+        )
+        user_18f.save()
+        UserData(
+            user=user_18f,
+            organization=org_18f
+        ).save()
+
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        response = self.app.get(
+            reverse(
+                'reportingperiod:UpdateTimesheet',
+                kwargs={'reporting_period': date}
+            ),
+            user=user_18f,
+        )
+
+        project_18f_found = False
+        project_coe_found = False
+        project_none_found = False
+        str_formset = str(response.context['formset']).split('\n')
+        for line in str_formset:
+            if line.find(f'option value="{project_18f.id}"') > 0:
+                project_18f_found = True
+            if line.find(f'option value="{project_coe.id}"') > 0:
+                project_coe_found = True
+            if line.find(f'option value="{project_none.id}"') > 0:
+                project_none_found = True
+
+        self.assertTrue(project_18f_found)
+        self.assertFalse(project_coe_found)
+        self.assertTrue(project_none_found)
 
     def test_holiday_prefill(self):
         """Tests when a holiday is related to a reporting period that it is
@@ -975,8 +1042,8 @@ class PrefillDataViewTests(WebTest):
             user=self.user,
         )
 
-        # Only our prefilled object should appear in this form.
-        self.assertEqual(len(response.context['formset'].forms), 1)
+        # The single active prefill and an empty project line should appear in this form.
+        self.assertEqual(len(response.context['formset'].forms), 2)
 
         form = response.context['formset'].forms[0]
 
@@ -1004,11 +1071,13 @@ class PrefillDataViewTests(WebTest):
             user=self.user,
         )
 
-        # Only our prefilled object should appear in this form.
-        self.assertEqual(len(response.context['formset'].forms), 2)
 
+        # We have 1 project which was previously tocked to
+        # 1 active prefill
+        # And we always render one extra so we should have 3 projects on our timecard
         prefill = response.context['formset'].forms[0]
         previous = response.context['formset'].forms[1]
+        empty = response.context['formset'].forms[2]
 
         # Check that our prefill information is what we expect it to be.
         self.assertEqual(prefill.initial['project'], self.pfd1.project.id)
@@ -1021,6 +1090,10 @@ class PrefillDataViewTests(WebTest):
         # without any hours.
         self.assertEqual(previous.initial['project'], tco.project.id)
         self.assertEqual(previous.initial['hours_spent'], None)
+
+        # Check that our extra row rendered without values
+        self.assertEqual(empty.initial, {})
+
 
     def test_active_prefills_fill_in_hours_from_previous_timecard(self):
         tco_1 = hours.models.TimecardObject.objects.create(
@@ -1089,3 +1162,41 @@ class PrefillDataViewTests(WebTest):
         # Check that our existing information is what we expect it to be.
         self.assertEqual(form.initial['project'], tco.project.id)
         self.assertEqual(form.initial['hours_spent'], tco.hours_spent)
+
+class TimecardViewTests(TestCase):
+    fixtures = [
+        'tock/fixtures/prod_user.json',
+        'employees/fixtures/user_data.json',
+        'organizations/fixtures/units.json',
+        'organizations/fixtures/organizations.json',
+    ]
+
+    def setUp(self):
+        self.view = TimecardView()
+        self.reporting_period = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(1999, 12, 31),
+            end_date=datetime.date(2000, 1, 1)
+        )
+
+        self.factory = RequestFactory()
+        self.user = User.objects.first()
+        self.org = Organization.objects.first()
+        self.unit = Unit.objects.first()
+
+        user_data = self.user.user_data
+        user_data.organization = self.org
+        user_data.unit = self.unit
+        user_data.save()
+
+        self.kwargs = {'reporting_period': "1999-12-31"}
+        self.url = reverse('reportingperiod:UpdateTimesheet', kwargs=self.kwargs)
+
+    def test_org_and_unit_set_for_new_timecards(self):
+        """Timecard org and unit set to user's on creation"""
+        request = self.factory.get(self.url)
+        request.user = self.user
+        self.view.setup(request, reporting_period="1999-12-31")
+        created_timecard =  self.view.get_object()
+
+        self.assertEquals(self.org, created_timecard.organization)
+        self.assertEquals(self.unit, created_timecard.unit)

@@ -83,6 +83,7 @@ class ProjectAdmin(admin.ModelAdmin):
     fields = [
         'name',
         'mbnumber',
+        'organization',
         'accounting_code',
         'profit_loss_account',
         'project_lead',
@@ -101,7 +102,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'name',
         'mbnumber',
         'accounting_code',
-        'get_organization_name',
+        'organization',
         'project_lead',
         'start_date',
         'end_date',
@@ -115,7 +116,10 @@ class ProjectAdmin(admin.ModelAdmin):
         'notes_required',
         'organization__name'
     )
-    search_fields = ('name', 'accounting_code__code', 'mbnumber',)
+    list_editable = (
+        'organization',
+    )
+    search_fields = ('name', 'accounting_code__code', 'mbnumber', 'id',)
 
     def get_organization_name(self, obj):
         if obj.organization is not None:

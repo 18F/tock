@@ -8,8 +8,9 @@ from django.urls import reverse
 
 from django_webtest import WebTest
 
-from api.views import get_timecards, TimecardList
-from employees.models import UserData, EmployeeGrade
+from api.views import get_timecardobjects, get_user_timecard_count, TimecardList
+from employees.models import EmployeeGrade, UserData
+from hours.models import Timecard
 from hours.factories import (
     UserFactory, ReportingPeriodFactory, TimecardFactory, TimecardObjectFactory,
 )
@@ -53,6 +54,27 @@ class ProjectInstanceAPITests(WebTest):
         self.assertEqual(res['start_date'], "2016-01-01")
         self.assertEqual(res['end_date'], None)
 
+class SubmissionsAPITests(WebTest):
+    fixtures = FIXTURES
+
+    def test_submissions_json_counts_punctual_timecard(self):
+        res = client().get(reverse('Submissions', kwargs={'num_past_reporting_periods': 2})).data
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0]["on_time_submissions"], "1")
+
+    def test_submissions_json_no_late_timecards(self):
+        res = client().get(reverse('Submissions', kwargs={'num_past_reporting_periods': 1})).data
+        self.assertEqual(len(res), 0)
+
+    def test_submissions_json_too_many_periods(self):
+        res = client().get(reverse('Submissions', kwargs={'num_past_reporting_periods': 100})).data
+        self.assertEqual(len(res), 1)
+
+    def test_user_timecard_count(self):
+        """ Check with unfiltered query """
+        all_timecards = get_user_timecard_count(Timecard.objects.all())
+        self.assertEqual(all_timecards.first().tcount, 3)
+
 class UsersAPITests(TestCase):
     fixtures = FIXTURES
 
@@ -83,76 +105,76 @@ class TimecardsAPITests(WebTest):
         self.assertEqual(res[0]['grade'], 4)
 
     # TODO: test with more diverse data
-    def test_get_timecards(self):
+    def test_get_timecardobjects(self):
         """ Check that get time cards returns the correct queryset """
         # Check with no params
-        queryset = get_timecards(TimecardList.queryset)
+        queryset = get_timecardobjects(TimecardList.queryset)
         self.assertEqual(len(queryset), 2)
         # Check with after param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
             params={'after': '2020-12-31'})
         self.assertEqual(len(queryset), 0)
 
         # Check with date param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'date': '2000-01-01'})
         self.assertEqual(len(queryset), 0)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'date': '2015-06-08'})
         self.assertEqual(len(queryset), 1)
         # Check with user param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'user': '1'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'user': 'aaron.snow'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'user': '22'})
         self.assertEqual(len(queryset), 0)
         # Check with project param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'project': '1'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'project': 'Out Of Office'})
         self.assertEqual(len(queryset), 2)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'project': '22'})
         self.assertEqual(len(queryset), 0)
 
         # Check with before param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'before': '2015-06-01'})
         self.assertEqual(len(queryset), 1)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'before': '2015-05-31'})
         self.assertEqual(len(queryset), 0)
 
         # Check with a range using before and after param
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'after': '2015-06-01', 'before': '2016-05-31'})
         self.assertEqual(len(queryset), 1)
-        queryset = get_timecards(TimecardList.queryset,
+        queryset = get_timecardobjects(TimecardList.queryset,
                                  params={'after': '2015-06-01', 'before': '2016-06-01'})
-        self.assertEqual(len(queryset), 2)
+        self.assertEqual(len(queryset), 1)
 
 
     def test_get_unsubmitted_timecards(self):
         """ Check that get time cards returns the correct queryset """
-        queryset = get_timecards(
+        queryset = get_timecardobjects(
             TimecardList.queryset,
             params={'submitted': 'no'}
         )
         self.assertEqual(len(queryset), 1)
 
-        queryset = get_timecards(
+        queryset = get_timecardobjects(
             TimecardList.queryset,
             params={'submitted': 'yes'}
         )
         self.assertEqual(len(queryset), 2)
 
-        queryset = get_timecards(
+        queryset = get_timecardobjects(
             TimecardList.queryset,
             params={'submitted': 'foo'}
         )
@@ -323,3 +345,55 @@ class ReportingPeriodList(WebTest):
             )
         ).data
         self.assertEqual(len(res), 0)
+
+class FullTimecardsAPITests(WebTest):
+    fixtures = FIXTURES
+
+    def test_with_no_filters_only_returns_submitted_timecards(self):
+        res = client().get(reverse('FullTimecardList')).data
+        self.assertEqual(len(res), 2)
+        self.assertTrue(all(tc['submitted'] for tc in res))
+
+    def test_unsubmitted_filter(self):
+        res = client().get(
+            reverse('FullTimecardList'), {'submitted': 'no'}
+        ).data
+        self.assertEqual(len(res), 1)
+        self.assertFalse(all(tc['submitted'] for tc in res))
+
+    def test_date_filter(self):
+        date_to_filter_on = '2015-06-04'
+        res = client().get(
+            reverse('FullTimecardList'), {'date': date_to_filter_on}
+        ).data
+        self.assertEqual(len(res), 1)
+        self.assertTrue(res[0]['reporting_period_start_date'] < date_to_filter_on)
+        self.assertTrue(res[0]['reporting_period_end_date'] > date_to_filter_on)
+
+    def test_after_filter(self):
+        # Note that the default behavior is to only return completed timecards, so even though
+        # there may be another later timecard (in our fixtures), it may or may not be
+        # submitted (and if not, won't show up in the response)
+        date_to_filter_on = '2016-01-01'
+        res = client().get(
+            reverse('FullTimecardList'), {'after': date_to_filter_on}
+        ).data
+        self.assertEqual(len(res), 1)
+        self.assertTrue(res[0]['reporting_period_start_date'] > date_to_filter_on)
+        self.assertTrue(res[0]['reporting_period_end_date'] > date_to_filter_on)
+
+    def test_before_filter(self):
+        date_to_filter_on = '2016-01-01'
+        res = client().get(
+            reverse('FullTimecardList'), {'after': date_to_filter_on}
+        ).data
+        self.assertEqual(len(res), 1)
+        self.assertTrue(res[0]['reporting_period_start_date'] > date_to_filter_on)
+        self.assertTrue(res[0]['reporting_period_end_date'] > date_to_filter_on)
+
+    def test_bad_date_format_returns_400(self):
+        res = client().get(
+            reverse('FullTimecardList'),
+            {'date': 'N0T-A-D8'}
+        )
+        self.assertEqual(res.status_code, 400)

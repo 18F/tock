@@ -62,7 +62,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
                 'tock.context_processors.version_url',
-                'tock.context_processors.tock_request_form_url',
+                'tock.context_processors.tock_settings_for_context',
             ],
         },
     },
@@ -114,7 +114,7 @@ REST_FRAMEWORK = {
 try:
     VERSION = (Path(BASE_DIR) / '..' / 'VERSION').read_text().strip()
 except IOError:
-    VERSION = 'master'
+    VERSION = 'main'
 
 UAA_APPROVED_DOMAINS = {
     'gsa.gov',
@@ -127,7 +127,7 @@ UAA_LOGOUT_URL = 'https://login.fr.cloud.gov/logout.do'
 
 AUTO_LOGOUT_DELAY_MINUTES = 60
 
-TOCK_CHANGE_REQUEST_FORM = 'https://docs.google.com/a/gsa.gov/forms/d/1EpVTxXgRNgYfoSA2J8Oi-csjhFKqFm5DT542vIlahpU/viewform?edit_requested=true'
+TOCK_CHANGE_REQUEST_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSe5RDFOlyWm0IXv7_eXjZ3CEjaGj2CmM-_TNgqwMjdspfQz7Q/viewform'
 
 # enable HSTS according to https://cyber.dhs.gov/bod/18-01/
 SECURE_HSTS_SECONDS = 31536000
@@ -139,3 +139,5 @@ RECENT_TOCKS_TO_REPORT = 5
 STARTING_FY_FOR_REPORTS_PAGE = 2019
 RECENT_TIMECARDS_FOR_BILLABILITY = 4
 HOURS_IN_A_REGULAR_WORK_WEEK = 40
+DEFAULT_BILLABLE_EXPECTATION = 0.80
+DEFAULT_EXPECTED_BILLABLE_HOURS = round(HOURS_IN_A_REGULAR_WORK_WEEK * DEFAULT_BILLABLE_EXPECTATION)

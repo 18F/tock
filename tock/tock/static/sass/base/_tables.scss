@@ -1,18 +1,6 @@
-table {
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-  caption {
-    text-align: left;
-    h1 {
-      margin-top: 0;
-    }
-  }
-}
-
 // Custom table styles
 .table-subtext {
-  color: $color-gray;
+  color: $theme-color-base-dark;
 
   font-style: italic;
 

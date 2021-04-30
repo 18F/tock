@@ -2,10 +2,12 @@ import datetime
 from decimal import Decimal
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator
 from django.db import IntegrityError, models
 from django.db.models import Q
+from django.utils.functional import cached_property
 from organizations.models import Organization, Unit
 from projects.models import ProfitLossAccount
 from rest_framework.authtoken.models import Token
@@ -74,16 +76,15 @@ class EmployeeGrade(models.Model):
             )
         super(EmployeeGrade, self).save(*args, **kwargs)
 
-
 class UserData(models.Model):
     user = models.OneToOneField(User, related_name='user_data', verbose_name='Tock username', on_delete=models.CASCADE)
     start_date = models.DateField(blank=True, null=True, verbose_name='Employee start date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Employee end date')
     current_employee = models.BooleanField(default=True, verbose_name='Is Current Employee')
-    is_18f_employee = models.BooleanField(default=True, verbose_name='Is 18F Employee')
-    billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
-                                             default=Decimal(0.80), decimal_places=2, max_digits=3,
-                                             verbose_name="Percentage of hours (expressed as a decimal) expected to be billable each week")
+    expected_billable_hours = models.IntegerField(validators=[MaxValueValidator(limit_value=settings.HOURS_IN_A_REGULAR_WORK_WEEK)],
+                                                default=settings.DEFAULT_EXPECTED_BILLABLE_HOURS,
+                                                help_text="Number of hours expected to be billable in a 40 hour work week")
+
     profit_loss_account = models.ForeignKey(
         ProfitLossAccount,
         on_delete=models.CASCADE,
@@ -96,7 +97,7 @@ class UserData(models.Model):
         default=False,
         verbose_name='Is alternative work schedule eligible'
     )
-    organization = models.ForeignKey(Organization, blank=True, null=True, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, blank=False, null=True, on_delete=models.CASCADE)
     unit = models.ForeignKey(Unit, blank=True, null=True, on_delete=models.CASCADE,
         verbose_name="Business Unit",
         help_text="The business unit within the organization in which this person sits."
@@ -109,6 +110,18 @@ class UserData(models.Model):
     def __str__(self):
         return '{0}'.format(self.user)
 
+    @cached_property
+    def is_18f_employee(self):
+        """
+        True if user's current organization is 18F
+        False if no organization or not named '18F'
+        """
+        return bool(self.organization and self.organization.name == "18F")
+
+    @property
+    def is_active(self):
+        return self.user.is_active
+
     @property
     def is_billable(self):
         """
@@ -116,6 +129,14 @@ class UserData(models.Model):
         than 0 hours in a regular work week
         """
         return self.billable_expectation > Decimal(0.0)
+
+    @cached_property
+    def billable_expectation(self):
+        """
+        Returns the employee's billable expectation, expressed as a percentage
+        of their hours worked
+        """
+        return round(Decimal(self.expected_billable_hours / settings.HOURS_IN_A_REGULAR_WORK_WEEK), 2)
 
     @property
     def organization_name(self):
@@ -157,6 +178,11 @@ class UserData(models.Model):
             return True
         else:
             return False
+
+    @cached_property
+    def display_name(self):
+       """If we have First/Last use those, otherwise fallback to username"""
+       return self.user.get_full_name() or self.user.username
 
     def save(self, *args, **kwargs):
         """Aligns User model and UserData model attributes on save."""

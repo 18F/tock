@@ -16,7 +16,7 @@ The easiest way to create an administrative user is to follow the instructions
 in [Getting Started with Local Tock
 Development](local-development.md#getting-started-with-local-tock-development).
 
-[UAA]: https://cloud.gov/docs/apps/leveraging-authentication/
+[UAA]: https://cloud.gov/docs/management/leveraging-authentication/
 [fakeUAA]: http://cg-django-uaa.readthedocs.io/en/latest/quickstart.html#using-the-fake-cloud-gov-server
 
 ### Creating UAA clients for Tock

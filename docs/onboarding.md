@@ -25,7 +25,7 @@ checklist, work through it with you.
 ## New developer checklist
 You will need to be sure you have:
 - [ ] Familiarized yourself with the systems and scripts your onboarding partner has granted access to
-- [ ] Reviewed the [Tock deployment process](https://github.com/18f/tock/tree/master/docs/deployment-process.md).
+- [ ] Reviewed the [Tock deployment process](https://github.com/18f/tock/tree/main/docs/deployment-process.md).
 
 
 ## Things to remember
