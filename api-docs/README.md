@@ -32,7 +32,8 @@ To access similar data in CSV format within Tock, please visit the
 - [Reporting period (audit specific time period)](reporting-period-audit-specific.md): Fetches a list of all users who have not submitted a timecard for the specified period.
 - [Reporting periods](reporting-period-audit.md): Fetches a list of all available reporting periods and basic information about them.
 - [Submissions by range](submissions.md): Fetches a list of users and a count of timecards submitted on or before the last day of each timecard's reporting period.
-- [Timecards](timecards.md): Fetches a list of all submitted timecards and related information.
+- [Timecards](timecards.md): Fetches a list of all submitted timecard objects and related information. Note that a "timecard object" here represents time a person spent on a given project. It's a more granular view of what someone worked on (compared to the "full timecards" endpoint, documented below).
+- [Full timecards](full-timecards.md): Fetches a list of all timecards and related information. Note that a "timecard" here is different from a "timecard object" - a "timecard" is a higher level representation of what a person worked on during a reporting period, which could include many projects for varying periods of time, but that level of granularity is not captuired here. If you want project-level data, don't use this endpoint - use the "Timecards" one above.
 - [User data](user-data.md): Fetches a list of all users, along with organizational information for each.
 - [Users](users.md): Fetches a list of all users, along with basic information about them.
 
