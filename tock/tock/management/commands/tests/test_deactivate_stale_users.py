@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta, timezone
 from io import StringIO
-
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase
 from rest_framework.authtoken.models import Token
+from tock.management.commands.deactivate_stale_users import DEFAULT_STALE_DAYS
+
+User = get_user_model()
 
 class DeactivateStaleUsersTest(TestCase):
-    DEFAULT_STALE_DAYS = 90
 
     def create_user(self, username, date_joined, last_login, is_active, need_token):
         user = User.objects.create_user(username, '')
@@ -21,7 +22,7 @@ class DeactivateStaleUsersTest(TestCase):
 
     def assert_stdout(self, user_deactivated_count, token_removed_count, stdout):
         self.assertIn(f'deactivated {user_deactivated_count} users', stdout)
-        self.assertIn(f'{self.DEFAULT_STALE_DAYS} days', stdout)
+        self.assertIn(f'{DEFAULT_STALE_DAYS} days', stdout)
         self.assertIn(f'removed {token_removed_count} tokens', stdout)
 
 
@@ -29,8 +30,8 @@ class DeactivateStaleUsersTest(TestCase):
         now = datetime.now(timezone.utc)
         username = 'Jane.Doe'
         self.create_user(username,
-                         now - timedelta(days=self.DEFAULT_STALE_DAYS + 120),
-                         now - timedelta(days=self.DEFAULT_STALE_DAYS),
+                         now - timedelta(days=DEFAULT_STALE_DAYS + 120),
+                         now - timedelta(days=DEFAULT_STALE_DAYS),
                          True,
                          False)
 
@@ -54,8 +55,8 @@ class DeactivateStaleUsersTest(TestCase):
         now = datetime.now(timezone.utc)
         username = 'John.Smith'
         self.create_user(username,
-                         now - timedelta(days=self.DEFAULT_STALE_DAYS + 120),
-                         now - timedelta(days=self.DEFAULT_STALE_DAYS),
+                         now - timedelta(days=DEFAULT_STALE_DAYS + 120),
+                         now - timedelta(days=DEFAULT_STALE_DAYS),
                          True,
                          True)
 
@@ -79,8 +80,8 @@ class DeactivateStaleUsersTest(TestCase):
         now = datetime.now(timezone.utc)
         username = 'Long.Time'
         self.create_user(username,
-                         now - timedelta(days=self.DEFAULT_STALE_DAYS + 120),
-                         now - timedelta(days=self.DEFAULT_STALE_DAYS),
+                         now - timedelta(days=DEFAULT_STALE_DAYS + 120),
+                         now - timedelta(days=DEFAULT_STALE_DAYS),
                          False,
                          False)
 
@@ -104,7 +105,7 @@ class DeactivateStaleUsersTest(TestCase):
         now = datetime.now(timezone.utc)
         username = 'Mary.Wright'
         self.create_user(username,
-                         now - timedelta(days=self.DEFAULT_STALE_DAYS + 120),
+                         now - timedelta(days=DEFAULT_STALE_DAYS + 120),
                          now,
                          True,
                          True)

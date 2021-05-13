@@ -5,13 +5,14 @@ from django.db import transaction
 from rest_framework.authtoken.models import Token
 
 User = get_user_model()
+DEFAULT_STALE_DAYS = 90
 
 @transaction.atomic
 class Command(BaseCommand):
     help = 'Deactivate user when they have not logged in for a set amount of time'
 
     def add_arguments(self, parser):
-        parser.add_argument('days_not_logged_in', nargs='?', type=int, default=90)
+        parser.add_argument('days_not_logged_in', nargs='?', type=int, default=DEFAULT_STALE_DAYS)
 
     @transaction.atomic
     def handle(self, *args, **options):
