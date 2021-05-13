@@ -27,6 +27,7 @@ class Command(BaseCommand):
           user.save()
           user_count += 1
 
+          # There's only one token per user, filter() is used instead of get() due to cleaner implementation
           token = Token.objects.filter(user=user)
           if token:
             token.delete()
