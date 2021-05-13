@@ -23,15 +23,15 @@ class Command(BaseCommand):
         user_count = 0
         token_count = 0
         for user in user_list:
-          user.is_active = False
-          user.save()
-          user_count += 1
+            user.is_active = False
+            user.save()
+            user_count += 1
 
-          # There's only one token per user, filter() is used instead of get() due to cleaner implementation
-          token = Token.objects.filter(user=user)
-          if token:
-            token.delete()
-            token_count += 1
+            # There's only one token per user, filter() is used instead of get() due to cleaner implementation
+            token = Token.objects.filter(user=user)
+            if token:
+                token.delete()
+                token_count += 1
 
         self.stdout.write(self.style.SUCCESS(f'Found and deactivated {user_count} users who did not logged in for {options["days_not_logged_in"]} days.'))
         self.stdout.write(self.style.SUCCESS(f'Found and removed {token_count} tokens with associated users.'))
