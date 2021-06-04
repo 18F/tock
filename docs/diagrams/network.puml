@@ -44,8 +44,8 @@ note on link
 end note
 
 ' Logs flow
-Rel(app, cloudgov_logdrain, "logs to", "stdout/stderr")
-Rel(app_staging, cloudgov_logdrain, "logs to", "stdout/stderr")
+Rel(app, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+Rel(app_staging, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
 
 
 ' User access
@@ -86,5 +86,4 @@ end note
 
 Rel(cloudgov_elb, app, "proxies to", "https GET/POST (variable)")
 Rel(cloudgov_elb, app_staging, "proxies to", "https GET/POST (variable)")
-
 @enduml
