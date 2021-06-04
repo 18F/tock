@@ -44,8 +44,8 @@ note on link
 end note
 
 ' Logs flow
-Rel(app, cloudgov_logdrain, "logs to", "stdout/stderr")
-Rel(app_staging, cloudgov_logdrain, "logs to", "stdout/stderr")
+Rel(app, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+Rel(app_staging, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
 
 
 ' User access
