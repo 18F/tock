@@ -16,7 +16,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/python:3.8.8-node-browsers
+      - image: circleci/python:3.9.6-node-browsers
         environment:
           - TZ=America/New_York
           - PIPENV_VENV_IN_PROJECT=true
