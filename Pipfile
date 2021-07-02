@@ -33,4 +33,4 @@ nplusone = "*"
 codecov = "*"
 
 [requires]
-python_version = "3.9.6"
+python_version = "3.9.5"
