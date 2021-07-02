@@ -36,8 +36,6 @@ jobs:
       - restore_cache:
           keys:
             - deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - deps-{{ .Environment.CACHE_VERSION }}-
 
       - run:
           name: install dependencies
