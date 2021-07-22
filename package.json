@@ -9,7 +9,7 @@
     "test": "JEST_PORT=8000 jest"
   },
   "engines": {
-    "node": ">=8.10.0"
+    "node": ">=14.0.0"
   },
   "dependencies": {
     "chosen-js": "^1.8.7",
