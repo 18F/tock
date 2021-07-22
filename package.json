@@ -20,6 +20,7 @@
   "devDependencies": {
     "jest": "^27.0.6",
     "jest-puppeteer": "^3.9.1",
+    "node-notifier": "^10.0.0",
     "puppeteer": "^1.20.0"
   }
 }
