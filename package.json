@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "build-css": "node-sass --source-map true --include-path ./node_modules/uswds/src/stylesheets tock/tock/static/sass -o tock/tock/static/css/dist",
+    "build-css": "sass --source-map --load-path ./node_modules/uswds/src/stylesheets tock/tock/static/sass:tock/tock/static/css/dist",
     "watch-css": "npm run build-css -- --watch",
     "prestart": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --quiet",
     "start": "npm run build-css && npm run watch-css",
@@ -14,7 +14,7 @@
   "dependencies": {
     "chosen-js": "^1.8.7",
     "jquery": "^3.6.0",
-    "node-sass": "^6.0.1",
+    "sass": "^1.35.1",
     "uswds": "^2.10.0"
   },
   "devDependencies": {
