@@ -34,7 +34,7 @@ def verify_userdata(user):
     try:
         user = UserData.objects.get(user=user)
     except UserData.DoesNotExist:
-        logger.warn(
+        logger.warning(
             f'Creating UserData for {user.username}.'
         )
         UserData.objects.create(
@@ -71,7 +71,7 @@ class TockUserBackend(UaaBackend):
             )
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            logger.warn(
+            logger.warning(
                 f'Creating User for {username}'
             )
             user = User.objects.create_user(username, email)

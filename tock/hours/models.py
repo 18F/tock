@@ -227,13 +227,22 @@ class ReportingPeriod(ValidateOnSaveMixin, models.Model):
         today = datetime.date.today()
         return ReportingPeriod.objects.filter(end_date__lte=today).order_by('-start_date')[:number_of_periods]
 
+
 class Timecard(models.Model):
+    """
+    A Timecard is a top-level representation of what a user worked on during a reporting period.
+
+    For details on what projects they worked on and for how long, you'll want to access the
+    associated `TimecardObject` objects, which store that level of detail.
+    """
     user = models.ForeignKey(User, related_name='timecards', on_delete=models.CASCADE)
     reporting_period = models.ForeignKey(ReportingPeriod, on_delete=models.CASCADE)
     time_spent = models.ManyToManyField(Project, through='TimecardObject')
     submitted = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    submitted_date = models.DateField(null=True, blank=True)
+
     billable_expectation = models.DecimalField(validators=[MaxValueValidator(limit_value=1)],
                                             default=Decimal(settings.DEFAULT_BILLABLE_EXPECTATION), decimal_places=2, max_digits=3,
                                             verbose_name="Percent hours billable per week")
@@ -271,10 +280,27 @@ class Timecard(models.Model):
             self.unit = self.user.user_data.unit
         if self.id:
             self.calculate_hours()
+        self.submitted_date = self.calculate_submitted_date()
+
         super().save(*args, **kwargs)
 
     def calculate_utilization_denominator(self):
         return self.billable_hours + self.non_billable_hours
+
+    def calculate_submitted_date(self):
+        """
+        If the submitted status is false, make sure submitted_date is unset
+            (self.submitted may have been unchecked in admin interface)
+        Otherwise, if timecard has been submitted but there is no submitted_date,
+        set to today's date
+        """
+        if not self.submitted:
+            return None
+        else:
+            if self.submitted_date:
+                return self.submitted_date
+            else:
+                return datetime.date.today()
 
     def calculate_target_hours(self):
         """
@@ -316,6 +342,14 @@ class Timecard(models.Model):
 
         self.target_hours = self.calculate_target_hours()
         self.utilization = self.calculate_utilization()
+
+    def on_time(self):
+        # rely on the modified date for those time cards which were recorded before submitted_date was added
+        if self.submitted_date and \
+        self.submitted_date <= self.reporting_period.end_date:
+            return True
+        else:
+            return False
 
 
 class TimecardNoteManager(models.Manager):
@@ -427,6 +461,12 @@ class TimecardNote(models.Model):
         super(TimecardNote, self).save(*args, **kwargs)
 
 class TimecardObject(models.Model):
+    """
+    Not to be confused with a Timecard, a TimecardObject can be thought of as one "entry" in a Timecard,
+    i.e. for a given billing period, one person generally has one Timecard, but many TimecardObjects ("entries"). Each
+    represents a project that person worked on, and the amount of time (and some other data defined
+    below).
+    """
     timecard = models.ForeignKey(Timecard, related_name='timecardobjects', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     hours_spent = models.DecimalField(decimal_places=2,

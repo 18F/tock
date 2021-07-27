@@ -1042,8 +1042,8 @@ class PrefillDataViewTests(WebTest):
             user=self.user,
         )
 
-        # Only our prefilled object should appear in this form.
-        self.assertEqual(len(response.context['formset'].forms), 1)
+        # The single active prefill and an empty project line should appear in this form.
+        self.assertEqual(len(response.context['formset'].forms), 2)
 
         form = response.context['formset'].forms[0]
 
@@ -1071,11 +1071,13 @@ class PrefillDataViewTests(WebTest):
             user=self.user,
         )
 
-        # Only our prefilled object should appear in this form.
-        self.assertEqual(len(response.context['formset'].forms), 2)
 
+        # We have 1 project which was previously tocked to
+        # 1 active prefill
+        # And we always render one extra so we should have 3 projects on our timecard
         prefill = response.context['formset'].forms[0]
         previous = response.context['formset'].forms[1]
+        empty = response.context['formset'].forms[2]
 
         # Check that our prefill information is what we expect it to be.
         self.assertEqual(prefill.initial['project'], self.pfd1.project.id)
@@ -1088,6 +1090,10 @@ class PrefillDataViewTests(WebTest):
         # without any hours.
         self.assertEqual(previous.initial['project'], tco.project.id)
         self.assertEqual(previous.initial['hours_spent'], None)
+
+        # Check that our extra row rendered without values
+        self.assertEqual(empty.initial, {})
+
 
     def test_active_prefills_fill_in_hours_from_previous_timecard(self):
         tco_1 = hours.models.TimecardObject.objects.create(
