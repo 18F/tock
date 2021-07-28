@@ -6,7 +6,7 @@
     "prestart": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --quiet",
     "start": "npm run build-css && npm run watch-css",
     "predeploy": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --silent && npm run build-css",
-    "test": "JEST_PORT=8000 jest --color"
+    "test": "JEST_PORT=8000 jest"
   },
   "engines": {
     "node": ">=14.0.0"
