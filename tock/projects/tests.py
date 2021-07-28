@@ -201,7 +201,7 @@ class ProjectsTest(WebTest):
         listed.
         """
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(reverse('projects:ProjectListView'))
         anchor = response.html.find(
             'a',
             href='/projects/{0}'.format(self.project.id)
@@ -222,7 +222,7 @@ class ProjectsTest(WebTest):
 
         self.project.alerts.add(project_alert)
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(reverse('projects:ProjectListView'))
         span = response.html.find('span')
 
         self.assertIsNotNone(span)
@@ -242,7 +242,7 @@ class ProjectsTest(WebTest):
 
         self.project.alerts.add(project_alert)
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(reverse('projects:ProjectListView'))
         anchor = response.html.find(
             'a',
             href='http://www.gsa.gov/'
@@ -267,7 +267,7 @@ class ProjectsTest(WebTest):
         self.project.alerts.add(project_alert)
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project.id})
         )
 
         span = response.html.find('span')
@@ -290,7 +290,7 @@ class ProjectsTest(WebTest):
         self.project.alerts.add(project_alert)
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project.id})
         )
 
         anchor = response.html.find(
@@ -316,7 +316,7 @@ class ProjectsTest(WebTest):
 
     def test_agreement_url_displays_correctly(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project.id})
         )
 
         url = response.html.find('a', href=self.project.agreement_URL)
@@ -324,14 +324,14 @@ class ProjectsTest(WebTest):
 
     def test_no_agreement_url(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project_no_url.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project_no_url.id})
         )
         test_string = 'No agreement URL available'
         self.assertContains(response, test_string)
 
     def test_no_project_lead(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project_no_lead.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project_no_lead.id})
         )
         test_string = 'No project lead available'
         self.assertContains(response, test_string)
@@ -464,7 +464,7 @@ class ProjectViewTests(WebTest):
         )
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': '1'}),
+            reverse('projects:ProjectView', kwargs={'pk': '1'}),
             user=User.objects.get(email='aaron.snow@gsa.gov')
         )
 
