@@ -1,31 +1,33 @@
-app:
-  build: .
-  volumes:
-    - ./tock:/tock
-  links:
-    - db
-  working_dir: /tock
-  entrypoint: python /tock/docker_entrypoint.py
-  environment:
-    - PYTHONUNBUFFERED=yup
-    - DATABASE_URL=postgres://tock_user@db/tock
-    - RUNNING_IN_DOCKER=yup
-    - DJANGO_SETTINGS_MODULE=tock.settings.dev
-    # - NEW_RELIC_LICENSE_KEY=get-from-vcap-user-provided-service (not to be used for local development)
-  stdin_open: true
-  tty: true
-  ports:
-    - "8000:8000"
-  command: "python manage.py runserver 0.0.0.0:8000"
-db:
-  image: postgres:9.6.8
-  environment:
-    - POSTGRES_DB=tock
-    - POSTGRES_USER=tock_user
-sass:
-  image: node:14.17.3
-  volumes:
-    - .:/tock
-    - /tock/node_modules
-  working_dir: /tock
-  entrypoint: npm start
+version: "3.0"
+services:
+  app:
+    build: .
+    volumes:
+      - ./tock:/tock
+    links:
+      - db
+    working_dir: /tock
+    entrypoint: python /tock/docker_entrypoint.py
+    environment:
+      - PYTHONUNBUFFERED=yup
+      - DATABASE_URL=postgres://tock_user@db/tock
+      - RUNNING_IN_DOCKER=yup
+      - DJANGO_SETTINGS_MODULE=tock.settings.dev
+      # - NEW_RELIC_LICENSE_KEY=get-from-vcap-user-provided-service (not to be used for local development)
+    stdin_open: true
+    tty: true
+    ports:
+      - "8000:8000"
+    command: "python manage.py runserver 0.0.0.0:8000"
+  db:
+    image: postgres:9.6.8
+    environment:
+      - POSTGRES_DB=tock
+      - POSTGRES_USER=tock_user
+  sass:
+    image: node:14.17.3
+    volumes:
+      - .:/tock
+      - /tock/node_modules
+    working_dir: /tock
+    entrypoint: npm start
