@@ -20,7 +20,6 @@ admin.site.login = staff_login_required(admin.site.login)
 
 import hours.views
 import api.urls
-import projects.urls
 import tock.views
 
 
