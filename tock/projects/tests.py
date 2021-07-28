@@ -469,3 +469,59 @@ class ProjectViewTests(WebTest):
         )
 
         self.assertEqual(float(response.html.select('#totalHoursAll')[0].string), 15)
+
+
+class ProjectEngagementTests(WebTest):
+
+    def setUp(self):
+        agency = Agency(name='General Services Administration')
+        agency.save()
+        self.billable_accounting_code = AccountingCode(
+            code='abc',
+            agency=agency,
+            office='18F',
+            billable=True
+        )
+        self.billable_accounting_code.save()
+        self.profit_loss_account = ProfitLossAccount(
+            name='PIF',
+            accounting_string='This_is_a_string',
+            as_start_date=datetime.date(2016, 10, 1),
+            as_end_date=datetime.date(2017, 9, 30)
+            )
+        self.profit_loss_account.save()
+
+        self.project = Project(
+            accounting_code=self.billable_accounting_code,
+            profit_loss_account=self.profit_loss_account,
+            name='Test Project',
+            start_date='2016-01-01',
+            end_date='2016-02-01',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = None
+        )
+        self.project.save()
+
+        self.em_project = Project(
+            accounting_code=self.billable_accounting_code,
+            profit_loss_account=self.profit_loss_account,
+            name='Test Project Engagement Management',
+            start_date='2016-01-01',
+            end_date='2016-02-01',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = None
+        )
+        self.em_project.save()
+
+        self.user = User.objects.create(
+            username='aaron.snow',
+            first_name='aaron',
+            last_name='snow'
+        )
+        self.app.set_user(self.user)
+
+    def test_engagement_view(self):
+        response = self.app.get(
+            reverse('projects:ProjectEngagementView'),
+        )
+        self.assertGreater(len(response.html.find("table").tbody.find_all("tr")), 0)
