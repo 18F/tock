@@ -32,9 +32,17 @@
         </ul>
       </li>
       <li class="usa-nav__primary-item">
-        <a href="{% url 'ProjectListView' %}" class="usa-nav__link">
+        <button class="usa-accordion__button usa-nav__link" aria-expanded="false" aria-controls="projects-nav">
           <span>View projects</span>
-        </a>
+        </button>
+        <ul id="projects-nav" class="usa-nav__submenu" aria-expanded="true">
+          <li class="usa-nav__submenu-item">
+            <a href="{% url 'projects:ProjectListView' %}">All Projects</a>
+          </li>
+          <li class="usa-nav__submenu-item">
+            <a href="{% url 'projects:ProjectEngagementView' %}">Engagement Levels</a>
+          </li>
+        </ul>
       </li>
       <li class="usa-nav__primary-item">
         <a href="{% url 'employees:UserListView' %}" class="usa-nav__link">
@@ -42,7 +50,7 @@
         </a>
       </li>
 
-      
+
     </ul>
     <div class="usa-nav__secondary">
     <ul class="usa-nav__secondary-links usa-accordion">
