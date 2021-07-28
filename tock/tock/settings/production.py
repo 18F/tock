@@ -10,8 +10,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 USE_X_FORWARDED_HOST = True
 
-ALLOWED_HOSTS = ['*']  # proxied
-
 # FORCE_SCRIPT_NAME = '/tock'
 
 STATIC_ROOT = '/app/tock/tock/static/'
