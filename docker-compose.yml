@@ -31,3 +31,16 @@ services:
       - /tock/node_modules
     working_dir: /tock
     entrypoint: npm start
+  integration-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile-tests
+    links:
+      - app
+    volumes:
+      - .:/home/circleci/project
+      - /home/circleci/project/node_modules
+    environment: 
+      CI: "true"
+      TOCK_URL: "http://app:8000"
+    command: /bin/true

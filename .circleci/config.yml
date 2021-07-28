@@ -15,7 +15,7 @@ version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
+      # NOTE: If you update this image, please _also_ update the FROM statement in Dockerfile-tests.
       - image: cimg/python:3.9.5-browsers
         environment:
           - TZ=America/New_York

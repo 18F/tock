@@ -1,4 +1,4 @@
-const baseUrl = `http://localhost:${process.env.JEST_PORT}`;
+const baseUrl = process.env.TOCK_URL || `http://localhost:${process.env.JEST_PORT}`;
 
 beforeAll(async () => {
   await page.goto(baseUrl);

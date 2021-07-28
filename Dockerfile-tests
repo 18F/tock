@@ -1,0 +1,12 @@
+# This minimal Dockerfile is used to run Jest/Puppeteer-based integration tests
+# for local development. It is based on the Docker image used to run the tests
+# in CI. If you update this FROM statement, please _also_ update the image
+# referenced in .circleci/config.yml.
+FROM cimg/python:3.9.5-browsers
+
+# This COPY/RUN block serves two purposes:
+#  1. Seed the npm cache inside the Docker image
+#  2. Ensure that the `node_modules` directory is created and owned by the
+#     `circleci` user so we can volume it without permission issues.
+COPY package.json package-lock.json ./
+RUN npm install
