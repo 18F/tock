@@ -104,6 +104,12 @@ Tock includes a suite of integration tests built using [jest][https://jestjs.io/
 docker run integration-tests npm test
 ```
 
+During development, you can use Jest's watch mode to re-run tests as you develop:
+
+```sh
+docker run integration-tests npm test -- --watch
+```
+
 ##### Debugging Integration Tests
 
 If the integration tests are failing and you need to debug them, the easiest way is to modify [jest-puppeteer.config.js](../jest-puppeteer.config.js), specifying `headless: false`. Then run the tests _outside_ Docker:
