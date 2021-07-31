@@ -1,4 +1,4 @@
-FROM python:3.9.5
+FROM python:buster
 
 RUN apt-get update && apt-get install -y postgresql-client
 
