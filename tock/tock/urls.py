@@ -20,7 +20,6 @@ admin.site.login = staff_login_required(admin.site.login)
 
 import hours.views
 import api.urls
-import projects.urls
 import tock.views
 
 
@@ -30,7 +29,7 @@ urlpatterns = [
     path('reports/', include('hours.urls.reports', namespace='reports')),
     path('employees/', include('employees.urls', namespace='employees')),
     path('utilization/', include('utilization.urls', namespace='utilization')),
-    path('projects/', include(projects.urls)),
+    path('projects/', include('projects.urls', namespace='projects')),
 
     # TODO: version the API?
     path('api/', include(api.urls)),
