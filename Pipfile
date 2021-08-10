@@ -25,7 +25,7 @@ pyjwt = "~=1.7.1"
 [dev-packages]
 bandit = "*"
 coverage = "*"
-django-debug-toolbar = "*"
+django-debug-toolbar = ">=3.2.1"
 django-webtest = "*"
 factory-boy = "*"
 "flake8" = "*"
@@ -33,4 +33,4 @@ nplusone = "*"
 codecov = "*"
 
 [requires]
-python_version = "3.9.5"
+python_version = "3.9.6"

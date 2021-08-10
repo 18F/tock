@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tock</title>
 
-  {% load staticfiles %}
+  {% load static %}
   {% if request.user.is_authenticated and request.user.user_data.is_late %}
   <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
   {% else %}
