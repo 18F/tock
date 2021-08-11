@@ -329,13 +329,14 @@ class Timecard(models.Model):
         excluded_filter = Q(timecardobjects__project__exclude_from_billability=True)
 
         # Using Coalesce to set a default value of 0 if no data is available
-        billable = Coalesce(Sum('timecardobjects__hours_spent', filter=billable_filter), 0)
-        non_billable = Coalesce(Sum('timecardobjects__hours_spent', filter=non_billable_filter), 0)
-        excluded = Coalesce(Sum('timecardobjects__hours_spent', filter=excluded_filter), 0)
+        billable = Coalesce(Sum('timecardobjects__hours_spent', filter=billable_filter), Decimal('0'))
+        non_billable = Coalesce(Sum('timecardobjects__hours_spent', filter=non_billable_filter), Decimal('0'))
+        excluded = Coalesce(Sum('timecardobjects__hours_spent', filter=excluded_filter), Decimal('0'))
 
 
         timecard = Timecard.objects.filter(id=self.id).annotate(billable=billable).annotate(non_billable=non_billable).annotate(excluded=excluded)[0]
 
+        
         self.billable_hours = round(timecard.billable, 2)
         self.non_billable_hours = round(timecard.non_billable, 2)
         self.excluded_hours = round(timecard.excluded, 2)
