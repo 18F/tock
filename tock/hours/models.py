@@ -335,8 +335,7 @@ class Timecard(models.Model):
 
 
         timecard = Timecard.objects.filter(id=self.id).annotate(billable=billable).annotate(non_billable=non_billable).annotate(excluded=excluded)[0]
-
-        
+ 
         self.billable_hours = round(timecard.billable, 2)
         self.non_billable_hours = round(timecard.non_billable, 2)
         self.excluded_hours = round(timecard.excluded, 2)
