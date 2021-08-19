@@ -6,8 +6,9 @@
 #
 
 -i https://pypi.python.org/simple
+asgiref==3.4.1; python_version >= '3.6'
 beautifulsoup4==4.9.3
-bleach==3.3.1
+bleach==4.0.0
 certifi==2021.5.30
 cfenv==0.5.3
 cg-django-uaa==2.1.3
@@ -18,12 +19,12 @@ django==3.2.6
 djangorestframework-csv==2.1.1
 djangorestframework==3.12.4
 furl==2.1.2
-gevent==21.1.2
-greenlet==1.1.0; platform_python_implementation == 'CPython'
+gevent==21.8.0
+greenlet==1.1.1; platform_python_implementation == 'CPython'
 gunicorn==20.1.0
 idna==3.2; python_version >= '3'
 markdown==3.3.4
-newrelic==6.6.0.162
+newrelic==6.8.0.163
 numpy==1.21.1; python_version >= '3.7'
 orderedmultidict==1.0.1
 packaging==21.0; python_version >= '3.6'
