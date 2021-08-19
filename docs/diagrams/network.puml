@@ -1,0 +1,90 @@
+@startuml
+!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/puml/source/diagrams/ssp.puml
+!include ./styles.puml
+
+hide stereotype
+legend right
+
+LAYOUT_LEFT_RIGHT()
+
+title Tock typical network interactions
+
+note as EncryptionNote
+All connections depicted are encrypted with TLS 1.2 unless otherwise noted.
+end note
+
+Boundary(awsgov, "AWS GovCloud") {
+    Boundary(cloudgov_boundary, "cloud.gov Platform") {
+    System_Ext(cloudgov_logdrain, "logs.fr.cloud.gov", "ELK log stack")
+    System_Ext(cloudgov_elb, "Load Balancer", "cloud.gov")
+
+    ContainerDb(cloudgov_services, "cloud.gov data services", "AWS Postgres RDS", "Stores persistent data for apps")
+
+    ATO_Boundary(atob, "ATO boundary") {
+        Boundary(organization, "Tock cloud.gov organization") {
+            Boundary(space, "Tock cloud.gov spaces") {
+                System(app, "Production", "tock.18f.gov")
+                System(app_staging, "Staging", "tock.app.cloud.gov", )
+            }
+        }
+    }
+    }
+}
+
+System_Ext(secureauth, "GSA SecureAuth", "proxied by cloud.gov UAA")
+
+Rel(app, cloudgov_services, "read/write (variable)")
+note on link
+  Auth: Password
+end note
+
+Rel(app_staging, cloudgov_services, "read/write (variable)")
+note on link
+  Auth: Password
+end note
+
+' Logs flow
+Rel(app, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+Rel(app_staging, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+
+
+' User access
+Person_Ext(public, "Tock User")
+Boundary(computer, "Computing Device"){
+    System_Ext(browser, "Web Browser")
+    System_Ext(api_client, "API Client")
+}
+
+
+' Monitoring
+Boundary(gsa_saas, "GSA-authorized SaaS") {
+    System_Ext(dap, "DAP", "Web analytics SaaS")
+    System_Ext(newrelic, "New Relic", "Monitoring SaaS")
+}
+
+Rel(newrelic, cloudgov_elb, "monitors application", "https GET (443)")
+Rel(app, newrelic, "reports telemetry", "tcp (443)")
+note on link
+  Auth: Token
+end note
+
+Rel(public, browser, "uses")
+Rel(public, api_client, "uses")
+
+browser --> dap : **reports usage** \n//[https (443)]//
+
+Rel(browser, cloudgov_elb, "interacts with application", "https GET/POST (443)")
+Rel(browser, secureauth, "Authenticates","https GET/POST (443)")
+note on link
+  Auth: MFA
+end note
+
+Rel(api_client, cloudgov_elb, "interacts with application", "https GET (443)")
+note on link
+  Auth: Token
+end note
+
+Rel(cloudgov_elb, app, "proxies to", "https GET/POST (variable)")
+Rel(cloudgov_elb, app_staging, "proxies to", "https GET/POST (variable)")
+
+@enduml
