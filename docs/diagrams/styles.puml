@@ -1,0 +1,31 @@
+@startuml
+!global $ELEMENT_FONT_COLOR = "#Black"
+!global $CONTAINER_BG_COLOR = "#LightSkyBlue"
+!global $CONTAINER_BORDER_COLOR = "#Black"
+!global $EXTERNAL_SYSTEM_BG_COLOR = "#LightGrey"
+!global $EXTERNAL_SYSTEM_BORDER_COLOR = "#Black"
+
+skinparam database<<container>> {
+    StereotypeFontColor $ELEMENT_FONT_COLOR
+    FontColor $ELEMENT_FONT_COLOR
+    BackgroundColor $CONTAINER_BG_COLOR
+    BorderColor $CONTAINER_BORDER_COLOR
+}
+
+skinparam rectangle<<external_system>> {
+    StereotypeFontColor $ELEMENT_FONT_COLOR
+    FontColor $ELEMENT_FONT_COLOR
+    BackgroundColor $EXTERNAL_CONTAINER_BG_COLOR
+    BorderColor $EXTERNAL_CONTAINER_BORDER_COLOR
+}
+
+skinparam Arrow {
+    Color Black
+    FontColor Black
+}
+
+skinparam rectangle<<boundary>> {
+    FontColor Black
+    BorderColor Black
+}
+@enduml

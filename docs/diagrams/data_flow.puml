@@ -1,0 +1,42 @@
+@startuml
+!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/puml/source/diagrams/ssp.puml
+!include ./styles.puml
+
+ATO_Boundary(atob, "ATO Boundary") {
+    System(app, "Tock", "Application")
+}
+System_Ext(browser, "Web Browser", "external entity")
+System_Ext(api_client, "Tock API Client", "external entity")
+ContainerDb(cloudgov_services, "cloud.gov data services", "AWS Postgres RDS")
+System_Ext(newrelic, "New Relic", "external entity")
+System_Ext(cloudgov_logdrain, "Cloud.gov ELK", "external entity")
+
+Rel(browser, app, "web page request")
+note on link
+  Auth: Session (via GSA SecureAuth)
+end note
+Rel(app, browser, "HTML, JavaScript, CSS")
+Rel(api_client, app, "API request")
+note on link
+  Auth: Token
+end note
+
+Rel(app, api_client, "Tock data as JSON response")
+Rel(cloudgov_services, app, "Timekeeping data rows")
+Rel(app, cloudgov_services, "Timekeeping data queries")
+note on link
+  Auth: Password
+end note
+
+Rel(app, cloudgov_services, "Timekeeping data as row imports")
+note on link
+  Auth: Password
+end note
+
+Rel(app, newrelic, "Monitoring data")
+note on link
+  Auth: Token
+end note
+
+Rel(app, cloudgov_logdrain, "Log data")
+@enduml
