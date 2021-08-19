@@ -232,15 +232,17 @@ function addEntry() {
   // remove display: none style
   newEntry.querySelector('select').style.display = '';
 
-  let fields = newEntry.querySelectorAll('input, select, textarea');
-  // remove values
-  for (f of fields) {
-    f.value = '';
+  let non_checkbox_fields = newEntry.querySelectorAll('input:not([type="checkbox"]), select, textarea');
+  // remove values for fields we've cloned
+  for (f of non_checkbox_fields) {
+      f.value = '';
   }
+  // Uncheck the cloned Delete input
+  newEntry.querySelector('.entry-delete input').checked = false
 
   newEntry.querySelector('.autocomplete__wrapper').remove();
 
-  const previousNumber = parseInt(newEntry.getAttribute('id').match(/\d/)[0]);
+  const previousNumber = parseInt(newEntry.getAttribute('id').match(/\d+/)[0]);
   const nextNumber = entries.length;
 
   if (nextNumber % 2 == 0) {

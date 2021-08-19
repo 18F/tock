@@ -536,18 +536,13 @@ class TimecardView(PermissionMixin, UpdateView):
             .values_list('project', 'hours')
         )
         project_ids = []
-        extra = 1
 
-        # Check to see if we have a timecard from a previous reporting period.
-        # If we do, pull all of the project IDs from it and set our extra
-        # amount to be amount of existing project IDs + 1 to account for the
-        # form construction.
+        # Check to see if we have a timecard from a previous reporting period. If yes, grab projects which were tocked.
         if timecard:
             project_ids = timecard.timecardobjects.values_list(
                 'project_id',
                 flat=True
             )
-            extra = len(project_ids) + 1
 
         reporting_period = ReportingPeriod.objects.prefetch_related(
             'holiday_prefills__project'
@@ -556,7 +551,7 @@ class TimecardView(PermissionMixin, UpdateView):
         # Check to see if there are hoilday prefills for the reporting period.
         # If there are, add them to the existing timecard prefill dictionary
         # we setup so that they are accounted for in addition to any other
-        # prefills we need to add to the timecard.
+        # prefills we'll add to the timecard.
         if reporting_period.holiday_prefills:
             for holiday_prefill in reporting_period.holiday_prefills.all():
                 timecard_prefills[holiday_prefill.project.id] =\
@@ -583,8 +578,12 @@ class TimecardView(PermissionMixin, UpdateView):
             for project_id, hours in timecard_prefills.items()
         ]
 
-        formset = timecard_formset_factory(extra=extra)
-        return formset(initial=init)
+        # Render all of our initial forms and an extra blank one
+        extra = len(init) + 1
+
+        FormSet = timecard_formset_factory(extra=extra)
+        return FormSet(initial=init)
+
 
     def form_valid(self, form):
         context = self.get_context_data()

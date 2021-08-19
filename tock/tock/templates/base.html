@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tock</title>
 
-  {% load staticfiles %}
+  {% load static %}
   {% if request.user.is_authenticated and request.user.user_data.is_late %}
   <link rel="shortcut icon" href="{% static 'img/favicon-angry.png' %}">
   {% else %}
@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/vendor/font-awesome.min.css' %}">
   <link rel="stylesheet" href="{% static 'vendor/accessible-autocomplete_v2.0.3/css/accessible-autocomplete.min.css' %}" />
-  <script src="{% static 'vendor/jquery_v3.5.1/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/jquery_v3.6.0/jquery.min.js' %}"></script>
   <script src="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.js' %}"></script>
   <script src="{% static 'vendor/uswds_v2.3.1/js/uswds.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'vendor/accessible-autocomplete_v2.0.3/js/accessible-autocomplete.min.js' %}"></script>

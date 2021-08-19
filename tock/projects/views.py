@@ -1,6 +1,6 @@
 from api.views import get_timecardobjects
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.views.generic import ListView
 from django.views.generic.detail import DetailView
 from hours.models import TimecardObject
@@ -47,5 +47,35 @@ class ProjectView(LoginRequiredMixin, DetailView):
         if context['total_hours_all']:
             context.update(self.get_analytics(timecard_entries))
 
-
         return context
+
+
+class ProjectEngagementView(LoginRequiredMixin, ListView):
+    """ View for listing the details of a specific project """
+    model = Project
+    template_name = 'projects/project_engagement.html'
+
+    def get_queryset(self):
+        """The projects here are active with engagement management lines."""
+        em_projects = Project.objects.filter(active=True,
+                name__endswith="Engagement Management")
+        # get the non-EM projects and try to match them up
+        other_projects = Project.objects.filter(active=True).filter(~Q(name__endswith="Engagement Management"))
+        matched_projects = []
+        for em_project in em_projects:
+            # match on the name of the engagement, this may not always work
+            matches = [p for p in other_projects if em_project.name.startswith(p.name)]
+            if matches:
+                matched_projects.append({"project": matches[0], "em_project": em_project})  # use the first match, probably won't be any others
+
+        # enrich with additional information
+        for item in matched_projects:
+            item["em_hours"] = item["em_project"].timecardobject_set.aggregate(z=Sum("hours_spent"))["z"]
+            item["hours"] = item["project"].timecardobject_set.aggregate(z=Sum("hours_spent"))["z"]
+            if item["em_hours"] and item["hours"]:
+                item["ratio"] = item["em_hours"] / item["hours"]
+            else:
+                item["ratio"] = 0.0
+
+        # sort by descending ratio
+        return sorted(matched_projects, key=lambda item: item["ratio"], reverse=True)

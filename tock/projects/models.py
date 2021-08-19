@@ -266,7 +266,7 @@ class Project(models.Model):
 
     def get_absolute_url(self):
         from django.urls import reverse
-        return reverse('ProjectView', args=[str(self.id)])
+        return reverse('projects:ProjectView', args=[str(self.id)])
 
     @property
     def organization_name(self):

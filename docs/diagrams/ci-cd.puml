@@ -1,0 +1,77 @@
+@startuml
+!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/puml/source/diagrams/ssp.puml
+!include ./styles.puml
+
+title Tock CI/CD Network Interactions
+LAYOUT_LEFT_RIGHT()
+
+Boundary(aws, "AWS GovCloud (US)") {
+  Boundary(cloudgov, "cloud.gov") {
+      ATO_Boundary(ato, "ATO boundary") {
+        System(tock_stage, "Tock", "Staging")
+        System(tock_prod, "Tock", "Production")
+    }
+
+    System_Ext(cloudgov_elb, "cloud.gov ELB")
+    System_Ext(cloudgov_cell, "cloud.gov Cell")
+    System_Ext(cloudgov_controller, "cloud.gov Cloud Controller")
+
+  }
+}
+
+System_Ext(browser, "Web Browser")
+System_Ext(cf_client, "Cloud Foundry Client")
+System_Ext(gsa_secureauth, "GSA SecureAuth")
+
+Boundary(saas, "GSA Authorized SaaS") {
+  System_Ext(circleci, "CircleCI")
+  System_Ext(github, "GitHub")
+  System_Ext(snyk, "Snyk")
+}
+
+
+Rel(browser, circleci, "uses","HTTPS 443 (T)")
+note on link
+  Auth: OAuth
+end note
+
+Rel_L(browser, gsa_secureauth, "authenticates", "HTTPS 443 (T)")
+note on link
+  Auth: MFA
+end note
+
+Rel(browser, github, "uses", "HTTPS 443 (T)")
+note on link
+  Auth: MFA
+end note
+
+Rel(browser, cloudgov_elb, "uses", "HTTPS 443(T)")
+note on link
+  Auth: Session (GSA SecureAuth)
+end note
+
+Rel(cf_client, cloudgov_elb, "uses", "HTTPS 443 (T)")
+note on link
+  Auth: Token
+end note
+
+Rel_R(cloudgov_elb, cloudgov_controller, "sends application traffic")
+Rel(cloudgov_controller, cloudgov_cell, "uses")
+Rel(cloudgov_cell, tock_stage, "provisions instances")
+Rel(cloudgov_cell, tock_prod, "provisions instances")
+
+BiRel(circleci, github, "uses", "HTTPS 443 (T)")
+note on link
+  Auth: Token
+end note
+
+Rel(circleci, cloudgov_elb, "uses", "HTTPS 443 (T)")
+note on link
+  Auth: Token
+end note
+
+Rel(github, snyk, "uses", "HTTPS 443 (T)")
+note on link
+  Auth: Token
+end note
+@enduml

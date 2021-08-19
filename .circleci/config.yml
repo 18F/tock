@@ -16,8 +16,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.5-jessie-node-browsers
+      - image: cimg/python:3.9.6-browsers
         environment:
           - TZ=America/New_York
           - PIPENV_VENV_IN_PROJECT=true
@@ -36,13 +35,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run:
-          name: update npm
-          command: sudo npm install -g npm@latest-6
+            - deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
 
       - run:
           name: install dependencies
@@ -55,7 +48,7 @@ jobs:
           paths:
             - ./.venv
             - ~/.npm
-          key: v1-dependencies-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
+          key: deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
 
       # run tests!
       - run:

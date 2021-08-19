@@ -12,7 +12,7 @@ logger = logging.getLogger('tock')
 
 
 def csrf_failure(request, reason=""):
-    logger.warn(
+    logger.warning(
         'CSRF Failure for request [%s] for reason [%s]' %
         (
             request.META,

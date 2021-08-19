@@ -1,4 +1,4 @@
-const baseUrl = `http://localhost:${process.env.JEST_PORT}`;
+const baseUrl = process.env.TOCK_URL || `http://localhost:${process.env.JEST_PORT}`;
 
 beforeAll(async () => {
   await page.goto(baseUrl);
@@ -27,6 +27,23 @@ describe("Timecard", () => {
       await page.click(".add-timecard-entry");
       const _entries = await page.$$(".entry");
       expect(_entries.length).toEqual(length + 1);
+    });
+
+    test('added project entry has an unchecked delete input', async () => {
+      const entries = await page.$$(".entry");
+      const length = entries.length;
+      // Find and check the last delete input on the page
+      const last_entry_idx = length - 1
+      const _del = "#id_timecardobjects-" + last_entry_idx + "-DELETE";
+      await page.$$eval(_del, checks => checks.forEach(c => c.checked = true));
+
+      // add new entry
+      await page.click(".add-timecard-entry");
+
+      // Is the newly added input checked? It shouldn't be
+      const _new_delete_input = await page.$("#id_timecardobjects-" + length + "-DELETE");
+      checked = await (await _new_delete_input.getProperty('checked')).jsonValue();
+      expect(checked).toEqual(false);
     });
 
     test('increments the django management form when "Add Item" is clicked', async () => {
