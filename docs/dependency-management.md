@@ -34,6 +34,16 @@ rm ./tock/requirements.txt
 
 Either approach will result in updated `Pipfile.lock` and `requirements.txt` files located in your local copy of the codebase, ready for commit and submission of a pull request.
 
+### Updating Python
+
+The Python version used in production is specified in `runtime.txt`. When updating the codebase to a new version of Python:
+
+1. Update the `runtime.txt` to ensure the correct version is used in production
+2. Update the `FROM` line in the `Dockerfile` to ensure the version used in development matches production
+3. Update the `python_version` line in `Pipfile` to ensure dependencies for the correct Python version are used
+4. Update `.circleci/config.yml` to ensure the correct Python version is used in CI
+
+
 ## JavaScript
 
 ### Production

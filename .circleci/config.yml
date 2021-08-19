@@ -16,7 +16,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/python:3.8.8-node-browsers
+      - image: cimg/python:3.9.6-browsers
         environment:
           - TZ=America/New_York
           - PIPENV_VENV_IN_PROJECT=true
@@ -36,12 +36,6 @@ jobs:
       - restore_cache:
           keys:
             - deps-{{ .Environment.CACHE_VERSION }}-{{ checksum "Pipfile" }}-{{ checksum "Pipfile.lock" }}-{{ checksum "package-lock.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - deps-{{ .Environment.CACHE_VERSION }}-
-
-      - run:
-          name: update npm
-          command: sudo npm install -g npm@latest-6
 
       - run:
           name: install dependencies

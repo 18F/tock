@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block navigation %}
+  {% include "_navigation.html" %}
+{% endblock %}
+
+{% block content %}
+<h1>Project Engagement Levels</h1>
+
+<p>This is a list of all engagement management Tock lines and their
+corresponding project lines. Projects with the most engagement management
+hours relative to the number of project hours are listed first.</p>
+
+<table class="usa-table table-responsive-reflow">
+  <thead>
+  <tr class="report_table__header-row">
+    <th>Project</th>
+    <th>EM Project</th>
+    <th>Project Hours</th>
+    <th>EM Hours</th>
+    <th>Ratio</th>
+  </tr>
+</thead>
+<tbody>
+  {% for item in object_list %}
+  <tr class="report_table__row">
+    <td>
+      <a href="/projects/{{ item.project.id }}">{{ item.project.name }}</a>
+    </td>
+    <td>
+      <a href="/projects/{{ item.em_project.id }}">{{ item.em_project.name }}</a>
+    </td>
+    <td data-title="Project Hours">{{ item.hours }}</td>
+    <td data-title="EM Hours">{{ item.em_hours }}</td>
+    <td data-title="Ratio">{{ item.ratio|floatformat:3 }}</td>
+  </tr>
+  {% endfor %}
+</tbody>
+</table>
+</tbody>
+</table>
+{% endblock %}

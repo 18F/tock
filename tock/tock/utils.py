@@ -32,7 +32,7 @@ class PermissionMixin(LoginRequiredMixin, object):
                     if isinstance(permission_class(), IsAuthenticated):
                         logger.info('User not authenticated, redirecting to UAA.')
                         return redirect('/auth/login')
-                    logger.warn(
+                    logger.warning(
                         f'User not authorized {request.user.username}, redirecting to 404.'
                     )
                     raise PermissionDenied
