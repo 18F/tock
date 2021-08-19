@@ -1,4 +1,5 @@
 import datetime
+from decimal import Decimal
 
 from hours.models import ReportingPeriod
 from django.db.models import Q, Sum
@@ -41,8 +42,8 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, 
         filter_ = Q(filter_, Q(timecards__submitted=True, timecards__unit=unit))
 
     # Using Coalesce to set a default value of 0 if no data is available
-    billable = Coalesce(Sum('timecards__billable_hours', filter=filter_), 0)
-    non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=filter_), 0)
+    billable = Coalesce(Sum('timecards__billable_hours', filter=filter_), Decimal('0'))
+    non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=filter_), Decimal('0'))
     target_billable = Sum('timecards__target_hours', filter=filter_)
     if users:
         return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=billable + non_billable)

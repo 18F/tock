@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=2.2"
+django = "~=3.2"
 dj-database-url = "*"
 gevent = "*"
 gunicorn = "*"
 whitenoise = "*"
-djangorestframework = "~=3.8"
+djangorestframework = "~=3.12"
 djangorestframework-csv = "*"
 bleach = "*"
 newrelic = "*"
