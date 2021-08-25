@@ -20,7 +20,7 @@ services:
       - "8000:8000"
     command: "python manage.py runserver 0.0.0.0:8000"
   db:
-    image: postgres:9.6.8
+    image: postgres:9.6.23
     environment:
       - POSTGRES_DB=tock
       - POSTGRES_USER=tock_user
