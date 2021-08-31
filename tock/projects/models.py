@@ -216,9 +216,10 @@ class Project(models.Model):
     end_date = models.DateField(blank=True, null=True, verbose_name='Project End Date')
     active = models.BooleanField(default=True)
     is_weekly_bill= models.BooleanField(
-        default=False, 
+        default=False,
         verbose_name="Weekly Billing?",
-        help_text='Is this project under weekly billing. Note: checking this will set as allocation drop-list in reporting, otherwise person are expected to report in hours')
+        help_text='Is this project under weekly billing. Note: checking this will set as allocation drop-list in reporting, otherwise person are expected to report in hours'
+    )
     notes_required = models.BooleanField(
         default=False,
         verbose_name="Notes are required",
