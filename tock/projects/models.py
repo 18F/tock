@@ -215,6 +215,7 @@ class Project(models.Model):
     start_date = models.DateField(blank=True, null=True, verbose_name='Project Start Date')
     end_date = models.DateField(blank=True, null=True, verbose_name='Project End Date')
     active = models.BooleanField(default=True)
+    is_weekly_bill= models.BooleanField(default=False)
     notes_required = models.BooleanField(
         default=False,
         verbose_name="Notes are required",
