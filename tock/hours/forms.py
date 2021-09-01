@@ -56,6 +56,7 @@ class SelectWithData(forms.widgets.Select):
             attrs['data-billable'] = "billable" if info.get('billable') else "non-billable"
             attrs['data-notes-displayed'] = "true" if info.get('notes_displayed') else "false"
             attrs['data-notes-required'] = "true" if info.get('notes_required') else "false"
+            attrs['weekly_billing'] = "true" if info.get('is_weekly_bill') else "false"
 
             if info.get('alerts'):
                 attrs['data-alerts'] = escapejs(json.dumps(info['alerts']))
@@ -98,6 +99,7 @@ def projects_as_choices(queryset=None):
                     'billable': code.billable,
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
+                    'is_weekly_bill': project.is_weekly_bill,
                     'alerts': [
                         {
                             'style': alert.full_style,
