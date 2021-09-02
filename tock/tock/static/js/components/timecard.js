@@ -172,11 +172,34 @@ function toggleNotesField(selectBoxId) {
     .parentElement;
   const options = document.querySelector('#' + selectBoxId + '-select')
     .selectedOptions[0].dataset;
-
+    console.log(options)
   if (options.notesDisplayed === 'true' || options.notesRequired === 'true') {
     notes.classList.remove('entry-hidden');
   } else {
     notes.classList.add('entry-hidden');
+  }
+}
+
+/** @function
+ * Toggles the hours to project allocation on if the project requires them
+ * @name toggleHoursField
+ * @param {string} selectBoxId
+ * */
+ function toggleHoursField(selectBoxId) {
+  const idx = selectBoxId.match(/\d/)[0];
+  const project_allocation = document.querySelector('#id_timecardobjects-' + idx + '-project_allocation')
+    .parentElement;
+  const hours_spent = document.querySelector('#id_timecardobjects-' + idx + '-hours_spent')
+    .parentElement;
+  const options = document.querySelector('#' + selectBoxId + '-select')
+    .selectedOptions[0].dataset;
+
+  if (options.is_weekly_bill === 'true') {
+    project_allocation.classList.remove('entry-hidden');
+    hours_spent.classList.add('entry-hidden')
+  } else {
+    project_allocation.classList.add('entry-hidden');
+    hours_spent.classList.remove('entry-hidden')
   }
 }
 
@@ -302,6 +325,7 @@ function addEntry() {
 function updateDisplays(targetId) {
   populateHourTotals();
   toggleNotesField(targetId);
+  toggleHoursField(targetId);
   displayAlerts(targetId);
 }
 

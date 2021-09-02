@@ -2,6 +2,7 @@ import json
 
 import bleach
 from django import forms
+from django.conf import settings
 from django.db import connection, transaction
 from django.db.models import Prefetch
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
@@ -56,7 +57,7 @@ class SelectWithData(forms.widgets.Select):
             attrs['data-billable'] = "billable" if info.get('billable') else "non-billable"
             attrs['data-notes-displayed'] = "true" if info.get('notes_displayed') else "false"
             attrs['data-notes-required'] = "true" if info.get('notes_required') else "false"
-            attrs['weekly_billing'] = "true" if info.get('is_weekly_bill') else "false"
+            attrs['data-is_weekly_bill'] = "true" if info.get('is_weekly_bill') else "false"
 
             if info.get('alerts'):
                 attrs['data-alerts'] = escapejs(json.dumps(info['alerts']))
@@ -121,6 +122,7 @@ def projects_as_choices(queryset=None):
             'billable': '',
             'notes_displayed': '',
             'notes_required': '',
+            'is_weekly_bill': '',
             'alerts': [],
         }]]
     ])
@@ -138,7 +140,9 @@ class TimecardObjectForm(forms.ModelForm):
         widget=SelectWithData(),
         choices=projects_as_choices
     )
-
+    project_allocation = forms.ChoiceField(
+        choices=settings.PROJECT_ALLOCATION_CHOICES
+    )
     hours_spent = forms.DecimalField(
         min_value=0,
         required=False,
@@ -150,7 +154,7 @@ class TimecardObjectForm(forms.ModelForm):
 
     class Meta:
         model = TimecardObject
-        fields = ['project', 'hours_spent', 'notes']
+        fields = ['project', 'hours_spent', 'notes', 'project_allocation']
 
     def clean_project(self):
         data = self.cleaned_data.get('project')
