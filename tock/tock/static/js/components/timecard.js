@@ -4,7 +4,6 @@
  * @property {?number} project
  * @property {?boolean} isBillable
  * @property {?boolean} isExcluded
- * @property {?boolean} is_weekly_bill (trying to figure out if this is needed)
  * @property {number} project_allocation
  * @property {number} hours
  */
@@ -17,9 +16,6 @@
  * */
 function getFormData() {
   let data = []
-  //TODO Delete the next line. 
-  console.log(data)
-
   Array.from(document.querySelectorAll('.entry')).forEach((entry, i) => {
     const markedForDeletion = entry.querySelector('.entry-delete input').checked
 
@@ -28,16 +24,20 @@ function getFormData() {
     }
     const project =
       parseInt(entry.querySelector('.entry-project select').value, 10) || null;
+      console.log("project")
+      console.log(entry.querySelector('.entry-project select').value, 10)
     const isExcluded = project
       ? excludedFromBillability.includes(project)
       : null;
     const isBillable = project
       ? !isExcluded && !nonBillableProjects.includes(project)
       : null;
+    //const isWeeklyBill = project
     const hours =
       parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
    const project_allocation =
       parseFloat(entry.querySelector('.entry-project_allocation select').value) || 0.0;
+
     data.push({ project, isBillable, isExcluded, hours, project_allocation });
   });
 
@@ -83,6 +83,7 @@ function getHoursReport() {
   const data = getFormData();
   console.log("data")
   console.log(data)
+  data.forEach(calcAllocationHours)
   const r = data.reduce(
     (sums, entry) => {
       if (!entry) return sums
@@ -112,6 +113,15 @@ function getHoursReport() {
   };
 }
 
+function calcAllocationHours(data) {
+  console.log("project_allocation")
+  console.log(data)
+  if (data.project_allocation > 0){
+    console.log("project allocation detected");
+    data.hours = (data.project_allocation * (billableExpectation * totalHoursTarget))
+  }
+  console.log("----")
+}
 /** @function
  * Populates hour totals and fills in icons
  * @name populateHourTotals
