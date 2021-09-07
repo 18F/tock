@@ -4,6 +4,8 @@
  * @property {?number} project
  * @property {?boolean} isBillable
  * @property {?boolean} isExcluded
+ * @property {?boolean} is_weekly_bill (trying to figure out if this is needed)
+ * @property {number} project_allocation
  * @property {number} hours
  */
 
@@ -15,6 +17,8 @@
  * */
 function getFormData() {
   let data = []
+  //TODO Delete the next line. 
+  console.log(data)
 
   Array.from(document.querySelectorAll('.entry')).forEach((entry, i) => {
     const markedForDeletion = entry.querySelector('.entry-delete input').checked
@@ -22,7 +26,6 @@ function getFormData() {
     if (markedForDeletion) {
       return;
     }
-
     const project =
       parseInt(entry.querySelector('.entry-project select').value, 10) || null;
     const isExcluded = project
@@ -33,8 +36,9 @@ function getFormData() {
       : null;
     const hours =
       parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
-
-    data.push({ project, isBillable, isExcluded, hours });
+   const project_allocation =
+      parseFloat(entry.querySelector('.entry-project_allocation select').value) || 0.0;
+    data.push({ project, isBillable, isExcluded, hours, project_allocation });
   });
 
   return data
@@ -77,7 +81,8 @@ function round(number) {
  * */
 function getHoursReport() {
   const data = getFormData();
-
+  console.log("data")
+  console.log(data)
   const r = data.reduce(
     (sums, entry) => {
       if (!entry) return sums
