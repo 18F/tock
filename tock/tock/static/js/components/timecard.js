@@ -113,14 +113,15 @@ function getHoursReport() {
   };
 }
 
+/** @function
+ * Calcuate the hours to validate the project allocation
+ * @name calcAllocationHours
+ * */
+
 function calcAllocationHours(data) {
-  console.log("project_allocation")
-  console.log(data)
   if (data.project_allocation > 0){
-    console.log("project allocation detected");
     data.hours = (data.project_allocation * (billableExpectation * totalHoursTarget))
   }
-  console.log("----")
 }
 /** @function
  * Populates hour totals and fills in icons
@@ -368,7 +369,10 @@ function handleConfirm(val) {
 
 // when the hour totals are changed, repopulate hours.
 document.querySelector('body').addEventListener('keyup', function (event) {
-  if (event.target.matches('.entry-amount input')) {
+  if (
+    event.target.matches('.entry-amount input')
+    // Note: If you are curious how we updated project allocation, see forms.py, TimecardObjectForm, project_allocation 
+    ) {
     populateHourTotals();
   }
 });
@@ -377,7 +381,7 @@ document.querySelector('body').addEventListener('keyup', function (event) {
 document.querySelector('body').addEventListener('click', function (event) {
   if (
     event.target.matches('.entry-delete input') ||
-    event.target.matches('.entry-amount input')
+    event.target.matches('.entry-amount input') 
   ) {
     populateHourTotals();
   }

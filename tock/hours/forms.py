@@ -141,7 +141,8 @@ class TimecardObjectForm(forms.ModelForm):
         choices=projects_as_choices
     )
     project_allocation = forms.ChoiceField(
-        choices=settings.PROJECT_ALLOCATION_CHOICES
+        choices=settings.PROJECT_ALLOCATION_CHOICES,
+        widget=forms.Select(attrs={'onchange' : "populateHourTotals();"})
     )
     hours_spent = forms.DecimalField(
         min_value=0,
