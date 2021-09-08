@@ -7,7 +7,7 @@ from django.db import connection, transaction
 from django.db.models import Prefetch
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.html import escapejs
-
+from decimal import Decimal
 from projects.models import AccountingCode, Project
 
 from .models import ReportingPeriod, Timecard, TimecardObject
@@ -236,6 +236,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
         total_hrs = 0
+        total_allocation = 0
         for form in self.forms:
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
@@ -246,6 +247,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         'cannot be blank.'
                     )
                 total_hrs += form.cleaned_data.get('hours_spent')
+                total_allocation += Decimal(form.cleaned_data.get('project_allocation'))
         if not self.save_only:
             for form in self.forms:
                 try:
@@ -258,12 +260,12 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                     'Timecard not submitted because one or more of your '\
                     'entries has an error!'
                 )
-            if total_hrs > self.get_max_working_hours() and not self.aws_eligible:
+            if total_hrs > self.get_max_working_hours() and not self.aws_eligible and total_allocation == 0:
                 raise forms.ValidationError('You may not submit more than %s '
                     'hours for this period. To report additional hours'
                     ', please contact your supervisor.' % self.get_max_working_hours())
 
-            if total_hrs < self.get_min_working_hours() and not self.aws_eligible:
+            if total_hrs < self.get_min_working_hours() and not self.aws_eligible and total_allocation == 0:
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 
