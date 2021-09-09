@@ -238,20 +238,21 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         total_hrs = 0
         total_allocation = 0
         for form in self.forms:
+            current_allocation = Decimal(form.cleaned_data.get('project_allocation') or 0)
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
                     continue
-                if form.cleaned_data.get('hours_spent') is None:
+                if form.cleaned_data.get('hours_spent') is None and (current_allocation == 0):
                     raise forms.ValidationError(
                         'If you have a project listed, the number of hours '
                         'cannot be blank.'
                     )
                 total_hrs += form.cleaned_data.get('hours_spent')
-                total_allocation += Decimal(form.cleaned_data.get('project_allocation'))
+                total_allocation += current_allocation
         if not self.save_only:
             for form in self.forms:
                 try:
-                    if form.cleaned_data['hours_spent'] == 0:
+                    if form.cleaned_data['hours_spent'] == 0 and (current_allocation == 0):
                         form.cleaned_data.update({'DELETE': True})
                 except KeyError:
                     pass
@@ -269,7 +270,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 
-
+        print(getattr(self, 'cleaned_data', None))
         return getattr(self, 'cleaned_data', None)
 
     def save(self, commit=True):
