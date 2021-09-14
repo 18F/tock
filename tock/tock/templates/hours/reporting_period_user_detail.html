@@ -14,6 +14,7 @@
       <th>Project</th>
       <th>Billable</th>
       <th>Hours spent</th>
+      <th>Project Allocation</th>
       <th>Notes</th>
     </tr>
   </thead>
@@ -29,6 +30,7 @@
       {% endif %}
       </td>
       <td data-title="Hours spent">{{ entry.hours_spent }}</td>
+      <td data-title="Project Allocation">{{ entry.project_allocation }}</td>
       <td data-title="Notes">
         {% for note in entry.notes_list %}
           <p>{{ note }}</p>
