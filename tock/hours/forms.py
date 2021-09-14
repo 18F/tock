@@ -238,7 +238,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         total_hrs = 0
         total_allocation = 0
         for form in self.forms:
-            current_allocation = Decimal(form.cleaned_data.get('project_allocation', 0))
+            current_allocation = Decimal(form.cleaned_data.get('project_allocation') or 0)
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
                     continue
