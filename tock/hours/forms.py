@@ -142,6 +142,7 @@ class TimecardObjectForm(forms.ModelForm):
     )
     project_allocation = forms.ChoiceField(
         choices=settings.PROJECT_ALLOCATION_CHOICES,
+        required=False,
         widget=forms.Select(attrs={'onchange' : "populateHourTotals();"})
     )
     hours_spent = forms.DecimalField(
@@ -237,7 +238,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         total_hrs = 0
         total_allocation = 0
         for form in self.forms:
-            current_allocation = Decimal(form.cleaned_data.get('project_allocation') or 0)
+            current_allocation = Decimal(form.cleaned_data.get('project_allocation', 0))
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
                     continue
@@ -246,7 +247,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                         'If you have a project listed, the number of hours '
                         'cannot be blank.'
                     )
-                total_hrs += form.cleaned_data.get('hours_spent')
+                total_hrs += form.cleaned_data.get('hours_spent', 0)
                 total_allocation += current_allocation
         if not self.save_only:
             for form in self.forms:
