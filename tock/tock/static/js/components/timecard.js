@@ -24,8 +24,6 @@ function getFormData() {
     }
     const project =
       parseInt(entry.querySelector('.entry-project select').value, 10) || null;
-      console.log("project")
-      console.log(entry.querySelector('.entry-project select').value, 10)
     const isExcluded = project
       ? excludedFromBillability.includes(project)
       : null;
@@ -188,7 +186,6 @@ function toggleNotesField(selectBoxId) {
     .parentElement;
   const options = document.querySelector('#' + selectBoxId + '-select')
     .selectedOptions[0].dataset;
-    console.log(options)
   if (options.notesDisplayed === 'true' || options.notesRequired === 'true') {
     notes.classList.remove('entry-hidden');
   } else {
@@ -205,17 +202,20 @@ function toggleNotesField(selectBoxId) {
   const idx = selectBoxId.match(/\d/)[0];
   const project_allocation = document.querySelector('#id_timecardobjects-' + idx + '-project_allocation')
     .parentElement;
+  const project_allocation_set = document.querySelector('#id_timecardobjects-' + idx + '-project_allocation')
+  const hours_set = document.querySelector('#id_timecardobjects-' + idx + '-hours_spent')
   const hours_spent = document.querySelector('#id_timecardobjects-' + idx + '-hours_spent')
     .parentElement;
   const options = document.querySelector('#' + selectBoxId + '-select')
     .selectedOptions[0].dataset;
-
   if (options.is_weekly_bill === 'true') {
     project_allocation.classList.remove('entry-hidden');
-    hours_spent.classList.add('entry-hidden')
+    hours_spent.classList.add('entry-hidden');
+    hours_set.value = '0'
   } else {
     project_allocation.classList.add('entry-hidden');
-    hours_spent.classList.remove('entry-hidden')
+    hours_spent.classList.remove('entry-hidden');
+    project_allocation_set.selectedIndex = '0' 
   }
 }
 

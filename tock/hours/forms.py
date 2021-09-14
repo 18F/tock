@@ -159,18 +159,17 @@ class TimecardObjectForm(forms.ModelForm):
 
     def clean_project(self):
         data = self.cleaned_data.get('project')
-
         try:
             data = Project.objects.get(id=data)
         except Project.DoesNotExist:
             raise forms.ValidationError('Invalid Project Selected')
-
         return data
 
     def clean_hours_spent(self):
         return self.cleaned_data.get('hours_spent') or 0
 
     def clean(self):
+        print(self.cleaned_data)
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
@@ -242,7 +241,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
                     continue
-                if form.cleaned_data.get('hours_spent') is None and (current_allocation == 0):
+                if (form.cleaned_data.get('hours_spent') == 0 or None) and (form.cleaned_data.get('project_allocation') == 0 or None):
                     raise forms.ValidationError(
                         'If you have a project listed, the number of hours '
                         'cannot be blank.'
@@ -252,7 +251,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         if not self.save_only:
             for form in self.forms:
                 try:
-                    if form.cleaned_data['hours_spent'] == 0 and (current_allocation == 0):
+                    if (form.cleaned_data['hours_spent'] == 0 or None) and (form.cleaned_data['project_allocation'] == 0):
                         form.cleaned_data.update({'DELETE': True})
                 except KeyError:
                     pass
@@ -270,7 +269,7 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 
-        print(getattr(self, 'cleaned_data', None))
+        print('getattr', getattr(self, 'cleaned_data', None))
         return getattr(self, 'cleaned_data', None)
 
     def save(self, commit=True):
