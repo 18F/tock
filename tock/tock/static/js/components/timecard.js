@@ -79,8 +79,8 @@ function round(number) {
  * */
 function getHoursReport() {
   const data = getFormData();
-  console.log("data")
-  console.log(data)
+  // console.log("data")
+  // console.log(data)
   data.forEach(calcAllocationHours)
   const r = data.reduce(
     (sums, entry) => {
