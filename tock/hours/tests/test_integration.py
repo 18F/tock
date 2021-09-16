@@ -56,7 +56,8 @@ class TestOptions(ProtectedViewTestCase, WebTest):
             value="%s"
             data-billable="billable"
             data-notes-displayed="false"
-            data-notes-required="false">%s</option>
+            data-notes-required="false"
+            data-is_weekly_bill="false">%s</option>
         """
         for each in (positive or []):
             self.assertContains(

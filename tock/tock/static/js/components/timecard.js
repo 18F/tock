@@ -4,6 +4,7 @@
  * @property {?number} project
  * @property {?boolean} isBillable
  * @property {?boolean} isExcluded
+ * @property {number} project_allocation
  * @property {number} hours
  */
 
@@ -15,14 +16,12 @@
  * */
 function getFormData() {
   let data = []
-
   Array.from(document.querySelectorAll('.entry')).forEach((entry, i) => {
     const markedForDeletion = entry.querySelector('.entry-delete input').checked
 
     if (markedForDeletion) {
       return;
     }
-
     const project =
       parseInt(entry.querySelector('.entry-project select').value, 10) || null;
     const isExcluded = project
@@ -31,10 +30,13 @@ function getFormData() {
     const isBillable = project
       ? !isExcluded && !nonBillableProjects.includes(project)
       : null;
+    //const isWeeklyBill = project
     const hours =
       parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
+   const project_allocation =
+      parseFloat(entry.querySelector('.entry-project_allocation select').value) || 0.0;
 
-    data.push({ project, isBillable, isExcluded, hours });
+    data.push({ project, isBillable, isExcluded, hours, project_allocation });
   });
 
   return data
@@ -77,7 +79,9 @@ function round(number) {
  * */
 function getHoursReport() {
   const data = getFormData();
-
+  // console.log("data")
+  // console.log(data)
+  data.forEach(calcAllocationHours)
   const r = data.reduce(
     (sums, entry) => {
       if (!entry) return sums
@@ -107,6 +111,16 @@ function getHoursReport() {
   };
 }
 
+/** @function
+ * Calcuate the hours to validate the project allocation
+ * @name calcAllocationHours
+ * */
+
+function calcAllocationHours(data) {
+  if (data.project_allocation > 0){
+    data.hours = (data.project_allocation * (billableExpectation * totalHoursTarget))
+  }
+}
 /** @function
  * Populates hour totals and fills in icons
  * @name populateHourTotals
@@ -172,11 +186,36 @@ function toggleNotesField(selectBoxId) {
     .parentElement;
   const options = document.querySelector('#' + selectBoxId + '-select')
     .selectedOptions[0].dataset;
-
   if (options.notesDisplayed === 'true' || options.notesRequired === 'true') {
     notes.classList.remove('entry-hidden');
   } else {
     notes.classList.add('entry-hidden');
+  }
+}
+
+/** @function
+ * Toggles the hours to project allocation on if the project requires them
+ * @name toggleHoursField
+ * @param {string} selectBoxId
+ * */
+ function toggleHoursField(selectBoxId) {
+  const idx = selectBoxId.match(/\d/)[0];
+  const project_allocation = document.querySelector('#id_timecardobjects-' + idx + '-project_allocation')
+    .parentElement;
+  const project_allocation_set = document.querySelector('#id_timecardobjects-' + idx + '-project_allocation')
+  const hours_set = document.querySelector('#id_timecardobjects-' + idx + '-hours_spent')
+  const hours_spent = document.querySelector('#id_timecardobjects-' + idx + '-hours_spent')
+    .parentElement;
+  const options = document.querySelector('#' + selectBoxId + '-select')
+    .selectedOptions[0].dataset;
+  if (options.is_weekly_bill === 'true') {
+    project_allocation.classList.remove('entry-hidden');
+    hours_spent.classList.add('entry-hidden');
+    hours_set.value = '0'
+  } else {
+    project_allocation.classList.add('entry-hidden');
+    hours_spent.classList.remove('entry-hidden');
+    project_allocation_set.selectedIndex = '0' 
   }
 }
 
@@ -302,6 +341,7 @@ function addEntry() {
 function updateDisplays(targetId) {
   populateHourTotals();
   toggleNotesField(targetId);
+  toggleHoursField(targetId);
   displayAlerts(targetId);
 }
 
@@ -329,7 +369,10 @@ function handleConfirm(val) {
 
 // when the hour totals are changed, repopulate hours.
 document.querySelector('body').addEventListener('keyup', function (event) {
-  if (event.target.matches('.entry-amount input')) {
+  if (
+    event.target.matches('.entry-amount input')
+    // Note: If you are curious how we updated project allocation, see forms.py, TimecardObjectForm, project_allocation 
+    ) {
     populateHourTotals();
   }
 });
@@ -338,7 +381,7 @@ document.querySelector('body').addEventListener('keyup', function (event) {
 document.querySelector('body').addEventListener('click', function (event) {
   if (
     event.target.matches('.entry-delete input') ||
-    event.target.matches('.entry-amount input')
+    event.target.matches('.entry-amount input') 
   ) {
     populateHourTotals();
   }

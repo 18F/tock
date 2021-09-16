@@ -106,8 +106,14 @@
             </div>
           </div>
           <div class="entry-amount grid-col-4">
+            <div class="entry-project_allocation entry-hidden">
+            {{ project_entry.project_allocation.label_tag }}
+            {{ project_entry.project_allocation }}
+           </div>
+           <div class="entry-hours_spent">
             {{ project_entry.hours_spent.label_tag }}
             {{ project_entry.hours_spent }}
+          </div>
           </div>
         </div>
       </div>

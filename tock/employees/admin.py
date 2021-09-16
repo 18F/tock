@@ -50,6 +50,7 @@ class UserDataAdmin(admin.ModelAdmin):
         'end_date',
         'get_organization_name',
         'expected_billable_hours',
+        'expected_project_allocation',
         'unit_info',
         'current_employee',
         'is_billable',
@@ -61,7 +62,7 @@ class UserDataAdmin(admin.ModelAdmin):
         'organization',
         'unit',
     )
-    list_editable = ('expected_billable_hours',)
+    list_editable = ('expected_billable_hours', 'expected_project_allocation',)
     search_fields = ('user__username',)
 
     def unit_info(self, obj):

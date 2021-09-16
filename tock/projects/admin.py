@@ -90,6 +90,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'start_date',
         'end_date',
         'active',
+        'is_weekly_bill',
         'exclude_from_billability',
         'agreement_URL',
         'description',
@@ -107,11 +108,13 @@ class ProjectAdmin(admin.ModelAdmin):
         'start_date',
         'end_date',
         'active',
+        'is_weekly_bill',
         'notes_displayed',
         'notes_required',
     )
     list_filter = (
         'active',
+        'is_weekly_bill',
         'notes_displayed',
         'notes_required',
         'organization__name'
