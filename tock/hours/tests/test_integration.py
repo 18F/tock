@@ -36,6 +36,15 @@ class TestOptions(ProtectedViewTestCase, WebTest):
             user=self.user,
             reporting_period=self.reporting_period,
         )
+        self.reporting_period2 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 8),
+            end_date=datetime.date(2015, 1, 14),
+            exact_working_hours=40,
+        )
+        self.timecard2 = hours.models.Timecard.objects.create(
+            user=self.user,
+            reporting_period=self.reporting_period2,
+        )
 
     def _assert_project_options(self, positive=None, negative=None):
         """Browse to timecard update page, then assert that positive options are
@@ -101,3 +110,48 @@ class TestOptions(ProtectedViewTestCase, WebTest):
             )
         )
         self.assertEqual(200, res.status_code)
+
+
+class TestSubmit(ProtectedViewTestCase, WebTest):
+
+    fixtures = [
+        'projects/fixtures/projects.json'
+    ]
+
+    setUp = TestOptions.setUp
+
+    def test_timecard_submit(self):
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        url = reverse('reportingperiod:UpdateTimesheet',
+                      kwargs={'reporting_period': date},)
+        res = self.app.get(url, user=self.user)
+        form = res.form  # only one form on the page?
+        form["timecardobjects-0-project"] = self.projects[0].id
+        form["timecardobjects-0-hours_spent"] = 40
+        res = form.submit("submit-timecard").follow()
+        self.assertEqual(200, res.status_code)
+        self.assertNotContains(res, "usa-alert--error")
+
+    def test_timecard_submit_twice(self):
+        """Submit a timecard, then another one, hope for no errors."""
+        date = self.reporting_period.start_date.strftime('%Y-%m-%d')
+        url = reverse('reportingperiod:UpdateTimesheet',
+                      kwargs={'reporting_period': date},)
+        res = self.app.get(url, user=self.user)
+        form = res.form  # only one form on the page?
+        form["timecardobjects-0-project"] = self.projects[0].id
+        form["timecardobjects-0-hours_spent"] = 40
+        res = form.submit("submit-timecard").follow()
+
+        date = self.reporting_period2.start_date.strftime('%Y-%m-%d')
+        url = reverse('reportingperiod:UpdateTimesheet',
+                      kwargs={'reporting_period': date},)
+        res = self.app.get(url, user=self.user)
+        print(res.html)
+        form = res.form  # only one form on the page?
+        form["timecardobjects-0-hours_spent"] = 40
+        res = form.submit("submit-timecard")
+
+        print(res.html)
+        # successful POST will give a 302 redirect
+        self.assertEqual(res.status_code, 302)
