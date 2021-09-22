@@ -130,24 +130,17 @@ def projects_as_choices(queryset=None):
     return accounting_codes
 
 
-class InstrumentedChoiceField(forms.ChoiceField):
-
-    def has_changed(self, initial, data):
-        val = super().has_changed(initial, data)
-        print("has_changed:", initial, data, val)
-
-
 class TimecardObjectForm(forms.ModelForm):
     notes = forms.CharField(
         help_text='Please provide a snippet about how you spent your time.',
         required=False,
         widget=forms.Textarea(attrs={'class': 'entry-notes-text'})
     )
-    project = InstrumentedChoiceField(
+    project = forms.ChoiceField(
         widget=SelectWithData(),
         choices=projects_as_choices
     )
-    project_allocation = InstrumentedChoiceField(
+    project_allocation = forms.ChoiceField(
         choices=settings.PROJECT_ALLOCATION_CHOICES,
         required=False,
         widget=forms.Select(attrs={'onchange' : "populateHourTotals();"})
@@ -166,8 +159,6 @@ class TimecardObjectForm(forms.ModelForm):
         fields = ['project', 'hours_spent', 'notes', 'project_allocation']
 
     def clean_project(self):
-        print("In project field clean")
-        print(self.cleaned_data, self.cleaned_data.get("project", "not there"))
         data = self.cleaned_data.get('project')
         try:
             data = Project.objects.get(id=data)
@@ -179,7 +170,6 @@ class TimecardObjectForm(forms.ModelForm):
         return self.cleaned_data.get('hours_spent') or 0
 
     def clean(self):
-        print("In timecard object form clean:", self.cleaned_data)
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
@@ -244,11 +234,9 @@ class TimecardInlineFormSet(BaseInlineFormSet):
 
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
-        print("In timecard formset clean:", self.forms)
         total_hrs = 0
         total_allocation = 0
         for form in self.forms:
-            print("this form:", form.cleaned_data)
             current_allocation = Decimal(form.cleaned_data.get('project_allocation') or 0)
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
@@ -281,8 +269,6 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 
-        print('getattr', getattr(self, 'cleaned_data', None))
-        print(self.errors)
         return getattr(self, 'cleaned_data', None)
 
     def save(self, commit=True):
