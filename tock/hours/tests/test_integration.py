@@ -137,21 +137,21 @@ class TestSubmit(ProtectedViewTestCase, WebTest):
         date = self.reporting_period.start_date.strftime('%Y-%m-%d')
         url = reverse('reportingperiod:UpdateTimesheet',
                       kwargs={'reporting_period': date},)
-        res = self.app.get(url, user=self.user)
-        form = res.form  # only one form on the page?
+        form = self.app.get(url, user=self.user).form  # only one form on the page
         form["timecardobjects-0-project"] = self.projects[0].id
         form["timecardobjects-0-hours_spent"] = 40
-        res = form.submit("submit-timecard").follow()
+        form.submit("submit-timecard").follow()
 
-        date = self.reporting_period2.start_date.strftime('%Y-%m-%d')
+        date2 = self.reporting_period2.start_date.strftime('%Y-%m-%d')
         url = reverse('reportingperiod:UpdateTimesheet',
-                      kwargs={'reporting_period': date},)
-        res = self.app.get(url, user=self.user)
-        print(res.html)
-        form = res.form  # only one form on the page?
+                      kwargs={'reporting_period': date2},)
+        form = self.app.get(url, user=self.user).form  # only one form on the page
+        form["timecardobjects-0-project"] = self.projects[0].id
         form["timecardobjects-0-hours_spent"] = 40
+        # timecard.js would set this field to be unselected, but since WebTest
+        # runs no Javascript, force this field to be the empty string
+        form["timecardobjects-1-project_allocation"].force_value("")
         res = form.submit("submit-timecard")
 
-        print(res.html)
         # successful POST will give a 302 redirect
         self.assertEqual(res.status_code, 302)
