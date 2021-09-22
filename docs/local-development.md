@@ -101,13 +101,13 @@ python manage.py test
 Tock includes a suite of integration tests built using [Jest](https://jestjs.io/) and [Puppeteer](https://github.com/puppeteer/puppeteer/). To quickly run the tests locally, first start Tock following the directions above. Then, execute `npm test` inside the `integration-tests` Docker container:
 
 ```sh
-docker run integration-tests npm test
+docker-compose run integration-tests npm test
 ```
 
 During development, you can use Jest's watch mode to re-run tests as you develop:
 
 ```sh
-docker run integration-tests npm test -- --watch
+docker-compose run integration-tests npm test -- --watch
 ```
 
 ##### Debugging Integration Tests
