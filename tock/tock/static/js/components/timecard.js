@@ -208,6 +208,7 @@ function toggleNotesField(selectBoxId) {
   const options = document.querySelector('#' + selectBoxId + '-select')
     .selectedOptions[0].dataset;
   if (options.is_weekly_bill === 'true') {
+    setHourSummationVisibility('hide');
     project_allocation.classList.remove('entry-hidden');
     hours_spent.classList.add('entry-hidden');
   } else {
