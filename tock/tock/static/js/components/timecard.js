@@ -362,6 +362,24 @@ function handleConfirm(val) {
   }
 }
 
+/** @function
+ * Show or hide the billing hour summation elements in the footer
+ * @name setHourSummationVisibility
+ * @param {string} visibility
+ * */
+function setHourSummationVisibility(visibility) {
+  const showBillingHourSummationElements = visibility === 'show';
+  const [totalReportedElement, totalBillableElement] = Array.from(document.querySelectorAll('.entries-total .grid-col-2'));
+
+  if (showBillingHourSummationElements) {
+    totalReportedElement.classList.remove('entry-hidden');
+    totalBillableElement.classList.remove('entry-hidden');
+  } else {
+    totalReportedElement.classList.add('entry-hidden');
+    totalBillableElement.classList.add('entry-hidden');
+  }
+}
+
 //////////////////////////////////////////////////////////////
 // EVENT HANDLERS
 
