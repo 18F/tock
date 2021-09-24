@@ -170,7 +170,6 @@ class TimecardObjectForm(forms.ModelForm):
         return self.cleaned_data.get('hours_spent') or 0
 
     def clean(self):
-        # print(self.cleaned_data)
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
@@ -270,7 +269,6 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
 
-        # print('getattr', getattr(self, 'cleaned_data', None))
         return getattr(self, 'cleaned_data', None)
 
     def save(self, commit=True):

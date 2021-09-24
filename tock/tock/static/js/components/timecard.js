@@ -211,11 +211,10 @@ function toggleNotesField(selectBoxId) {
   if (options.is_weekly_bill === 'true') {
     project_allocation.classList.remove('entry-hidden');
     hours_spent.classList.add('entry-hidden');
-    hours_set.value = '0'
   } else {
     project_allocation.classList.add('entry-hidden');
     hours_spent.classList.remove('entry-hidden');
-    project_allocation_set.selectedIndex = '0' 
+    project_allocation_set.selectedIndex = -1;
   }
 }
 
