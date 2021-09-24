@@ -30,7 +30,6 @@ function getFormData() {
     const isBillable = project
       ? !isExcluded && !nonBillableProjects.includes(project)
       : null;
-    //const isWeeklyBill = project
     const hours =
       parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
    const project_allocation =
