@@ -444,7 +444,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // adds accessible autocomplete to existing <select> fields
   const selects = document.querySelectorAll('.entry-project select');
+  let weeklyBilledProjectSeen = false;
   selects.forEach((select) => {
+    const [project] = select.selectedOptions;
+    const projectIsWeeklyBilled = project.dataset.is_weekly_bill === 'true';
+    // Flip our 'state' so we know we've encountered at least one weekly billed project
+    if (projectIsWeeklyBilled && !weeklyBilledProjectSeen) {
+      weeklyBilledProjectSeen = true;
+    }
+
     accessibleAutocomplete.enhanceSelectElement({
       showAllValues: true,
       defaultValue: '',
@@ -455,4 +463,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // make sure any necessary notes or alerts are present
     updateDisplays(select.id.replace('-select', ''));
   });
+
+  // Hide our billable hour summation elements
+  if (weeklyBilledProjectSeen) {
+    setHourSummationVisibility('hide');
+  }
 });
