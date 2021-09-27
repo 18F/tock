@@ -377,6 +377,11 @@ function setHourSummationVisibility(visibility) {
     totalReportedElement.classList.remove('entry-hidden');
     totalBillableElement.classList.remove('entry-hidden');
   } else {
+    const weeklyBillingAlertElement = document.querySelector('#weekly-billing-alert');
+    const addItemWrapper = document.querySelector('#add-item-wrapper');
+    addItemWrapper.classList.remove('grid-col-8');
+    addItemWrapper.classList.add('grid-col-2');
+    weeklyBillingAlertElement.classList.remove('entry-hidden');
     totalReportedElement.classList.add('entry-hidden');
     totalBillableElement.classList.add('entry-hidden');
   }
