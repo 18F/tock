@@ -370,7 +370,8 @@ function handleConfirm(val) {
  * */
 function setHourSummationVisibility(visibility) {
   const showBillingHourSummationElements = visibility === 'show';
-  const [totalReportedElement, totalBillableElement] = Array.from(document.querySelectorAll('.entries-total .grid-col-2'));
+  const totalReportedElement = document.querySelector('#total-reported-div');
+  const totalBillableElement = document.querySelector('#total-billable-div');
 
   if (showBillingHourSummationElements) {
     totalReportedElement.classList.remove('entry-hidden');
