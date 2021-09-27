@@ -226,9 +226,6 @@
 	background: $theme-color-accent-cool-light;
 	padding: 1em;
 	.add-timecard-entry,
-	.add-timecard-entry:first-child  {
-		margin-top: 1em;
-	}
 	.entries-total-reported {
 		text-align:left;
     .usa-button-outline {
@@ -243,6 +240,17 @@
       margin-top: 0.5em;
     }
 	}
+  .weekly-bill-header {
+    font-weight: bold;
+  }
+  #footer-controls-container {
+    align-items: center;
+    #add-item-wrapper {
+      display: flex;
+      padding-top: 0.5em;
+      padding-bottom: 0.5em;
+    }
+  }
 }
 
 .form-error,
