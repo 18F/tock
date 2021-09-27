@@ -6,7 +6,7 @@ beforeAll(async () => {
   await page.keyboard.press("Enter");
   await page.waitForNavigation();
   await expect(page).toMatch("Tock your time");
-});
+}, 100000);
 
 beforeEach(async () => page.goto(baseUrl));
 
@@ -60,7 +60,7 @@ describe("Timecard", () => {
       // https://github.com/18F/tock/issues/848
       await page.evaluate(() => {
         document.querySelector("#id_timecardobjects-0-hours_spent").value = ''
-      })
+      });
       await page.type("#id_timecardobjects-0-hours_spent", ".2");
       await page.keyboard.press("Enter")
       await expect(page).toMatchElement(".entries-total-reported-amount", {
@@ -81,7 +81,86 @@ describe("Timecard", () => {
         text: "0.6",
       });
     });
-  })
+  });
+
+  describe("handles weekly billing", () => {
+    beforeEach(() => page.goto(`${baseUrl}/reporting_period/2015-03-30/`));
+
+    test("hides hours input and shows project allocation element", async () => {
+      // https://github.com/18F/tock/issues/848
+      await page.evaluate(() => {
+        document.querySelector("#id_timecardobjects-0-hours_spent").value = ''
+      });
+
+      // @TODO: Seed database with a weekly billing project and know the ID for this test
+      await page.type(`#id_timecardobjects-0-project`, "125 - WB Test Project");
+      await page.keyboard.press("Enter");
+
+      await page.waitForSelector(
+        `.entry-project_allocation`, {
+        visible: true,
+        timeout: 5000
+      });
+
+      // We should now be in a state where the hour input is hidden and the project allocation dropdown is available
+      const _allocationPercentageClassListObj = await page.$eval(".entry-project_allocation", el => el.classList);
+      const _allocationPercentageClassList = Array.from(Object.values(_allocationPercentageClassListObj));
+      const allocationPercentageVisible = !_allocationPercentageClassList.includes('entry-hidden');
+
+      const _hourlyClassListObj = await page.$eval(".entry-hours_spent", el => el.classList);
+      const _hourlyClassList = Array.from(Object.values(_hourlyClassListObj));
+      const hourlyInputHidden = _hourlyClassList.includes('entry-hidden');
+
+      expect(allocationPercentageVisible).toBe(true);
+      expect(hourlyInputHidden).toBe(true);
+    });
+
+    test("hides hour summation elements once a weekly billing project is added", async () => {
+      // https://github.com/18F/tock/issues/848
+      await page.evaluate(() => {
+        document.querySelector("#id_timecardobjects-0-hours_spent").value = ''
+      });
+
+      let _totalReportedElement = await page.$eval("#total-reported-div", el => el.classList);
+      let _totalReportedClassList = Array.from(Object.values(_totalReportedElement));
+
+      let _totalBillableElement = await page.$eval("#total-billable-div", el => el.classList);
+      let _totalBillableClassList = Array.from(Object.values(_totalBillableElement));
+
+      let _totalReportedVisible = !_totalReportedClassList.includes('entry-hidden');
+      let _totalBillableVisible = !_totalBillableClassList.includes('entry-hidden');
+      const bothSummationElementsVisible = _totalReportedVisible && _totalBillableVisible;
+
+      expect(bothSummationElementsVisible).toBe(true);
+      
+      await page.type(`#id_timecardobjects-0-project`, "125 - WB Test Project");
+      await page.keyboard.press("Enter");
+
+      await page.waitForSelector(
+        `.entry-project_allocation`, {
+        visible: true,
+        timeout: 5000
+      });
+
+      _totalReportedElement = await page.$eval("#total-reported-div", el => el.classList);
+      _totalReportedClassList = Array.from(Object.values(_totalReportedElement));
+
+      _totalBillableElement = await page.$eval("#total-billable-div", el => el.classList);
+      _totalBillableClassList = Array.from(Object.values(_totalBillableElement));
+
+      const _totalReportedHidden = _totalReportedClassList.includes("entry-hidden");
+      const _totalBillableHidden = _totalBillableClassList.includes("entry-hidden");
+      const bothSummationElementsHidden = _totalReportedHidden && _totalBillableHidden;
+
+      expect(bothSummationElementsHidden).toBe(true);
+
+      const _weeklyBillingAlertElement = await page.$eval("#weekly-billing-alert", el => el.classList);
+      const _weeklyBillingAlertClassList = Array.from(Object.values(_weeklyBillingAlertElement));
+      const weeklyBillingAlertVisible = !_weeklyBillingAlertClassList.includes("entry-hidden");
+
+      expect(weeklyBillingAlertVisible).toBe(true);
+    });
+  });
 
   describe("notes", () => {
     beforeEach(() => {
