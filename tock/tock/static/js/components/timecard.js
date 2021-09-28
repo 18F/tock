@@ -30,7 +30,6 @@ function getFormData() {
     const isBillable = project
       ? !isExcluded && !nonBillableProjects.includes(project)
       : null;
-    //const isWeeklyBill = project
     const hours =
       parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
    const project_allocation =
@@ -209,9 +208,15 @@ function toggleNotesField(selectBoxId) {
   const options = document.querySelector('#' + selectBoxId + '-select')
     .selectedOptions[0].dataset;
   if (options.is_weekly_bill === 'true') {
+    handleBillingElementState('hide');
     project_allocation.classList.remove('entry-hidden');
     hours_spent.classList.add('entry-hidden');
   } else {
+    const noWeeklyBilledProjectsExist = !weeklyBilledProjectExists();
+
+    if (noWeeklyBilledProjectsExist) {
+      handleBillingElementState('show');
+    }
     project_allocation.classList.add('entry-hidden');
     hours_spent.classList.remove('entry-hidden');
     project_allocation_set.selectedIndex = -1;
@@ -363,6 +368,56 @@ function handleConfirm(val) {
   }
 }
 
+/** @function
+ * Show or hide the billing hour summation elements in the footer
+ * @name handleBillingElementState
+ * @param {string} visibility
+ * */
+function handleBillingElementState(visibility) {
+  const showBillingHourSummationElements = visibility === 'show';
+  const totalReportedElement = document.querySelector('#total-reported-div');
+  const totalBillableElement = document.querySelector('#total-billable-div');
+
+  if (showBillingHourSummationElements) {
+    const weeklyBillingAlertElement = document.querySelector('#weekly-billing-alert');
+    const addItemWrapper = document.querySelector('#add-item-wrapper');
+    addItemWrapper.classList.remove('grid-col-2');
+    addItemWrapper.classList.add('grid-col-8');
+    weeklyBillingAlertElement.classList.add('entry-hidden');
+    totalReportedElement.classList.remove('entry-hidden');
+    totalBillableElement.classList.remove('entry-hidden');
+  } else {
+    const weeklyBillingAlertElement = document.querySelector('#weekly-billing-alert');
+    const addItemWrapper = document.querySelector('#add-item-wrapper');
+    addItemWrapper.classList.remove('grid-col-8');
+    addItemWrapper.classList.add('grid-col-2');
+    weeklyBillingAlertElement.classList.remove('entry-hidden');
+    totalReportedElement.classList.add('entry-hidden');
+    totalBillableElement.classList.add('entry-hidden');
+  }
+}
+
+/** @function
+ * Examine all of the timecard entries and determine if any of them are weekly billing
+ * @name weeklyBilledProjectExists
+ * */
+function weeklyBilledProjectExists() {
+  const selects = document.querySelectorAll('.entry-project select');
+  let weeklyBilledProjectSeen = false;
+  for (let i = 0; i < selects.length; i++) {
+    const currentSelect = selects[i];
+    const project = currentSelect.selectedOptions[0];
+    const projectIsWeeklyBilled = (project.dataset || {}).is_weekly_bill === 'true';
+    // Flip our 'state' so we know we've encountered at least one weekly billed project
+    // Get out of the loop as soon as we've found one weekly billed project
+    if (projectIsWeeklyBilled && !weeklyBilledProjectSeen) {
+      weeklyBilledProjectSeen = true;
+      break;
+    }
+  }
+  return weeklyBilledProjectSeen;
+}
+
 //////////////////////////////////////////////////////////////
 // EVENT HANDLERS
 
@@ -426,7 +481,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // adds accessible autocomplete to existing <select> fields
   const selects = document.querySelectorAll('.entry-project select');
+  let weeklyBilledProjectSeen = false;
   selects.forEach((select) => {
+    const [project] = select.selectedOptions;
+    const projectIsWeeklyBilled = project.dataset.is_weekly_bill === 'true';
+    // Flip our 'state' so we know we've encountered at least one weekly billed project
+    if (projectIsWeeklyBilled && !weeklyBilledProjectSeen) {
+      weeklyBilledProjectSeen = true;
+    }
+
     accessibleAutocomplete.enhanceSelectElement({
       showAllValues: true,
       defaultValue: '',
@@ -437,4 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // make sure any necessary notes or alerts are present
     updateDisplays(select.id.replace('-select', ''));
   });
+
+  // Hide our billable hour summation elements
+  if (weeklyBilledProjectSeen) {
+    handleBillingElementState('hide');
+  }
 });

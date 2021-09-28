@@ -130,11 +130,15 @@
   </div>
   <div class="grid-container timecard-footer">
     <div class="entries-total">
-      <div class="grid-row grid-gap">
-        <div class="grid-col-8">
+      <div class="grid-row grid-gap" id="footer-controls-container">
+        <div class="grid-col-8" id="add-item-wrapper">
           <button type="button" class="add-timecard-entry usa-button usa-button--base">Add item</button>
         </div>
-        <div class="grid-col-2">
+        <div class="grid-col-8 entry-hidden" id="weekly-billing-alert">
+          <div class="weekly-bill-header">Do not work more than 40 hours.</div>
+          <div class="Weekly-bill-body">Under weekly billing, you are still expected to work a 40-hour work week. For those on AWS, this translates to 44 hours one week and 36 hours the following week.</div>
+        </div>
+        <div class="grid-col-2" id="total-reported-div">
           <span class="text-label">Total hours</span>
           <span class="entries-total-reported-amount">
             <svg class="circular-graph">
@@ -144,7 +148,7 @@
             <span class="number-label">0</span>
           </span>
         </div>
-        <div class="grid-col-2">
+        <div class="grid-col-2" id="total-billable-div">
           <span class="text-label"><a href="https://handbook.18f.gov/tock/#weekly-billable-hour-expectations"
               target="_blank" rel="noopener noreferrer">Billable hours</a></span>
           <span class="entries-total-billable-amount">
