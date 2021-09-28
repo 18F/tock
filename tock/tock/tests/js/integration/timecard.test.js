@@ -93,7 +93,7 @@ describe("Timecard", () => {
       });
 
       // @TODO: Seed database with a weekly billing project and know the ID for this test
-      await page.type(`#id_timecardobjects-0-project`, "125 - WB Test Project");
+      await page.type(`#id_timecardobjects-0-project`, "125 - Weekly Billing Test");
       await page.keyboard.press("Enter");
 
       await page.waitForSelector(
@@ -133,7 +133,7 @@ describe("Timecard", () => {
 
       expect(bothSummationElementsVisible).toBe(true);
       
-      await page.type(`#id_timecardobjects-0-project`, "125 - WB Test Project");
+      await page.type(`#id_timecardobjects-0-project`, "125 - Weekly Billing Test");
       await page.keyboard.press("Enter");
 
       await page.waitForSelector(
