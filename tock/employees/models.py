@@ -85,8 +85,8 @@ class UserData(models.Model):
                                                 default=settings.DEFAULT_EXPECTED_BILLABLE_HOURS,
                                                 help_text="Number of hours expected to be billable in a 40 hour work week")
     expected_project_allocation = models.DecimalField(
-        decimal_places=2,
-        max_digits=5,
+        decimal_places=3,
+        max_digits=6,
         blank=True,
         null=True,
         default=settings.DEFAULT_EXPECTED_PROJECT_ALLOCATION,
