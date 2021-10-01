@@ -476,8 +476,8 @@ class TimecardObject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     grade = models.ForeignKey(EmployeeGrade, blank=True, null=True, on_delete=models.CASCADE)
-    project_allocation = models.DecimalField(choices=settings.PROJECT_ALLOCATION_CHOICES, default=0, decimal_places=2,
-                                      max_digits=5)
+    project_allocation = models.DecimalField(choices=settings.PROJECT_ALLOCATION_CHOICES, default=0, decimal_places=3,
+                                      max_digits=6)
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
     # only be display and required when certain projects are selected.
