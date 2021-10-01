@@ -37,6 +37,7 @@ class TimecardObjectFormset(BaseInlineFormSet):
             return
 
         hours = Decimal(0.0)
+        weekly_billing_found = False
         aws_eligible = UserData.objects.get(
             user__id=self.instance.user_id).is_aws_eligible
         min_working_hours = self.instance.reporting_period.min_working_hours
@@ -44,7 +45,12 @@ class TimecardObjectFormset(BaseInlineFormSet):
 
         for unit in self.cleaned_data:
             try:
-                hours = hours + unit['hours_spent']
+                if unit['hours_spent']:
+                    hours = hours + unit['hours_spent']
+                else:
+                    if (unit['project_allocation'] and unit['project_allocation'] > 0):
+                        weekly_billing_found = True
+                        break
             except KeyError:
                 pass
 
@@ -53,7 +59,7 @@ class TimecardObjectFormset(BaseInlineFormSet):
                 'You have entered more than %s hours' % max_working_hours
             )
 
-        if hours < min_working_hours and not aws_eligible:
+        if hours < min_working_hours and not aws_eligible and not weekly_billing_found:
             raise ValidationError(
                 'You have entered fewer than %s hours' % min_working_hours
             )
