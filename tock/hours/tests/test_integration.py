@@ -25,7 +25,7 @@ class TestOptions(ProtectedViewTestCase, WebTest):
         )
         self.projects = [
             projects.models.Project.objects.get(name='openFEC'),
-            projects.models.Project.objects.get(name='Peace Corps'),
+            projects.models.Project.objects.get(name='Peace Corps')
         ]
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
@@ -44,6 +44,11 @@ class TestOptions(ProtectedViewTestCase, WebTest):
         self.timecard2 = hours.models.Timecard.objects.create(
             user=self.user,
             reporting_period=self.reporting_period2,
+        )
+        self.reporting_period3 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 15),
+            end_date=datetime.date(2015, 1, 21),
+            exact_working_hours=40,
         )
 
     def _assert_project_options(self, positive=None, negative=None):
@@ -155,3 +160,25 @@ class TestSubmit(ProtectedViewTestCase, WebTest):
 
         # successful POST will give a 302 redirect
         self.assertEqual(res.status_code, 302)
+
+class TestAdmin(ProtectedViewTestCase, WebTest):
+
+    fixtures = [
+        'projects/fixtures/projects.json'
+    ]
+
+    setUp = TestOptions.setUp
+
+    def test_admin_weekly_bill_timecard_submit(self):
+        """Test a weekly billed project via the admin interface"""
+        weekly_billed_project = projects.models.Project.objects.get(name='Weekly Billing')
+        url = reverse('admin:hours_timecard_add')
+        res = self.app.get(url, user=self.user)
+        form = res.form
+        form["user"] = self.user.id
+        form["reporting_period"] = "3"
+        form["timecardobjects-0-project"] = weekly_billed_project.id
+        form["timecardobjects-0-project_allocation"] = "1.0"
+        res = form.submit("submit-timecard").follow()
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "was added successfully")
