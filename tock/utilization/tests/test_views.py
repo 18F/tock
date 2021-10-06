@@ -65,13 +65,10 @@ class TestGroupUtilizationView(WebTest):
         today = datetime.date.today()
         current_fy = ReportingPeriod().get_fiscal_year_from_date(today)
         fy_start_date = ReportingPeriod().get_fiscal_year_start_date(current_fy)
-        first_of_october = datetime.date(today.year, 10, 1)
-        seventh_of_october = datetime.date(today.year, 10, 7)
-        adjust_rp_start_date_for_fy_boundary = first_of_october <= today <= seventh_of_october
+        safe_date = fy_start_date + datetime.timedelta(days=7)
+        adjust_rp_start_date_for_fy_boundary = today < safe_date
         rp_start_date = datetime.date.today() - datetime.timedelta(days=7)
 
-        # We think we're within the first week of October and rewinding back 7 days would cross
-        # a FY boundary, start from the beginning of the FY instead
         if adjust_rp_start_date_for_fy_boundary:
             rp_start_date = fy_start_date
 
