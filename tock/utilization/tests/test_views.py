@@ -43,7 +43,7 @@ class TestGroupUtilizationView(WebTest):
         non_billable_project.accounting_code = non_billable_acct
         non_billable_project.save()
 
-        billable_project = Project.objects.last()
+        billable_project = Project.objects.get(pk=50)
         billable_project.accounting_code = billable_acct
         billable_project.save()
 
@@ -60,8 +60,23 @@ class TestGroupUtilizationView(WebTest):
         self.user_data.unit = test_unit
         self.user_data.save()
 
+        # These utilization tests get weird around fiscal years, this is an attempt
+        # to handle things better inside of the first week to 10 days of October
+        today = datetime.date.today()
+        current_fy = ReportingPeriod().get_fiscal_year_from_date(today)
+        fy_start_date = ReportingPeriod().get_fiscal_year_start_date(current_fy)
+        first_of_october = datetime.date(today.year, 10, 1)
+        seventh_of_october = datetime.date(today.year, 10, 7)
+        adjust_rp_start_date_for_fy_boundary = first_of_october <= today <= seventh_of_october
+        rp_start_date = datetime.date.today() - datetime.timedelta(days=7)
+
+        # We think we're within the first week of October and rewinding back 7 days would cross
+        # a FY boundary, start from the beginning of the FY instead
+        if adjust_rp_start_date_for_fy_boundary:
+            rp_start_date = fy_start_date
+
         self.reporting_period = ReportingPeriod.objects.create(
-            start_date=datetime.date.today() - datetime.timedelta(days=7),
+            start_date=rp_start_date,
             end_date=datetime.date.today()
         )
 
