@@ -180,6 +180,90 @@ class TimecardsAPITests(WebTest):
         )
         self.assertEqual(len(queryset), 2)
 
+"""
+    Adding data to the timecards.json fixture results in failing tests since many tests
+    assert on the length of a list returned. You can add tests here by creating mock data
+    inside of setUp() and not worry about breaking existing tests that rely on the timecard
+    fixture
+"""
+class FixturelessTimecardsAPITests(WebTest):
+    def setUp(self):
+        super(FixturelessTimecardsAPITests, self).setUp()
+        self.user = UserFactory()
+        self.userdata = UserData.objects.create(user=self.user)
+        self.billable_code = AccountingCodeFactory(billable=True)
+        self.weekly_billed_project = ProjectFactory(accounting_code=self.billable_code,is_weekly_bill=True)
+        self.period1 = ReportingPeriodFactory(start_date=datetime.datetime(2021, 9, 1))
+        self.period2 = ReportingPeriodFactory(start_date=datetime.datetime(2021, 9, 8))
+        self.period3 = ReportingPeriodFactory(start_date=datetime.datetime(2021, 9, 14))
+        self.period4 = ReportingPeriodFactory(start_date=datetime.datetime(2021, 9, 21))
+        self.period5 = ReportingPeriodFactory(start_date=datetime.datetime(2021, 9, 29))
+        self.full_allocation_timecard = TimecardFactory(user=self.user, reporting_period=self.period1)
+        self.three_quarter_allocation_timecard = TimecardFactory(user=self.user, reporting_period=self.period2)
+        self.half_allocation_timecard = TimecardFactory(user=self.user, reporting_period=self.period3)
+        self.one_quarter_allocation_timecard = TimecardFactory(user=self.user, reporting_period=self.period4)
+        self.one_eighth_allocation_timecard = TimecardFactory(user=self.user, reporting_period=self.period5)
+        self.full_allocation_timecard_objects = [
+            TimecardObjectFactory(
+                timecard=self.full_allocation_timecard,
+                project=self.weekly_billed_project,
+                hours_spent=0,
+                project_allocation=1.000
+            )
+        ]
+        self.three_quarter_allocation_timecard_objects = [
+            TimecardObjectFactory(
+                timecard=self.three_quarter_allocation_timecard,
+                project=self.weekly_billed_project,
+                hours_spent=0,
+               project_allocation=0.750
+            )
+        ]
+        self.half_allocation_timecard_objects = [
+            TimecardObjectFactory(
+                timecard=self.half_allocation_timecard,
+                project=self.weekly_billed_project,
+                hours_spent=0,
+                project_allocation=0.500
+            )
+        ]
+        self.one_quarter_allocation_timecard_objects = [
+            TimecardObjectFactory(
+                timecard=self.one_quarter_allocation_timecard,
+                project=self.weekly_billed_project,
+                hours_spent=0,
+                project_allocation=0.250
+            )
+        ]
+        self.one_eighth_allocation_timecard_objects = [
+            TimecardObjectFactory(
+                timecard=self.one_eighth_allocation_timecard,
+                project=self.weekly_billed_project,
+                hours_spent=0,
+                project_allocation=0.125
+            )
+        ]
+    
+    def test_project_allocation_scale_precision(self):
+        """
+            project_allocation allows a scale of 6 digits and a precision of 3 digits
+            Test to make sure that the API, which relies on TimecardSerializer, follows this convention
+        """
+        all_timecards = client().get(
+            reverse('TimecardList'),
+            kwargs={'date': '2021-09-01'}).data
+        
+        full_allocation_timecard = all_timecards[0]
+        three_quarter_allocation_timecard = all_timecards[1]
+        half_allocation_timecard = all_timecards[2]
+        one_quarter_allocation_timecard = all_timecards[3]
+        one_eighth_allocation_timecard = all_timecards[4]
+
+        self.assertEqual(full_allocation_timecard['project_allocation'], "1.000")
+        self.assertEqual(three_quarter_allocation_timecard['project_allocation'], "0.750")
+        self.assertEqual(half_allocation_timecard['project_allocation'], "0.500")
+        self.assertEqual(one_quarter_allocation_timecard['project_allocation'], "0.250")
+        self.assertEqual(one_eighth_allocation_timecard['project_allocation'], "0.125")
 
 class TestAggregates(WebTest):
 
