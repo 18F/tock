@@ -243,7 +243,7 @@ class FixturelessTimecardsAPITests(WebTest):
                 project_allocation=0.125
             )
         ]
-    
+
     def test_project_allocation_scale_precision(self):
         """
             project_allocation allows a scale of 6 digits and a precision of 3 digits
@@ -252,7 +252,7 @@ class FixturelessTimecardsAPITests(WebTest):
         all_timecards = client().get(
             reverse('TimecardList'),
             kwargs={'date': '2021-09-01'}).data
-        
+
         full_allocation_timecard = all_timecards[0]
         three_quarter_allocation_timecard = all_timecards[1]
         half_allocation_timecard = all_timecards[2]
