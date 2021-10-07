@@ -77,8 +77,8 @@ def limit_to_fy():
     """
     Filter component to Limit timecard aggregation to the current fiscal year
     """
-    current_fy = ReportingPeriod().get_fiscal_year_from_date(datetime.date.today())
-    fy_start_date = ReportingPeriod().get_fiscal_year_start_date(current_fy)
+    current_fy = ReportingPeriod.get_fiscal_year_from_date(datetime.date.today())
+    fy_start_date = ReportingPeriod.get_fiscal_year_start_date(current_fy)
     return Q(timecards__submitted=True, timecards__reporting_period__start_date__gte=fy_start_date)
 
 def _get_reporting_periods(count):
