@@ -63,14 +63,15 @@ class TestGroupUtilizationView(WebTest):
         # These utilization tests get weird around fiscal years, this is an attempt
         # to handle things better inside of the first week to 10 days of October
         today = datetime.date.today()
-        current_fy = ReportingPeriod().get_fiscal_year_from_date(today)
-        fy_start_date = ReportingPeriod().get_fiscal_year_start_date(current_fy)
+        current_fy = ReportingPeriod.get_fiscal_year_from_date(today)
+        fy_start_date = ReportingPeriod.get_fiscal_year_start_date(current_fy)
         safe_date = fy_start_date + datetime.timedelta(days=7)
         adjust_rp_start_date_for_fy_boundary = today < safe_date
-        rp_start_date = datetime.date.today() - datetime.timedelta(days=7)
 
         if adjust_rp_start_date_for_fy_boundary:
             rp_start_date = fy_start_date
+        else:
+            rp_start_date = datetime.date.today() - datetime.timedelta(days=7)
 
         self.reporting_period = ReportingPeriod.objects.create(
             start_date=rp_start_date,
