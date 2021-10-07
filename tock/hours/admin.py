@@ -63,8 +63,8 @@ class DecimalChoiceWidget(Select):
             for subvalue, sublabel in choices:
                 selected = (
                     # instead of string comparison, use numerical comparison here
-                    any(isclose(float(subvalue), float(v)) for v in value) and
-                    (not has_selected or self.allow_multiple_selected)
+                    any(isclose(float(subvalue), float(v)) for v in value)
+                    and (not has_selected or self.allow_multiple_selected)
                 )
                 has_selected |= selected
                 subgroup.append(self.create_option(
