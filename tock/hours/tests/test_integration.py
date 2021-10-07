@@ -176,7 +176,7 @@ class TestAdmin(ProtectedViewTestCase, WebTest):
         res = self.app.get(url, user=self.user)
         form = res.form
         form["user"] = self.user.id
-        form["reporting_period"] = "49"
+        form["reporting_period"] = self.reporting_period3.id
         form["timecardobjects-0-project"] = weekly_billed_project.id
         form["timecardobjects-0-project_allocation"] = "1.0"
         res = form.submit("submit-timecard").follow()
