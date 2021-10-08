@@ -1,9 +1,11 @@
 from decimal import Decimal
+from math import isclose
 
 from django.conf import settings
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.forms import DecimalField, ModelForm
+from django.forms.widgets import Select
 from django.forms.models import BaseInlineFormSet
 from employees.models import UserData
 
@@ -24,8 +26,68 @@ class ReportingPeriodListFilter(admin.SimpleListFilter):
         return queryset
 
 
+class DecimalChoiceWidget(Select):
+
+    """A choice widget for decimal typed data.
+
+    The Select widget when used with a form's TypedChoiceField that has an
+    underlying `DecimalField` in the model is very sensitive to formatting because
+    it uses string comparison (as is natural for a Select widget on a web page that
+    deals in strings).
+
+    This modifies the method in a `Select` widget where equality is checked so that
+    it uses numerical equality. This should make it much better behaved with the
+    numeric data type.
+    """
+
+    def optgroups(self, name, value, attrs=None):
+        """Change the baseclass's method to use numerical comparison."""
+        groups = []
+        has_selected = False
+
+        for index, (option_value, option_label) in enumerate(self.choices):
+            if option_value is None:
+                option_value = ''
+
+            subgroup = []
+            if isinstance(option_label, (list, tuple)):
+                group_name = option_value
+                subindex = 0
+                choices = option_label
+            else:
+                group_name = None
+                subindex = None
+                choices = [(option_value, option_label)]
+            groups.append((group_name, subgroup, index))
+
+            for subvalue, sublabel in choices:
+                selected = (
+                    # instead of string comparison, use numerical comparison here
+                    any(isclose(float(subvalue), float(v)) for v in value)
+                    and (not has_selected or self.allow_multiple_selected)
+                )
+                has_selected |= selected
+                subgroup.append(self.create_option(
+                    name, subvalue, sublabel, selected, index,
+                    subindex=subindex, attrs=attrs,
+                ))
+                if subindex is not None:
+                    subindex += 1
+        return groups
+
+
+class TimecardObjectForm(ModelForm):
+
+    class Meta:
+        model = TimecardObject
+        fields = "__all__"
+        widgets = {"project_allocation": DecimalChoiceWidget}
+
 
 class TimecardObjectFormset(BaseInlineFormSet):
+
+    form = TimecardObjectForm
+
     def clean(self):
         """
         Check to ensure the proper number of hours are entered.
@@ -73,6 +135,7 @@ class ReportingPeriodAdmin(admin.ModelAdmin):
 
 class TimecardObjectInline(admin.TabularInline):
     formset = TimecardObjectFormset
+    form = TimecardObjectForm
     model = TimecardObject
     readonly_fields = [
         'grade',

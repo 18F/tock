@@ -176,9 +176,30 @@ class TestAdmin(ProtectedViewTestCase, WebTest):
         res = self.app.get(url, user=self.user)
         form = res.form
         form["user"] = self.user.id
-        form["reporting_period"] = "49"
+        form["reporting_period"] = self.reporting_period3.id
         form["timecardobjects-0-project"] = weekly_billed_project.id
         form["timecardobjects-0-project_allocation"] = "1.0"
         res = form.submit("submit-timecard").follow()
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "was added successfully")
+
+    def test_admin_weekly_bill_project_allocation(self):
+        """Test project allocation in the admin interface"""
+        weekly_billed_project = projects.models.Project.objects.get(name='Weekly Billing')
+        timecard = hours.models.Timecard.objects.first()
+        change_url = reverse(
+            'admin:hours_timecard_change',
+            args=[timecard.id],
+        )
+
+        # save a timecard with project allocation set.
+        form = self.app.get(change_url, user=self.user).form
+        form["timecardobjects-0-project"] = weekly_billed_project.id
+        form["timecardobjects-0-hours_spent"] = ''
+        form["timecardobjects-0-project_allocation"] = "1.0"
+        form.submit("submit-timecard")
+
+        # now visit the change page and make sure that 100% is selected
+        change_page = self.app.get(change_url, user=self.user)
+        form = change_page.form
+        self.assertEqual(form["timecardobjects-0-project_allocation"].value, "1.0")
