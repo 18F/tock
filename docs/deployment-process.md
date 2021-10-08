@@ -227,6 +227,15 @@ You can manually create Git tags using the Git CLI as outlined in the next secti
 also create them in the GitHub release interface when drafting and publishing
 the release.
 
+To create a new tag in the GitHub release interface (and skip the Git tag CLI step):
+
+- Click the tag name dropdown located above the release title text input.
+- Type the name of your new tag, be sure to follow the tag naming guidelines of using
+a `v` followed by the full year, full month, and full day, followed by a period
+and a version number for that release. For example: `v20211008.1`
+- Click the "+ Create new tag: `v20211008.1` on publish` link that appears below your
+newly named tag.
+
 ## Creating a GitHub release
 
 <details>
