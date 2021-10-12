@@ -11,6 +11,7 @@ from decimal import Decimal
 from projects.models import AccountingCode, Project
 
 from .models import ReportingPeriod, Timecard, TimecardObject
+from .admin import DecimalChoiceWidget
 
 
 class ReportingPeriodForm(forms.ModelForm):
@@ -143,7 +144,7 @@ class TimecardObjectForm(forms.ModelForm):
     project_allocation = forms.ChoiceField(
         choices=settings.PROJECT_ALLOCATION_CHOICES,
         required=False,
-        widget=forms.Select(attrs={'onchange' : "populateHourTotals();"})
+        widget=DecimalChoiceWidget(attrs={'onchange' : "populateHourTotals();"})
     )
     hours_spent = forms.DecimalField(
         min_value=0,

@@ -3,6 +3,7 @@ import datetime
 from django.urls import reverse
 
 from django_webtest import WebTest
+from webtest.forms import Hidden
 
 from test_common import ProtectedViewTestCase
 
@@ -160,6 +161,36 @@ class TestSubmit(ProtectedViewTestCase, WebTest):
 
         # successful POST will give a 302 redirect
         self.assertEqual(res.status_code, 302)
+
+    def test_timecard_save_weekly_bill(self):
+        # Make a new timecard so we can save it
+        hours.models.Timecard.objects.create(
+            user=self.user,
+            reporting_period=self.reporting_period3,
+        )
+        date = self.reporting_period3.start_date.strftime('%Y-%m-%d')
+        url = reverse('reportingperiod:UpdateTimesheet',
+                      kwargs={'reporting_period': date},)
+        res = self.app.get(url, user=self.user)
+        form = res.form  # only one form on the page
+
+        weekly_billed_project = projects.models.Project.objects.get(name='Weekly Billing')
+        form["timecardobjects-0-project"] = weekly_billed_project.id
+        form["timecardobjects-0-hours_spent"] = 0
+        form["timecardobjects-0-project_allocation"] = "0.5"
+
+        # normally added by JS in a browser, we add the save_only field manually here
+        # technique from https://stackoverflow.com/a/23877996
+        field = Hidden(form, "input", None, 999, "1")
+        form.fields["save_only"] = [field]
+        form.field_order.append(("save_only", field))
+
+        page = form.submit().follow()  # follow the 302 redirect on success
+
+        # The project allocation is properly displayed
+        self.assertEqual(page.form["timecardobjects-0-project_allocation"].value, "0.5")
+
+
 
 class TestAdmin(ProtectedViewTestCase, WebTest):
 
