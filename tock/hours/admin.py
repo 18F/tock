@@ -26,6 +26,17 @@ class ReportingPeriodListFilter(admin.SimpleListFilter):
         return queryset
 
 
+def safe_float(value):
+    """Convert a string to a float with no exceptions.
+
+    Return NaN if the conversion fails.
+    """
+    try:
+        return float(value)
+    except ValueError:
+        return float("NaN")
+
+
 class DecimalChoiceWidget(Select):
 
     """A choice widget for decimal typed data.
@@ -63,7 +74,7 @@ class DecimalChoiceWidget(Select):
             for subvalue, sublabel in choices:
                 selected = (
                     # instead of string comparison, use numerical comparison here
-                    any(isclose(float(subvalue), float(v)) for v in value)
+                    any(isclose(safe_float(subvalue), safe_float(v)) for v in value)
                     and (not has_selected or self.allow_multiple_selected)
                 )
                 has_selected |= selected
