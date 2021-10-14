@@ -62,15 +62,6 @@
 </div>
 {% endfor %}
 
-<div class="usa-alert usa-alert--info">
-  <div class="usa-alert__body">
-    <p class="usa-alert__text">
-      For additional help and guidance with using Tock and entering hours, please consult the <a
-        href="https://handbook.18f.gov/tock/">TTS Handbook page on Tock</a>.
-    </p>
-  </div>
-</div>
-
 <form method="post"
   action="{% url 'reportingperiod:UpdateTimesheet' reporting_period=object.reporting_period.start_date %}">
   {% csrf_token %}
