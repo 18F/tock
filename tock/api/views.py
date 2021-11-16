@@ -87,7 +87,7 @@ class TimecardSerializer(serializers.Serializer):
         allow_null=True
     )
     hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
-    project_allocation = serializers.DecimalField(max_digits=5, decimal_places=2)
+    project_allocation = serializers.DecimalField(max_digits=6, decimal_places=3)
     start_date = serializers.DateField(
         source='timecard.reporting_period.start_date'
     )

@@ -3,6 +3,7 @@ import datetime
 from django.urls import reverse
 
 from django_webtest import WebTest
+from webtest.forms import Hidden
 
 from test_common import ProtectedViewTestCase
 
@@ -25,7 +26,7 @@ class TestOptions(ProtectedViewTestCase, WebTest):
         )
         self.projects = [
             projects.models.Project.objects.get(name='openFEC'),
-            projects.models.Project.objects.get(name='Peace Corps'),
+            projects.models.Project.objects.get(name='Peace Corps')
         ]
         self.reporting_period = hours.models.ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
@@ -44,6 +45,11 @@ class TestOptions(ProtectedViewTestCase, WebTest):
         self.timecard2 = hours.models.Timecard.objects.create(
             user=self.user,
             reporting_period=self.reporting_period2,
+        )
+        self.reporting_period3 = hours.models.ReportingPeriod.objects.create(
+            start_date=datetime.date(2015, 1, 15),
+            end_date=datetime.date(2015, 1, 21),
+            exact_working_hours=40,
         )
 
     def _assert_project_options(self, positive=None, negative=None):
@@ -155,3 +161,76 @@ class TestSubmit(ProtectedViewTestCase, WebTest):
 
         # successful POST will give a 302 redirect
         self.assertEqual(res.status_code, 302)
+
+    def test_timecard_save_weekly_bill(self):
+        # Make a new timecard so we can save it
+        hours.models.Timecard.objects.create(
+            user=self.user,
+            reporting_period=self.reporting_period3,
+        )
+        date = self.reporting_period3.start_date.strftime('%Y-%m-%d')
+        url = reverse('reportingperiod:UpdateTimesheet',
+                      kwargs={'reporting_period': date},)
+        res = self.app.get(url, user=self.user)
+        form = res.form  # only one form on the page
+
+        weekly_billed_project = projects.models.Project.objects.get(name='Weekly Billing')
+        form["timecardobjects-0-project"] = weekly_billed_project.id
+        form["timecardobjects-0-hours_spent"] = 0
+        form["timecardobjects-0-project_allocation"] = "0.5"
+
+        # normally added by JS in a browser, we add the save_only field manually here
+        # technique from https://stackoverflow.com/a/23877996
+        field = Hidden(form, "input", None, 999, "1")
+        form.fields["save_only"] = [field]
+        form.field_order.append(("save_only", field))
+
+        page = form.submit().follow()  # follow the 302 redirect on success
+
+        # The project allocation is properly displayed
+        self.assertEqual(page.form["timecardobjects-0-project_allocation"].value, "0.5")
+
+
+
+class TestAdmin(ProtectedViewTestCase, WebTest):
+
+    fixtures = [
+        'projects/fixtures/projects.json'
+    ]
+
+    setUp = TestOptions.setUp
+
+    def test_admin_weekly_bill_timecard_submit(self):
+        """Test a weekly billed project via the admin interface"""
+        weekly_billed_project = projects.models.Project.objects.get(name='Weekly Billing')
+        url = reverse('admin:hours_timecard_add')
+        res = self.app.get(url, user=self.user)
+        form = res.form
+        form["user"] = self.user.id
+        form["reporting_period"] = self.reporting_period3.id
+        form["timecardobjects-0-project"] = weekly_billed_project.id
+        form["timecardobjects-0-project_allocation"] = "1.0"
+        res = form.submit("submit-timecard").follow()
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "was added successfully")
+
+    def test_admin_weekly_bill_project_allocation(self):
+        """Test project allocation in the admin interface"""
+        weekly_billed_project = projects.models.Project.objects.get(name='Weekly Billing')
+        timecard = hours.models.Timecard.objects.first()
+        change_url = reverse(
+            'admin:hours_timecard_change',
+            args=[timecard.id],
+        )
+
+        # save a timecard with project allocation set.
+        form = self.app.get(change_url, user=self.user).form
+        form["timecardobjects-0-project"] = weekly_billed_project.id
+        form["timecardobjects-0-hours_spent"] = ''
+        form["timecardobjects-0-project_allocation"] = "1.0"
+        form.submit("submit-timecard")
+
+        # now visit the change page and make sure that 100% is selected
+        change_page = self.app.get(change_url, user=self.user)
+        form = change_page.form
+        self.assertEqual(form["timecardobjects-0-project_allocation"].value, "1.0")
