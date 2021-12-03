@@ -254,7 +254,7 @@ function displayAlerts(selectBoxId) {
       alert_text =
         '<a href="' +
         alertData[i].url +
-        '" target="_blank">' +
+        '" target="_blank" rel="noopener noreferrer">' +
         alert_text +
         '</a>';
     }
