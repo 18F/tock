@@ -3,6 +3,7 @@ import os
 import dj_database_url
 
 from .base import *  # noqa
+from .base import MIDDLEWARE
 # spell out explicit variable dependencies
 from .base import DATABASES
 
@@ -27,6 +28,7 @@ bucket = f"{STATIC_URL}"
 allowed_sources = (
     "'self'",
     bucket,
+    'https://www.google-analytics.com',
     'https://login.fr.cloud.gov/',
     'tock.18f.gov/'
 )
@@ -41,6 +43,7 @@ CSP_STYLE_SRC = (
         "'self'",
         bucket,
         "'unsafe-inline'",
+        'https://www.google-analytics.com',
         'https://login.fr.cloud.gov/',
 )
 CSP_FONT_SRC = allowed_sources
