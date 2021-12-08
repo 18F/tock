@@ -22,6 +22,30 @@ SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 
+MIDDLEWARE.append('csp.middleware.CSPMiddleware')
+bucket = f"{STATIC_URL}"
+allowed_sources = (
+    "'self'",
+    bucket,
+    'https://login.fr.cloud.gov/',
+    'tock.18f.gov/'
+)
+CSP_DEFAULT_SRC = allowed_sources
+CSP_IMG_SRC = allowed_sources
+CSP_MEDIA_SRC = allowed_sources
+CSP_FRAME_SRC = allowed_sources
+CSP_WORKER_SRC = allowed_sources
+CSP_FRAME_ANCESTORS = allowed_sources
+
+CSP_STYLE_SRC = (
+        "'self'",
+        bucket,
+        "'unsafe-inline'",
+        'https://login.fr.cloud.gov/',
+)
+CSP_FONT_SRC = allowed_sources
+CSP_INCLUDE_NONCE_IN = ['script-src']
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
