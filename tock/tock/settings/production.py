@@ -3,9 +3,8 @@ import os
 import dj_database_url
 
 from .base import *  # noqa
-from .base import MIDDLEWARE
 # spell out explicit variable dependencies
-from .base import DATABASES
+from .base import DATABASES, MIDDLEWARE
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
