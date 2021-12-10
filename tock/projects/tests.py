@@ -201,7 +201,7 @@ class ProjectsTest(WebTest):
         listed.
         """
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(reverse('projects:ProjectListView'))
         anchor = response.html.find(
             'a',
             href='/projects/{0}'.format(self.project.id)
@@ -222,7 +222,7 @@ class ProjectsTest(WebTest):
 
         self.project.alerts.add(project_alert)
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(reverse('projects:ProjectListView'))
         span = response.html.find('span')
 
         self.assertIsNotNone(span)
@@ -242,7 +242,7 @@ class ProjectsTest(WebTest):
 
         self.project.alerts.add(project_alert)
 
-        response = self.app.get(reverse('ProjectListView'))
+        response = self.app.get(reverse('projects:ProjectListView'))
         anchor = response.html.find(
             'a',
             href='http://www.gsa.gov/'
@@ -267,7 +267,7 @@ class ProjectsTest(WebTest):
         self.project.alerts.add(project_alert)
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project.id})
         )
 
         span = response.html.find('span')
@@ -290,7 +290,7 @@ class ProjectsTest(WebTest):
         self.project.alerts.add(project_alert)
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project.id})
         )
 
         anchor = response.html.find(
@@ -316,7 +316,7 @@ class ProjectsTest(WebTest):
 
     def test_agreement_url_displays_correctly(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project.id})
         )
 
         url = response.html.find('a', href=self.project.agreement_URL)
@@ -324,14 +324,14 @@ class ProjectsTest(WebTest):
 
     def test_no_agreement_url(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project_no_url.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project_no_url.id})
         )
         test_string = 'No agreement URL available'
         self.assertContains(response, test_string)
 
     def test_no_project_lead(self):
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': self.project_no_lead.id})
+            reverse('projects:ProjectView', kwargs={'pk': self.project_no_lead.id})
         )
         test_string = 'No project lead available'
         self.assertContains(response, test_string)
@@ -464,8 +464,64 @@ class ProjectViewTests(WebTest):
         )
 
         response = self.app.get(
-            reverse('ProjectView', kwargs={'pk': '1'}),
+            reverse('projects:ProjectView', kwargs={'pk': '1'}),
             user=User.objects.get(email='aaron.snow@gsa.gov')
         )
 
         self.assertEqual(float(response.html.select('#totalHoursAll')[0].string), 15)
+
+
+class ProjectEngagementTests(WebTest):
+
+    def setUp(self):
+        agency = Agency(name='General Services Administration')
+        agency.save()
+        self.billable_accounting_code = AccountingCode(
+            code='abc',
+            agency=agency,
+            office='18F',
+            billable=True
+        )
+        self.billable_accounting_code.save()
+        self.profit_loss_account = ProfitLossAccount(
+            name='PIF',
+            accounting_string='This_is_a_string',
+            as_start_date=datetime.date(2016, 10, 1),
+            as_end_date=datetime.date(2017, 9, 30)
+            )
+        self.profit_loss_account.save()
+
+        self.project = Project(
+            accounting_code=self.billable_accounting_code,
+            profit_loss_account=self.profit_loss_account,
+            name='Test Project',
+            start_date='2016-01-01',
+            end_date='2016-02-01',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = None
+        )
+        self.project.save()
+
+        self.em_project = Project(
+            accounting_code=self.billable_accounting_code,
+            profit_loss_account=self.profit_loss_account,
+            name='Test Project Engagement Management',
+            start_date='2016-01-01',
+            end_date='2016-02-01',
+            agreement_URL = 'https://thisisaurl.com',
+            project_lead = None
+        )
+        self.em_project.save()
+
+        self.user = User.objects.create(
+            username='aaron.snow',
+            first_name='aaron',
+            last_name='snow'
+        )
+        self.app.set_user(self.user)
+
+    def test_engagement_view(self):
+        response = self.app.get(
+            reverse('projects:ProjectEngagementView'),
+        )
+        self.assertGreater(len(response.html.find("table").tbody.find_all("tr")), 0)

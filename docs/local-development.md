@@ -96,15 +96,28 @@ docker-compose run app bash
 python manage.py test
 ```
 
-You can currently run the javascript tests locally by installing local dependencies and then
-running the tests. (We will dockerize these at some point!)
+#### Javascript Integration Tests
 
+Tock includes a suite of integration tests built using [Jest](https://jestjs.io/) and [Puppeteer](https://github.com/puppeteer/puppeteer/). To quickly run the tests locally, first start Tock following the directions above. Then, execute `npm test` inside the `integration-tests` Docker container:
+
+```sh
+docker-compose run integration-tests npm test
 ```
+
+During development, you can use Jest's watch mode to re-run tests as you develop:
+
+```sh
+docker-compose run integration-tests npm test -- --watch
+```
+
+##### Debugging Integration Tests
+
+If the integration tests are failing and you need to debug them, the easiest way is to modify [jest-puppeteer.config.js](../jest-puppeteer.config.js), specifying `headless: false`. Then run the tests _outside_ Docker:
+
+```sh
 npm install
 npm run test
 ```
-
-If you need help debugging the jest-puppeteer tests, try turning off the `headless` mode in [the puppeteer configuration file](jest-puppeteer.config.js)
 
 ### Manually testing API endpoints
 All endpoints require a token in the request header. You can generate a token for yourself locally in the Django admin console, [under Auth Token](http://localhost:8000/admin/authtoken/), using any user. API endpoints can be tested manually using that token - see the [API docs for more detail](../api-docs/README.md).

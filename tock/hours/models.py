@@ -329,9 +329,9 @@ class Timecard(models.Model):
         excluded_filter = Q(timecardobjects__project__exclude_from_billability=True)
 
         # Using Coalesce to set a default value of 0 if no data is available
-        billable = Coalesce(Sum('timecardobjects__hours_spent', filter=billable_filter), 0)
-        non_billable = Coalesce(Sum('timecardobjects__hours_spent', filter=non_billable_filter), 0)
-        excluded = Coalesce(Sum('timecardobjects__hours_spent', filter=excluded_filter), 0)
+        billable = Coalesce(Sum('timecardobjects__hours_spent', filter=billable_filter), Decimal('0'))
+        non_billable = Coalesce(Sum('timecardobjects__hours_spent', filter=non_billable_filter), Decimal('0'))
+        excluded = Coalesce(Sum('timecardobjects__hours_spent', filter=excluded_filter), Decimal('0'))
 
 
         timecard = Timecard.objects.filter(id=self.id).annotate(billable=billable).annotate(non_billable=non_billable).annotate(excluded=excluded)[0]
@@ -476,7 +476,8 @@ class TimecardObject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     grade = models.ForeignKey(EmployeeGrade, blank=True, null=True, on_delete=models.CASCADE)
-
+    project_allocation = models.DecimalField(choices=settings.PROJECT_ALLOCATION_CHOICES, default=0, decimal_places=3,
+                                      max_digits=6)
     # The notes field is where the user records notes about time spent on
     # certain projects (for example, time spent on general projects).  It may
     # only be display and required when certain projects are selected.

@@ -4,6 +4,7 @@
  * @property {?number} project
  * @property {?boolean} isBillable
  * @property {?boolean} isExcluded
+ * @property {number} project_allocation
  * @property {number} hours
  */
 
@@ -15,14 +16,12 @@
  * */
 function getFormData() {
   let data = []
-
   Array.from(document.querySelectorAll('.entry')).forEach((entry, i) => {
     const markedForDeletion = entry.querySelector('.entry-delete input').checked
 
     if (markedForDeletion) {
       return;
     }
-
     const project =
       parseInt(entry.querySelector('.entry-project select').value, 10) || null;
     const isExcluded = project
@@ -33,8 +32,10 @@ function getFormData() {
       : null;
     const hours =
       parseFloat(entry.querySelector('.entry-amount input').value) || 0.0;
+   const project_allocation =
+      parseFloat(entry.querySelector('.entry-project_allocation select').value) || 0.0;
 
-    data.push({ project, isBillable, isExcluded, hours });
+    data.push({ project, isBillable, isExcluded, hours, project_allocation });
   });
 
   return data
@@ -77,7 +78,9 @@ function round(number) {
  * */
 function getHoursReport() {
   const data = getFormData();
-
+  // console.log("data")
+  // console.log(data)
+  data.forEach(calcAllocationHours)
   const r = data.reduce(
     (sums, entry) => {
       if (!entry) return sums
@@ -107,6 +110,16 @@ function getHoursReport() {
   };
 }
 
+/** @function
+ * Calcuate the hours to validate the project allocation
+ * @name calcAllocationHours
+ * */
+
+function calcAllocationHours(data) {
+  if (data.project_allocation > 0){
+    data.hours = (data.project_allocation * (billableExpectation * totalHoursTarget))
+  }
+}
 /** @function
  * Populates hour totals and fills in icons
  * @name populateHourTotals
@@ -172,11 +185,41 @@ function toggleNotesField(selectBoxId) {
     .parentElement;
   const options = document.querySelector('#' + selectBoxId + '-select')
     .selectedOptions[0].dataset;
-
   if (options.notesDisplayed === 'true' || options.notesRequired === 'true') {
     notes.classList.remove('entry-hidden');
   } else {
     notes.classList.add('entry-hidden');
+  }
+}
+
+/** @function
+ * Toggles the hours to project allocation on if the project requires them
+ * @name toggleHoursField
+ * @param {string} selectBoxId
+ * */
+ function toggleHoursField(selectBoxId) {
+  const idx = selectBoxId.match(/\d/)[0];
+  const project_allocation = document.querySelector('#id_timecardobjects-' + idx + '-project_allocation')
+    .parentElement;
+  const project_allocation_set = document.querySelector('#id_timecardobjects-' + idx + '-project_allocation')
+  const hours_set = document.querySelector('#id_timecardobjects-' + idx + '-hours_spent')
+  const hours_spent = document.querySelector('#id_timecardobjects-' + idx + '-hours_spent')
+    .parentElement;
+  const options = document.querySelector('#' + selectBoxId + '-select')
+    .selectedOptions[0].dataset;
+  if (options.is_weekly_bill === 'true') {
+    handleBillingElementState('hide');
+    project_allocation.classList.remove('entry-hidden');
+    hours_spent.classList.add('entry-hidden');
+  } else {
+    const noWeeklyBilledProjectsExist = !weeklyBilledProjectExists();
+
+    if (noWeeklyBilledProjectsExist) {
+      handleBillingElementState('show');
+    }
+    project_allocation.classList.add('entry-hidden');
+    hours_spent.classList.remove('entry-hidden');
+    project_allocation_set.selectedIndex = -1;
   }
 }
 
@@ -211,7 +254,7 @@ function displayAlerts(selectBoxId) {
       alert_text =
         '<a href="' +
         alertData[i].url +
-        '" target="_blank">' +
+        '" target="_blank" rel="noopener noreferrer">' +
         alert_text +
         '</a>';
     }
@@ -302,6 +345,7 @@ function addEntry() {
 function updateDisplays(targetId) {
   populateHourTotals();
   toggleNotesField(targetId);
+  toggleHoursField(targetId);
   displayAlerts(targetId);
 }
 
@@ -324,12 +368,65 @@ function handleConfirm(val) {
   }
 }
 
+/** @function
+ * Show or hide the billing hour summation elements in the footer
+ * @name handleBillingElementState
+ * @param {string} visibility
+ * */
+function handleBillingElementState(visibility) {
+  const showBillingHourSummationElements = visibility === 'show';
+  const totalReportedElement = document.querySelector('#total-reported-div');
+  const totalBillableElement = document.querySelector('#total-billable-div');
+
+  if (showBillingHourSummationElements) {
+    const weeklyBillingAlertElement = document.querySelector('#weekly-billing-alert');
+    const addItemWrapper = document.querySelector('#add-item-wrapper');
+    addItemWrapper.classList.remove('grid-col-2');
+    addItemWrapper.classList.add('grid-col-8');
+    weeklyBillingAlertElement.classList.add('entry-hidden');
+    totalReportedElement.classList.remove('entry-hidden');
+    totalBillableElement.classList.remove('entry-hidden');
+  } else {
+    const weeklyBillingAlertElement = document.querySelector('#weekly-billing-alert');
+    const addItemWrapper = document.querySelector('#add-item-wrapper');
+    addItemWrapper.classList.remove('grid-col-8');
+    addItemWrapper.classList.add('grid-col-2');
+    weeklyBillingAlertElement.classList.remove('entry-hidden');
+    totalReportedElement.classList.add('entry-hidden');
+    totalBillableElement.classList.add('entry-hidden');
+  }
+}
+
+/** @function
+ * Examine all of the timecard entries and determine if any of them are weekly billing
+ * @name weeklyBilledProjectExists
+ * */
+function weeklyBilledProjectExists() {
+  const selects = document.querySelectorAll('.entry-project select');
+  let weeklyBilledProjectSeen = false;
+  for (let i = 0; i < selects.length; i++) {
+    const currentSelect = selects[i];
+    const project = currentSelect.selectedOptions[0];
+    const projectIsWeeklyBilled = (project.dataset || {}).is_weekly_bill === 'true';
+    // Flip our 'state' so we know we've encountered at least one weekly billed project
+    // Get out of the loop as soon as we've found one weekly billed project
+    if (projectIsWeeklyBilled && !weeklyBilledProjectSeen) {
+      weeklyBilledProjectSeen = true;
+      break;
+    }
+  }
+  return weeklyBilledProjectSeen;
+}
+
 //////////////////////////////////////////////////////////////
 // EVENT HANDLERS
 
 // when the hour totals are changed, repopulate hours.
 document.querySelector('body').addEventListener('keyup', function (event) {
-  if (event.target.matches('.entry-amount input')) {
+  if (
+    event.target.matches('.entry-amount input')
+    // Note: If you are curious how we updated project allocation, see forms.py, TimecardObjectForm, project_allocation 
+    ) {
     populateHourTotals();
   }
 });
@@ -338,7 +435,7 @@ document.querySelector('body').addEventListener('keyup', function (event) {
 document.querySelector('body').addEventListener('click', function (event) {
   if (
     event.target.matches('.entry-delete input') ||
-    event.target.matches('.entry-amount input')
+    event.target.matches('.entry-amount input') 
   ) {
     populateHourTotals();
   }
@@ -384,7 +481,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // adds accessible autocomplete to existing <select> fields
   const selects = document.querySelectorAll('.entry-project select');
+  let weeklyBilledProjectSeen = false;
   selects.forEach((select) => {
+    const [project] = select.selectedOptions;
+    const projectIsWeeklyBilled = project.dataset.is_weekly_bill === 'true';
+    // Flip our 'state' so we know we've encountered at least one weekly billed project
+    if (projectIsWeeklyBilled && !weeklyBilledProjectSeen) {
+      weeklyBilledProjectSeen = true;
+    }
+
     accessibleAutocomplete.enhanceSelectElement({
       showAllValues: true,
       defaultValue: '',
@@ -395,4 +500,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // make sure any necessary notes or alerts are present
     updateDisplays(select.id.replace('-select', ''));
   });
+
+  // Hide our billable hour summation elements
+  if (weeklyBilledProjectSeen) {
+    handleBillingElementState('hide');
+  }
 });

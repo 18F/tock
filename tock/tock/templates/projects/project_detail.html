@@ -4,14 +4,14 @@
 {% endblock %}
 
 {% load project_tags %}
-{% load staticfiles %}
+{% load static %}
 {% load analytics %}
 
 {% block content %}
 <script src="{% static 'js/plotly-1.54.7.min.js' %}"></script>
 <script src="{% static 'js/components/save_csv.js' %}"></script>
 
-<h1><a href="{% url 'ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h1>
+<h1><a href="{% url 'projects:ProjectListView' %}">Tock Projects</a> / {{ object.name }}</h1>
 
 <div class="grid-container">
   <div class="grid-row">
@@ -49,7 +49,7 @@
           {% if object.alerts.exists %}
           {% for alert in object.alerts.all %}
           {% if alert.destination_url %}
-          <a href="{{ alert.destination_url }}" target="_blank"><span
+          <a href="{{ alert.destination_url }}" target="_blank" rel="noopener noreferrer"><span
               class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
           {% else %}
           <span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span>

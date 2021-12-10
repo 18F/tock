@@ -684,5 +684,15 @@
          "accounting_code":15
       },
       "pk":50
+   },
+   {
+      "model":"projects.project",
+      "fields":{
+         "name":"Weekly Billing",
+         "description":"",
+         "accounting_code":15,
+         "is_weekly_bill": true
+      },
+      "pk":51
    }
 ]

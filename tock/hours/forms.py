@@ -2,14 +2,16 @@ import json
 
 import bleach
 from django import forms
+from django.conf import settings
 from django.db import connection, transaction
 from django.db.models import Prefetch
 from django.forms.models import BaseInlineFormSet, inlineformset_factory
 from django.utils.html import escapejs
-
+from decimal import Decimal
 from projects.models import AccountingCode, Project
 
 from .models import ReportingPeriod, Timecard, TimecardObject
+from .admin import DecimalChoiceWidget
 
 
 class ReportingPeriodForm(forms.ModelForm):
@@ -56,6 +58,7 @@ class SelectWithData(forms.widgets.Select):
             attrs['data-billable'] = "billable" if info.get('billable') else "non-billable"
             attrs['data-notes-displayed'] = "true" if info.get('notes_displayed') else "false"
             attrs['data-notes-required'] = "true" if info.get('notes_required') else "false"
+            attrs['data-is_weekly_bill'] = "true" if info.get('is_weekly_bill') else "false"
 
             if info.get('alerts'):
                 attrs['data-alerts'] = escapejs(json.dumps(info['alerts']))
@@ -98,6 +101,7 @@ def projects_as_choices(queryset=None):
                     'billable': code.billable,
                     'notes_displayed': project.notes_displayed,
                     'notes_required': project.notes_required,
+                    'is_weekly_bill': project.is_weekly_bill,
                     'alerts': [
                         {
                             'style': alert.full_style,
@@ -119,6 +123,7 @@ def projects_as_choices(queryset=None):
             'billable': '',
             'notes_displayed': '',
             'notes_required': '',
+            'is_weekly_bill': '',
             'alerts': [],
         }]]
     ])
@@ -136,7 +141,11 @@ class TimecardObjectForm(forms.ModelForm):
         widget=SelectWithData(),
         choices=projects_as_choices
     )
-
+    project_allocation = forms.ChoiceField(
+        choices=settings.PROJECT_ALLOCATION_CHOICES,
+        required=False,
+        widget=DecimalChoiceWidget(attrs={'onchange' : "populateHourTotals();"})
+    )
     hours_spent = forms.DecimalField(
         min_value=0,
         required=False,
@@ -148,16 +157,14 @@ class TimecardObjectForm(forms.ModelForm):
 
     class Meta:
         model = TimecardObject
-        fields = ['project', 'hours_spent', 'notes']
+        fields = ['project', 'hours_spent', 'notes', 'project_allocation']
 
     def clean_project(self):
         data = self.cleaned_data.get('project')
-
         try:
             data = Project.objects.get(id=data)
         except Project.DoesNotExist:
             raise forms.ValidationError('Invalid Project Selected')
-
         return data
 
     def clean_hours_spent(self):
@@ -229,20 +236,23 @@ class TimecardInlineFormSet(BaseInlineFormSet):
     def clean(self):
         super(TimecardInlineFormSet, self).clean()
         total_hrs = 0
+        total_allocation = 0
         for form in self.forms:
+            current_allocation = Decimal(form.cleaned_data.get('project_allocation') or 0)
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
                     continue
-                if form.cleaned_data.get('hours_spent') is None:
+                if (form.cleaned_data.get('hours_spent') == 0 or None) and (form.cleaned_data.get('project_allocation') == 0 or None):
                     raise forms.ValidationError(
                         'If you have a project listed, the number of hours '
                         'cannot be blank.'
                     )
-                total_hrs += form.cleaned_data.get('hours_spent')
+                total_hrs += form.cleaned_data.get('hours_spent', 0)
+                total_allocation += current_allocation
         if not self.save_only:
             for form in self.forms:
                 try:
-                    if form.cleaned_data['hours_spent'] == 0:
+                    if (form.cleaned_data['hours_spent'] == 0 or None) and (form.cleaned_data['project_allocation'] == 0):
                         form.cleaned_data.update({'DELETE': True})
                 except KeyError:
                     pass
@@ -251,15 +261,14 @@ class TimecardInlineFormSet(BaseInlineFormSet):
                     'Timecard not submitted because one or more of your '\
                     'entries has an error!'
                 )
-            if total_hrs > self.get_max_working_hours() and not self.aws_eligible:
+            if total_hrs > self.get_max_working_hours() and not self.aws_eligible and total_allocation == 0:
                 raise forms.ValidationError('You may not submit more than %s '
                     'hours for this period. To report additional hours'
                     ', please contact your supervisor.' % self.get_max_working_hours())
 
-            if total_hrs < self.get_min_working_hours() and not self.aws_eligible:
+            if total_hrs < self.get_min_working_hours() and not self.aws_eligible and total_allocation == 0:
                 raise forms.ValidationError('You must report at least %s hours '
                     'for this period.' % self.get_min_working_hours())
-
 
         return getattr(self, 'cleaned_data', None)
 
