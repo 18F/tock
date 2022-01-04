@@ -33,7 +33,7 @@
         {% for alert in project.alerts.all %}
           <li>
             {% if alert.destination_url %}
-                <a href="{{ alert.destination_url }}" target="_blank"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
+                <a href="{{ alert.destination_url }}" target="_blank" rel="noopener noreferrer"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
             {% else %}
                 <span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span>
             {% endif %}
@@ -79,7 +79,7 @@
         {% for alert in project.alerts.all %}
           <li>
             {% if alert.destination_url %}
-                <a href="{{ alert.destination_url }}" target="_blank"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
+                <a href="{{ alert.destination_url }}" target="_blank" rel="noopener noreferrer"><span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span></a>
             {% else %}
                 <span class="{{ alert.full_style }}">{{ alert.full_alert_text }}</span>
             {% endif %}

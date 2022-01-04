@@ -16,11 +16,12 @@
   <meta name="tock-icon-happy" content="{% static 'img/favicon-happy' %}">
   <meta name="tock-icon-angry" content="{% static 'img/favicon-angry' %}">
   <link rel="stylesheet" href="{% static 'css/dist/core.css' %}">
-  <link rel="stylesheet" href="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/jqueryui_v1.13.0/jquery-ui.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/vendor/font-awesome.min.css' %}">
   <link rel="stylesheet" href="{% static 'vendor/accessible-autocomplete_v2.0.3/css/accessible-autocomplete.min.css' %}" />
   <script src="{% static 'vendor/jquery_v3.6.0/jquery.min.js' %}"></script>
-  <script src="{% static 'vendor/jqueryui_v1.12.1/jquery-ui.min.js' %}"></script>
+  <script src="{% static 'vendor/jqueryui_v1.13.0/jquery-ui.min.js' %}"></script>
+  <script src="{% static 'vendor/jqueryui_v1.13.0/jquery-ui.structure.min.js' %}"></script>
   <script src="{% static 'vendor/uswds_v2.3.1/js/uswds.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'vendor/accessible-autocomplete_v2.0.3/js/accessible-autocomplete.min.js' %}"></script>
 
@@ -90,16 +91,16 @@
       <nav class="grid-row grid-gap">
         <div class="grid-col-4">
           <p><i>The current release is <code>{{ x_tock_release_name }}</code>, <a class="usa-link--external"
-                href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}" target="_blank">view this release on
+                href="{{ x_tock_release_url }}" title="{{ x_tock_release_name }}" target="_blank"  rel="noopener noreferrer">view this release on
                 GitHub</a></i>.</p>
         </div>
         <div class="grid-col-4">
           <p><i>For questions, suggestions, or bug reports, please <a class="usa-link--external"
-                href="https://github.com/18f/tock/issues" target="_blank">file an issue</a>.</i></p>
+                href="https://github.com/18f/tock/issues" target="_blank" rel="noopener noreferrer">file an issue</a>.</i></p>
         </div>
         <div class="grid-col-4">
           <p><i>To change your previously submitted hours in Tock, please <a class="usa-link--external"
-                href="{{ x_tock_change_request_form_url }}" target="_blank">use the Tock Change Request Form</a>.</i>
+                href="{{ x_tock_change_request_form_url }}" target="_blank" rel="noopener noreferrer">use the Tock Change Request Form</a>.</i>
           </p>
         </div>
       </nav>
