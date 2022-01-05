@@ -69,7 +69,7 @@ TEMPLATES = [
 ]
 
 
-MIDDLEWARE = (
+MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -80,7 +80,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'tock.middleware.AutoLogout',
-)
+]
 
 AUTHENTICATION_BACKENDS = (
     'tock.remote_user_auth.TockUserBackend',
