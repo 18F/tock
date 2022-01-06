@@ -164,7 +164,7 @@
 </form>
 
 
-<script>
+<script nonce="{{request.csp_nonce}}">
   const totalHoursTarget = 40;
   const excludedFromBillability = {{ excluded_from_billability| safe}};
   const billableExpectation = {{ billable_expectation| safe}};
