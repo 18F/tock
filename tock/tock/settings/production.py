@@ -4,7 +4,7 @@ import dj_database_url
 
 from .base import *  # noqa
 # spell out explicit variable dependencies
-from .base import DATABASES
+from .base import DATABASES, MIDDLEWARE
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -21,6 +21,33 @@ SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
+
+MIDDLEWARE.append('csp.middleware.CSPMiddleware')
+bucket = f"{STATIC_URL}"
+allowed_sources = (
+    "'self'",
+    bucket,
+    'https://www.google-analytics.com',
+    'https://login.fr.cloud.gov/',
+    'tock.18f.gov/'
+)
+CSP_DEFAULT_SRC = allowed_sources
+CSP_SCRIPT_SRC = allowed_sources
+CSP_IMG_SRC = allowed_sources
+CSP_MEDIA_SRC = allowed_sources
+CSP_FRAME_SRC = allowed_sources
+CSP_WORKER_SRC = allowed_sources
+CSP_FRAME_ANCESTORS = allowed_sources
+
+CSP_STYLE_SRC = (
+        "'self'",
+        bucket,
+        "'unsafe-inline'",
+        'https://www.google-analytics.com',
+        'https://login.fr.cloud.gov/',
+)
+CSP_FONT_SRC = allowed_sources
+CSP_INCLUDE_NONCE_IN = ['script-src']
 
 LOGGING = {
     'version': 1,
