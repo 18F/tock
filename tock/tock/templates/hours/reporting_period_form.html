@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block js %}
-<script>
+<script nonce="{{request.csp_nonce}}">
 $(function() {
 	$( ".datepicker" ).datepicker();
 });
