@@ -32,6 +32,7 @@ allowed_sources = (
     'tock.18f.gov/'
 )
 CSP_DEFAULT_SRC = allowed_sources
+CSP_SCRIPT_SRC = allowed_sources
 CSP_IMG_SRC = allowed_sources
 CSP_MEDIA_SRC = allowed_sources
 CSP_FRAME_SRC = allowed_sources
