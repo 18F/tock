@@ -18,11 +18,11 @@
       background-position: right 1rem top 53%;
       
       &[aria-expanded="false"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/angle-arrow-down.svg"), linear-gradient(transparent, transparent);
+        background-image: url("../../vendor/uswds_v2.13.0/img/angle-arrow-down.svg"), linear-gradient(transparent, transparent);
       }
 
       &[aria-expanded="true"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/angle-arrow-up-white.svg"), linear-gradient(transparent, transparent);
+        background-image: url("../../vendor/uswds_v2.13.0/img/angle-arrow-up-white.svg"), linear-gradient(transparent, transparent);
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
         background-color: $theme-color-primary-darker;
