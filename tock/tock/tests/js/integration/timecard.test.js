@@ -60,9 +60,9 @@ describe("Timecard", () => {
       const _new_delete_input = await page.$("#id_timecardobjects-" + length + "-DELETE");
       await _new_delete_input.click;
       //need to get the right query selector - think this is rigth
-      checked_image = await(page.$$("label[for='#id_timecardobjects-" + length + "-DELETE']::before"))
-      background_image = getComputedStyle(checked_image).getPropertyValue("background-image");
-      expect(background_image).toEqual('url("../../vendor/uswds_v2.13.0/img/correct8.svg"), linear-gradient(transparent, transparent)');
+      checked_image = await(page.$$(`#id_timecardobjects-${length}-DELETE`));
+      background_image = await getComputedStyle(checked_image).getPropertyValue("background-image");
+      expect(background_image).toMatch(/correct8.svg/);;
     });
 
     test('increments the django management form when "Add Item" is clicked', async () => {
