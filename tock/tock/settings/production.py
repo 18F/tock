@@ -23,10 +23,8 @@ CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 
 MIDDLEWARE.append('csp.middleware.CSPMiddleware')
-bucket = f"{STATIC_URL}"
 allowed_sources = (
     "'self'",
-    bucket,
     'https://www.google-analytics.com',
     'https://login.fr.cloud.gov/',
     'tock.18f.gov/'
@@ -41,7 +39,6 @@ CSP_FRAME_ANCESTORS = allowed_sources
 
 CSP_STYLE_SRC = (
         "'self'",
-        bucket,
         "'unsafe-inline'",
         'https://www.google-analytics.com',
         'https://login.fr.cloud.gov/',
