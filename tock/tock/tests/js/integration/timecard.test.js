@@ -60,7 +60,7 @@ describe("Timecard", () => {
       const _new_delete_input = await page.$(`#id_timecardobjects-${length}-DELETE`);
       await _new_delete_input.click;
       //need to get the right query selector - think this is right
-      const entry_label = page.$$(`label[for='#id_timecardobjects-${length}-DELETE']`);
+      const entry_label = await page.$$(`label[for='#id_timecardobjects-${length}-DELETE']`);
       const background_image = await page.evaluate((elementTest) => {
         return window.getComputedStyle(elementTest, ':before').getPropertyValue("background-image");
       }, entry_label);
