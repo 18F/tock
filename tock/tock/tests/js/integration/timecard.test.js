@@ -59,11 +59,11 @@ describe("Timecard", () => {
 
       const _new_delete_input = await page.$(`#id_timecardobjects-${length}-DELETE`);
       await _new_delete_input.click;
-      //need to get the right query selector - think this is rigth
-      const background_image = await page.evaluate(() => {
-        const entry_label = document.querySelector(`label[for='#id_timecardobjects-${length}-DELETE']`);
-        return window.getComputedStyle(entry_label, ':before').getPropertyValue("background-image");
-      });
+      //need to get the right query selector - think this is right
+      const entry_label = page.$$(`label[for='#id_timecardobjects-${length}-DELETE']`);
+      const background_image = await page.evaluate((elementTest) => {
+        return window.getComputedStyle(elementTest, ':before').getPropertyValue("background-image");
+      }, entry_label);
       expect(background_image).toMatch(/correct8.svg/);;
     });
 
