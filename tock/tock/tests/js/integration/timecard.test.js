@@ -61,7 +61,7 @@ describe("Timecard", () => {
       await _new_delete_input.click;
       //need to get the right query selector - think this is rigth
       checked_image = await(page.$$("label[for='#id_timecardobjects-" + length + "-DELETE']::before"))
-      background_image = window.getComputedStyle(checked_image).getPropertyValue("background-image");
+      background_image = getComputedStyle(checked_image).getPropertyValue("background-image");
       expect(background_image).toEqual('url("../../vendor/uswds_v2.13.0/img/correct8.svg"), linear-gradient(transparent, transparent)');
     });
 
