@@ -60,8 +60,8 @@ describe("Timecard", () => {
       const _new_delete_input = await page.$("#id_timecardobjects-" + length + "-DELETE");
       await _new_delete_input.click;
       //need to get the right query selector - think this is rigth
-      const checked_image = await(page.$$(`#id_timecardobjects-${length}-DELETE`));
       const background_image = await page.evaluate(() => {
+        const checked_image = await(page.$$(`#id_timecardobjects-${length}-DELETE`));
         return window.getComputedStyle(checked_image).getPropertyValue("background-image");
       });
       expect(background_image).toMatch(/correct8.svg/);;
