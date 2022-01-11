@@ -43,6 +43,8 @@ The Python version used in production is specified in `runtime.txt`. When updati
 3. Update the `python_version` line in `Pipfile` to ensure dependencies for the correct Python version are used
 4. Update `.circleci/config.yml` to ensure the correct Python version is used in CI
 
+## USWDS
+The uswds is initially installed via `npm` and then is compiled via gulp using the [uswds-gulp](https://github.com/uswds/uswds) configuration. To update USWDS, update the 2.x version in the `package.json` and review the release notes to identify any breaking changes.
 
 ## JavaScript
 
@@ -50,7 +52,7 @@ The Python version used in production is specified in `runtime.txt`. When updati
 
 Tock uses Django's staticfiles functionality to serve frontend dependencies in production.
 
-Updates for dependencies must be committed directly to this repository in `tock/tock/static`
+Other than the uswds, updates for dependencies must be committed directly to this repository in `tock/tock/static`.
 
 ### Development/Testing
 Tock uses [npm] to manage development/testing JavaScript dependencies.
