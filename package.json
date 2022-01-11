@@ -34,7 +34,6 @@
     "postcss-csso": "^5.0.1",
     "puppeteer": "^1.20.0",
     "sass": "^1.47.0",
-    "uswds": "^2.13.0",
-    "uswds-gulp": "github:uswds/uswds-gulp"
+    "uswds": "^2.13.0"
   }
 }
