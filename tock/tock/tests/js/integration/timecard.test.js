@@ -46,6 +46,26 @@ describe("Timecard", () => {
       expect(checked).toEqual(false);
     });
 
+    xtest('checks if there is a checkbox image when image is checked', async () => {
+      const entries = await page.$$(".entry");
+      const length = entries.length;
+      // Find and check the last delete input on the page
+      const last_entry_idx = length - 1
+      const _del = "#id_timecardobjects-" + last_entry_idx + "-DELETE";
+      await page.$$eval(_del, checks => checks.forEach(c => c.checked = true));
+
+      // add new entry
+      await page.click(".add-timecard-entry");
+
+      const _new_delete_input = await page.$(`#id_timecardobjects-${length}-DELETE`);
+      await _new_delete_input.click;
+      //need to get the right query selector - think this is right
+      const background_image = await page.$$eval(`label[for='#id_timecardobjects-${length}-DELETE']`, (elementTest) => {
+        return window.getComputedStyle(elementTest, ':before').getPropertyValue("background-image");
+      });
+      expect(background_image).toMatch(/correct8.svg/);;
+    });
+
     test('increments the django management form when "Add Item" is clicked', async () => {
       await page.click(".add-timecard-entry");
       const _entries = await page.$$(".entry");

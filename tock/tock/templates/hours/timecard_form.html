@@ -110,9 +110,10 @@
       </div>
       <div class="grid-container">
         {% if unsubmitted %}
-        <div class="entry-delete grid-col-8">
+        <div class="entry-delete grid-col-8 usa-checkbox">
           {{ project_entry.DELETE }}
-          <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE">Delete this item</label>
+          <label for="id_timecardobjects-{{ forloop.counter0 }}-DELETE"
+                  class="usa-checkbox__label">Delete this item</label>
         </div>
         {% endif %}
       </div>
