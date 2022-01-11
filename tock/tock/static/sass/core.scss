@@ -1,7 +1,7 @@
 $theme-image-path:         "../../vendor/uswds_v2.13.0/img";
 $theme-font-path:          "../../vendor/uswds_v2.13.0/fonts";
 @import "uswds_theme";
-@import "../../../../node_modules/uswds/src/stylesheets/uswds";
+@import "uswds";
 @import "base/base";
 @import "banner";
 @import "content";
@@ -15,7 +15,7 @@ $theme-font-path:          "../../vendor/uswds_v2.13.0/fonts";
   position: absolute; // for some reason, USWDS 2.x overrides this to set position as relative, which breaks nav
 }
 
-
+//test comment --lg 11
 // backwards compat with USWDS 1.x
 li {
   line-height: 1.5;

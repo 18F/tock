@@ -48,7 +48,7 @@ const FONTS_DEST = "./tock/tock/static/vendor/uswds_v2.13.0/fonts";
 const JS_DEST = "./tock/tock/static/vendor/uswds_v2.13.0/js";
 
 // Compiled CSS destination
-const CSS_DEST = "./tock/tock/static/sass:tock/tock/static/css/dist";
+const CSS_DEST = "./tock/tock/static/css/dist";
 
 // Site CSS destination
 // Like the _site/assets/css directory in Jekyll, if necessary.
