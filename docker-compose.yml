@@ -24,7 +24,7 @@ services:
     environment:
       - POSTGRES_DB=tock
       - POSTGRES_USER=tock_user
-  sass:
+  gulp:
     image: node:14.17.3
     volumes:
       - .:/tock
