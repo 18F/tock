@@ -12,15 +12,15 @@ h2 {
 }
 
 a {
-  color: $theme-color-primary;
+  color: color('primary');
 
   &:hover {
-    color: $theme-color-primary-darker;
+    color: color('primary-darker');
   }
 }
 
 hr {
-  background: $theme-color-base-lighter;
+  background: color('base-lighter');
   border: 0;
   height: 1px;
 }

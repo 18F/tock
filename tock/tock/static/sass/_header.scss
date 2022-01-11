@@ -25,7 +25,7 @@
         background-image: url("../../vendor/uswds_v2.3.1/img/angle-arrow-up-white.svg"), linear-gradient(transparent, transparent);
         -moz-osx-font-smoothing: grayscale;
         -webkit-font-smoothing: antialiased;
-        background-color: $theme-color-primary-darker;
+        background-color: 'primary-darker';
         color: white;
       }
       
@@ -49,39 +49,11 @@
   .usa-header--extended .usa-nav__submenu[aria-expanded="true"] {
     position: relative;
   }
-  .usa-nav__secondary-item {
-    border-top: 1px solid #dcdee0;
-    padding: 0.5rem 1rem;
-    color: $theme-color-base-dark;
-    font-size: 1.06rem;
-    &:hover {
-      background-color: $theme-color-base-lightest;
-      color: $theme-color-primary;
-    }
-        
-    > a:hover {
-      text-decoration: none; // don't underline top-level secondary nav links, but do underline dropdown links
-    }
-  }
   
   .usa-nav__secondary,
   .usa-nav__secondary-links {
     margin-top: 0;
     
-    .usa-accordion__button {
-      background-color: transparent;
-      font-weight: normal;
-      padding: 0;
-      color: $theme-color-base-dark;
-      
-      &[aria-expanded="false"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/plus-alt.svg");
-      }
-
-      &[aria-expanded="true"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/minus-alt.svg");
-      }
-    }
     
     a {
       font-size: 1.06rem;

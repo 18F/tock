@@ -3,12 +3,10 @@ $theme-font-path:          "../../vendor/uswds_v2.3.1/fonts";
 @import "uswds_theme";
 @import "uswds";
 @import "base/base";
-
 @import "banner";
 @import "content";
 @import "entries";
 @import "utils";
-@import "alert";
 @import "header";
 @import "reporting-periods";
 @import "sidebar";
