@@ -148,11 +148,12 @@
 }
 .entry-delete {
   margin-top: 2em;
-  label {
-    @extend .usa-checkbox__label;
-  }
   input[type=checkbox] {
     @extend .usa-checkbox__input;
+  }
+
+  .usa-checkbox {
+    background-color: transparent;
   }
 }
 .entry-note-field textarea {
