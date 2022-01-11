@@ -46,7 +46,7 @@ describe("Timecard", () => {
       expect(checked).toEqual(false);
     });
 
-    test('checks if there is a checkbox image when image is checked', async () => {
+    xtest('checks if there is a checkbox image when image is checked', async () => {
       const entries = await page.$$(".entry");
       const length = entries.length;
       // Find and check the last delete input on the page
