@@ -5,6 +5,7 @@
     "compile-uswds": "npx gulp init",
     "watch-css": "npm run build-css -- --watch",
     "prestart": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --quiet",
+    "start-gulp": "npm run prestart && npx gulp init && npx gulp watch",
     "start": "npm run build-css && npm run watch-css",
     "predeploy": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --silent && npm run build-css",
     "test": "JEST_PORT=8000 jest"

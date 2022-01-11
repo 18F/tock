@@ -30,7 +30,7 @@ services:
       - .:/tock
       - /tock/node_modules
     working_dir: /tock
-    entrypoint: npm start
+    entrypoint: npm run start-gulp
   integration-tests:
     build:
       context: .
