@@ -65,7 +65,7 @@ describe("Timecard", () => {
       });
       expect(background_image).toMatch(/correct8.svg/);;
     });
-    
+
     test('increments the django management form when "Add Item" is clicked', async () => {
       await page.click(".add-timecard-entry");
       const _entries = await page.$$(".entry");
