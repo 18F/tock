@@ -141,7 +141,7 @@ Assuming that goes off without a hitch, you can then either build the CSS in
 one go with:
 
 ```
-npm run build-css
+npm run build-uswds-css
 ```
 
 or start the watch process, which builds new CSS whenever the source Sass files

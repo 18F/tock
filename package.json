@@ -2,10 +2,10 @@
   "private": true,
   "scripts": {
     "build-css": "sass --source-map --load-path ./node_modules/uswds/src/stylesheets tock/tock/static/sass:tock/tock/static/css/dist",
-    "compile-uswds": "npx gulp init",
+    "build-uswds-css": "npx gulp init-no-sass",
     "watch-css": "npm run build-css -- --watch",
     "prestart": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --quiet",
-    "start-gulp": "npm run prestart && npx gulp init && npx gulp watch",
+    "start-gulp": "npm run prestart && npx gulp init-no-sass && npx gulp watch",
     "start": "npm run build-css && npm run watch-css",
     "predeploy": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --silent && npm run build-css",
     "test": "JEST_PORT=8000 jest"
