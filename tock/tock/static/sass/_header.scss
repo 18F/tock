@@ -1,6 +1,8 @@
 // To mimic behavior of primary nav dropdown
 @include at-media($theme-header-min-width) {
   .usa-nav__secondary {
+
+    bottom: 2rem;
     button,
     a {
       padding: 1rem;
@@ -30,7 +32,7 @@
     
     a {
       font-size: 1.06rem;
-      color: $theme-color-base-dark;
+      color: color("base-dark");
     }
     
     .usa-nav__submenu {
