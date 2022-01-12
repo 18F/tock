@@ -22,7 +22,7 @@
     }
     span {
       font-weight: bold;
-      color: $theme-color-secondary-dark;
+      color: color("secondary-dark");
       margin-right: 0.5rem;
     }
   }

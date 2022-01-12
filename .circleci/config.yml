@@ -55,7 +55,7 @@ jobs:
           name: run tests
           command: |
             . .venv/bin/activate
-            npm run build-css
+            npm run build-uswds-css
             cd tock
             python manage.py migrate --noinput --settings=tock.settings.test
             python manage.py test --noinput --settings=tock.settings.test

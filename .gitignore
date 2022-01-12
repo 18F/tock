@@ -73,6 +73,9 @@ tock.sql
 node_modules
 !tock/tock/static/css/dist
 
+#uswds copy over
+tock/tock/static/vendor/uswds_v2.13.0/
+
 tock/VERSION
 
 # vscode stuff

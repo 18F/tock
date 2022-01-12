@@ -1,37 +1,12 @@
 // To mimic behavior of primary nav dropdown
 @include at-media($theme-header-min-width) {
   .usa-nav__secondary {
+
+    bottom: 2rem;
     button,
     a {
       padding: 1rem;
       display: inline-block;
-    }
-    
-    .usa-accordion__button {
-      background-color: transparent;
-      width: auto;
-      font-weight: normal; 
-      color: $theme-color-base;
-      font-size: 0.88rem;
-      background-repeat: no-repeat;
-      background-size: 0.5rem;
-      background-position: right 1rem top 53%;
-      
-      &[aria-expanded="false"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/angle-arrow-down.svg"), linear-gradient(transparent, transparent);
-      }
-
-      &[aria-expanded="true"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/angle-arrow-up-white.svg"), linear-gradient(transparent, transparent);
-        -moz-osx-font-smoothing: grayscale;
-        -webkit-font-smoothing: antialiased;
-        background-color: $theme-color-primary-darker;
-        color: white;
-      }
-      
-      span {
-        padding-right: 1rem;
-      }
     }
 
     .usa-nav__secondary-links .usa-nav__secondary-item {
@@ -49,43 +24,15 @@
   .usa-header--extended .usa-nav__submenu[aria-expanded="true"] {
     position: relative;
   }
-  .usa-nav__secondary-item {
-    border-top: 1px solid #dcdee0;
-    padding: 0.5rem 1rem;
-    color: $theme-color-base-dark;
-    font-size: 1.06rem;
-    &:hover {
-      background-color: $theme-color-base-lightest;
-      color: $theme-color-primary;
-    }
-        
-    > a:hover {
-      text-decoration: none; // don't underline top-level secondary nav links, but do underline dropdown links
-    }
-  }
   
   .usa-nav__secondary,
   .usa-nav__secondary-links {
     margin-top: 0;
     
-    .usa-accordion__button {
-      background-color: transparent;
-      font-weight: normal;
-      padding: 0;
-      color: $theme-color-base-dark;
-      
-      &[aria-expanded="false"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/plus-alt.svg");
-      }
-
-      &[aria-expanded="true"] {
-        background-image: url("../../vendor/uswds_v2.3.1/img/minus-alt.svg");
-      }
-    }
     
     a {
       font-size: 1.06rem;
-      color: $theme-color-base-dark;
+      color: color("base-dark");
     }
     
     .usa-nav__submenu {

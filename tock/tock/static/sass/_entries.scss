@@ -1,12 +1,12 @@
 .entries {
 	.entry:last-child {
-		border-bottom: 2px solid $theme-color-base-light;
+		border-bottom: 2px solid color("base-light");
 	}
 	select {
 		width: 65%;
-		color: $theme-color-base-dark;
+		color: color("base-dark");
 		background-color:transparent;
-		border: 1px solid $theme-color-base-dark;
+		border: 1px solid color("base-dark");
 		transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
 		margin-bottom:0;
     font-size: 19px;
@@ -30,7 +30,7 @@
     margin-bottom: 10px;
 
     .warning {
-        color: $theme-color-secondary;
+        color: color("secondary");
 
         &.bold {
             font-weight: bold;
@@ -70,8 +70,8 @@
 
 
 .entry {
-	border-top: 2px solid $theme-color-base-lighter;
-	background-color: $theme-color-base-lightest;
+	border-top: 2px solid color("base-lighter");
+	background-color: color("base-lightest");
 	padding: 1em;
 
 .grid-container {
@@ -87,13 +87,13 @@
 
     &.odd {
 			.grid-container {
-			background-color: $theme-color-base-lightest;
+			background-color: color("base-lightest");
 }
 
 
         .entry-alerts {
             .warning {
-                color: $theme-color-secondary-dark;
+                color: color("secondary-dark");
             }
 
             .important {
@@ -148,9 +148,11 @@
 }
 .entry-delete {
   margin-top: 2em;
+  background-color: transparent;
   input[type=checkbox] {
     @extend .usa-checkbox__input;
   }
+ 
 }
 
 .usa-checkbox {
@@ -197,7 +199,7 @@
 
     .background {
       fill: none;
-      stroke: $theme-color-accent-cool-lighter;
+      stroke: color("accent-cool-lighter");
       stroke-width: 3;
       transition: stroke-dasharray 0.3s ease-out;
     }
@@ -211,20 +213,20 @@
   }
 
   &.invalid {
-    color: $theme-color-secondary-dark;
+    color: color("secondary-dark");
   }
 
   &.valid {
-    color: $theme-color-success;
+    color: color("success");
   }
 
   display: block;
   position: relative;
-  color: $theme-color-accent-cool-lighter;
+  color: color("accent-cool-lighter");
 }
 
 .entries-total {
-	background: $theme-color-accent-cool-light;
+	background: color("accent-cool-light");
 	padding: 1em;
 	.add-timecard-entry,
 	.entries-total-reported {

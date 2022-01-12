@@ -6,7 +6,7 @@
 // This corresponds to variables set in:
 // https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-typography.scss
 
-$theme-font-type-sans:     "public-sans";
+$theme-font-type-sans:     "source-sans-pro";
 
 // Spacing
 // This corresponds to variables set in:
@@ -18,24 +18,24 @@ $theme-site-margins:       3rem;
 // This corresponds to variables set in:
 // https://github.com/uswds/uswds/blob/develop/src/stylesheets/theme/_uswds-theme-color.scss
 
-$theme-color-base: color('gray-cool-50');
-$theme-color-base-dark: color('gray-cool-60');
-$theme-color-base-light: color('gray-cool-30');
-$theme-color-base-lighter: color('gray-cool-10');
-$theme-color-base-lightest: color('gray-5');
+$theme-color-base: 'gray-cool-50';
+$theme-color-base-dark: 'gray-cool-60';
+$theme-color-base-light: 'gray-cool-30';
+$theme-color-base-lighter: 'gray-cool-10';
+$theme-color-base-lightest: 'gray-5';
 
-$theme-color-primary: color('blue-60v');
-$theme-color-primary-dark: color('blue-warm-70v');
-$theme-color-primary-darker: color('blue-warm-80v');
+$theme-color-primary: 'blue-60v';
+$theme-color-primary-dark: 'blue-warm-70v';
+$theme-color-primary-darker: 'blue-warm-80v';
 
-$theme-color-secondary: color('red-50');
-$theme-color-secondary-dark: color('red-60v');
+$theme-color-secondary: 'red-50';
+$theme-color-secondary-dark: 'red-60v';
 
-$theme-color-accent-cool-darker: color('blue-cool-60v');
-$theme-color-accent-cool-light: color('blue-cool-20v');
-$theme-color-accent-cool-lighter: color('blue-cool-5v');
+$theme-color-accent-cool-darker: 'blue-cool-60v';
+$theme-color-accent-cool-light: 'blue-cool-20v';
+$theme-color-accent-cool-lighter: 'blue-cool-5v';
 
-$theme-color-success: color('green-cool-40v');
+$theme-color-success: 'green-cool-40v';
 
 // Utilities
 // This corresponds to variables set in:

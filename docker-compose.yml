@@ -24,13 +24,13 @@ services:
     environment:
       - POSTGRES_DB=tock
       - POSTGRES_USER=tock_user
-  sass:
+  gulp:
     image: node:14.17.3
     volumes:
       - .:/tock
       - /tock/node_modules
     working_dir: /tock
-    entrypoint: npm start
+    entrypoint: npm run start-gulp
   integration-tests:
     build:
       context: .
