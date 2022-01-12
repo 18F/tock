@@ -15,7 +15,6 @@ $theme-font-path:          "../../vendor/uswds_v2.13.0/fonts";
   position: absolute; // for some reason, USWDS 2.x overrides this to set position as relative, which breaks nav
 }
 
-//test comment --lg 11
 // backwards compat with USWDS 1.x
 li {
   line-height: 1.5;
