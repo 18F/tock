@@ -125,7 +125,7 @@ class FilteredAnalyticsView(LoginRequiredMixin):
         min_date = min_date_result.pop("start_date")
         min_date_uswds = min_date.strftime("%m/%d/%Y")
         min_date_iso = min_date.isoformat()
-        context.update({"min_date": min_date, "min_date_iso": min_date_iso})
+        context.update({"min_date_uswds": min_date_uswds, "min_date_iso": min_date_iso})
 
         # organization choices
         org_choices = [
