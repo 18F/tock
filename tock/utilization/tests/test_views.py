@@ -259,6 +259,24 @@ class TestAnalyticsView(TestGroupUtilizationView):
         )
         self.assertEqual(response.status_code, 200)
 
+    def test_analytics_start_uswds(self):
+        """Specify a USWDS-format date for after."""
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?after=01/01/2020",
+            user=self.user
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_analytics_end_uswds(self):
+        """Specify a USWDS-format date for before."""
+
+        response = self.app.get(
+            url=reverse('utilization:UtilizationAnalyticsView') + "?before=01/01/2020",
+            user=self.user
+        )
+        self.assertEqual(response.status_code, 200)
+
     def test_analytics_all_orgs(self):
         response = self.app.get(
             url=reverse('utilization:UtilizationAnalyticsView') + "?org=0",
