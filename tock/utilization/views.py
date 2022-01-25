@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 from api.views import filter_timecards
 from django.contrib.auth import get_user_model
@@ -60,6 +60,17 @@ class GroupUtilizationView(LoginRequiredMixin, ListView):
 class FilteredAnalyticsView(LoginRequiredMixin):
 
     def get_filter_params(self):
+
+        def _try_fix_dates(parameters):
+            """Fix parameters that don't have ISO-format dates."""
+            for parameter_name in ["after", "before"]:
+                value = parameters[parameter_name]
+                try:
+                    parameters[parameter_name] = datetime.strptime(value, "%m/%d/%Y").date().isoformat()
+                except ValueError:
+                    pass
+            return parameters
+
         # we need a mutable copy of the request parameters so we can add
         # defaults that might not be set
         params = self.request.GET.copy()
@@ -67,13 +78,15 @@ class FilteredAnalyticsView(LoginRequiredMixin):
         # use one year ago as the default start date
         d = date.today()
 
-        # use setdefault here because if these parameters aren't sent, then we
-        # want to add them with these default values so that they will get
-        # used later in filter_timecards
-        params.setdefault("after", d.replace(year=d.year - 10).isoformat())
-        params.setdefault("before", d.isoformat())
+        # change these here because if these parameters aren't sent or are
+        # empty, then we want to add them with these default values so that
+        # they will get used later in filter_timecards
+        if not params.get("after"):
+            params["after"] = d.replace(year=d.year - 10).isoformat()
+        if not params.get("before"):
+            params["before"] = d.isoformat()
 
-        return params
+        return _try_fix_dates(params)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,8 +122,10 @@ class FilteredAnalyticsView(LoginRequiredMixin):
 
         # give a tip about the oldest possible date
         min_date_result = ReportingPeriod.objects.order_by("start_date").values("start_date").first()
-        min_date = min_date_result.pop("start_date").isoformat()
-        context.update({"min_date": min_date})
+        min_date = min_date_result.pop("start_date")
+        min_date_uswds = min_date.strftime("%m/%d/%Y")
+        min_date_iso = min_date.isoformat()
+        context.update({"min_date_uswds": min_date_uswds, "min_date_iso": min_date_iso})
 
         # organization choices
         org_choices = [
