@@ -168,9 +168,12 @@ class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
         context.update(
             {
                 "utilization_data": utilization_data_frame.set_index("start_date"),
-                "utilization_plot": mark_safe(self.add_nonce(utilization_plot(utilization_data_frame),
-                                                   getattr(self.request,
-                                                       "csp_nonce", None))),
+
+                # we use mark_safe intentionally here because we trust that
+                # Plotly is generating safe HTML
+                "utilization_plot":
+                mark_safe(self.add_nonce(utilization_plot(utilization_data_frame), # nosec
+                                         getattr(self.request, "csp_nonce", None))),
             }
         )
 
@@ -183,8 +186,12 @@ class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
                 )
                 .applymap("{:.0f}".format)
                 .replace("nan", ""),
-                "headcount_plot": self.add_nonce(headcount_plot(headcount_data_frame),
-                                                 getattr(self.request, "csp_nonce", None)),
+
+                # we use mark_safe intentionally here because we trust that
+                # Plotly is generating safe HTML
+                "headcount_plot":
+                mark_safe(self.add_nonce(headcount_plot(headcount_data_frame),  #nosec
+                                         getattr(self.request, "csp_nonce", None))),
             }
         )
 
