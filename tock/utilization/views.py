@@ -4,6 +4,7 @@ from api.views import filter_timecards
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
+from django.utils.safestring import mark_safe
 from django.views.generic import ListView, TemplateView
 from hours.models import ReportingPeriod, Timecard
 from organizations.models import Organization, Unit
@@ -58,6 +59,13 @@ class GroupUtilizationView(LoginRequiredMixin, ListView):
 
 
 class FilteredAnalyticsView(LoginRequiredMixin):
+
+    @staticmethod
+    def add_nonce(html_text, nonce):
+        """Add the given nonce to the first script tag in the HTML text."""
+        if nonce:  # nonce might be none if CSP middleware isn't turned on
+            return html_text.replace("<script", f'<script nonce="{nonce}" ', 1)
+        return html_text
 
     def get_filter_params(self):
 
@@ -160,7 +168,12 @@ class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
         context.update(
             {
                 "utilization_data": utilization_data_frame.set_index("start_date"),
-                "utilization_plot": utilization_plot(utilization_data_frame),
+
+                # we use mark_safe intentionally here because we trust that
+                # Plotly is generating safe HTML
+                "utilization_plot":
+                mark_safe(self.add_nonce(utilization_plot(utilization_data_frame), # nosec
+                                         getattr(self.request, "csp_nonce", None))),
             }
         )
 
@@ -173,7 +186,12 @@ class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
                 )
                 .applymap("{:.0f}".format)
                 .replace("nan", ""),
-                "headcount_plot": headcount_plot(headcount_data_frame),
+
+                # we use mark_safe intentionally here because we trust that
+                # Plotly is generating safe HTML
+                "headcount_plot":
+                mark_safe(self.add_nonce(headcount_plot(headcount_data_frame),  #nosec
+                                         getattr(self.request, "csp_nonce", None))),
             }
         )
 

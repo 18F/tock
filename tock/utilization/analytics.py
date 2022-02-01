@@ -106,8 +106,7 @@ def utilization_plot(data_frame):
         ),
     )
 
-    plot_div = plot(fig, output_type="div", include_plotlyjs=False)
-    return plot_div
+    return fig.to_html(include_plotlyjs=False)
 
 
 def utilization_data(timecard_queryset):
@@ -160,8 +159,7 @@ def headcount_plot(data_frame):
     )
     fig.update_traces(hovertemplate="%{y}")
 
-    plot_div = plot(fig, output_type="div", include_plotlyjs=False)
-    return plot_div
+    return fig.to_html(include_plotlyjs=False)
 
 
 def headcount_data(timecard_queryset):
