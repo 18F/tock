@@ -14,9 +14,9 @@ module.exports = {
   launch: {
     args: process.env.IS_DOCKER ? DOCKER_LAUNCH_ARGS : [],
 
-    // When running outside Docker, set `headless: true` to show the browser while tests run.
+    // When running outside Docker, set `headless: false` to show the browser while tests run.
     devtools: false,
-    headless: false,
+    headless: true,
   },
   browserContext: "incognito",
 };

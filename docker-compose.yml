@@ -19,18 +19,21 @@ services:
     ports:
       - "8000:8000"
     command: "python manage.py runserver 0.0.0.0:8000"
+
   db:
     image: postgres:9.6.8
     environment:
       - POSTGRES_DB=tock
       - POSTGRES_USER=tock_user
+
   gulp:
-    image: node:14.17.3
+    image: node:16.15.0
     volumes:
       - .:/tock
       - /tock/node_modules
     working_dir: /tock
     entrypoint: npm run start-gulp
+
   integration-tests:
     build:
       context: .

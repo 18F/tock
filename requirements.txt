@@ -5,17 +5,17 @@
 #    pipenv lock --requirements
 #
 
--i https://pypi.python.org/simple/
-asgiref==3.5.0; python_version >= '3.7'
-beautifulsoup4==4.10.0; python_version >= '3.1'
-bleach==4.1.0
+-i https://pypi.python.org/simple
+asgiref==3.5.1; python_full_version >= '3.7.0'
+beautifulsoup4==4.11.1; python_version >= '3.6'
+bleach==5.0.0
 certifi==2021.10.8
 cfenv==0.5.3
 cg-django-uaa==2.1.3
-charset-normalizer==2.0.11; python_version >= '3'
+charset-normalizer==2.0.12; python_version >= '3'
 dj-database-url==0.5.0
 django-csp==3.7
-django-webtest==1.9.9
+django-webtest==1.9.10
 django==3.2.13
 djangorestframework-csv==2.1.1
 djangorestframework==3.13.1
@@ -24,32 +24,28 @@ gevent==21.12.0
 greenlet==1.1.2; platform_python_implementation == 'CPython'
 gunicorn==20.1.0
 idna==3.3; python_version >= '3'
-importlib-metadata==4.10.1; python_version < '3.10'
 markdown==3.3.6
-newrelic==7.2.4.171
-numpy==1.22.2; python_version < '3.10' and platform_machine != 'aarch64' and platform_machine != 'arm64'
+newrelic==7.10.0.175
+numpy==1.22.3; python_version >= '3.10'
 orderedmultidict==1.0.1
-packaging==21.3; python_full_version >= '3.6.0'
-pandas==1.3.5
-plotly==5.5.0
+pandas==1.4.2
+plotly==5.7.0
 psycopg2-binary==2.9.3
 pyjwt==1.7.1
-pyparsing==3.0.7; python_full_version >= '3.6.0'
-python-dateutil==2.8.2; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
-pytz==2021.3
+python-dateutil==2.8.2; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'
+pytz==2022.1
 requests==2.27.1; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'
-setuptools==60.8.2; python_version >= '3.7'
-six==1.16.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
-soupsieve==2.3.1; python_full_version >= '3.6.0'
+setuptools==62.1.0; python_full_version >= '3.7.0'
+six==1.16.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'
+soupsieve==2.3.2.post1; python_version >= '3.6'
 sqlparse==0.4.2; python_version >= '3.5'
-tenacity==8.0.1; python_full_version >= '3.6.0'
+tenacity==8.0.1; python_version >= '3.6'
 unicodecsv==0.14.1
-urllib3==1.26.8; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'
-waitress==2.0.0; python_full_version >= '3.6.0'
+urllib3==1.26.9; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'
+waitress==2.1.1; python_full_version >= '3.7.0'
 webencodings==0.5.1
-webob==1.8.7; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
-webtest==3.0.0; python_version < '4' and python_full_version >= '3.6.0'
-whitenoise==5.3.0
-zipp==3.7.0; python_version >= '3.7'
+webob==1.8.7; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'
+webtest==3.0.0; python_version >= '3.6' and python_version < '4'
+whitenoise==6.0.0
 zope.event==4.5.0
 zope.interface==5.4.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
