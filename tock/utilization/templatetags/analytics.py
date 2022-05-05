@@ -20,7 +20,7 @@ def frame_table(frame, name_hint):
             <div class="grid-row">
                 <button
                     class="usa-button usa-button--base float-right margin-bottom-1"
-                    onclick="download_table_as_csv('{generated_id}-table', '{name_hint}')"
+                    data-csv data-csv-id="{generated_id}" data-csv-name="{name_hint}"
                 >Export CSV</button>
             </div>
             <div class="usa-table-container--scrollable grid-row" tabindex=0>
