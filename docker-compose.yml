@@ -10,7 +10,7 @@ services:
     entrypoint: python /tock/docker_entrypoint.py
     environment:
       - PYTHONUNBUFFERED=yup
-      - DATABASE_URL=postgres://tock_user@db/tock
+      - DATABASE_URL=postgres://tock_user:tock_password@db/tock
       - RUNNING_IN_DOCKER=yup
       - DJANGO_SETTINGS_MODULE=tock.settings.dev
       # - NEW_RELIC_LICENSE_KEY=get-from-vcap-user-provided-service (not to be used for local development)
@@ -21,10 +21,11 @@ services:
     command: "python manage.py runserver 0.0.0.0:8000"
 
   db:
-    image: postgres:9.6.8
+    image: postgres:12.8
     environment:
       - POSTGRES_DB=tock
       - POSTGRES_USER=tock_user
+      - POSTGRES_PASSWORD=tock_password
 
   gulp:
     image: node:16.15.0
