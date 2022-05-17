@@ -1,6 +1,6 @@
 ---
 applications:
-- name: tock
+- name: tock-staging
   buildpack: python_buildpack
   memory: 512M
   path: .
