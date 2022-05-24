@@ -98,7 +98,7 @@ jobs:
           command: echo ${CIRCLE_SHA1} > tock/VERSION
       - run:
           name: Deploying Tock Staging to cloud.gov
-          command: cf7 push tock --strategy rolling -f ${CF_MANIFEST}
+          command: cf7 push tock-staging --strategy rolling -f ${CF_MANIFEST}
 
   deploy_to_production:
     docker:
