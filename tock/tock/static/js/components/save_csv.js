@@ -18,7 +18,7 @@ window.addEventListener('DOMContentLoaded', function () {
             var filename_prefix = button.getAttribute('data-csv-name');
 
             button.addEventListener('click', function () {
-                download_table_as_csv(table_id + "-table", filename_prefix);
+                download_table_as_csv(table_id, filename_prefix);
             });
         })();
     }
