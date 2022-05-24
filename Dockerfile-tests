@@ -2,7 +2,7 @@
 # for local development. It is based on the Docker image used to run the tests
 # in CI. If you update this FROM statement, please _also_ update the image
 # referenced in .circleci/config.yml.
-FROM cimg/python:3.10.1-browsers
+FROM cimg/python:3.10-browsers
 
 # This COPY/RUN block serves two purposes:
 #  1. Seed the npm cache inside the Docker image
