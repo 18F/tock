@@ -241,14 +241,6 @@
             "markers": "python_version >= '3.5'",
             "version": "==3.3"
         },
-        "importlib-metadata": {
-            "hashes": [
-                "sha256:637245b8bab2b6502fcbc752cc4b7a6f6243bb02b31c5c26156ad103d3d45670",
-                "sha256:7401a975809ea1fdc658c3aa4f78cc2195a0e019c5cbc4c06122884e9ae80c23"
-            ],
-            "markers": "python_version < '3.10'",
-            "version": "==4.12.0"
-        },
         "markdown": {
             "hashes": [
                 "sha256:08fb8465cffd03d10b9dd34a5c3fea908e20391a2a90b88d66362cb05beed186",
@@ -303,7 +295,7 @@
                 "sha256:d748ef349bfef2e1194b59da37ed5a29c19ea8d7e6342019921ba2ba4fd8b624",
                 "sha256:e0d7447679ae9a7124385ccf0ea990bb85bb869cef217e2ea6c844b6a6855073"
             ],
-            "markers": "python_version < '3.10' and platform_machine != 'aarch64' and platform_machine != 'arm64'",
+            "markers": "python_version >= '3.10'",
             "version": "==1.23.1"
         },
         "orderedmultidict": {
@@ -533,14 +525,6 @@
             ],
             "index": "pypi",
             "version": "==6.2.0"
-        },
-        "zipp": {
-            "hashes": [
-                "sha256:05b45f1ee8f807d0cc928485ca40a07cb491cf092ff587c0df9cb1fd154848d2",
-                "sha256:47c40d7fe183a6f21403a199b3e4192cca5774656965b0a4988ad2f8feb5f009"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==3.8.1"
         },
         "zope.event": {
             "hashes": [
