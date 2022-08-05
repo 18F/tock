@@ -5,18 +5,18 @@
 #    pipenv lock --requirements
 #
 
--i https://pypi.python.org/simple/
+-i https://pypi.python.org/simple
 asgiref==3.5.2; python_version >= '3.7'
 beautifulsoup4==4.11.1; python_version >= '3.6'
-bleach==5.0.0
+bleach==5.0.1
 certifi==2022.6.15; python_version >= '3.6'
 cfenv==0.5.3
 cg-django-uaa==2.1.3
 charset-normalizer==2.1.0; python_version >= '3.6'
-dj-database-url==0.5.0
+dj-database-url==1.0.0
 django-csp==3.7
 django-webtest==1.9.10
-django==3.2.14
+django==3.2.15
 djangorestframework-csv==2.1.1
 djangorestframework==3.13.1
 furl==2.1.3
@@ -24,28 +24,28 @@ gevent==21.12.0
 greenlet==1.1.2; platform_python_implementation == 'CPython'
 gunicorn==20.1.0
 idna==3.3; python_version >= '3.5'
-markdown==3.3.7
-newrelic==7.10.0.175
-numpy==1.23.0; python_version >= '3.10'
+markdown==3.4.1
+newrelic==7.16.0.178
+numpy==1.23.1; python_version >= '3.10'
 orderedmultidict==1.0.1
-pandas==1.4.2
-plotly==5.8.0
+pandas==1.4.3
+plotly==5.9.0
 psycopg2-binary==2.9.3
 pyjwt==1.7.1
 python-dateutil==2.8.2; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 pytz==2022.1
 requests==2.28.1; python_version >= '3.7' and python_version < '4'
-setuptools==63.1.0; python_version >= '3.7'
+setuptools==63.4.1; python_version >= '3.7'
 six==1.16.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 soupsieve==2.3.2.post1; python_version >= '3.6'
 sqlparse==0.4.2; python_version >= '3.5'
 tenacity==8.0.1; python_version >= '3.6'
 unicodecsv==0.14.1
-urllib3==1.26.9; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'
+urllib3==1.26.11; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5' and python_version < '4'
 waitress==2.1.2; python_version >= '3.7'
 webencodings==0.5.1
 webob==1.8.7; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 webtest==3.0.0; python_version >= '3.6' and python_version < '4'
-whitenoise==6.1.0
+whitenoise==6.2.0
 zope.event==4.5.0
 zope.interface==5.4.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
