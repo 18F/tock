@@ -15,7 +15,7 @@ With pipenv installed locally, you can update development and production depende
 
 ```sh
 pipenv update --dev
-pipenv lock --requirements > requirements.txt
+pipenv requirements | sort > requirements.txt
 ```
 
 Within the `app` docker container, the approach is slightly different due to the volumes and working_dir set in `docker-compose.yml`.
