@@ -19,6 +19,8 @@ To fetch a list of all submitted timecards and related information.
    - `date=YYYY-MM-DD` — Returns timecard data for the reporting period in which the YYYY-MM-DD value falls.
    - `user=firstname.lastname` — Returns timecard data for the specified user.
    - `project=id` or `project=name` — Returns timecard data for the specified project by either the project's database `pk` value or the project's `name` value.
+   - `before=YYYY-MM-DD` - Returns timecard data that occurred before the provided date.
+   - `after=YYYY-MM-DD` - Returns timecard data that occurred after the provided date.
 
 * **Success response:**
 
