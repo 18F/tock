@@ -1,5 +1,6 @@
-from django.db.models import Count, F, Q, Sum
+from django.db.models import Count, F, Q, Sum, OuterRef, Subquery
 
+from hours.models import TimecardObject
 import pandas as pd
 
 import plotly.graph_objects as go
@@ -112,7 +113,7 @@ def utilization_plot(data_frame):
 def utilization_data(timecard_queryset):
     """Get a data frame of utilization data.
 
-    Has start_date, billable, and nonbillable columns.
+    Has start_date, billable, nonbillable, and allocation columns.
     """
     data = (
         timecard_queryset
@@ -121,6 +122,9 @@ def utilization_data(timecard_queryset):
             billable=Sum("billable_hours"),
             non_billable=Sum("non_billable_hours"),
             excluded=Sum("excluded_hours"),
+            project_allocation=Subquery(
+                TimecardObject.objects.filter(timecard=OuterRef('pk'))
+                .values('project_allocation')[:1])
         )
         .filter(billable__isnull=False)
         .order_by("start_date")
