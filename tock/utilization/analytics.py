@@ -16,6 +16,10 @@ def compute_utilization(data_frame):
     ).astype(float)
 
 
+def compute_weekly_allocation(data_frame):
+    return data_frame["project_allocation"].astype(float) / 100
+
+
 def _get_org_query(org_id):
     # short circuit this one first
     if org_id is None:
@@ -76,12 +80,23 @@ def utilization_plot(data_frame):
     )
 
     utilization_fraction = compute_utilization(data_frame)
+    project_allocation_fraction = compute_weekly_allocation(data_frame)
     fig.add_trace(
         go.Scatter(
             x=data_frame["start_date"],
             y=utilization_fraction * 100,
             name="Utilization Rate",
             hovertext=(utilization_fraction * 100).map("{:,.1f}%".format),
+        ),
+        row=1,
+        col=1,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=data_frame["start_date"],
+            y=project_allocation_fraction * 100,
+            name="Weekly Allocation",
+            hovertext=(project_allocation_fraction * 100).map("{:,.1f}%".format),
         ),
         row=1,
         col=1,
@@ -113,7 +128,7 @@ def utilization_plot(data_frame):
 def utilization_data(timecard_queryset):
     """Get a data frame of utilization data.
 
-    Has start_date, billable, nonbillable, and allocation columns.
+    Has start_date, billable, nonbillable, and project_allocation columns.
     """
     data = (
         timecard_queryset
@@ -122,17 +137,20 @@ def utilization_data(timecard_queryset):
             billable=Sum("billable_hours"),
             non_billable=Sum("non_billable_hours"),
             excluded=Sum("excluded_hours"),
-            project_allocation=Subquery(
-                TimecardObject.objects.filter(timecard=OuterRef('pk'))
+            project_allocation=Sum(Subquery(
+                TimecardObject.objects
+                .filter(timecard=OuterRef('pk'))
                 .values('project_allocation')[:1])
+            ),
         )
         .filter(billable__isnull=False)
         .order_by("start_date")
     )
+
     frame = pd.DataFrame.from_records(data)
     if len(frame) == 0:
         # data frame is empty, lets ensure it has the right columns
-        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "excluded"])
+        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "excluded", "project_allocation"])
     return frame
 
 
