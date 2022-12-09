@@ -1,12 +1,12 @@
 from datetime import date, datetime
 
-from api.views import filter_timecards
+from api.views import filter_timecards, get_timecardobjects
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import F
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, TemplateView
-from hours.models import ReportingPeriod, Timecard
+from hours.models import ReportingPeriod, Timecard, TimecardObject
 from organizations.models import Organization, Unit
 
 from .analytics import (compute_utilization, headcount_data, headcount_plot,
