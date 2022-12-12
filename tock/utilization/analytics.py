@@ -1,4 +1,4 @@
-from django.db.models import Count, F, Q, Sum, OuterRef, Subquery
+from django.db.models import Count, F, Q, Sum
 from django.conf import settings
 
 from hours.models import TimecardObject
