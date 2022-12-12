@@ -1,4 +1,5 @@
 from django.db.models import Count, F, Q, Sum, OuterRef, Subquery
+from django.conf import settings
 
 from hours.models import TimecardObject
 import pandas as pd
@@ -17,7 +18,29 @@ def compute_utilization(data_frame):
 
 
 def compute_weekly_allocation(data_frame):
-    return data_frame["project_allocation"].astype(float) / 100
+    return data_frame["project_allocation"].astype(float)
+
+
+def get_allocation_hours_by_date(timecard_queryset):
+    # get all timecard objects from the timecard queryset
+    # sum the weekly allocation for each timecard
+    # multiple the total weekly allocation per time card then multiple by FULLTIME_ALLOCATION_HOURS
+    # sum all total weekly allocation sums together for a total sum of weekly allocation hours
+    total_hours_by_date = {}
+    for tc in timecard_queryset:
+        timecardobjs = tc.timecardobjects.all()
+        total_timecard_allocation_percentage = 0.00
+        # have to loop through all timecard objects to get sum of weekly allocation per project
+        # e.g. Account Managers may bill 12.5% to up to 8 different projects
+        # for a total of 100% billable time (or 32 hours)
+        for tco in timecardobjs:
+            if tco.project_allocation > 0:
+                total_timecard_allocation_percentage += float(tco.project_allocation)
+        if tc.reporting_period.start_date not in total_hours_by_date:
+            total_hours_by_date[tc.reporting_period.start_date] = settings.FULLTIME_ALLOCATION_HOURS * total_timecard_allocation_percentage
+        else:
+            total_hours_by_date[tc.reporting_period.start_date] += (settings.FULLTIME_ALLOCATION_HOURS * total_timecard_allocation_percentage)
+    return total_hours_by_date
 
 
 def _get_org_query(org_id):
@@ -133,19 +156,9 @@ def utilization_data(timecard_queryset):
     # Get related timecardobjects and sum project_allocation per timecard and correlate that % with
     # the constant PROJECT_ALLOCATION_HOURS
     # then sum all of those hours per billing period (week) and munge into the utilization_data_frame below
-    total_allocation_hours_by_date = {}
-    for tc in timecard_queryset:
-        timecardobjs = tc.timecardobjects.all()
-        total_timecard_allocation_percentage = 0.00
-        for tco in timecardobjs:
-            if tco.project_allocation > 0:
-                total_timecard_allocation_percentage += float(tco.project_allocation)
-        if tc.reporting_period.start_date not in total_allocation_hours_by_date:
-            total_allocation_hours_by_date[tc.reporting_period.start_date] = 32 * total_timecard_allocation_percentage
-        else:
-            total_allocation_hours_by_date[tc.reporting_period.start_date] += (32 * total_timecard_allocation_percentage)
+    weekly_allocation_hours_by_date = get_allocation_hours_by_date(timecard_queryset)
+    print(weekly_allocation_hours_by_date)
     
-    print(total_allocation_hours_by_date)
     data = (
         timecard_queryset
         .values(start_date=F("reporting_period__start_date"))
@@ -153,11 +166,6 @@ def utilization_data(timecard_queryset):
             billable=Sum("billable_hours"),
             non_billable=Sum("non_billable_hours"),
             excluded=Sum("excluded_hours"),
-            project_allocation=Sum(Subquery(
-                TimecardObject.objects
-                .filter(timecard=OuterRef('pk'))
-                .values('project_allocation')[:1])
-            ),
         )
         .filter(billable__isnull=False)
         .order_by("start_date")
