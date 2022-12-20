@@ -12,14 +12,14 @@ def calculate_total_weekly_allocation(apps, schema_editor):
         timecardobjs = tc.timecardobjects.all()
         if len(timecardobjs) == 0:
             continue
-        total_allocation_percentage = 0.00
+        total_weekly_allocation = 0.00
         # have to loop through all timecard objects to get sum of weekly allocation per timecard
         # e.g. Account Managers may bill 12.5% to up to 8 different projects
         # for a total of 100% billable time (or 32 hours)
         for tco in timecardobjs:
-            total_allocation_percentage += float(tco.project_allocation)
-        tc.total_allocation_percentage = total_allocation_percentage
-        tc.total_allocation_hours = total_allocation_percentage * settings.FULLTIME_ALLOCATION_HOURS
+            total_weekly_allocation += float(tco.project_allocation)
+        tc.total_weekly_allocation = total_weekly_allocation
+        tc.total_allocation_hours = total_weekly_allocation * settings.FULLTIME_ALLOCATION_HOURS
 
 
 class Migration(migrations.Migration):
