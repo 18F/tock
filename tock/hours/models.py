@@ -264,7 +264,7 @@ class Timecard(models.Model):
 
     total_weekly_allocation = models.DecimalField(decimal_places=5, max_digits=6, null=True, blank=True, editable=False,
                                                 verbose_name="total weekly allocation %, sum of project_allocation from related timecardobjects")
-    total_allocation_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False, 
+    total_allocation_hours = models.DecimalField(decimal_places=2, max_digits=5, null=True, blank=True, editable=False,
                                                 verbose_name="# of hours which are calculated from weekly allocation %")
 
     class Meta:

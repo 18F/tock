@@ -1,7 +1,4 @@
 from django.db.models import Count, F, Q, Sum
-from django.conf import settings
-
-from hours.models import TimecardObject
 import pandas as pd
 
 import plotly.graph_objects as go
