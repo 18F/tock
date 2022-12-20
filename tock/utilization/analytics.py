@@ -14,10 +14,6 @@ def compute_utilization(data_frame):
     ).astype(float)
 
 
-def compute_weekly_allocation(data_frame):
-    return data_frame["project_allocation"].astype(float)
-
-
 def _get_org_query(org_id):
     # short circuit this one first
     if org_id is None:
@@ -115,7 +111,7 @@ def utilization_plot(data_frame):
 def utilization_data(timecard_queryset):
     """Get a data frame of utilization data.
 
-    Has start_date, billable, nonbillable, and project_allocation columns.
+    Has start_date, billable and nonbillable columns.
     """
     data = (
         timecard_queryset
@@ -128,7 +124,6 @@ def utilization_data(timecard_queryset):
         .filter(billable__isnull=False)
         .order_by("start_date")
     )
-    print("data", data)
     frame = pd.DataFrame.from_records(data)
     if len(frame) == 0:
         # data frame is empty, lets ensure it has the right columns
