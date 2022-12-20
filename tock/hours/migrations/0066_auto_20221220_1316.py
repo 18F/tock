@@ -5,7 +5,7 @@ from django.conf import settings
 
 
 def calculate_total_weekly_allocation(apps, schema_editor):
-    Timecard = apps.get_model('timecards', 'Timecard')
+    Timecard = apps.get_model('hours', 'Timecard')
     timecards = Timecard.objects.all()
 
     for tc in timecards:
