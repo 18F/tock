@@ -21,34 +21,6 @@ def compute_weekly_allocation(data_frame):
     return data_frame["project_allocation"].astype(float)
 
 
-def get_allocation_hours_by_date(timecard_queryset):
-    # get all timecard objects from the timecard queryset
-    # sum the weekly allocation for each timecard
-    # then multiply by FULLTIME_ALLOCATION_HOURS
-    # sum all total weekly allocation sums together for an overall sum of weekly allocation hours
-    total_hours_by_date = {}
-    for tc in timecard_queryset:
-        timecardobjs = tc.timecardobjects.all().values()
-        if len(timecardobjs) == 0:
-            continue
-        total_allocation_percentage = 0.00
-        # have to loop through all timecard objects to get sum of weekly allocation per timecard
-        # e.g. Account Managers may bill 12.5% to up to 8 different projects
-        # for a total of 100% billable time (or 32 hours)
-        for tco in timecardobjs:
-            if tco["project_allocation"] > 0:
-                total_allocation_percentage += float(tco["project_allocation"])
-        
-        start_date = tc.reporting_period.start_date
-        if start_date not in total_hours_by_date:
-            total_hours_by_date[start_date] = settings.FULLTIME_ALLOCATION_HOURS * total_allocation_percentage
-        else:
-            total_hours_by_date[start_date] += (settings.FULLTIME_ALLOCATION_HOURS * total_allocation_percentage)
-    
-    print("total hours by date", total_hours_by_date)
-    # return total_hours_by_date
-
-
 def _get_org_query(org_id):
     # short circuit this one first
     if org_id is None:
@@ -109,23 +81,12 @@ def utilization_plot(data_frame):
     )
 
     utilization_fraction = compute_utilization(data_frame)
-    project_allocation_fraction = compute_weekly_allocation(data_frame)
     fig.add_trace(
         go.Scatter(
             x=data_frame["start_date"],
             y=utilization_fraction * 100,
             name="Utilization Rate",
             hovertext=(utilization_fraction * 100).map("{:,.1f}%".format),
-        ),
-        row=1,
-        col=1,
-    )
-    fig.add_trace(
-        go.Scatter(
-            x=data_frame["start_date"],
-            y=project_allocation_fraction * 100,
-            name="Weekly Allocation",
-            hovertext=(project_allocation_fraction * 100).map("{:,.1f}%".format),
         ),
         row=1,
         col=1,
@@ -159,7 +120,6 @@ def utilization_data(timecard_queryset):
 
     Has start_date, billable, nonbillable, and project_allocation columns.
     """
-    weekly_allocation_hours_by_date = get_allocation_hours_by_date(timecard_queryset)
     data = (
         timecard_queryset
         .values(start_date=F("reporting_period__start_date"))
@@ -175,7 +135,7 @@ def utilization_data(timecard_queryset):
     frame = pd.DataFrame.from_records(data)
     if len(frame) == 0:
         # data frame is empty, lets ensure it has the right columns
-        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "excluded", "project_allocation"])
+        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "excluded"])
     return frame
 
 
