@@ -111,7 +111,7 @@ def utilization_plot(data_frame):
 def utilization_data(timecard_queryset):
     """Get a data frame of utilization data.
 
-    Has start_date, billable and nonbillable columns.
+    Has start_date, billable, and nonbillable columns.
     """
     data = (
         timecard_queryset
