@@ -319,6 +319,17 @@ class Timecard(models.Model):
         this_weeks_target = round(self.billable_expectation * self.calculate_utilization_denominator(), 0)
         return min(this_weeks_target, self.max_target_hours())
 
+    def calculate_total_weekly_allocation(self):
+        """
+        Loops through related time card objects and sums total 
+        weekly allocation percentage
+        """
+        timecardobjs = self.timecardobjects.all()
+        total_weekly_allocation = 0.00
+        for tco in timecardobjs:
+            total_weekly_allocation += float(tco.project_allocation)
+        return total_weekly_allocation
+
     def calculate_utilization(self):
         if self.target_hours == 0:
             return None
@@ -338,12 +349,13 @@ class Timecard(models.Model):
         non_billable = Coalesce(Sum('timecardobjects__hours_spent', filter=non_billable_filter), Decimal('0'))
         excluded = Coalesce(Sum('timecardobjects__hours_spent', filter=excluded_filter), Decimal('0'))
 
-
         timecard = Timecard.objects.filter(id=self.id).annotate(billable=billable).annotate(non_billable=non_billable).annotate(excluded=excluded)[0]
 
         self.billable_hours = round(timecard.billable, 2)
         self.non_billable_hours = round(timecard.non_billable, 2)
         self.excluded_hours = round(timecard.excluded, 2)
+        self.total_weekly_allocation = self.calculate_total_weekly_allocation()
+        self.total_allocation_hours = settings.FULLTIME_ALLOCATION_HOURS * self.total_weekly_allocation
 
         self.target_hours = self.calculate_target_hours()
         self.utilization = self.calculate_utilization()
