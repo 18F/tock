@@ -20,6 +20,7 @@ def calculate_total_weekly_allocation(apps, schema_editor):
             total_weekly_allocation += float(tco.project_allocation)
         tc.total_weekly_allocation = total_weekly_allocation
         tc.total_allocation_hours = total_weekly_allocation * settings.FULLTIME_ALLOCATION_HOURS
+        tc.save()
 
 
 class Migration(migrations.Migration):

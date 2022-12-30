@@ -120,6 +120,7 @@ def utilization_data(timecard_queryset):
             billable=Sum("billable_hours"),
             non_billable=Sum("non_billable_hours"),
             excluded=Sum("excluded_hours"),
+            allocation_hours=Sum("total_allocation_hours")
         )
         .filter(billable__isnull=False)
         .order_by("start_date")
