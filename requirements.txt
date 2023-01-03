@@ -2,7 +2,7 @@
 asgiref==3.5.2; python_version >= '3.7'
 beautifulsoup4==4.11.1; python_version >= '3.6'
 bleach==5.0.1
-certifi==2022.6.15; python_version >= '3.6'
+certifi==2022.12.7; python_version >= '3.6'
 cfenv==0.5.3
 cg-django-uaa==2.1.4
 charset-normalizer==2.1.1; python_version >= '3.6'
