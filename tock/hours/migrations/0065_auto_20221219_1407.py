@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='timecard',
             name='total_allocation_hours',
-            field=models.DecimalField(blank=True, decimal_places=2, editable=False, max_digits=5, null=True, verbose_name='# of hours which are calculated from weekly allocation %'),
+            field=models.DecimalField(blank=True, decimal_places=2, editable=False, max_digits=5, default=0, verbose_name='# of hours which are calculated from weekly allocation %'),
         ),
         migrations.AddField(
             model_name='timecard',
             name='total_weekly_allocation',
-            field=models.DecimalField(blank=True, decimal_places=5, editable=False, max_digits=6, null=True, verbose_name='total weekly allocation %, sum of project_allocation from related timecardobjects'),
+            field=models.DecimalField(blank=True, decimal_places=5, editable=False, max_digits=6, default=0, verbose_name='total weekly allocation %, sum of project_allocation from related timecardobjects'),
         ),
     ]
