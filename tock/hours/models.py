@@ -321,7 +321,7 @@ class Timecard(models.Model):
 
     def calculate_total_weekly_allocation(self):
         """
-        Loops through related time card objects and sums total 
+        Loops through related time card objects and sums total
         weekly allocation percentage
         """
         timecardobjs = self.timecardobjects.all()
