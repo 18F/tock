@@ -1,5 +1,4 @@
 from django.db.models import Count, F, Q, Sum
-
 import pandas as pd
 
 import plotly.graph_objects as go
@@ -10,8 +9,8 @@ from plotly.offline import plot
 
 def compute_utilization(data_frame):
     """Compute utilization percentage from a DataFrame with billable and non_billable columns."""
-    return data_frame["billable"].astype(float) / (
-        data_frame["non_billable"] + data_frame["billable"]
+    return ( data_frame["billable"] + data_frame["allocation_hours"] ).astype(float) / (
+        data_frame["non_billable"] + data_frame["billable"] + data_frame["allocation_hours"]
     ).astype(float)
 
 
@@ -28,7 +27,7 @@ def _get_org_query(org_id):
 def utilization_plot(data_frame):
     """Make a stacked area plot of billable and nonbillable hours.
 
-    data_frame has start_date, billable, and non_billable columns
+    data_frame has start_date, billable, non_billable, and allocation_hours columns
     """
     fig = make_subplots(
         rows=2,
@@ -44,7 +43,19 @@ def utilization_plot(data_frame):
             y=data_frame["billable"],
             line_shape="hv",
             stackgroup="only",
-            name="Billable",
+            name="Hourly Billable",
+        ),
+        row=2,
+        col=1,
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=data_frame["start_date"],
+            y=data_frame["allocation_hours"],
+            line_shape="hv",
+            stackgroup="only",
+            name="Weekly Allocation",
         ),
         row=2,
         col=1,
@@ -61,6 +72,7 @@ def utilization_plot(data_frame):
         row=2,
         col=1,
     )
+
 
     fig.add_trace(
         go.Scatter(
@@ -112,7 +124,7 @@ def utilization_plot(data_frame):
 def utilization_data(timecard_queryset):
     """Get a data frame of utilization data.
 
-    Has start_date, billable, and nonbillable columns.
+    Has start_date, billable, nonbillable, and allocation_hours columns.
     """
     data = (
         timecard_queryset
@@ -121,6 +133,7 @@ def utilization_data(timecard_queryset):
             billable=Sum("billable_hours"),
             non_billable=Sum("non_billable_hours"),
             excluded=Sum("excluded_hours"),
+            allocation_hours=Sum("total_allocation_hours")
         )
         .filter(billable__isnull=False)
         .order_by("start_date")
@@ -128,7 +141,7 @@ def utilization_data(timecard_queryset):
     frame = pd.DataFrame.from_records(data)
     if len(frame) == 0:
         # data frame is empty, lets ensure it has the right columns
-        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "excluded"])
+        frame = pd.DataFrame(columns=["start_date", "billable", "non_billable", "allocation_hours", "excluded"])
     return frame
 
 
