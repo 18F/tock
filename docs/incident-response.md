@@ -12,3 +12,16 @@ If, as a member of the Tock dev team, you need to respond to an incident reporte
 1. Open an issue in GitHub to track the response to the incident. Label it "investigating."
 
 1. Follow the [cloud.gov security response process](https://cloud.gov/docs/ops/security-ir-checklist/), updating the GitHub issue as appropriate.
+
+## CircleCI
+
+CircleCI secrets (stored in environment variables) correspond to cloud.gov [service keys](https://docs.cloudfoundry.org/devguide/services/service-keys.html).
+
+To rotate these secrets, it is necessary to re-create the service keys and then update the CircleCI environment variables with the new values:
+
+- `cf delete-service-key service-account-$env-tock service-key-$env-tock`
+- `cf create-service-key service-account-$env-tock service-key-$env-tock`
+- Update these environment variables using the CircleCI project settings page:
+  - `CF_DEPLOYER_USERNAME_$env` and `CF_DEPLOYER_PASSWORD_$env`
+
+(where `$env` is the name of the deployment environment)
