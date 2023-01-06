@@ -104,21 +104,8 @@ class TimecardSerializer(serializers.Serializer):
         source='project.accounting_code.flat_rate'
     )
     notes = serializers.CharField()
-    revenue_profit_loss_account = serializers.CharField(
-        source='revenue_profit_loss_account.accounting_string',
-        allow_null=True
-    )
-    revenue_profit_loss_account_name = serializers.CharField(
-        source='revenue_profit_loss_account.name',
-        allow_null=True
-    )
-    expense_profit_loss_account = serializers.CharField(
-        source='expense_profit_loss_account.accounting_string',
-        allow_null=True
-    )
-    expense_profit_loss_account_name = serializers.CharField(
-        source='expense_profit_loss_account.name',
-        allow_null=True
+    billable_expectation = serializers.CharField(
+        source='timecard.billable_expectation'
     )
     employee_organization = serializers.CharField(
         source='timecard.user.user_data.organization_name'
