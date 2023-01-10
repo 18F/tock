@@ -2,7 +2,7 @@
 applications:
 - name: tock
   buildpack: python_buildpack
-  memory: 2048
+  memory: 2048M
   path: .
   stack: cflinuxfs3
   timeout: 180
