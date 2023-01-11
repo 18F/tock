@@ -481,3 +481,10 @@ class FullTimecardsAPITests(WebTest):
             {'date': 'N0T-A-D8'}
         )
         self.assertEqual(res.status_code, 400)
+
+    def test_billable_expectation_is_present(self):
+        date_to_filter_on = '2016-01-01'
+        res = client().get(
+            reverse('FullTimecardList'), {'after': date_to_filter_on}
+        ).data
+        self.assertTrue('billable_expectation' in res[0].keys())
