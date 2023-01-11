@@ -2,7 +2,7 @@
 applications:
 - name: tock
   buildpack: python_buildpack
-  memory: 2048M
+  memory: 1024M
   path: .
   stack: cflinuxfs3
   timeout: 180
@@ -14,7 +14,7 @@ applications:
     NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
     NEW_RELIC_ENV: production
     NEW_RELIC_LOG: stdout
-  instances: 2
+  instances: 4
   services:
   - tockdb
   - tock-credentials
