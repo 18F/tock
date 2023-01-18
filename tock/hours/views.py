@@ -764,6 +764,7 @@ def ReportingPeriodCSVView(request, reporting_period):
         'User',
         'Project',
         'Number of Hours',
+        'Weekly Allocation Hours',
         'Employee Organization',
         'Project Organization',
     ])
