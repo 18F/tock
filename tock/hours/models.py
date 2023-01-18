@@ -578,6 +578,7 @@ class TimecardObject(models.Model):
             self.timecard.user.username,
             self.project,
             self.hours_spent,
+            self.timecard.total_allocation_hours,
             self.timecard.user.user_data.organization_name,
             self.project.organization_name
         ]
