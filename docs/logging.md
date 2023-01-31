@@ -130,6 +130,8 @@ search for:
 ```
 @cf.app:"tock" AND ((@message:"tock-auth" AND @message:"Creating User for") OR @message:"Unsuccessful login" OR @message:"account-management" OR @message:"admin-log" OR @message:"Updated app with guid")
 ```
+![A screenshot of the logging system is provided, with the red mark indicating the location where the query should be set.](./screenshots/log-system-screenshot-2023-01-31.png)
+
 
 Make sure you set your time range to the last 7 days or more.  This should get you a list
 of events for the last week that you can review for signs of unusual activity.  The events are:
