@@ -9,7 +9,7 @@ charset-normalizer==2.1.1; python_version >= '3.6'
 dj-database-url==1.0.0
 django-csp==3.7
 django-webtest==1.9.10
-django==3.2.16
+django==3.2.17
 djangorestframework-csv==2.1.1
 djangorestframework==3.13.1
 furl==2.1.3
