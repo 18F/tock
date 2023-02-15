@@ -26,5 +26,5 @@ jobs:
         with:
           project-url: https://github.com/orgs/18F/projects/41
           github-token: ${{ steps.app_token.outputs.token }}
-          labeled: compliance
+          labeled: compliance, Compliance
           label-operator: NOT
