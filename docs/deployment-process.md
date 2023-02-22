@@ -145,6 +145,8 @@ and checks on security flaws of Tock's dependencies.
 Tock uses CircleCI to continuously integrate code, deliver the code to staging
 servers, and deploy the latest release to production servers.
 
+Occasionally CircleCI builds will fail with an error like: `FileNotFoundError: [Errno 2] No such file or directory: '/home/circleci/project/.venv/bin/python'.` In this case, it is necessary to modify the `CACHE_VERSION` in the Environment Variables section in the CircleCI Tock Project Settings. (The exact value does not matter, just that the value is changed: this will force new cache dependencies to be built.)
+
 ### New Relic environment variables
 
 Basic New Relic configuration is done in [newrelic.ini](../newrelic.ini), with
