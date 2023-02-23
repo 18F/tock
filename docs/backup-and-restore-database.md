@@ -41,7 +41,7 @@ Ctrl+C
 cf delete-service-key <service name> SERVICE_CONNECT
 ```
 
-Once these steps are complete, you may also want to upload a copy of the backup to the Drive folder.
+Tock retains daily backups for 14 days; for details, see the [cloud.gov backup documentation](https://cloud.gov/docs/services/relational-database/#backups). (Please note that if you are planning contingency tests, the cloud.gov support team prefers at least 48 hours of advance notice.)
 
 ## Step 2: Importing data
 
