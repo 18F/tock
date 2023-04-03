@@ -173,8 +173,8 @@ class TimecardObjectForm(forms.ModelForm):
     def clean(self):
         if 'project' in self.cleaned_data:
             if self.cleaned_data['project'].is_weekly_bill:
-                if ('hours_spent' in self.cleaned_data and
-                    self.cleaned_data['hours_spent'] > 0):
+                if ('hours_spent' in self.cleaned_data and \
+                   self.cleaned_data['hours_spent'] > 0):
                     self.add_error(
                         'project',
                         forms.ValidationError(
@@ -183,8 +183,8 @@ class TimecardObjectForm(forms.ModelForm):
                         ),
                     )
             else:
-                if ('project_allocation' in self.cleaned_data and
-                    self.cleaned_data['project_allocation'] != ''):
+                if ('project_allocation' in self.cleaned_data and \
+                   self.cleaned_data['project_allocation'] != ''):
                     self.add_error(
                         'project',
                         forms.ValidationError(
