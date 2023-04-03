@@ -171,6 +171,27 @@ class TimecardObjectForm(forms.ModelForm):
         return self.cleaned_data.get('hours_spent') or 0
 
     def clean(self):
+        if 'project' in self.cleaned_data:
+            if self.cleaned_data['project'].is_weekly_bill:
+                if ('hours_spent' in self.cleaned_data and
+                    self.cleaned_data['hours_spent'] > 0):
+                    self.add_error(
+                        'project',
+                        forms.ValidationError(
+                            'You cannot submit hourly billing '
+                            'for a project under weekly billing'
+                        ),
+                    )
+            else:
+                if ('project_allocation' in self.cleaned_data and
+                    self.cleaned_data['project_allocation'] != ''):
+                    self.add_error(
+                        'project',
+                        forms.ValidationError(
+                            'You cannot submit weekly billing '
+                            'for a project under hourly billing'
+                        ),
+                    )
         if 'notes' in self.cleaned_data and 'project' in self.cleaned_data:
             self.cleaned_data['notes'] = bleach.clean(
                 self.cleaned_data['notes'],
