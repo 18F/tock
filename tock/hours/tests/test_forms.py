@@ -369,6 +369,28 @@ class TimecardInlineFormSetTests(TestCase):
     def test_smallest_project_allocation(self):
         """Should be able to make a timecard with 12.5% project allocation"""
         form_data = self.form_data()
+        del form_data['timecardobjects-0-hours_spent']
+        form_data['timecardobjects-0-project'] = 51
         form_data['timecardobjects-0-project_allocation'] = '0.125'
         formset = TimecardFormSet(form_data, instance=self.timecard)
         self.assertTrue(formset.is_valid())
+
+    def test_weekly_allocation_to_a_hourly_project(self):
+        """Should not be able to assign weekly values to a hourly billing project"""
+        form_data = self.form_data()
+        form_data['timecardobjects-0-project_allocation'] = '0.5'
+        formset = TimecardFormSet(form_data, instance=self.timecard)
+        self.assertFalse(formset.is_valid())
+        self.assertEqual(formset.errors[0]['project'][0],
+                         'You cannot submit weekly billing for a '
+                         'project under hourly billing')
+
+    def test_hourly_allocation_to_a_weekly_project(self):
+        """Should not be able to assign hourly values to a weekly billing project"""
+        form_data = self.form_data()
+        form_data['timecardobjects-0-project'] = 51
+        formset = TimecardFormSet(form_data, instance=self.timecard)
+        self.assertFalse(formset.is_valid())
+        self.assertEqual(formset.errors[0]['project'][0],
+                         'You cannot submit hourly billing for a '
+                         'project under weekly billing')
