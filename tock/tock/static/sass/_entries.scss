@@ -198,8 +198,8 @@
     left: 0;
 
     .background {
-      fill: none;
-      stroke: color("base");
+      fill: #ffffff;
+      stroke: color("gray-20");
       stroke-width: 3;
       transition: stroke-dasharray 0.3s ease-out;
     }
