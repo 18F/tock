@@ -122,6 +122,9 @@ describe("Timecard", () => {
         timeout: 5000
       });
 
+      //Test that the valiue was reset to black after weekly billing was selected
+      await page.waitForFunction('document.querySelector("#id_timecardobjects-0-hours_spent").value == ""');
+
       // We should now be in a state where the hour input is hidden and the project allocation dropdown is available
       const _allocationPercentageClassListObj = await page.$eval(".entry-project_allocation", el => el.classList);
       const _allocationPercentageClassList = Array.from(Object.values(_allocationPercentageClassListObj));
