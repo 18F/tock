@@ -19,6 +19,9 @@
 }
 
 .report_table {
+	thead th, th {
+		background-color: color("gray-4");
+	}
 	.usa-hint {
 		color: #5c5c5c;
 		font-weight: normal;
