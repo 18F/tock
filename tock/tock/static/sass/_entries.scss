@@ -198,8 +198,8 @@
     left: 0;
 
     .background {
-      fill: none;
-      stroke: color("accent-cool-lighter");
+      fill: #ffffff;
+      stroke: color("gray-20");
       stroke-width: 3;
       transition: stroke-dasharray 0.3s ease-out;
     }
@@ -222,11 +222,11 @@
 
   display: block;
   position: relative;
-  color: color("accent-cool-lighter");
+  color: color("base-dark");
 }
 
 .entries-total {
-	background: color("accent-cool-light");
+	background: color("accent-cool-lighter");
 	padding: 1em;
 	.add-timecard-entry,
 	.entries-total-reported {
@@ -261,9 +261,6 @@
 	font-weight: bold;
 }
 
-.reporting-period {
-
-}
 .submit-form {
 	padding: 1.5rem;
 	[type=submit] {
