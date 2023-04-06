@@ -134,6 +134,7 @@ class TestSubmit(ProtectedViewTestCase, WebTest):
         form = res.form  # only one form on the page?
         form["timecardobjects-0-project"] = self.projects[0].id
         form["timecardobjects-0-hours_spent"] = 40
+        form["timecardobjects-0-project_allocation"].force_value(None)
         res = form.submit("submit-timecard").follow()
         self.assertEqual(200, res.status_code)
         self.assertNotContains(res, "usa-alert--error")
@@ -146,6 +147,7 @@ class TestSubmit(ProtectedViewTestCase, WebTest):
         form = self.app.get(url, user=self.user).form  # only one form on the page
         form["timecardobjects-0-project"] = self.projects[0].id
         form["timecardobjects-0-hours_spent"] = 40
+        form["timecardobjects-0-project_allocation"].force_value(None)
         form.submit("submit-timecard").follow()
 
         date2 = self.reporting_period2.start_date.strftime('%Y-%m-%d')
@@ -154,9 +156,10 @@ class TestSubmit(ProtectedViewTestCase, WebTest):
         form = self.app.get(url, user=self.user).form  # only one form on the page
         form["timecardobjects-0-project"] = self.projects[0].id
         form["timecardobjects-0-hours_spent"] = 40
+        form["timecardobjects-0-project_allocation"].force_value(None)
         # timecard.js would set this field to be unselected, but since WebTest
-        # runs no Javascript, force this field to be the empty string
-        form["timecardobjects-1-project_allocation"].force_value("")
+        # runs no Javascript, force this field to be unset
+        form["timecardobjects-1-project_allocation"].force_value(None)
         res = form.submit("submit-timecard")
 
         # successful POST will give a 302 redirect
