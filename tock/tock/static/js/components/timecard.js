@@ -211,6 +211,7 @@ function toggleNotesField(selectBoxId) {
     handleBillingElementState('hide');
     project_allocation.classList.remove('entry-hidden');
     hours_spent.classList.add('entry-hidden');
+    hours_set.value = '';
   } else {
     const noWeeklyBilledProjectsExist = !weeklyBilledProjectExists();
 
