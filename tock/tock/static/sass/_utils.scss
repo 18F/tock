@@ -17,3 +17,14 @@
 .report_table th, .report_table td {
     padding: 0.75em;
 }
+
+.report_table {
+	thead th {
+		background-color: color("gray-4");
+	}
+	.usa-hint {
+		color: #5c5c5c;
+		font-weight: normal;
+	}
+}
+
