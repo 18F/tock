@@ -9,13 +9,13 @@ def frame_table(frame, name_hint):
     return (
         f"""
         <div class="usa-accordion usa-accordion--bordered">
-            <h2 class="usa-accordion__heading">
+            <h4 class="usa-accordion__heading">
             <button class="usa-accordion__button"
                 aria-expanded="false"
                 aria-controls="{generated_id}">
                 Data Table
             </button>
-            </h2>
+            </h4>
             <div id="{generated_id}" class="usa-accordion__content grid-container">
             <div class="grid-row">
                 <button
