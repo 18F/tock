@@ -11,31 +11,27 @@ from projects.models import AccountingCode, Agency, Project
 User = get_user_model()
 
 FIXTURES = [
-    'tock/fixtures/prod_user.json',
-    'projects/fixtures/projects.json',
-    'hours/fixtures/timecards.json',
-    'employees/fixtures/user_data.json',
+    "tock/fixtures/prod_user.json",
+    "projects/fixtures/projects.json",
+    "hours/fixtures/timecards.json",
+    "employees/fixtures/user_data.json",
 ]
 
 
 class TestGroupUtilizationView(WebTest):
     fixtures = [
-        'projects/fixtures/projects.json',
+        "projects/fixtures/projects.json",
     ]
 
     def setUp(self):
         # Create non-billable and billable accounting codes
         # Create Timecard populated with project lines
         billable_acct = AccountingCode.objects.create(
-            code='foo',
-            billable=True,
-            agency=Agency.objects.first()
+            code="foo", billable=True, agency=Agency.objects.first()
         )
 
         non_billable_acct = AccountingCode.objects.create(
-            code='foo',
-            billable=False,
-            agency=Agency.objects.first()
+            code="foo", billable=False, agency=Agency.objects.first()
         )
 
         # Grab projects to associate with the account codes
@@ -51,7 +47,7 @@ class TestGroupUtilizationView(WebTest):
         test_unit = Unit.objects.get_or_create(org=test_org)[0]
 
         self.user = User.objects.create(
-            username='regular.user',
+            username="regular.user",
         )
 
         # When we create the user, we have to assign them a unit from test data
@@ -74,14 +70,11 @@ class TestGroupUtilizationView(WebTest):
             rp_start_date = datetime.date.today() - datetime.timedelta(days=7)
 
         self.reporting_period = ReportingPeriod.objects.create(
-            start_date=rp_start_date,
-            end_date=datetime.date.today()
+            start_date=rp_start_date, end_date=datetime.date.today()
         )
 
         self.timecard = Timecard.objects.create(
-            reporting_period=self.reporting_period,
-            user=self.user,
-            submitted=True
+            reporting_period=self.reporting_period, user=self.user, submitted=True
         )
 
         self.nb_timecard_object = TimecardObject.objects.create(
@@ -100,40 +93,40 @@ class TestGroupUtilizationView(WebTest):
         self.timecard.save()
 
         self.user_with_no_hours = User.objects.create(
-            username='user.no.hours',
+            username="user.no.hours",
         )
 
-        self.user_data_no_hours = UserData.objects.get_or_create(user=self.user_with_no_hours)[0]
+        self.user_data_no_hours = UserData.objects.get_or_create(
+            user=self.user_with_no_hours
+        )[0]
         self.user_data_no_hours.unit = test_unit
         self.user_data_no_hours.save()
 
         self.new_rp = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=14),
-            end_date=datetime.date.today() - datetime.timedelta(days=8)
+            end_date=datetime.date.today() - datetime.timedelta(days=8),
         )
         ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=21),
-            end_date=datetime.date.today() - datetime.timedelta(days=15)
+            end_date=datetime.date.today() - datetime.timedelta(days=15),
         )
         ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=28),
-            end_date=datetime.date.today() - datetime.timedelta(days=22)
+            end_date=datetime.date.today() - datetime.timedelta(days=22),
         )
         ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=35),
-            end_date=datetime.date.today() - datetime.timedelta(days=29)
+            end_date=datetime.date.today() - datetime.timedelta(days=29),
         )
 
         # more than a year ago (outside of current fy)
         self.old_rp = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=385),
-            end_date=datetime.date.today() - datetime.timedelta(days=379)
+            end_date=datetime.date.today() - datetime.timedelta(days=379),
         )
 
         self.old_timecard = Timecard.objects.create(
-            reporting_period=self.old_rp,
-            user=self.user_with_no_hours,
-            submitted=True
+            reporting_period=self.old_rp, user=self.user_with_no_hours, submitted=True
         )
 
         self.nb_timecard_object = TimecardObject.objects.create(
@@ -157,11 +150,11 @@ class TestGroupUtilizationView(WebTest):
         self.timecard.submitted = False
         self.timecard.save()
         response = self.app.get(
-            url=reverse('utilization:GroupUtilizationView'),
-            user=self.user
+            url=reverse("utilization:GroupUtilizationView"), user=self.user
         )
         self.assertTrue(
-            len(response.context['object_list'][0]['utilization']['last_week_data']) == 0
+            len(response.context["object_list"][0]["utilization"]["last_week_data"])
+            == 0
         )
 
     def test_summary_rows(self):
@@ -172,51 +165,68 @@ class TestGroupUtilizationView(WebTest):
         We'll need to submit our previously created timecard first.
         """
         response = self.app.get(
-            url=reverse('utilization:GroupUtilizationView'),
-            user=self.user
+            url=reverse("utilization:GroupUtilizationView"), user=self.user
         )
 
-        utilization_data = response.context['object_list'][0]['utilization']
+        utilization_data = response.context["object_list"][0]["utilization"]
 
         self.assertEqual(
-            utilization_data['last_week_data'][0]['denominator'],
-            self.timecard.target_hours
+            utilization_data["last_week_data"][0]["denominator"],
+            self.timecard.target_hours,
         )
 
         self.assertEqual(
-            utilization_data['last_week_data'][0]['billable'],
-            self.b_timecard_object.hours_spent
+            utilization_data["last_week_data"][0]["billable"],
+            self.b_timecard_object.hours_spent,
         )
 
     def test_excludes_user_with_no_recent_hours(self):
         response = self.app.get(
-            url=reverse('utilization:GroupUtilizationView'),
-            user=self.user
+            url=reverse("utilization:GroupUtilizationView"), user=self.user
         )
 
-        utilization_data = response.context['object_list'][0]['utilization']
+        utilization_data = response.context["object_list"][0]["utilization"]
 
-        self.assertEqual(0, len([u for u in utilization_data['last_week_data'] if u['display_name'] == self.user_with_no_hours.user_data.display_name]))
-        self.assertEqual(0, len([u for u in utilization_data['last_month_data'] if u['display_name'] == self.user_with_no_hours.user_data.display_name]))
+        self.assertEqual(
+            0,
+            len(
+                [
+                    u
+                    for u in utilization_data["last_week_data"]
+                    if u["display_name"]
+                    == self.user_with_no_hours.user_data.display_name
+                ]
+            ),
+        )
+        self.assertEqual(
+            0,
+            len(
+                [
+                    u
+                    for u in utilization_data["last_month_data"]
+                    if u["display_name"]
+                    == self.user_with_no_hours.user_data.display_name
+                ]
+            ),
+        )
 
     def test_includes_user_no_longer_with_unit(self):
         response = self.app.get(
-            url=reverse('utilization:GroupUtilizationView'),
-            user=self.user
+            url=reverse("utilization:GroupUtilizationView"), user=self.user
         )
 
         self.user_data.unit = None
 
-        utilization_data = response.context['object_list'][0]['utilization']
+        utilization_data = response.context["object_list"][0]["utilization"]
 
         self.assertEqual(
-            utilization_data['last_week_data'][0]['denominator'],
-            self.timecard.target_hours
+            utilization_data["last_week_data"][0]["denominator"],
+            self.timecard.target_hours,
         )
 
         self.assertEqual(
-            utilization_data['last_week_data'][0]['billable'],
-            self.b_timecard_object.hours_spent
+            utilization_data["last_week_data"][0]["billable"],
+            self.b_timecard_object.hours_spent,
         )
 
     def test_user_detail_with_utilization(self):
@@ -225,20 +235,18 @@ class TestGroupUtilizationView(WebTest):
         self.user_data.save()
 
         response = self.app.get(
-            url=reverse('employees:UserDetailView', args=[self.user.username]),
-            user=self.user
+            url=reverse("employees:UserDetailView", args=[self.user.username]),
+            user=self.user,
         )
 
         self.assertEqual(response.status_code, 200)
 
 
 class TestAnalyticsView(TestGroupUtilizationView):
-
     def test_analytics_view(self):
 
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView'),
-            user=self.user
+            url=reverse("utilization:UtilizationAnalyticsView"), user=self.user
         )
 
         self.assertEqual(response.status_code, 200)
@@ -246,16 +254,16 @@ class TestAnalyticsView(TestGroupUtilizationView):
     def test_analytics_start(self):
 
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?after=2020-01-01",
-            user=self.user
+            url=reverse("utilization:UtilizationAnalyticsView") + "?after=2020-01-01",
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
 
     def test_analytics_end(self):
 
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?before=2020-01-01",
-            user=self.user
+            url=reverse("utilization:UtilizationAnalyticsView") + "?before=2020-01-01",
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
 
@@ -263,8 +271,8 @@ class TestAnalyticsView(TestGroupUtilizationView):
         """Specify a USWDS-format date for after."""
 
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?after=01/01/2020",
-            user=self.user
+            url=reverse("utilization:UtilizationAnalyticsView") + "?after=01/01/2020",
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
 
@@ -272,21 +280,21 @@ class TestAnalyticsView(TestGroupUtilizationView):
         """Specify a USWDS-format date for before."""
 
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?before=01/01/2020",
-            user=self.user
+            url=reverse("utilization:UtilizationAnalyticsView") + "?before=01/01/2020",
+            user=self.user,
         )
         self.assertEqual(response.status_code, 200)
 
     def test_analytics_all_orgs(self):
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?org=0",
-            user=self.user
+            url=reverse("utilization:UtilizationAnalyticsView") + "?org=0",
+            user=self.user,
         )
         self.assertContains(response, "All Organizations")
 
     def test_analytics_one_org(self):
         response = self.app.get(
-            url=reverse('utilization:UtilizationAnalyticsView') + "?org=1",
-            user=self.user
+            url=reverse("utilization:UtilizationAnalyticsView") + "?org=1",
+            user=self.user,
         )
         self.assertContains(response, " Organization")

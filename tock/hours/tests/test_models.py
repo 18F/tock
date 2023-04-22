@@ -13,7 +13,7 @@ from hours.models import (
     ReportingPeriod,
     Timecard,
     TimecardNote,
-    TimecardObject
+    TimecardObject,
 )
 from projects.models import Project, ProfitLossAccount
 from employees.models import EmployeeGrade, UserData
@@ -21,20 +21,22 @@ from organizations.models import Organization, Unit
 
 
 class HolidayPrefillsTests(TestCase):
-    fixtures = ['projects/fixtures/projects.json',]
+    fixtures = [
+        "projects/fixtures/projects.json",
+    ]
+
     def setUp(self):
         self.holiday_prefills = HolidayPrefills.objects.create(
-            project=Project.objects.first(),
-            hours_per_period=8
+            project=Project.objects.first(), hours_per_period=8
         )
 
     def test_string_method(self):
         """Tests custom string method returns correct string"""
-        expected_string = '{} ({} hrs.)'.format(
-            self.holiday_prefills.project.name,
-            self.holiday_prefills.hours_per_period
+        expected_string = "{} ({} hrs.)".format(
+            self.holiday_prefills.project.name, self.holiday_prefills.hours_per_period
         )
         self.assertEqual(expected_string, self.holiday_prefills.__str__())
+
 
 class ReportingPeriodTests(TestCase):
     def setUp(self):
@@ -44,27 +46,28 @@ class ReportingPeriodTests(TestCase):
             exact_working_hours=40,
             min_working_hours=40,
             max_working_hours=60,
-            message='This is not a vacation')
+            message="This is not a vacation",
+        )
         self.reporting_period.save()
 
     def test_reporting_period_save(self):
         """Ensure that data was saved properly."""
         reporting_period = ReportingPeriod.objects.first()
         self.assertEqual(40, reporting_period.exact_working_hours)
-        self.assertEqual(
-            datetime.date(2015, 1, 1), reporting_period.start_date)
+        self.assertEqual(datetime.date(2015, 1, 1), reporting_period.start_date)
         self.assertEqual(datetime.date(2015, 1, 7), reporting_period.end_date)
-        self.assertEqual('This is not a vacation', reporting_period.message)
+        self.assertEqual("This is not a vacation", reporting_period.message)
         self.assertEqual(40, reporting_period.min_working_hours)
         self.assertEqual(60, reporting_period.max_working_hours)
 
     def test_unique_constraint(self):
-        """ Check that unique constrains work for reporting period."""
+        """Check that unique constrains work for reporting period."""
         with self.assertRaises(ValidationError):
             ReportingPeriod(
                 start_date=datetime.date(2015, 1, 1),
                 end_date=datetime.date(2015, 1, 7),
-                exact_working_hours=40).save()
+                exact_working_hours=40,
+            ).save()
 
     def test_get_fiscal_year(self):
         """Check to ensure the proper fiscal year is returned."""
@@ -72,74 +75,81 @@ class ReportingPeriodTests(TestCase):
         reporting_period_2 = ReportingPeriod(
             start_date=datetime.date(2015, 10, 31),
             end_date=datetime.date(2015, 11, 7),
-            exact_working_hours=32)
+            exact_working_hours=32,
+        )
         self.assertEqual(2016, reporting_period_2.get_fiscal_year())
 
         # Testing the week that spans two FYs
         reporting_period_3 = ReportingPeriod(
             start_date=datetime.date(2014, 9, 28),
             end_date=datetime.date(2014, 10, 4),
-            exact_working_hours=32)
+            exact_working_hours=32,
+        )
         self.assertEqual(2015, reporting_period_3.get_fiscal_year())
         reporting_period_4 = ReportingPeriod(
             start_date=datetime.date(2015, 9, 27),
             end_date=datetime.date(2015, 10, 3),
-            exact_working_hours=32)
+            exact_working_hours=32,
+        )
         self.assertEqual(2015, reporting_period_4.get_fiscal_year())
 
     def test_get_fiscal_year_start_date(self):
         # test more October date than September date
-        self.assertEqual(datetime.date(2014, 9, 28),
-            ReportingPeriod.get_fiscal_year_start_date(2015))
+        self.assertEqual(
+            datetime.date(2014, 9, 28), ReportingPeriod.get_fiscal_year_start_date(2015)
+        )
         # test more September date than October date
-        self.assertEqual(datetime.date(2015, 10, 4),
-            ReportingPeriod.get_fiscal_year_start_date(2016))
+        self.assertEqual(
+            datetime.date(2015, 10, 4), ReportingPeriod.get_fiscal_year_start_date(2016)
+        )
         # test fiscal year starts right on 10/1
-        self.assertEqual(datetime.date(2017, 10, 1),
-            ReportingPeriod.get_fiscal_year_start_date(2018))
+        self.assertEqual(
+            datetime.date(2017, 10, 1), ReportingPeriod.get_fiscal_year_start_date(2018)
+        )
 
     def test_get_fiscal_year_end_date(self):
         # test more October date than September date
-        self.assertEqual(datetime.date(2014, 9, 27),
-            ReportingPeriod.get_fiscal_year_end_date(2014))
+        self.assertEqual(
+            datetime.date(2014, 9, 27), ReportingPeriod.get_fiscal_year_end_date(2014)
+        )
         # test more September date than October date
-        self.assertEqual(datetime.date(2015, 10, 3),
-            ReportingPeriod.get_fiscal_year_end_date(2015))
+        self.assertEqual(
+            datetime.date(2015, 10, 3), ReportingPeriod.get_fiscal_year_end_date(2015)
+        )
         # test fiscal year ends right on 9/30
-        self.assertEqual(datetime.date(2017, 9, 30),
-            ReportingPeriod.get_fiscal_year_end_date(2017))
+        self.assertEqual(
+            datetime.date(2017, 9, 30), ReportingPeriod.get_fiscal_year_end_date(2017)
+        )
 
 
 class TimecardTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json',
-        'tock/fixtures/prod_user.json',
-        'organizations/fixtures/organizations.json',
-        'organizations/fixtures/units.json'
+        "projects/fixtures/projects.json",
+        "tock/fixtures/prod_user.json",
+        "organizations/fixtures/organizations.json",
+        "organizations/fixtures/units.json",
     ]
 
     def setUp(self):
         self.reporting_period = ReportingPeriod.objects.create(
             start_date=datetime.date(2015, 1, 1),
             end_date=datetime.date(2015, 1, 7),
-            exact_working_hours=40)
+            exact_working_hours=40,
+        )
         self.reporting_period.save()
         self.user = get_user_model().objects.get(id=1)
         self.userdata = UserData.objects.create(user=self.user)
         self.timecard = Timecard.objects.create(
-            user=self.user,
-            reporting_period=self.reporting_period)
+            user=self.user, reporting_period=self.reporting_period
+        )
         self.project_1 = Project.objects.get(name="openFEC")
-        self.project_2 = Project.objects.get(
-            name="Peace Corps")
+        self.project_2 = Project.objects.get(name="Peace Corps")
         self.timecard_object_1 = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project_1,
-            hours_spent=12)
+            timecard=self.timecard, project=self.project_1, hours_spent=12
+        )
         self.timecard_object_2 = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project_2,
-            hours_spent=28)
+            timecard=self.timecard, project=self.project_2, hours_spent=28
+        )
 
         self.user_18f_current = get_user_model().objects.create()
         self.user_18f_current_data = UserData.objects.create(user=self.user_18f_current)
@@ -184,16 +194,17 @@ class TimecardTests(TestCase):
         is altered / saved
         """
         reporting_period = ReportingPeriod.objects.create(
-                    start_date=datetime.date(2016, 1, 1),
-                    end_date=datetime.date(2016, 1, 7),
-                    exact_working_hours=40)
+            start_date=datetime.date(2016, 1, 1),
+            end_date=datetime.date(2016, 1, 7),
+            exact_working_hours=40,
+        )
         userdata = get_user_model().objects.get(id=1)
         timecard = Timecard.objects.create(
             user=userdata,
             reporting_period=reporting_period,
             submitted=True,
-            submitted_date=datetime.date.fromisoformat("2016-01-07")
-            )
+            submitted_date=datetime.date.fromisoformat("2016-01-07"),
+        )
         timecard.save()
         date = timecard.submitted_date
 
@@ -212,20 +223,18 @@ class TimecardTests(TestCase):
             with transaction.atomic():
                 # Prevents django.db.transaction.TransactionManagementError
                 Timecard.objects.create(
-                    user=self.user,
-                    reporting_period=self.reporting_period).save()
+                    user=self.user, reporting_period=self.reporting_period
+                ).save()
 
     def test_timecard_string_return(self):
         """Ensure the returned string for the timecard is as expected."""
-        self.assertEqual('aaron.snow - 2015-01-01', str(self.timecard))
+        self.assertEqual("aaron.snow - 2015-01-01", str(self.timecard))
 
     def test_timecardobject_saved(self):
         """Check that TimeCardObject was saved properly."""
-        timecardobj = TimecardObject.objects.get(
-            pk=self.timecard_object_1.pk
-        )
+        timecardobj = TimecardObject.objects.get(pk=self.timecard_object_1.pk)
         self.assertEqual(timecardobj.timecard.user.pk, 1)
-        self.assertEqual(timecardobj.project.name, 'openFEC')
+        self.assertEqual(timecardobj.project.name, "openFEC")
         self.assertEqual(timecardobj.hours_spent, 12)
         self.assertEqual(timecardobj.created.day, datetime.datetime.utcnow().day)
         self.assertEqual(timecardobj.modified.day, datetime.datetime.utcnow().day)
@@ -245,12 +254,13 @@ class TimecardTests(TestCase):
 
     def test_timecard_saves_user_organization(self):
         timecard = Timecard.objects.create(
-            user=self.user_18f_current,
-            reporting_period=self.reporting_period
+            user=self.user_18f_current, reporting_period=self.reporting_period
         )
         timecard.save()
 
-        self.assertEqual(timecard.organization, self.user_18f_current.user_data.organization)
+        self.assertEqual(
+            timecard.organization, self.user_18f_current.user_data.organization
+        )
 
         # change employee org and verify that the timecard keeps the original one when resaved
         old_org = self.user_18f_current_data.organization
@@ -262,8 +272,7 @@ class TimecardTests(TestCase):
 
     def test_timecard_saves_user_unit(self):
         timecard = Timecard.objects.create(
-            user=self.user_18f_current,
-            reporting_period=self.reporting_period
+            user=self.user_18f_current, reporting_period=self.reporting_period
         )
         timecard.save()
 
@@ -277,10 +286,36 @@ class TimecardTests(TestCase):
 
         self.assertEqual(timecard.unit, old_unit)
 
+    def test_timecard_saves_user_labor_category(self):
+        timecard = Timecard.objects.create(
+            user=self.user_18f_current, reporting_period=self.reporting_period
+        )
+        timecard.save()
+
+        self.assertEqual(
+            timecard.labor_category, self.user_18f_current.user_data.labor_category
+        )
+
+        # change employee labor category and verify that the timecard keeps the original one when resaved
+        old_labor_category = self.user_18f_current_data.labor_category
+        self.user_18f_current_data.labor_category = None
+
+        timecard.save()
+
+        self.assertEqual(timecard.labor_category, old_labor_category)
+
+    def test_timecard_utilization(self):
+        """Test the TimeCard utilization method."""
+        timecard = Timecard.objects.create(
+            user=self.user_18f_current, reporting_period=self.reporting_period
+        )
+        timecard.save()
+
+        self.assertEqual(timecard.utilization, timecard.calculate_utilization(timecard))
+
 
 class TimecardNoteTests(TestCase):
     def setUp(self):
-
         # Ensure that we are dealing with just the timecard note objects
         # that we plan on testing.
         TimecardNote.objects.all().delete()
@@ -288,119 +323,103 @@ class TimecardNoteTests(TestCase):
         self.now = timezone.now()
 
         self.timecard_note_enabled = TimecardNote(
-            title='Enabled test note',
-            body='This is a test note that is enabled.'
+            title="Enabled test note", body="This is a test note that is enabled."
         )
         self.timecard_note_enabled.save()
 
         self.timecard_note_disabled = TimecardNote(
-            title='Disabled test note',
-            body='This is a test note that is disabled.',
-            enabled=False
+            title="Disabled test note",
+            body="This is a test note that is disabled.",
+            enabled=False,
         )
         self.timecard_note_disabled.save()
 
         self.timecard_note_disabled_active_date_range = TimecardNote(
-            title='Disabled active date range note',
-            body='This is a test note that is disabled but has an active date range',
+            title="Disabled active date range note",
+            body="This is a test note that is disabled but has an active date range",
             enabled=False,
             display_period_start=self.now - datetime.timedelta(days=5),
-            display_period_end=self.now + datetime.timedelta(days=5)
+            display_period_end=self.now + datetime.timedelta(days=5),
         )
         self.timecard_note_disabled_active_date_range.save()
 
         self.timecard_note_disabled_elapsed_date_range = TimecardNote(
-            title='Disabled elapsed date range note',
-            body='This is a test note that is disabled and has an elapsed date range',
+            title="Disabled elapsed date range note",
+            body="This is a test note that is disabled and has an elapsed date range",
             enabled=False,
             display_period_start=self.now - datetime.timedelta(days=5),
-            display_period_end=self.now - datetime.timedelta(days=1)
+            display_period_end=self.now - datetime.timedelta(days=1),
         )
         self.timecard_note_disabled_elapsed_date_range.save()
 
         self.timecard_note_disabled_upcoming_date_range = TimecardNote(
-            title='Disabled upcoming date range note',
-            body='This is a test note that is disabled an has an upcoming date range',
+            title="Disabled upcoming date range note",
+            body="This is a test note that is disabled an has an upcoming date range",
             enabled=False,
             display_period_start=self.now + datetime.timedelta(days=5),
-            display_period_end=self.now + datetime.timedelta(days=10)
+            display_period_end=self.now + datetime.timedelta(days=10),
         )
         self.timecard_note_disabled_upcoming_date_range.save()
-
-
 
     def test_get_only_enabled_timecard_notes(self):
         """Ensure that we are only returning enabled timecard notes."""
         enabled_timecard_notes = TimecardNote.objects.enabled()
         self.assertEqual(enabled_timecard_notes.count(), 1)
-        self.assertEqual(
-            enabled_timecard_notes.last(),
-            self.timecard_note_enabled
-        )
+        self.assertEqual(enabled_timecard_notes.last(), self.timecard_note_enabled)
 
     def test_get_only_disabled_timecard_notes(self):
         """Ensure that we are only returning disabled timecard notes."""
         disabled_timecard_notes = TimecardNote.objects.disabled()
         self.assertEqual(disabled_timecard_notes.count(), 4)
+        self.assertEqual(disabled_timecard_notes[0], self.timecard_note_disabled)
         self.assertEqual(
-            disabled_timecard_notes[0],
-            self.timecard_note_disabled
+            disabled_timecard_notes[1], self.timecard_note_disabled_active_date_range
         )
         self.assertEqual(
-            disabled_timecard_notes[1],
-            self.timecard_note_disabled_active_date_range
+            disabled_timecard_notes[2], self.timecard_note_disabled_elapsed_date_range
         )
         self.assertEqual(
-            disabled_timecard_notes[2],
-            self.timecard_note_disabled_elapsed_date_range
-        )
-        self.assertEqual(
-            disabled_timecard_notes[3],
-            self.timecard_note_disabled_upcoming_date_range
+            disabled_timecard_notes[3], self.timecard_note_disabled_upcoming_date_range
         )
 
     def test_get_only_active_timecard_notes(self):
         """Ensure that we are only returning active timecard notes."""
         active_timecard_notes = TimecardNote.objects.active()
         self.assertEqual(active_timecard_notes.count(), 2)
+        self.assertEqual(active_timecard_notes[0], self.timecard_note_enabled)
         self.assertEqual(
-            active_timecard_notes[0],
-            self.timecard_note_enabled
-        )
-        self.assertEqual(
-            active_timecard_notes[1],
-            self.timecard_note_disabled_active_date_range
+            active_timecard_notes[1], self.timecard_note_disabled_active_date_range
         )
 
     def test_start_date_needs_end_date(self):
         """Tests that during cleaning, we ensure that start dates are paired with end dates"""
         with self.assertRaises(ValidationError):
             TimecardNote(
-                title='Only has a start date',
-                body='Test note with a start date and no end date',
+                title="Only has a start date",
+                body="Test note with a start date and no end date",
                 enabled=False,
-                display_period_start=self.now
+                display_period_start=self.now,
             ).full_clean()
 
     def test_end_date_needs_start_date(self):
         """Tests that during cleaning, we ensure end dates are paired with start dates"""
         with self.assertRaises(ValidationError):
             TimecardNote(
-                title='Only has an end date',
-                body='Test note with an end date and no start date',
+                title="Only has an end date",
+                body="Test note with an end date and no start date",
                 enabled=False,
-                display_period_end=self.now
+                display_period_end=self.now,
             ).full_clean()
 
     def test_start_date_must_precede_end_date(self):
         """Tests that during cleaning, we only allow start dates that precend end dates"""
         with self.assertRaises(ValidationError):
             TimecardNote(
-                title='End date precedes start date',
-                body='Test note with an end date preceding its start date',
+                title="End date precedes start date",
+                body="Test note with an end date preceding its start date",
                 enabled=False,
                 display_period_start=self.now + datetime.timedelta(days=1),
-                display_period_end=self.now
+                display_period_end=self.now,
             ).full_clean()
 
     def test_timecard_note_default_order(self):
@@ -408,12 +427,10 @@ class TimecardNoteTests(TestCase):
 
         timecard_notes = TimecardNote.objects.all()
         self.assertEqual(
-            timecard_notes[0].position,
-            self.timecard_note_enabled.position
+            timecard_notes[0].position, self.timecard_note_enabled.position
         )
         self.assertEqual(
-            timecard_notes[1].position,
-            self.timecard_note_disabled.position
+            timecard_notes[1].position, self.timecard_note_disabled.position
         )
 
     def test_timecard_note_changed_order(self):
@@ -426,21 +443,20 @@ class TimecardNoteTests(TestCase):
 
         timecard_notes = TimecardNote.objects.all()
         self.assertEqual(
-            timecard_notes[0].position,
-            self.timecard_note_disabled.position
+            timecard_notes[0].position, self.timecard_note_disabled.position
         )
         self.assertEqual(
-            timecard_notes[1].position,
-            self.timecard_note_enabled.position
+            timecard_notes[1].position, self.timecard_note_enabled.position
         )
 
 
 class TimecardObjectTests(TestCase):
     fixtures = [
-        'tock/fixtures/prod_user.json',
-        'projects/fixtures/projects.json',
-        'hours/fixtures/timecards.json',
+        "tock/fixtures/prod_user.json",
+        "projects/fixtures/projects.json",
+        "hours/fixtures/timecards.json",
     ]
+
     def setUp(self):
         """Set up includes deletion of all existing timecards loaded from
         fixtures to eliminate the possibility of a unique_together error."""
@@ -448,51 +464,45 @@ class TimecardObjectTests(TestCase):
         self.user = User.objects.get_or_create(id=1)[0]
         self.userdata = UserData.objects.create(user=self.user)
         self.grade = EmployeeGrade.objects.create(
-            employee=self.user,
-            grade=15,
-            g_start_date=datetime.date(2016, 1, 1)
+            employee=self.user, grade=15, g_start_date=datetime.date(2016, 1, 1)
         )
         self.reporting_period = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=14),
-            end_date=datetime.date.today() - datetime.timedelta(days=7)
+            end_date=datetime.date.today() - datetime.timedelta(days=7),
         )
         self.reporting_period2 = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=7),
-            end_date=datetime.date.today()
+            end_date=datetime.date.today(),
         )
         self.timecard = Timecard.objects.create(
-            user=self.user,
-            reporting_period=self.reporting_period
+            user=self.user, reporting_period=self.reporting_period
         )
         self.timecard2 = Timecard.objects.create(
-            user=self.user,
-            reporting_period=self.reporting_period2
+            user=self.user, reporting_period=self.reporting_period2
         )
         self.pl_acct = ProfitLossAccount.objects.create(
-            name='PL',
-            accounting_string='string',
+            name="PL",
+            accounting_string="string",
             as_start_date=datetime.date.today() - datetime.timedelta(days=10),
             as_end_date=datetime.date.today() + datetime.timedelta(days=355),
-            account_type='Revenue'
+            account_type="Revenue",
         )
         self.pl_acct_2 = ProfitLossAccount.objects.create(
-            name='PL2',
-            accounting_string='newstring',
+            name="PL2",
+            accounting_string="newstring",
             as_start_date=datetime.date.today() + datetime.timedelta(days=10),
             as_end_date=datetime.date.today() - datetime.timedelta(days=10),
-            account_type='Expense'
+            account_type="Expense",
         )
         self.pl_acct_3 = ProfitLossAccount.objects.create(
-            name='PL3',
-            accounting_string='newstring',
+            name="PL3",
+            accounting_string="newstring",
             as_start_date=datetime.date.today() - datetime.timedelta(days=10),
             as_end_date=datetime.date.today() + datetime.timedelta(days=355),
-            account_type='Expense'
+            account_type="Expense",
         )
 
-        self.project = Project.objects.get_or_create(
-            pk=1
-        )[0]
+        self.project = Project.objects.get_or_create(pk=1)[0]
 
         self.project.profit_loss_account = self.pl_acct
         self.project.save()
@@ -505,9 +515,7 @@ class TimecardObjectTests(TestCase):
 
         # Test that a valid profit/loss code is appended.
         tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project,
-            hours_spent=13
+            timecard=self.timecard, project=self.project, hours_spent=13
         )
         self.assertEqual(tco.revenue_profit_loss_account, self.pl_acct)
 
@@ -524,13 +532,10 @@ class TimecardObjectTests(TestCase):
         self.project.profit_loss_account = self.pl_acct
         self.project.save()
         tco_new = TimecardObject.objects.create(
-            timecard=self.timecard2,
-            project=self.project,
-            hours_spent=11
+            timecard=self.timecard2, project=self.project, hours_spent=11
         )
         self.assertNotEqual(
-            tco.revenue_profit_loss_account,
-            tco_new.revenue_profit_loss_account
+            tco.revenue_profit_loss_account, tco_new.revenue_profit_loss_account
         )
         # Test that a correct profit / loss code will be appended to
         # expense_profit_loss_account from UserData.
@@ -549,9 +554,7 @@ class TimecardObjectTests(TestCase):
     def test_employee_grade(self):
         """Checks that employee grade is appended to timecard object on save."""
         tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project,
-            hours_spent=self.hours_spent
+            timecard=self.timecard, project=self.project, hours_spent=self.hours_spent
         )
 
         self.assertEqual(tco.grade, self.grade)
@@ -560,14 +563,10 @@ class TimecardObjectTests(TestCase):
         """Checks that latest grade is appended to the timecard object on
         save."""
         new_grade = EmployeeGrade.objects.create(
-            employee=self.user,
-            grade=13,
-            g_start_date=datetime.date(2016, 1, 2)
+            employee=self.user, grade=13, g_start_date=datetime.date(2016, 1, 2)
         )
         tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project,
-            hours_spent=self.hours_spent
+            timecard=self.timecard, project=self.project, hours_spent=self.hours_spent
         )
 
         self.assertEqual(new_grade, tco.grade)
@@ -576,26 +575,22 @@ class TimecardObjectTests(TestCase):
         """Checks that no grade is appended if no grade exists."""
         EmployeeGrade.objects.filter(employee=self.user).delete()
         tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project,
-            hours_spent=self.hours_spent
+            timecard=self.timecard, project=self.project, hours_spent=self.hours_spent
         )
 
         self.assertFalse(tco.grade)
 
     def test_future_grade_only(self):
         """Checks that no grade is appended if the only EmployeeGrade object has
-         a g_start_date that is after the end date of the reporting period."""
+        a g_start_date that is after the end date of the reporting period."""
         EmployeeGrade.objects.filter(employee=self.user).delete()
         EmployeeGrade.objects.create(
             employee=self.user,
             grade=13,
-            g_start_date=self.reporting_period.end_date + datetime.timedelta(days=1)
+            g_start_date=self.reporting_period.end_date + datetime.timedelta(days=1),
         )
         tco = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=self.project,
-            hours_spent=self.hours_spent
+            timecard=self.timecard, project=self.project, hours_spent=self.hours_spent
         )
 
         self.assertFalse(tco.grade)
@@ -603,12 +598,12 @@ class TimecardObjectTests(TestCase):
 
 class ProjectTests(TestCase):
     fixtures = [
-        'projects/fixtures/projects.json',
+        "projects/fixtures/projects.json",
     ]
 
     def setUp(self):
-        self.project_1 = Project.objects.get(name='openFEC')
-        self.project_2 = Project.objects.get(name='Peace Corps')
+        self.project_1 = Project.objects.get(name="openFEC")
+        self.project_2 = Project.objects.get(name="Peace Corps")
 
         self.project_1.active = False
         self.project_2.active = False
