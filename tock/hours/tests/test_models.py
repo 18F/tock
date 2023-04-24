@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import IntegrityError
+from decimal import Decimal
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
@@ -149,6 +150,8 @@ class TimecardTests(TestCase):
         self.user_18f_current_data.is_18f_employee = True
         self.user_18f_current.save()
 
+        self.timecard.save()
+
     def test_time_card_saved(self):
         """Test that the time card was saved correctly."""
         timecard = Timecard.objects.first()
@@ -159,6 +162,10 @@ class TimecardTests(TestCase):
         self.assertEqual(len(timecard.time_spent.all()), 2)
         self.assertFalse(timecard.submitted)
         self.assertFalse(timecard.submitted_date)
+        self.assertEqual(timecard.billable_expectation, Decimal('0.80'))
+        self.assertEqual(timecard.billable_hours, 40)
+        self.assertEqual(timecard.target_hours, 32)
+        self.assertEqual(timecard.utilization, Decimal('1.25'))
 
     def test_time_card_submission(self):
         timecard = Timecard.objects.first()
@@ -214,6 +221,84 @@ class TimecardTests(TestCase):
                 Timecard.objects.create(
                     user=self.user,
                     reporting_period=self.reporting_period).save()
+
+    def test_time_card_utilization_target_hours(self):
+        """Check that utilization is 100% when a nonbillable project is added
+        that makes up the difference between target hours and 40 hours"""
+
+        # reduce a billable project by 8 hours
+        self.timecard_object_2.hours_spent = 20
+        self.timecard_object_2.save()
+
+        # add a non-billable project for 8 hours
+        nb_project = Project.objects.get(name="General")
+        nb_timecard_obj = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=nb_project,
+            hours_spent=8)
+
+        self.timecard.calculate_hours()
+
+        self.assertEqual(self.timecard.billable_hours, 32)
+        self.assertEqual(self.timecard.utilization, Decimal('1'))
+
+    def test_time_card_utilization_half_target_hours(self):
+        """Check that utilization is 50% when a nonbillable project is added
+        that brings billable project hours down to half of the target hour value"""
+
+        # reduce a billable project
+        self.timecard_object_2.hours_spent = 4
+        self.timecard_object_2.save()
+
+        # add a non-billable project
+        nb_project = Project.objects.get(name="General")
+        nb_timecard_obj = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=nb_project,
+            hours_spent=24)
+
+        self.timecard.calculate_hours()
+
+        self.assertEqual(self.timecard.billable_hours, 16)
+        self.assertEqual(self.timecard.utilization, Decimal('0.5'))
+
+    def test_time_card_utilization_adding_weekly_billing(self):
+        """Check that the utilization calculation with billable weekly project"""
+
+        weekly_project = Project.objects.get(name="Weekly Billing")
+        nb_timecard_obj = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_project,
+            hours_spent=None,
+            project_allocation=0.5)
+
+        self.timecard.calculate_hours()
+
+        self.assertEqual(self.timecard.billable_hours, 40)
+        self.assertEqual(self.timecard.utilization, Decimal('1.25'))
+
+    def test_time_card_utilization_only_weekly_billing(self):
+        """Check the utilization calculation with a weekly billing project
+        and no hourly billing associated with the timecard"""
+
+        weekly_project = Project.objects.get(name="Weekly Billing")
+        nb_timecard_obj = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_project,
+            hours_spent=None,
+            project_allocation=1)
+
+        # reduce hourly billable projects to 0
+        self.timecard_object_1.hours_spent = 0
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+
+        self.assertEqual(self.timecard.billable_hours, 0)
+        self.assertEqual(self.timecard.target_hours, 0)
+        self.assertIsNone(self.timecard.utilization)
 
     def test_timecard_string_return(self):
         """Ensure the returned string for the timecard is as expected."""
