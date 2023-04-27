@@ -88,7 +88,7 @@ that case, restart the `tock_app` container with a `docker-compose up` command.
 
 ### Testing locally
 
-The easiest, most reliable way to test locally is from within the docker container, 
+The easiest, most reliable way to test locally is from within the docker container,
 which lets you access `manage.py`:
 
 ```
