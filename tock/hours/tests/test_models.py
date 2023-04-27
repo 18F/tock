@@ -232,7 +232,7 @@ class TimecardTests(TestCase):
 
         # add a non-billable project for 8 hours
         nb_project = Project.objects.get(name="General")
-        nb_timecard_obj = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard=self.timecard,
             project=nb_project,
             hours_spent=8)
@@ -252,7 +252,7 @@ class TimecardTests(TestCase):
 
         # add a non-billable project
         nb_project = Project.objects.get(name="General")
-        nb_timecard_obj = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard=self.timecard,
             project=nb_project,
             hours_spent=24)
@@ -266,7 +266,7 @@ class TimecardTests(TestCase):
         """Check that the utilization calculation with billable weekly project"""
 
         weekly_project = Project.objects.get(name="Weekly Billing")
-        nb_timecard_obj = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard=self.timecard,
             project=weekly_project,
             hours_spent=None,
@@ -282,7 +282,7 @@ class TimecardTests(TestCase):
         and no hourly billing associated with the timecard"""
 
         weekly_project = Project.objects.get(name="Weekly Billing")
-        nb_timecard_obj = TimecardObject.objects.create(
+        TimecardObject.objects.create(
             timecard=self.timecard,
             project=weekly_project,
             hours_spent=None,
