@@ -50,15 +50,16 @@ class TestGroupUtilizationView(WebTest):
         test_org = Organization.objects.get_or_create(id=1)[0]
         test_unit = Unit.objects.get_or_create(org=test_org)[0]
 
-        self.user = User.objects.create(
-            username='regular.user',
-        )
-
-        # When we create the user, we have to assign them a unit from test data
-        # or else we can't find them in test data.
+        # create a set of users and assign them a unit from the test data
+        self.user = User.objects.create(username='regular.user')
         self.user_data = UserData.objects.get_or_create(user=self.user)[0]
         self.user_data.unit = test_unit
         self.user_data.save()
+
+        self.user_with_no_hours = User.objects.create(username='user.no.hours')
+        self.user_data_no_hours = UserData.objects.get_or_create(user=self.user_with_no_hours)[0]
+        self.user_data_no_hours.unit = test_unit
+        self.user_data_no_hours.save()
 
         # These utilization tests get weird around fiscal years, this is an attempt
         # to handle things better inside of the first week to 10 days of October
@@ -77,35 +78,6 @@ class TestGroupUtilizationView(WebTest):
             start_date=rp_start_date,
             end_date=datetime.date.today()
         )
-
-        self.timecard = Timecard.objects.create(
-            reporting_period=self.reporting_period,
-            user=self.user,
-            submitted=True
-        )
-
-        self.nb_timecard_object = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=non_billable_project,
-            hours_spent=15,
-        )
-
-        self.b_timecard_object = TimecardObject.objects.create(
-            timecard=self.timecard,
-            project=billable_project,
-            hours_spent=25,
-        )
-
-        # Save timecard to calculate utilization
-        self.timecard.save()
-
-        self.user_with_no_hours = User.objects.create(
-            username='user.no.hours',
-        )
-
-        self.user_data_no_hours = UserData.objects.get_or_create(user=self.user_with_no_hours)[0]
-        self.user_data_no_hours.unit = test_unit
-        self.user_data_no_hours.save()
 
         self.new_rp = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=14),
@@ -130,19 +102,41 @@ class TestGroupUtilizationView(WebTest):
             end_date=datetime.date.today() - datetime.timedelta(days=379)
         )
 
+        # create a time card with hourly billable / non-billable objects
+        self.timecard = Timecard.objects.create(
+            reporting_period=self.reporting_period,
+            user=self.user,
+            submitted=True
+        )
+
+        self.nb_timecard_object = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=non_billable_project,
+            hours_spent=15,
+        )
+
+        self.b_timecard_object = TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=billable_project,
+            hours_spent=25,
+        )
+
+        self.timecard.save()
+
+        # create a timecard from a previous fiscal year
         self.old_timecard = Timecard.objects.create(
             reporting_period=self.old_rp,
             user=self.user_with_no_hours,
             submitted=True
         )
 
-        self.nb_timecard_object = TimecardObject.objects.create(
+        self.nb_old_timecard_object = TimecardObject.objects.create(
             timecard=self.old_timecard,
             project=non_billable_project,
             hours_spent=15,
         )
 
-        self.b_timecard_object = TimecardObject.objects.create(
+        self.b_old_timecard_object = TimecardObject.objects.create(
             timecard=self.old_timecard,
             project=billable_project,
             hours_spent=25,
