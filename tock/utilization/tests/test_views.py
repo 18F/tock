@@ -1,5 +1,6 @@
 import datetime
 
+from decimal import Decimal
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django_webtest import WebTest
@@ -47,6 +48,10 @@ class TestGroupUtilizationView(WebTest):
         billable_project.accounting_code = billable_acct
         billable_project.save()
 
+        billable_weekly_project = Project.objects.get(pk=37)
+        billable_weekly_project.accounting_code = billable_acct
+        billable_weekly_project.save()
+
         test_org = Organization.objects.get_or_create(id=1)[0]
         test_unit = Unit.objects.get_or_create(org=test_org)[0]
 
@@ -60,6 +65,16 @@ class TestGroupUtilizationView(WebTest):
         self.user_data_no_hours = UserData.objects.get_or_create(user=self.user_with_no_hours)[0]
         self.user_data_no_hours.unit = test_unit
         self.user_data_no_hours.save()
+
+        self.user_weekly_only = User.objects.create(username='user.weekly.only')
+        self.user_data_weekly_only = UserData.objects.get_or_create(user=self.user_weekly_only)[0]
+        self.user_data_weekly_only.unit = test_unit
+        self.user_data_weekly_only.save()
+
+        self.user_weekly_hourly = User.objects.create(username='user.weekly.hourly')
+        self.user_data_weekly_hourly = UserData.objects.get_or_create(user=self.user_weekly_hourly)[0]
+        self.user_data_weekly_hourly.unit = test_unit
+        self.user_data_weekly_hourly.save()
 
         # These utilization tests get weird around fiscal years, this is an attempt
         # to handle things better inside of the first week to 10 days of October
@@ -102,7 +117,7 @@ class TestGroupUtilizationView(WebTest):
             end_date=datetime.date.today() - datetime.timedelta(days=379)
         )
 
-        # create a time card with hourly billable / non-billable objects
+        # create a time card with hourly billable / hourly non-billable objects
         self.timecard = Timecard.objects.create(
             reporting_period=self.reporting_period,
             user=self.user,
@@ -144,12 +159,64 @@ class TestGroupUtilizationView(WebTest):
 
         self.old_timecard.save()
 
+        # a timecard with only a weekly project and non billable hourly time
+        self.weekly_only_timecard = Timecard.objects.create(
+            reporting_period=self.reporting_period,
+            user=self.user_weekly_only,
+            submitted=True
+        )
+
+        self.nb_weekly_only_timecard_object = TimecardObject.objects.create(
+            timecard=self.weekly_only_timecard,
+            project=non_billable_project,
+            hours_spent=8
+        )
+
+        self.b_weekly_only_timecard_object = TimecardObject.objects.create(
+            timecard=self.weekly_only_timecard,
+            project=billable_weekly_project,
+            project_allocation=1
+        )
+
+        # a timecard with billable weekly, billable hourly, and non-billable hourly
+        self.weekly_hourly_timecard = Timecard.objects.create(
+            reporting_period=self.reporting_period,
+            user=self.user_weekly_hourly,
+            submitted=True
+        )
+
+        self.bw_weekly_hourly_timecard_object = TimecardObject.objects.create(
+            timecard=self.weekly_hourly_timecard,
+            project=billable_weekly_project,
+            project_allocation=1
+        )
+
+        self.b_weekly_hourly_timecard_object = TimecardObject.objects.create(
+            timecard=self.weekly_hourly_timecard,
+            project=billable_project,
+            hours_spent=12
+        )
+
+        self.nb_weekly_hourly_timecard_object = TimecardObject.objects.create(
+            timecard=self.weekly_hourly_timecard,
+            project=non_billable_project,
+            hours_spent=4
+        )
+
+        self.weekly_hourly_timecard.save()
+
+
     def test_unsubmitted_card(self):
         """
-        If our timecard is unsubmitted, we should have empty data.
+        If our current timecards are unsubmitted, we should have empty data.
         """
         self.timecard.submitted = False
         self.timecard.save()
+        self.weekly_only_timecard.submitted = False
+        self.weekly_only_timecard.save()
+        self.weekly_hourly_timecard.submitted = False
+        self.weekly_hourly_timecard.save()
+
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
             user=self.user
@@ -211,6 +278,58 @@ class TestGroupUtilizationView(WebTest):
         self.assertEqual(
             utilization_data['last_week_data'][0]['billable'],
             self.b_timecard_object.hours_spent
+        )
+
+    def test_last_week_data_user_with_weekly_only(self):
+        """
+        Checks the utilization value for the previous week when a user
+        has only weekly allocation and no billable hours.
+
+        NOTE: Currently utilization does not consider weekly allocation,
+        therefore the values below should appear as though the user
+        has not submitted hours
+        """
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            user=self.user_weekly_only
+        )
+
+        last_week_data = response.context['object_list'][0]['utilization']['last_week_data']
+
+        data = next(item for item in last_week_data if item['username'] == 'user.weekly.only')
+        self.assertIsNone(data['denominator'])
+        self.assertEqual(data['billable'],
+            Decimal('0')
+        )
+        self.assertEqual(data['utilization'],
+            'No hours submitted.'
+        )
+
+    def test_last_week_data_user_with_weekly_and_hourly(self):
+        """
+        Checks the utilization value for the previous week when a user
+        has weekly allocation and billable hours.
+
+        NOTE: Currently utilization does not consider weekly allocation,
+        therefore the values below reflect the mistaken assumption that
+        the user only worked the hourly billable and non-billable total.
+        """
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            user=self.user_weekly_hourly
+        )
+
+        last_week_data = response.context['object_list'][0]['utilization']['last_week_data']
+
+        data = next(item for item in last_week_data if item['username'] == 'user.weekly.hourly')
+        self.assertEqual(data['denominator'],
+            Decimal('13.0')
+        )
+        self.assertEqual(data['billable'],
+            Decimal('12.0')
+        )
+        self.assertEqual(data['utilization'],
+            '92.3%'
         )
 
     def test_user_detail_with_utilization(self):
