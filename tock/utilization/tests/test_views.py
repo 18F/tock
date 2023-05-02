@@ -296,7 +296,7 @@ class TestGroupUtilizationView(WebTest):
 
         last_week_data = response.context['object_list'][0]['utilization']['last_week_data']
 
-        data = next(item for item in last_week_data if item['username'] == 'user.weekly.only')
+        data = [item for item in last_week_data if item['username'] == 'user.weekly.only'][0]
         self.assertIsNone(data['denominator'])
         self.assertEqual(data['billable'],
             Decimal('0')
@@ -321,7 +321,7 @@ class TestGroupUtilizationView(WebTest):
 
         last_week_data = response.context['object_list'][0]['utilization']['last_week_data']
 
-        data = next(item for item in last_week_data if item['username'] == 'user.weekly.hourly')
+        data = [item for item in last_week_data if item['username'] == 'user.weekly.hourly'][0]
         self.assertEqual(data['denominator'],
             Decimal('13.0')
         )
