@@ -289,7 +289,7 @@ class Timecard(models.Model):
 
         super().save(*args, **kwargs)
 
-    def calculate_utilization_denominator(self):
+    def calculate_hourly_utilization_denominator(self):
         return self.billable_hours + self.non_billable_hours
 
     def calculate_submitted_date(self):
@@ -316,7 +316,7 @@ class Timecard(models.Model):
             1. Target hours in a regular 40 hour work week
             2. Billable expectation * number of hours worked
         """
-        this_weeks_target = round(self.billable_expectation * self.calculate_utilization_denominator(), 0)
+        this_weeks_target = round(self.billable_expectation * self.calculate_hourly_utilization_denominator(), 0)
         return min(this_weeks_target, self.max_target_hours())
 
     def calculate_total_weekly_allocation(self):
@@ -324,16 +324,27 @@ class Timecard(models.Model):
         Loops through related time card objects and sums total
         weekly allocation percentage
         """
-        timecardobjs = self.timecardobjects.all()
+        timecardobjs = self.timecardobjects.filter(project__accounting_code__billable=True)
         total_weekly_allocation = 0.00
         for tco in timecardobjs:
             total_weekly_allocation += float(tco.project_allocation)
         return total_weekly_allocation
 
     def calculate_utilization(self):
+        """
+        Calculate this timecard's utilization using the sum of weekly allocation
+        and the billable hours spent compared with the target for billable hours
+
+        Return None for timecards with neither billable allocation nor target hours
+        """
         if self.target_hours == 0:
-            return None
-        return self.billable_hours / self.target_hours
+            if self.total_weekly_allocation == 0.00:
+                return None
+            else:
+                return self.total_weekly_allocation
+        else:
+            hourly_utilization = float(self.billable_hours / self.target_hours)
+            return self.total_weekly_allocation + hourly_utilization
 
     def max_target_hours(self):
         return round(self.billable_expectation * settings.HOURS_IN_A_REGULAR_WORK_WEEK)
