@@ -44,5 +44,10 @@ echo "${DEPLOYMENT_DESCRIPTION}"
 # Record deployment using the New Relic Python Admin CLI
 newrelic-admin record-deploy "${NEW_RELIC_CONFIG_FILE}" "${DEPLOYMENT_DESCRIPTION}"
 
+# make sure python accepts the cloud.gov certificate authority file for proxy
+# (egress traffic control) purposes
+echo "Updating cloud.gov certificate authority (if needed)"
+python ../bin/update-ca.py
+
 python manage.py collectstatic --settings=tock.settings.production --noinput
 gunicorn -t 120 -k gevent -w 2 tock.wsgi:application
