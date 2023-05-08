@@ -289,9 +289,6 @@ class Timecard(models.Model):
 
         super().save(*args, **kwargs)
 
-    def calculate_hourly_utilization_denominator(self):
-        return self.billable_hours + self.non_billable_hours
-
     def calculate_submitted_date(self):
         """
         If the submitted status is false, make sure submitted_date is unset
@@ -309,15 +306,21 @@ class Timecard(models.Model):
 
     def calculate_target_hours(self):
         """
-        If a user works over 40 hours in a week, their target hours
-        does not increase.
+        A user's target hours for a given timecard is the number of hours
+        in a regular work week (i.e., 40), less any excluded hours (e.g.,
+        OOO time), multipled by their billable expectation. Target hours
+        are rounded to the nearest whole hour.
 
-        Therefore, set `target_hours` to the lesser of:
-            1. Target hours in a regular 40 hour work week
-            2. Billable expectation * number of hours worked
+        Billable hours, non-billable hours, and weekly allocation are not
+        factored into target hours. This supports calculating utilization
+        rates across both hourly and weekly projects.
+
+        Capping the number of hours worked in a week at 40 prevents target
+        hours from increasing for users who work > 40 hours in a given week.
         """
-        this_weeks_target = round(self.billable_expectation * self.calculate_hourly_utilization_denominator(), 0)
-        return min(this_weeks_target, self.max_target_hours())
+
+        total_hours_worked = settings.HOURS_IN_A_REGULAR_WORK_WEEK - self.excluded_hours
+        return round(self.billable_expectation * total_hours_worked, 0)
 
     def calculate_total_weekly_allocation(self):
         """
@@ -325,26 +328,23 @@ class Timecard(models.Model):
         weekly allocation percentage
         """
         timecardobjs = self.timecardobjects.filter(project__accounting_code__billable=True)
-        total_weekly_allocation = 0.00
+        total_weekly_allocation = Decimal(0)
         for tco in timecardobjs:
-            total_weekly_allocation += float(tco.project_allocation)
+            total_weekly_allocation += Decimal(tco.project_allocation)
         return total_weekly_allocation
 
     def calculate_utilization(self):
         """
         Calculate this timecard's utilization using the sum of weekly allocation
-        and the billable hours spent compared with the target for billable hours
-
-        Return None for timecards with neither billable allocation nor target hours
+        and the billable hours spent compared with the target for billable hours.
         """
+
+        # Return none in cases where a user's billable expectation is 0
         if self.target_hours == 0:
-            if self.total_weekly_allocation == 0.00:
-                return None
-            else:
-                return self.total_weekly_allocation
-        else:
-            hourly_utilization = float(self.billable_hours / self.target_hours)
-            return self.total_weekly_allocation + hourly_utilization
+            return None
+
+        hourly_utilization = Decimal(self.billable_hours / self.target_hours)
+        return self.total_weekly_allocation + hourly_utilization
 
     def max_target_hours(self):
         return round(self.billable_expectation * settings.HOURS_IN_A_REGULAR_WORK_WEEK)
