@@ -310,9 +310,10 @@ class TestGroupUtilizationView(WebTest):
         Checks the utilization value for the previous week when a user
         has weekly allocation and billable hours.
 
-        NOTE: Currently utilization does not consider weekly allocation,
-        therefore the values below reflect the mistaken assumption that
-        the user only worked the hourly billable and non-billable total.
+        NOTE: Currently utilization only considers weekly allocation when
+        calculating target hours (aka `denominator`). Therefore the billable
+        and utilization values below reflect the mistaken assumption the
+        user only billed what they tocked to an hourly billable project.
         """
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
@@ -322,14 +323,15 @@ class TestGroupUtilizationView(WebTest):
         last_week_data = response.context['object_list'][0]['utilization']['last_week_data']
 
         data = [item for item in last_week_data if item['username'] == 'user.weekly.hourly'][0]
+
         self.assertEqual(data['denominator'],
-            Decimal('13.0')
+            Decimal('32.0')
         )
         self.assertEqual(data['billable'],
             Decimal('12.0')
         )
         self.assertEqual(data['utilization'],
-            '92.3%'
+            '37.5%'
         )
 
     def test_user_detail_with_utilization(self):
