@@ -218,6 +218,8 @@ class UserReportsTest(TestCase):
         self.excluded_project = Project.objects.filter(
             exclude_from_billability=True
         )[0]
+        self.weekly_billable_project = Project.objects.get(name="Weekly Billing")
+
         self.timecard_obj_0 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.nonbillable_project,
@@ -226,12 +228,17 @@ class UserReportsTest(TestCase):
         self.timecard_obj_1 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.billable_project,
-            hours_spent=27
+            hours_spent=10
         )
         self.timecard_obj_2 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.excluded_project,
             hours_spent=2
+        )
+        self.timecard_obj_3 = hours.models.TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=self.weekly_billable_project,
+            project_allocation=0.5
         )
         self.timecard.save()
 
@@ -241,12 +248,13 @@ class UserReportsTest(TestCase):
             'reports:ReportingPeriodUserDetailView',
             kwargs={'reporting_period':'1999-12-31', 'username':'aaron.snow'}
         ))
-        self.assertEqual(response.context['user_utilization'], Decimal('0.90'))
+        self.assertEqual(response.context['user_utilization'], Decimal('0.83'))
         self.assertEqual(response.context['user_target_hours'], 30.00)
-        self.assertEqual(response.context['user_billable_hours'], 27)
+        self.assertEqual(response.context['user_billable_hours'], 10)
         self.assertEqual(response.context['user_non_billable_hours'], 11)
+        self.assertEqual(response.context['user_weekly_allocation'], Decimal('0.5'))
         self.assertEqual(response.context['user_excluded_hours'], 2)
-        self.assertContains(response, '90%')
+        self.assertContains(response, '83%')
 
 @override_settings(STARTING_FY_FOR_REPORTS_PAGE=2015)
 class ReportTests(WebTest):

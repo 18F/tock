@@ -30,7 +30,8 @@
       {% endif %}
       </td>
       <td data-title="Hours spent">{{ entry.hours_spent }}</td>
-      <td data-title="Project Allocation">{{ entry.project_allocation }}</td>
+      <td data-title="Project Allocation">{% widthratio entry.project_allocation 1 100 %}%
+      </td>
       <td data-title="Notes">
         {% for note in entry.notes_list %}
           <p>{{ note }}</p>
@@ -58,6 +59,7 @@
   <thead>
     <tr>
       <th>Billable Hours</th>
+      <th>Billable Allocation</th>
       <th>Non-Billable Hours</th>
       <th>Excluded Hours</th>
       <th>Target Hours</th>
@@ -67,6 +69,7 @@
   <tbody>
     <tr>
       <td data-title="Billable hours"> {{ user_billable_hours }} </td>
+      <td data-title="Billable allocation">{% widthratio user_weekly_allocation 1 100 %}% </td>
       <td data-title="Non-Billable hours"> {{ user_non_billable_hours }} </td>
       <td data-title="Excluded hours"> {{ user_excluded_hours }} </td>
       <td data-title="Target hours"> {{ user_target_hours }} </td>
