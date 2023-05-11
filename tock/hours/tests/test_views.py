@@ -3,7 +3,6 @@ import datetime
 from decimal import Decimal
 
 import hours.models
-import projects.models
 from api.tests import client
 from api.views import ProjectSerializer, UserDataSerializer
 from django.conf import settings
@@ -17,6 +16,7 @@ from hours.utils import number_of_hours
 from hours.views import (GeneralSnippetsTimecardSerializer, ReportsList,
                          TimecardView)
 from organizations.models import Organization, Unit
+from projects.models import AccountingCode, Project
 
 User = get_user_model()
 
@@ -71,7 +71,7 @@ class CSVTests(TestCase):
 
     def test_general_snippets(self):
         """Test that snippets are returned in correct CSV format."""
-        project = projects.models.Project.objects.get_or_create(
+        project = Project.objects.get_or_create(
             name='General'
         )[0]
         tco = hours.models.TimecardObject.objects.first()
@@ -212,10 +212,10 @@ class UserReportsTest(TestCase):
         self.nonbillable_project = hours.models.Project.objects.filter(
             accounting_code__billable=False
         )[0]
-        self.billable_project = projects.models.Project.objects.filter(
+        self.billable_project = Project.objects.filter(
             accounting_code__billable=True
         )[0]
-        self.excluded_project = projects.models.Project.objects.filter(
+        self.excluded_project = Project.objects.filter(
             exclude_from_billability=True
         )[0]
         self.timecard_obj_0 = hours.models.TimecardObject.objects.create(
@@ -268,9 +268,8 @@ class ReportTests(WebTest):
             user=self.user,
             submitted=True,
             reporting_period=self.reporting_period)
-        self.project_1 = projects.models.Project.objects.get(name="openFEC")
-        self.project_2 = projects.models.Project.objects.get(
-            name="Peace Corps")
+        self.project_1 = Project.objects.get(name="openFEC")
+        self.project_2 = Project.objects.get(name="Peace Corps")
         self.timecard_object_1 = hours.models.TimecardObject.objects.create(
             timecard=self.timecard,
             project=self.project_1,
@@ -498,23 +497,23 @@ class ReportTests(WebTest):
         org_coe = Organization.objects.create(name='CoE')
         org_coe.save()
 
-        accounting_code = projects.models.AccountingCode.objects.get(pk=1)
+        accounting_code = AccountingCode.objects.get(pk=1)
 
-        project_18f = projects.models.Project.objects.create(
+        project_18f = Project.objects.create(
             name='an 18f project',
             accounting_code=accounting_code,
             organization=org_18f
         )
         project_18f.save()
 
-        project_coe = projects.models.Project.objects.create(
+        project_coe = Project.objects.create(
             name='a coe project',
             accounting_code=accounting_code,
             organization=org_coe
         )
         project_coe.save()
 
-        project_none = projects.models.Project.objects.create(
+        project_none = Project.objects.create(
             name='a project with no org assignment',
             accounting_code=accounting_code,
         )
@@ -687,7 +686,7 @@ class ReportTests(WebTest):
             submitted=False,
             reporting_period=new_period
         )
-        new_project = projects.models.Project.objects.get(name="Midas")
+        new_project = Project.objects.get(name="Midas")
         new_tco = hours.models.TimecardObject.objects.create(
             timecard=new_timecard,
             project=new_project,
@@ -1013,9 +1012,9 @@ class PrefillDataViewTests(WebTest):
             user=self.user
         )
 
-        self.project_1 = projects.models.Project.objects.first()
+        self.project_1 = Project.objects.first()
         self.project_1.save()
-        self.project_2 = projects.models.Project.objects.last()
+        self.project_2 = Project.objects.last()
         self.project_2.save()
 
         self.pfd1 = hours.models.TimecardPrefillData.objects.create(
