@@ -802,6 +802,7 @@ class ReportingPeriodUserDetailView(PermissionMixin, DetailView):
         context = super(
             ReportingPeriodUserDetailView, self).get_context_data(**kwargs)
         context['user_billable_hours'] = timecard.billable_hours
+        context['user_weekly_allocation'] = timecard.total_weekly_allocation
         context['user_non_billable_hours'] = timecard.non_billable_hours
         context['user_excluded_hours'] = timecard.excluded_hours
         context['user_target_hours'] = timecard.target_hours
