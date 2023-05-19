@@ -26,7 +26,7 @@
   <tfoot>
     <tr><th scope="row"><b>Totals</b></th></tr>
     <tr>
-    <th scope="row"><b>Billable</b></th>
+    <th scope="row"><b>Billable Hours</b></th>
       {% for i in recent_timecards %}
         {% with recent_timecards|index:forloop.counter0 as tc %}
           <td>{{tc.billable_hours}}</td>
@@ -34,14 +34,22 @@
       {% endfor %}
     </tr>
     <tr>
-    <th scope="row"><b>Non-Billable</b></th>
+    <tr>
+    <th scope="row"><b>Billable Allocation</b></th>
+      {% for i in recent_timecards %}
+      {% with recent_timecards|index:forloop.counter0 as tc %}
+        <td>{% widthratio tc.total_weekly_allocation 1 100 %}%</td>
+      {% endwith %}
+    {% endfor %}
+    </tr>
+    <tr>
+    <th scope="row"><b>Non-Billable Hours</b></th>
       {% for i in recent_timecards %}
       {% with recent_timecards|index:forloop.counter0 as tc %}
         <td>{{tc.non_billable_hours}}</td>
       {% endwith %}
     {% endfor %}
     </tr>
-    <tr>
     <th scope="row"><b>Excluded from Utilization</b></th>
     {% for i in recent_timecards %}
       {% with recent_timecards|index:forloop.counter0 as tc %}
