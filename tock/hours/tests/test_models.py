@@ -165,6 +165,8 @@ class TimecardTests(TestCase):
         self.assertEqual(timecard.billable_expectation, Decimal('0.80'))
         self.assertEqual(timecard.billable_hours, 40)
         self.assertEqual(timecard.target_hours, 32)
+        self.assertEqual(timecard.total_weekly_allocation, 0)
+        self.assertEqual(timecard.total_allocation_hours, 0)
         self.assertEqual(timecard.utilization, Decimal('1.25'))
 
     def test_time_card_submission(self):
@@ -290,7 +292,9 @@ class TimecardTests(TestCase):
         self.timecard.calculate_hours()
 
         self.assertEqual(self.timecard.billable_hours, 40)
-        self.assertEqual(self.timecard.utilization, Decimal('1.75'))
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal("0.5"))
+        self.assertEqual(self.timecard.total_allocation_hours, 16)
+        self.assertEqual(self.timecard.utilization, Decimal("1.75"))
 
     def test_time_card_utilization_only_weekly_billing(self):
         """Check that utilization is 100% with a 100% weekly billing project
@@ -312,6 +316,8 @@ class TimecardTests(TestCase):
         self.timecard.calculate_hours()
 
         self.assertEqual(self.timecard.billable_hours, 0)
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal("1"))
+        self.assertEqual(self.timecard.total_allocation_hours, 32)
         self.assertEqual(self.timecard.utilization, Decimal("1"))
 
     def test_time_card_utilization_many_weekly_billing(self):
@@ -356,6 +362,8 @@ class TimecardTests(TestCase):
         self.timecard.calculate_hours()
 
         self.assertEqual(self.timecard.target_hours, 32)
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal(".875"))
+        self.assertEqual(self.timecard.total_allocation_hours, 28)
         self.assertEqual(self.timecard.utilization, Decimal("1"))
 
     def test_time_card_utilization_no_hours_with_weekly_nonbillable(self):
@@ -376,7 +384,9 @@ class TimecardTests(TestCase):
         self.timecard_object_2.save()
 
         self.timecard.calculate_hours()
-        self.assertEqual(self.timecard.utilization, Decimal('0'))
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal("0"))
+        self.assertEqual(self.timecard.total_allocation_hours, 0)
+        self.assertEqual(self.timecard.utilization, Decimal("0"))
 
     def test_time_card_utilization_weekly_nonbillable(self):
         """Check that utilization is hourly only when there is a non-billable
