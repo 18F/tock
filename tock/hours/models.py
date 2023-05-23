@@ -322,6 +322,14 @@ class Timecard(models.Model):
         total_hours_worked = settings.HOURS_IN_A_REGULAR_WORK_WEEK - self.excluded_hours
         return round(self.billable_expectation * total_hours_worked, 0)
 
+    def calculate_total_allocation_hours(self):
+        """
+        Calculates an estimate of the hours spent on projects with a weekly billable
+        allocation by multiplying that allocation against this timecard's target hours.
+        """
+
+        return round(self.target_hours * self.total_weekly_allocation, 0)
+
     def calculate_total_weekly_allocation(self):
         """
         Loops through related time card objects and sums total
@@ -365,10 +373,10 @@ class Timecard(models.Model):
         self.billable_hours = round(timecard.billable, 2)
         self.non_billable_hours = round(timecard.non_billable, 2)
         self.excluded_hours = round(timecard.excluded, 2)
-        self.total_weekly_allocation = self.calculate_total_weekly_allocation()
-        self.total_allocation_hours = settings.FULLTIME_ALLOCATION_HOURS * self.total_weekly_allocation
 
         self.target_hours = self.calculate_target_hours()
+        self.total_weekly_allocation = self.calculate_total_weekly_allocation()
+        self.total_allocation_hours = self.calculate_total_allocation_hours()
         self.utilization = self.calculate_utilization()
 
     def on_time(self):
