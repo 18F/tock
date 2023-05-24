@@ -694,5 +694,45 @@
          "is_weekly_bill": true
       },
       "pk":51
+   },
+   {
+      "model":"projects.project",
+      "fields":{
+         "name":"Weekly Non-billing",
+         "description":"",
+         "accounting_code":1,
+         "is_weekly_bill": true
+      },
+      "pk":52
+   },
+   {
+      "model":"projects.project",
+      "fields":{
+         "name":"Weekly Billing 2",
+         "description":"",
+         "accounting_code":15,
+         "is_weekly_bill": true
+      },
+      "pk":53
+   },
+   {
+      "model":"projects.project",
+      "fields":{
+         "name":"Weekly Billing 3",
+         "description":"",
+         "accounting_code":15,
+         "is_weekly_bill": true
+      },
+      "pk":54
+   },
+   {
+      "model":"projects.project",
+      "fields":{
+         "name":"Weekly Billing 4",
+         "description":"",
+         "accounting_code":15,
+         "is_weekly_bill": true
+      },
+      "pk":55
    }
 ]

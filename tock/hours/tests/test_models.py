@@ -165,6 +165,8 @@ class TimecardTests(TestCase):
         self.assertEqual(timecard.billable_expectation, Decimal('0.80'))
         self.assertEqual(timecard.billable_hours, 40)
         self.assertEqual(timecard.target_hours, 32)
+        self.assertEqual(timecard.total_weekly_allocation, 0)
+        self.assertEqual(timecard.total_allocation_hours, 0)
         self.assertEqual(timecard.utilization, Decimal('1.25'))
 
     def test_time_card_submission(self):
@@ -222,6 +224,18 @@ class TimecardTests(TestCase):
                     user=self.user,
                     reporting_period=self.reporting_period).save()
 
+    def test_time_card_utilization_no_hours(self):
+        """If weekly allocation is 0% and no hours recorded, utilization
+        should return 0
+        """
+        self.timecard_object_1.hours_spent = 0
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.utilization, Decimal('0'))
+
     def test_time_card_utilization_target_hours(self):
         """Check that utilization is 100% when a nonbillable project is added
         that makes up the difference between target hours and 40 hours"""
@@ -263,7 +277,10 @@ class TimecardTests(TestCase):
         self.assertEqual(self.timecard.utilization, Decimal('0.5'))
 
     def test_time_card_utilization_adding_weekly_billing(self):
-        """Check that the utilization calculation with billable weekly project"""
+        """Check the utilization calculation with billable weekly project.
+        The hourly billing is 40 hours out of 40 target, therefore 125%.
+        Adding in 50% weekly allocation, this brings the user to 175%.
+        """
 
         weekly_project = Project.objects.get(name="Weekly Billing")
         TimecardObject.objects.create(
@@ -275,10 +292,12 @@ class TimecardTests(TestCase):
         self.timecard.calculate_hours()
 
         self.assertEqual(self.timecard.billable_hours, 40)
-        self.assertEqual(self.timecard.utilization, Decimal('1.25'))
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal("0.5"))
+        self.assertEqual(self.timecard.total_allocation_hours, 16)
+        self.assertEqual(self.timecard.utilization, Decimal("1.75"))
 
     def test_time_card_utilization_only_weekly_billing(self):
-        """Check the utilization calculation with a weekly billing project
+        """Check that utilization is 100% with a 100% weekly billing project
         and no hourly billing associated with the timecard"""
 
         weekly_project = Project.objects.get(name="Weekly Billing")
@@ -297,6 +316,296 @@ class TimecardTests(TestCase):
         self.timecard.calculate_hours()
 
         self.assertEqual(self.timecard.billable_hours, 0)
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal("1"))
+        self.assertEqual(self.timecard.total_allocation_hours, 32)
+        self.assertEqual(self.timecard.utilization, Decimal("1"))
+
+    def test_time_card_utilization_many_weekly_billing(self):
+        """Check the utilization calculation for a timecard with
+        several weekly billing projects and some hourly time, all
+        adding up to 100% utilization."""
+
+        weekly_project = Project.objects.get(name="Weekly Billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_project,
+            hours_spent=None,
+            project_allocation=.25)
+
+        weekly_project2 = Project.objects.get(name="Weekly Billing 2")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_project2,
+            hours_spent=None,
+            project_allocation=.25)
+
+        weekly_project3 = Project.objects.get(name="Weekly Billing 3")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_project3,
+            hours_spent=None,
+            project_allocation=.25)
+
+        weekly_project4 = Project.objects.get(name="Weekly Billing 4")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_project4,
+            hours_spent=None,
+            project_allocation=.125)
+
+        # reduce hourly billable projects
+        self.timecard_object_1.hours_spent = 4
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+
+        self.assertEqual(self.timecard.target_hours, 32)
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal(".875"))
+        self.assertEqual(self.timecard.total_allocation_hours, 28)
+        self.assertEqual(self.timecard.utilization, Decimal("1"))
+
+    def test_time_card_utilization_no_hours_with_weekly_nonbillable(self):
+        """Check that utilization is 0 when there is a non-billable
+        weekly project associated with a timecard with no hourly billing"""
+
+        weekly_nonbillable = Project.objects.get(name="Weekly Non-billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_nonbillable,
+            hours_spent=None,
+            project_allocation=0.5)
+
+        # reduce hourly billable projects to 0
+        self.timecard_object_1.hours_spent = 0
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal("0"))
+        self.assertEqual(self.timecard.total_allocation_hours, 0)
+        self.assertEqual(self.timecard.utilization, Decimal("0"))
+
+    def test_time_card_utilization_weekly_nonbillable(self):
+        """Check that utilization is hourly only when there is a non-billable
+        weekly project associated with a timecard with billable hours"""
+
+        weekly_nonbillable = Project.objects.get(name="Weekly Non-billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_nonbillable,
+            hours_spent=None,
+            project_allocation=0.5)
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal("0"))
+        self.assertEqual(self.timecard.utilization, Decimal("1.25"))
+
+    def test_time_card_utilization_weekly_and_hourly_billable(self):
+        """Check that utilization percentage accounts for timecards
+        with both billable weekly and hourly projects."""
+
+        # add weekly billing at 50%
+        weekly_billable = Project.objects.get(name="Weekly Billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_billable,
+            hours_spent=None,
+            project_allocation=0.5)
+
+        # reduce hourly billable projects to 12.5% (32 * .125 = 4)
+        self.timecard_object_1.hours_spent = 4
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal('.5'))
+        self.assertEqual(self.timecard.utilization, Decimal('.625'))
+
+    def test_time_card_utilization_weekly_and_hourly_billable_with_ooo(self):
+        """Check that utilization percentage adjusts to excluded time
+        (i.e., OOO) for timecards with both billable weekly and
+        hourly projects."""
+
+        # add weekly billing at 50%
+        weekly_nonbillable = Project.objects.get(name="Weekly Billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_nonbillable,
+            hours_spent=None,
+            project_allocation=0.5)
+
+        # add OOO at 10 hrs
+        ooo = Project.objects.get(name="Out Of Office")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=ooo,
+            hours_spent=10)
+
+        # reduce hourly billable projects to 3 hours
+        # (40-10) * .8 = 24
+        # 3 / 24 = 12.5%
+        self.timecard_object_1.hours_spent = 3
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal('.5'))
+        self.assertEqual(self.timecard.utilization, Decimal('.625'))
+
+    def test_time_card_utilization_weekly_billable_with_ooo(self):
+        """Check that utilization percentage adjusts to excluded time
+        (i.e., OOO) for timecards with both billable weekly and
+        hourly projects."""
+
+        weekly_billable = Project.objects.get(name="Weekly Billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_billable,
+            hours_spent=None,
+            project_allocation=1)
+
+        # add OOO at 10 hrs
+        ooo = Project.objects.get(name="Out Of Office")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=ooo,
+            hours_spent=10)
+
+        # reduce hourly billable projects to 0 hours
+        self.timecard_object_1.hours_spent = 0
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.target_hours, 24)
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal('1'))
+        self.assertEqual(self.timecard.utilization, Decimal('1'))
+
+    def test_time_card_utilization_none_hourly(self):
+        """Check that utilization is None for a user with no
+        billable expecation."""
+
+        self.timecard.billable_expectation = Decimal('0.00')
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.target_hours, 0)
+        self.assertIsNone(self.timecard.utilization)
+
+    def test_time_card_utilization_none_weekly(self):
+        """Check that utilization is None for a user with no
+        billable expecation who tracks to a weekly non-billable
+        project."""
+
+        weekly_nonbillable = Project.objects.get(name="Weekly Non-billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_nonbillable,
+            hours_spent=None,
+            project_allocation=1)
+
+        self.timecard.billable_expectation = Decimal('0.00')
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.target_hours, 0)
+        self.assertIsNone(self.timecard.utilization)
+
+    def test_time_card_utilization_weekly_reduced_expectation(self):
+        """Check that utilization and target hours values adjust
+        when a user has a reduced billable expectation (i.e., .4
+        for a supervisor) and tocks to a weekly project."""
+
+        weekly_billable = Project.objects.get(name="Weekly Billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_billable,
+            hours_spent=None,
+            project_allocation=1)
+
+        # reduce hourly billable projects to 0 hours
+        self.timecard_object_1.hours_spent = 0
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        # reduce billable expectation
+        self.timecard.billable_expectation = Decimal('0.4')
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.target_hours, 16)
+        self.assertEqual(self.timecard.utilization, Decimal('1'))
+
+    def test_time_card_utilization_reduced_expectation(self):
+        """Check that utilization and target hours values adjust
+        when a user has a reduced billable expectation (i.e., .4
+        for a supervisor) and tocks to both weekly and hourly
+        projects."""
+
+        weekly_billable = Project.objects.get(name="Weekly Billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_billable,
+            hours_spent=None,
+            project_allocation=1)
+
+        # reduce hourly billable projects to 0 hours
+        self.timecard_object_1.hours_spent = 2
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        # reduce billable expectation
+        self.timecard.billable_expectation = Decimal('0.4')
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.target_hours, 16)
+        self.assertEqual(self.timecard.utilization, Decimal('1.125'))
+
+    def test_time_card_utilization_ooo(self):
+        """Check that utilization is none for a user who tocks
+        40 hours of OOO for a week."""
+
+        ooo = Project.objects.get(name="Out Of Office")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=ooo,
+            hours_spent=40)
+
+        # reduce hourly billable projects to 0 hours
+        self.timecard_object_1.hours_spent = 0
+        self.timecard_object_1.save()
+        self.timecard_object_2.hours_spent = 0
+        self.timecard_object_2.save()
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.target_hours, 0)
+        self.assertIsNone(self.timecard.utilization)
+
+    def test_time_card_utilization_ooo_weekly(self):
+        """Check that utilization is 0 for a user who tocks
+        40 hours of OOO for a week in addition to a weekly
+        billing project."""
+
+        ooo = Project.objects.get(name="Out Of Office")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=ooo,
+            hours_spent=40)
+
+        weekly_billable = Project.objects.get(name="Weekly Billing")
+        TimecardObject.objects.create(
+            timecard=self.timecard,
+            project=weekly_billable,
+            hours_spent=None,
+            project_allocation=1)
+
+        self.timecard.calculate_hours()
+        self.assertEqual(self.timecard.total_weekly_allocation, Decimal('1'))
         self.assertEqual(self.timecard.target_hours, 0)
         self.assertIsNone(self.timecard.utilization)
 
