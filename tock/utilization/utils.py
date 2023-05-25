@@ -42,11 +42,17 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, 
         filter_ = Q(filter_, Q(timecards__submitted=True, timecards__unit=unit))
 
     # Using Coalesce to set a default value of 0 if no data is available
-    billable = Coalesce(Sum('timecards__billable_hours', filter=filter_), Decimal('0'))
+    billable_hourly = Coalesce(Sum('timecards__billable_hours', filter=filter_), Decimal('0'))
+    billable_weekly = Coalesce(Sum('timecards__total_allocation_hours', filter=filter_), Decimal('0'))
     non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=filter_), Decimal('0'))
     target_billable = Sum('timecards__target_hours', filter=filter_)
+
+    billable = billable_hourly + billable_weekly
+
     if users:
-        return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=billable + non_billable)
+        return users.annotate(billable=billable) \
+                    .annotate(target=target_billable) \
+                    .annotate(total=billable + non_billable)
     raise NotImplementedError
 
 def utilization_report(user_qs=None, recent_periods=1, fiscal_year=False, unit=None):
