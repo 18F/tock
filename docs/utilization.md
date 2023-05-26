@@ -75,7 +75,7 @@ Hourly Non-Billable | 8.0 | 2.0 | 8.0 | 8.0
 ### Week 1
 Stacey's `utilization` for Week 1 is 100%.
 
-Stacey tocked 24 billable hours to an hourly project and 8 billable hours to a weekly project, for a combined 32 hours of an expected 32 target billable hours.
+Stacey tocked 24 billable hours to an hourly project and 8 billable hours (25% of 32) to a weekly project, for a combined 32 hours of an expected 32 target billable hours.
 
 ```python
 # Week 1
