@@ -40,17 +40,19 @@ class TestGroupUtilizationView(WebTest):
         )
 
         # Grab projects to associate with the account codes
-        non_billable_project = Project.objects.first()
-        non_billable_project.accounting_code = non_billable_acct
-        non_billable_project.save()
+        self.non_billable_project = Project.objects.first()
+        self.non_billable_project.accounting_code = non_billable_acct
+        self.non_billable_project.save()
 
-        billable_project = Project.objects.get(pk=50)
-        billable_project.accounting_code = billable_acct
-        billable_project.save()
+        self.billable_project = Project.objects.get(pk=50)
+        self.billable_project.accounting_code = billable_acct
+        self.billable_project.save()
 
-        billable_weekly_project = Project.objects.get(pk=37)
-        billable_weekly_project.accounting_code = billable_acct
-        billable_weekly_project.save()
+        self.billable_weekly_project = Project.objects.get(pk=37)
+        self.billable_weekly_project.accounting_code = billable_acct
+        self.billable_weekly_project.save()
+
+        self.ooo_project = Project.objects.get(pk=1)
 
         test_org = Organization.objects.get_or_create(id=1)[0]
         test_unit = Unit.objects.get_or_create(org=test_org)[0]
@@ -94,21 +96,13 @@ class TestGroupUtilizationView(WebTest):
             end_date=datetime.date.today()
         )
 
-        self.new_rp = ReportingPeriod.objects.create(
+        self.rp_week_1 = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=14),
             end_date=datetime.date.today() - datetime.timedelta(days=8)
         )
-        ReportingPeriod.objects.create(
+        self.rp_week_2 = ReportingPeriod.objects.create(
             start_date=datetime.date.today() - datetime.timedelta(days=21),
             end_date=datetime.date.today() - datetime.timedelta(days=15)
-        )
-        ReportingPeriod.objects.create(
-            start_date=datetime.date.today() - datetime.timedelta(days=28),
-            end_date=datetime.date.today() - datetime.timedelta(days=22)
-        )
-        ReportingPeriod.objects.create(
-            start_date=datetime.date.today() - datetime.timedelta(days=35),
-            end_date=datetime.date.today() - datetime.timedelta(days=29)
         )
 
         # more than a year ago (outside of current fy)
@@ -126,13 +120,13 @@ class TestGroupUtilizationView(WebTest):
 
         self.nb_timecard_object = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=non_billable_project,
+            project=self.non_billable_project,
             hours_spent=15,
         )
 
         self.b_timecard_object = TimecardObject.objects.create(
             timecard=self.timecard,
-            project=billable_project,
+            project=self.billable_project,
             hours_spent=25,
         )
 
@@ -147,13 +141,13 @@ class TestGroupUtilizationView(WebTest):
 
         self.nb_old_timecard_object = TimecardObject.objects.create(
             timecard=self.old_timecard,
-            project=non_billable_project,
+            project=self.non_billable_project,
             hours_spent=15,
         )
 
         self.b_old_timecard_object = TimecardObject.objects.create(
             timecard=self.old_timecard,
-            project=billable_project,
+            project=self.billable_project,
             hours_spent=25,
         )
 
@@ -168,15 +162,17 @@ class TestGroupUtilizationView(WebTest):
 
         self.nb_weekly_only_timecard_object = TimecardObject.objects.create(
             timecard=self.weekly_only_timecard,
-            project=non_billable_project,
+            project=self.non_billable_project,
             hours_spent=8
         )
 
         self.b_weekly_only_timecard_object = TimecardObject.objects.create(
             timecard=self.weekly_only_timecard,
-            project=billable_weekly_project,
+            project=self.billable_weekly_project,
             project_allocation=1
         )
+
+        self.weekly_only_timecard.save()
 
         # a timecard with billable weekly, billable hourly, and non-billable hourly
         self.weekly_hourly_timecard = Timecard.objects.create(
@@ -187,19 +183,19 @@ class TestGroupUtilizationView(WebTest):
 
         self.bw_weekly_hourly_timecard_object = TimecardObject.objects.create(
             timecard=self.weekly_hourly_timecard,
-            project=billable_weekly_project,
-            project_allocation=1
+            project=self.billable_weekly_project,
+            project_allocation=.5
         )
 
         self.b_weekly_hourly_timecard_object = TimecardObject.objects.create(
             timecard=self.weekly_hourly_timecard,
-            project=billable_project,
+            project=self.billable_project,
             hours_spent=12
         )
 
         self.nb_weekly_hourly_timecard_object = TimecardObject.objects.create(
             timecard=self.weekly_hourly_timecard,
-            project=non_billable_project,
+            project=self.non_billable_project,
             hours_spent=4
         )
 
@@ -284,10 +280,6 @@ class TestGroupUtilizationView(WebTest):
         """
         Checks the utilization value for the previous week when a user
         has only weekly allocation and no billable hours.
-
-        NOTE: Currently utilization does not consider weekly allocation,
-        therefore the values below should appear as though the user
-        has not submitted hours
         """
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
@@ -297,23 +289,95 @@ class TestGroupUtilizationView(WebTest):
         last_week_data = response.context['object_list'][0]['utilization']['last_week_data']
 
         data = [item for item in last_week_data if item['username'] == 'user.weekly.only'][0]
-        self.assertIsNone(data['denominator'])
+        self.assertEqual(data['denominator'],
+            Decimal('32.0')
+        )
         self.assertEqual(data['billable'],
-            Decimal('0')
+            Decimal('32.0')
         )
         self.assertEqual(data['utilization'],
-            'No hours submitted.'
+            '100%'
+        )
+
+    def test_last_month_data_user_with_weekly_and_hourly(self):
+        """
+        Checks the utilization value for the previous month when a user
+        has weekly allocation and billable hours in their timecards.
+        """
+        timecard_1 = Timecard.objects.create(
+            reporting_period=self.rp_week_1,
+            user=self.user_weekly_hourly,
+            submitted=True
+        )
+
+        TimecardObject.objects.create(
+            timecard=timecard_1,
+            project=self.billable_project,
+            hours_spent=18,
+        )
+
+        TimecardObject.objects.create(
+            timecard=timecard_1,
+            project=self.ooo_project,
+            hours_spent=12
+        )
+
+        TimecardObject.objects.create(
+            timecard=timecard_1,
+            project=self.non_billable_project,
+            hours_spent=10
+        )
+
+        timecard_1.save()
+
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            user=self.user_weekly_hourly
+        )
+
+        last_month_data = response.context['object_list'][0]['utilization']['last_month_data']
+
+        data = [item for item in last_month_data if item['username'] == 'user.weekly.hourly'][0]
+
+        # 58 target hours = (80 hours in week - 8 hours OOO) * .8 billable expectation
+        self.assertEqual(data['denominator'],
+            Decimal('54.0')
+        )
+        self.assertEqual(data['billable'],
+            Decimal('46.0')
+        )
+        self.assertEqual(data['utilization'],
+            '85.2%'
+        )
+
+    def test_last_week_data_total_with_weekly_and_hourly(self):
+        """
+        Checks the utilization value for a unit for the previous week
+        when users have both weekly allocation and billable hours. This
+        test combines all of this week's timecards from the setup step.
+        """
+        response = self.app.get(
+            url=reverse('utilization:GroupUtilizationView'),
+            user=self.user_weekly_hourly
+        )
+
+        data = response.context['object_list'][0]['utilization']['last_week_totals']
+
+        # 4 timecards * .8 billable expectation
+        self.assertEqual(data['denominator'],
+            Decimal('96.0')
+        )
+        self.assertEqual(data['billable'],
+            Decimal('85.0')
+        )
+        self.assertEqual(data['utilization'],
+            '88.5%'
         )
 
     def test_last_week_data_user_with_weekly_and_hourly(self):
         """
         Checks the utilization value for the previous week when a user
         has weekly allocation and billable hours.
-
-        NOTE: Currently utilization only considers weekly allocation when
-        calculating target hours (aka `denominator`). Therefore the billable
-        and utilization values below reflect the mistaken assumption the
-        user only billed what they tocked to an hourly billable project.
         """
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
@@ -328,10 +392,10 @@ class TestGroupUtilizationView(WebTest):
             Decimal('32.0')
         )
         self.assertEqual(data['billable'],
-            Decimal('12.0')
+            Decimal('28.0')
         )
         self.assertEqual(data['utilization'],
-            '37.5%'
+            '87.5%'
         )
 
     def test_user_detail_with_utilization(self):
