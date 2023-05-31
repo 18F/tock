@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = ">=3.2.18"
+django = ">=3.2.19"
 dj-database-url = "*"
 gevent = "*"
 gunicorn = "*"
