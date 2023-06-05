@@ -2,21 +2,21 @@ import datetime
 from decimal import Decimal
 
 from hours.models import ReportingPeriod
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.db.models.functions import Coalesce
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-def calculate_utilization(billable_hours, target_hours):
+def calculate_utilization(billable_hours, target_hours, allocation, periods):
     """Calculates utilization as hours billed divided by target hours"""
     if target_hours == 0:
         return "Non-billable"
     if target_hours is None:
         return 'No hours submitted.'
-    if not billable_hours:
+    if not billable_hours and not allocation:
         return '0.00%'
-    return '{:.3}%'.format((billable_hours / target_hours) * 100)
+    return '{:.3}%'.format(((billable_hours / target_hours) + (allocation/periods)) * 100)
 
 def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, unit=None):
     """
@@ -45,8 +45,15 @@ def _build_utilization_query(users=None,recent_periods=None, fiscal_year=False, 
     billable = Coalesce(Sum('timecards__billable_hours', filter=filter_), Decimal('0'))
     non_billable = Coalesce(Sum('timecards__non_billable_hours', filter=filter_), Decimal('0'))
     target_billable = Sum('timecards__target_hours', filter=filter_)
+    allocation = Coalesce(Sum('timecards__total_weekly_allocation', filter=filter_), Decimal('0'))
+    periods = Count('timecards__reporting_period', filter=Q(filter_, Q(timecards__excluded_hours__lt=40)))
+
     if users:
-        return users.annotate(billable=billable).annotate(target=target_billable).annotate(total=billable + non_billable)
+        return users.annotate(billable=billable).\
+            annotate(target=target_billable).\
+            annotate(total=billable + non_billable).\
+            annotate(allocation=allocation).\
+            annotate(periods=periods)
     raise NotImplementedError
 
 def utilization_report(user_qs=None, recent_periods=1, fiscal_year=False, unit=None):

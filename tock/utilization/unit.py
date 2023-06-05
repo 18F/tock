@@ -38,7 +38,7 @@ def _get_unit_billing_data(users, unit, recent_periods=None, fiscal_year=False):
     totals = {
         'billable': 0,
         'denominator': 0,
-        'utilization': calculate_utilization(0, 0)
+        'utilization': calculate_utilization(0, 0, 0, 0)
     }
 
     if fiscal_year:
@@ -49,23 +49,23 @@ def _get_unit_billing_data(users, unit, recent_periods=None, fiscal_year=False):
         start, end, utilization = utilization_report(users, unit=unit)
 
     if utilization:
-        data = utilization.values('billable', 'first_name', 'last_name', 'target', 'username')
+        data = utilization.values('billable', 'first_name', 'last_name', 'target', 'username', 'allocation', 'periods')
 
         # Build context for each employee
         output_data = [{
                 'display_name': f"{employee['first_name']} {employee['last_name']}".strip() or employee['username'],
                 'denominator': employee['target'],
                 'billable': employee['billable'],
-                'utilization': calculate_utilization(employee['billable'], employee['target']),
+                'utilization': calculate_utilization(employee['billable'], employee['target'], employee['allocation'], employee['periods']),
                 'username': employee['username']
                 } for employee in data]
 
         # Get totals for unit
-        unit_totals = data.aggregate(Sum('billable'), Sum('target'))
+        unit_totals = data.aggregate(Sum('billable'), Sum('target'), Sum('allocation'), Sum('periods'))
 
         totals = {'billable': unit_totals['billable__sum'],
         'denominator': unit_totals['target__sum'],
-        'utilization': calculate_utilization(unit_totals['billable__sum'],unit_totals['target__sum'])
+        'utilization': calculate_utilization(unit_totals['billable__sum'],unit_totals['target__sum'],unit_totals['allocation__sum'], unit_totals['periods__sum'])
         }
 
     return {'start_date': start, 'end_date': end, 'data': output_data, 'totals': totals}
