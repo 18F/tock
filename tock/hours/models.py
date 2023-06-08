@@ -325,10 +325,21 @@ class Timecard(models.Model):
     def calculate_total_allocation_hours(self):
         """
         Calculates an estimate of the hours spent on projects with a weekly billable
-        allocation by multiplying that allocation against this timecard's target hours.
-        """
+        allocation.
 
-        return round(self.target_hours * self.total_weekly_allocation, 0)
+        This calculation does not use self.target_hours, which incorporates
+        self.billable_expectation, because the allocation % indicated by users
+        is a reflection of the proportion of their total week, not as a proportion
+        of their expected billable hours.
+
+        For example: a supervisor has a .4 (40%) billable_expectation. If they spend
+        half of their time on a billable project, they would indicate 50% weekly allocation
+        in Tock and work out to an
+        estimated 16 hours ((40 - OOO time) * .8 billable_expectation * .5 allocation)
+        """
+        total_hours_worked = settings.HOURS_IN_A_REGULAR_WORK_WEEK - self.excluded_hours
+        default_expectation = Decimal(settings.DEFAULT_BILLABLE_EXPECTATION) * total_hours_worked
+        return round(default_expectation * self.total_weekly_allocation, 0)
 
     def calculate_total_weekly_allocation(self):
         """
