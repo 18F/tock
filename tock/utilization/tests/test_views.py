@@ -303,32 +303,35 @@ class TestGroupUtilizationView(WebTest):
         """
         Checks the utilization value for the previous month when a user
         has weekly allocation and billable hours in their timecards.
+
+        The user user_weekly_hourly has a timecard for the current week.
+        This test adds another for the previous week.
         """
-        timecard_1 = Timecard.objects.create(
+        timecard_week_1 = Timecard.objects.create(
             reporting_period=self.rp_week_1,
             user=self.user_weekly_hourly,
             submitted=True
         )
 
         TimecardObject.objects.create(
-            timecard=timecard_1,
+            timecard=timecard_week_1,
             project=self.billable_project,
             hours_spent=18,
         )
 
         TimecardObject.objects.create(
-            timecard=timecard_1,
+            timecard=timecard_week_1,
             project=self.ooo_project,
             hours_spent=12
         )
 
         TimecardObject.objects.create(
-            timecard=timecard_1,
+            timecard=timecard_week_1,
             project=self.non_billable_project,
             hours_spent=10
         )
 
-        timecard_1.save()
+        timecard_week_1.save()
 
         response = self.app.get(
             url=reverse('utilization:GroupUtilizationView'),
@@ -339,7 +342,7 @@ class TestGroupUtilizationView(WebTest):
 
         data = [item for item in last_month_data if item['username'] == 'user.weekly.hourly'][0]
 
-        # 58 target hours = (80 hours in week - 8 hours OOO) * .8 billable expectation
+        # 54 target hours = (80 hours in week - 12 hours OOO) * .8 billable expectation
         self.assertEqual(data['denominator'],
             Decimal('54.0')
         )
