@@ -2,28 +2,66 @@
 {% load static %}
 {% load analytics %}
 {% block navigation %}
-  {% include "_navigation.html" %}
+{% include "_navigation.html" %}
 {% endblock %}
 
 {% block content %}
-  <script src="{% static 'js/plotly-basic-2.8.3.min.js' %}"></script>
-  <script src="{% static 'js/components/save_csv.js' %}"></script>
+<script src="{% static 'js/plotly-basic-2.8.3.min.js' %}"></script>
+<script src="{% static 'js/components/save_csv.js' %}"></script>
 
-  {% include "utilization/includes/filter_inputs.html" %}
+{% include "utilization/includes/filter_inputs.html" %}
 
-  <div class="grid-row"><div class="grid-col">
-  <h2>Analytics ({{ current_org_name }})</h2>
+<div class="grid-row">
+  <div class="grid-col">
+    <h2>Analytics ({{ current_org_name }})</h2>
 
-  <h3>Overall Utilization</h3>
-  {{utilization_plot|safe}}
+    <h3>Overall Utilization</h3>
+    {{utilization_plot|safe}}
 
-  {% frame_table utilization_data "utilization" as table1 %}{{table1|safe}}
+    <div class="usa-accordion usa-accordion--bordered">
+      <h4 class="usa-accordion__heading">
+        <button class="usa-accordion__button" aria-expanded="true" aria-controls="{generated_id}">
+          Data Table
+        </button>
+      </h4>
+      <div id="{generated_id}" class="usa-accordion__content grid-container">
+        <div class="grid-row">
+          <button class="usa-button usa-button--base float-right margin-bottom-1" data-csv
+            data-csv-id="table-{generated_id}" data-csv-name="utilization">Export CSV</button>
+        </div>
+        <div class="usa-table-container--scrollable grid-row" tabindex=0>
+          <table border="1" class="dataframe usa-table usa-table--compressed" id="table-XXXXX">
+            <thead>
+              <tr style="text-align: center;">
+                {% for col in utilization_data.columns %}
+                <th scope="col">{{col}}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for i, rowdata in utilization_data.iterrows %}
+              <tr>
+                {% for celldata in rowdata %}
+                {% if forloop.first %}
+                <th scope="row">{{celldata}}</th>
+                {% else %}
+                <td>{{celldata}}</td>
+                {% endif %}
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-  <h3>Tock Headcount</h3>
-  {{headcount_plot|safe}}
+    <h3>Tock Headcount</h3>
+    {{headcount_plot|safe}}
 
-  {% frame_table headcount_data "headcount" as table2 %}{{table2|safe}}
+    {% frame_table headcount_data "headcount" as table2 %}{{table2|safe}}
 
-  </div></div>
+  </div>
+</div>
 
 {% endblock %}
