@@ -8,15 +8,12 @@ def df_table(frame, name_hint):
     generated_id = get_random_string(5)
     table_headers = ""
     table_rows = ""
-
     for col in frame.columns:
         table_headers += f"""
                         <th scope="col">{col}</th>"""
-
     for rowdata in frame.itertuples(index=False):
         table_rows += """
                     <tr>"""
-
         for index, celldata in enumerate(rowdata):
             if index == 0:
                 table_rows += f"""
@@ -24,7 +21,6 @@ def df_table(frame, name_hint):
             else:
                 table_rows += f"""
                         <td>{celldata}</td>"""
-
         table_rows += """
                 </tr>"""
 
@@ -65,7 +61,6 @@ def df_table(frame, name_hint):
 @register.simple_tag
 def frame_table(frame, name_hint):
     generated_id = get_random_string(5)
-
     return (
         f"""
         <div class="usa-accordion usa-accordion--bordered">
