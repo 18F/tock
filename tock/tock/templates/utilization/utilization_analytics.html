@@ -18,43 +18,7 @@
     <h3>Overall Utilization</h3>
     {{utilization_plot|safe}}
 
-    <div class="usa-accordion usa-accordion--bordered">
-      <h4 class="usa-accordion__heading">
-        <button class="usa-accordion__button" aria-expanded="true" aria-controls="{generated_id}">
-          Data Table
-        </button>
-      </h4>
-      <div id="{generated_id}" class="usa-accordion__content grid-container">
-        <div class="grid-row">
-          <button class="usa-button usa-button--base float-right margin-bottom-1" data-csv
-            data-csv-id="table-{generated_id}" data-csv-name="utilization">Export CSV</button>
-        </div>
-        <div class="usa-table-container--scrollable grid-row" tabindex=0>
-          <table border="1" class="dataframe usa-table usa-table--compressed" id="table-XXXXX">
-            <thead>
-              <tr style="text-align: center;">
-                {% for col in utilization_data.columns %}
-                <th scope="col">{{col}}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for i, rowdata in utilization_data.iterrows %}
-              <tr>
-                {% for celldata in rowdata %}
-                {% if forloop.first %}
-                <th scope="row">{{celldata}}</th>
-                {% else %}
-                <td>{{celldata}}</td>
-                {% endif %}
-                {% endfor %}
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    {% df_table utilization_data "utilization" as table1 %}{{table1|safe}}
 
     <h3>Tock Headcount</h3>
     {{headcount_plot|safe}}
