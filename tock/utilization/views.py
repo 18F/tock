@@ -167,7 +167,7 @@ class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
         ).map("{:,.1f}%".format)
         context.update(
             {
-                "utilization_data": utilization_data_frame, #.set_index("start_date"),
+                "utilization_data": utilization_data_frame.set_index("start_date"),
 
                 # we use mark_safe intentionally here because we trust that
                 # Plotly is generating safe HTML

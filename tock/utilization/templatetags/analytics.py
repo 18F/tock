@@ -6,12 +6,13 @@ from django.utils.crypto import get_random_string
 @register.simple_tag
 def df_table(frame, name_hint):
     generated_id = get_random_string(5)
-    table_headers = ""
     table_rows = ""
+    table_headers = f"""
+                        <th scope="col">{frame.index.name}</th>"""
     for col in frame.columns:
         table_headers += f"""
                         <th scope="col">{col}</th>"""
-    for rowdata in frame.itertuples(index=False):
+    for rowdata in frame.itertuples():
         table_rows += """
                     <tr>"""
         for index, celldata in enumerate(rowdata):
