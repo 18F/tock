@@ -24,7 +24,8 @@ def df_table(frame, name_hint):
         table_rows += """
                 </tr>"""
 
-    table_build = f"""
+    return (
+        f"""
         <div class="usa-accordion usa-accordion--bordered">
             <h4 class="usa-accordion__heading">
             <button class="usa-accordion__button"
@@ -53,10 +54,9 @@ def df_table(frame, name_hint):
             </table>
             </div>
           </div>
-        </div>"""
-
-    return (table_build)
-
+        </div>
+        """
+    )
 
 @register.simple_tag
 def frame_table(frame, name_hint):
