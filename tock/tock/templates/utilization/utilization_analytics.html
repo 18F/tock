@@ -2,28 +2,30 @@
 {% load static %}
 {% load analytics %}
 {% block navigation %}
-  {% include "_navigation.html" %}
+{% include "_navigation.html" %}
 {% endblock %}
 
 {% block content %}
-  <script src="{% static 'js/plotly-basic-2.8.3.min.js' %}"></script>
-  <script src="{% static 'js/components/save_csv.js' %}"></script>
+<script src="{% static 'js/plotly-basic-2.8.3.min.js' %}"></script>
+<script src="{% static 'js/components/save_csv.js' %}"></script>
 
-  {% include "utilization/includes/filter_inputs.html" %}
+{% include "utilization/includes/filter_inputs.html" %}
 
-  <div class="grid-row"><div class="grid-col">
-  <h2>Analytics ({{ current_org_name }})</h2>
+<div class="grid-row">
+  <div class="grid-col">
+    <h2>Analytics ({{ current_org_name }})</h2>
 
-  <h3>Overall Utilization</h3>
-  {{utilization_plot|safe}}
+    <h3>Overall Utilization</h3>
+    {{utilization_plot|safe}}
 
-  {% frame_table utilization_data "utilization" as table1 %}{{table1|safe}}
+    {% df_table utilization_data "utilization" as table1 %}{{table1|safe}}
 
-  <h3>Tock Headcount</h3>
-  {{headcount_plot|safe}}
+    <h3>Tock Headcount</h3>
+    {{headcount_plot|safe}}
 
-  {% frame_table headcount_data "headcount" as table2 %}{{table2|safe}}
+    {% frame_table headcount_data "headcount" as table2 %}{{table2|safe}}
 
-  </div></div>
+  </div>
+</div>
 
 {% endblock %}
