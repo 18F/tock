@@ -4,6 +4,7 @@ import datetime
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import Count, F
+from django.utils.html import escape
 
 from rest_framework import serializers, generics
 from rest_framework.exceptions import ParseError
@@ -257,7 +258,7 @@ def date_from_iso_format(date_str):
     except ValueError:
         raise ParseError(
             detail='Invalid date format. Got {}, expected ISO format (YYYY-MM-DD)'.format(
-                date_str
+                escape(date_str)
             )
         )
 
