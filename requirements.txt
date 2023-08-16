@@ -1,4 +1,4 @@
--i https://pypi.python.org/simple
+-i https://pypi.org/simple
 asgiref==3.7.2; python_version >= '3.7'
 beautifulsoup4==4.12.2; python_full_version >= '3.6.0'
 bleach==6.0.0
