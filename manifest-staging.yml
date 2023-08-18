@@ -14,6 +14,7 @@ applications:
     NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
     NEW_RELIC_ENV: staging
     NEW_RELIC_LOG: stdout
+    NEW_RELIC_CA_BUNDLE_PATH: /etc/ssl/certs
     REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   instances: 1
   services:
