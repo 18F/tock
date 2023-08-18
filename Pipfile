@@ -22,6 +22,7 @@ plotly = "*"
 pandas = "*"
 pyjwt = "~=2.4"
 django-csp = "*"
+setuptools = "==68.1.0"
 
 [dev-packages]
 bandit = "*"
@@ -32,6 +33,7 @@ factory-boy = "*"
 "flake8" = "*"
 nplusone = "*"
 codecov = "==2.1.13"
+setuptools = "==65.5.1"
 
 [requires]
 python_version = "3.10"
