@@ -41,6 +41,7 @@ To use:
 - Download separations report as CSVs
   - Note: there are two: one for GSA employees, one for contractors
 - Run script
-  - Example: `./manage.py Jan_2023_Separations_Report.csv`
+  - Go to: `cd ./scripts`
+  - Example: `./compliance.py Your_Separations_Report.csv`
 
 Each user that is printed out will need to have their account set as `active=False` in the Tock admin. (Please do not delete their account; marking them as inactive is sufficient.)

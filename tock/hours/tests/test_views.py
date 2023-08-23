@@ -1,5 +1,6 @@
 import csv
 import datetime
+import urllib.parse
 from decimal import Decimal
 
 import hours.models
@@ -903,6 +904,17 @@ class ReportTests(WebTest):
             expect_errors=True
         )
         self.assertEqual(response.status_code, 404)
+
+    def test_ReportingPeriodDetailView_escape_invalid_date_404(self):
+        query={'after': '"><fish>', 'before': '2019-09-28'}
+        url = reverse('reports:BulkTimecardList')
+        response = self.app.get(
+            f'{url}?{urllib.parse.urlencode(query)}',
+            user=self.regular_user,
+            expect_errors=True
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json['detail'], 'Invalid date format. Got &quot;&gt;&lt;fish&gt;, expected ISO format (YYYY-MM-DD)')
 
     def test_ReportingPeriodDetailView_add_submitted_time(self):
         """

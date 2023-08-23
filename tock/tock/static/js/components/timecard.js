@@ -150,16 +150,6 @@ function populateHourTotals() {
   billableElement.querySelector('.number-label').innerHTML =
     totals.billableHours;
 
-  if (totals.totalHours === 0) {
-    totalElement.classList.remove('valid', 'invalid');
-  } else if (totals.totalHours === totalHoursTarget) {
-    totalElement.classList.add('valid');
-    totalElement.classList.remove('invalid');
-  } else {
-    totalElement.classList.add('invalid');
-    totalElement.classList.remove('valid');
-  }
-
   if (totals.billableHours === 0) {
     billableElement.classList.remove('valid', 'invalid');
   } else if (
@@ -393,7 +383,6 @@ function handleBillingElementState(visibility) {
     addItemWrapper.classList.remove('grid-col-8');
     addItemWrapper.classList.add('grid-col-2');
     weeklyBillingAlertElement.classList.remove('entry-hidden');
-    totalReportedElement.classList.add('entry-hidden');
     totalBillableElement.classList.add('entry-hidden');
   }
 }
