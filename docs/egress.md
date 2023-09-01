@@ -34,7 +34,7 @@ As an example, to set up egress for Tock staging:
   - `cf create-space staging-egress -o gsa-18f-tock`
 - git clone [GSA-TTS/cf-egress-proxy](https://github.com/GSA-TTS/cg-egress-proxy)
 - build the Caddy proxy (optional, not needed anymore)
-  - `make caddy-v2-with-forwardproxy`)
+  - `make caddy-v2-with-forwardproxy`
   - note: requires Docker
 - rename `vars.myapp.yml` to `vars.tock.yml`
   - configure `proxyname`, `hostname`, `username` and `password`
@@ -44,7 +44,36 @@ As an example, to set up egress for Tock staging:
 - enable Tock staging to connect to Tock egress
   - `cf add-network-policy tock-staging staging-egress -s staging-egress`
 
-At this stage it is prudent to verify that the proxy is working as advertised. One way is to `cf ssh` the staging environment and test with commands such as `curl -x "https://<username>:<password>@<egress-host>.apps.internal:61443" restricted-domain.com` and make sure Caddy returns a `403 Forbidden`. Similarly, you want to test for trusted domains and verify that the proxy passes these requests through. Once everything looks good:
+At this stage it is prudent to verify that the proxy is working as advertised. One way is to `cf ssh` the staging environment (`cf ssh staging-egress -t -c "/tmp/lifecycle/launcher /home/vcap/app /bin/bash 0"`) and test with commands such as `curl -x "https://<username>:<password>@<egress-host>.apps.internal:61443" restricted-domain.com` and make sure Caddy returns a `403 Forbidden`. Similarly, you want to test for trusted domains and verify that the proxy passes these requests through. 
+
+Test that curl connects properly from your application's container.
+
+```bash
+# Get a shell inside the app
+$ cf ssh staging-egress -t -c "/tmp/lifecycle/launcher /home/vcap/app /bin/bash 0"
+
+# Use curl to test that the container can reach things it should
+$ curl http://allowedhost:allowedport
+[...response from allowedhost...] # allowed
+
+$ curl https://allowedhost:allowedport
+[...response from allowedhost...] # allowed
+
+# Use curl to test that the container can't reach things it shouldn't
+$ curl http://allowedhost:deniedport
+curl: (56) Received HTTP code 403 from proxy after CONNECT # denied
+
+$ curl http://deniedhost:allowedport
+curl: (56) Received HTTP code 403 from proxy after CONNECT # denied
+
+$ curl https://allowedhost:deniedport
+curl: (56) Received HTTP code 403 from proxy after CONNECT # denied
+
+$ curl https://deniedhost:allowedport
+curl: (56) Received HTTP code 403 from proxy after CONNECT # denied
+```
+
+Once everything looks good:
 
 - set the proxy environment variable on Tock staging
   - `cf set-env tock-staging egress_proxy https://<username>:<password>@<egress-host>.apps.internal:61443`
