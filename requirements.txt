@@ -10,7 +10,7 @@ charset-normalizer==3.2.0; python_full_version >= '3.7.0'
 dj-database-url==2.1.0
 django-csp==3.7
 django-webtest==1.9.10
-django==3.2.20
+django==3.2.21
 djangorestframework-csv==2.1.1
 djangorestframework==3.14.0
 furl==2.1.3
