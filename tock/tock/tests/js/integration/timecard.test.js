@@ -173,10 +173,9 @@ describe("Timecard", () => {
 
       const _totalReportedHidden = _totalReportedClassList.includes("entry-hidden");
       const _totalBillableHidden = _totalBillableClassList.includes("entry-hidden");
-      // const bothSummationElementsHidden = _totalReportedHidden && _totalBillableHidden;
+      const bothSummationElementsHidden = _totalReportedHidden && _totalBillableHidden;
 
-      expect(_totalReportedHidden).toBe(false);
-      expect(_totalBillableHidden).toBe(true);
+      expect(bothSummationElementsHidden).toBe(true);
 
       const _weeklyBillingAlertElement = await page.$eval("#weekly-billing-alert", el => el.classList);
       const _weeklyBillingAlertClassList = Array.from(Object.values(_weeklyBillingAlertElement));
