@@ -98,16 +98,62 @@ function getHoursReport() {
     }
   );
 
-  // Round user input to .01; round system to .5
-  return {
-    totalHours: round(r.totalHours),
-    excludedHours: round(r.excludedHours),
-    nonBillableHours: round(r.totalHours - r.billableHours - r.excludedHours),
-    billableHours: round(r.billableHours),
-    billableHoursTarget: roundToNearestHalf(
-      (totalHoursTarget - r.excludedHours) * billableExpectation
-    ),
-  };
+    // Round user input to .01; round system to .5
+    return {
+      totalHours: round(r.totalHours),
+      excludedHours: round(r.excludedHours),
+      nonBillableHours: round(r.totalHours - r.billableHours - r.excludedHours),
+      billableHours: round(r.billableHours),
+      billableHoursTarget: roundToNearestHalf(
+        (totalHoursTarget - r.excludedHours) * billableExpectation
+      ),
+    };
+  }
+
+/** @function
+ * Re calculate hours for weekly biling
+ * @name getHoursForWeeklyBilling
+ * @returns {HoursReport}
+ * */
+function getHoursForWeeklyBilling(totals) {
+
+  if(totals.excludedHours >= 40){
+    totals.totalHours = 40;
+  } else { 
+      if (totals.billableHours == 0) {
+        totals.totalHours = totals.excludedHours + totals.nonBillableHours;  
+      }
+      else {
+        if(totals.nonBillableHours == 0) {
+
+          if(totals.excludedHours == 0){
+
+            totals.totalHours = totals.billableHours
+
+          }
+          else {
+
+            totals.totalHours = totals.billableHours +  totals.excludedHours;
+
+            if(totals.totalHours > 40) {
+              totals.totalHours = 40;
+            }
+          }
+        } 
+        else {
+
+          totals.billableHours = totals.billableHours - totals.excludedHours;
+
+          if(totals.billableHours < 0) {
+            totals.billableHours = 40 - totals.excludedHours;
+          } 
+
+          totals.totalHours = totals.billableHours + totals.nonBillableHours + totals.excludedHours;
+        }
+      }
+  }
+
+
 }
 
 /** @function
@@ -131,6 +177,12 @@ function populateHourTotals() {
   const billableElement = document.querySelector(
     '.entries-total-billable-amount'
   );
+
+  if ( weeklyBilledProjectExists() ) {
+
+      getHoursForWeeklyBilling(totals);
+  
+  }
 
   totalElement
     .querySelector('.fill')
