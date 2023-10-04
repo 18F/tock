@@ -300,7 +300,7 @@ class TestGroupUtilizationView(WebTest):
         )
 
     # TODO as documented in this file: utilization tests get weird around fiscal years
-    # this test was desativated on October 4 to pass some required updates to Django to prod. 
+    # this test was desativated on October 4 to pass some required updates to Django to prod.
     # activate this test again after October 10
     # def test_last_month_data_user_with_weekly_and_hourly(self):
     #     """
@@ -319,7 +319,7 @@ class TestGroupUtilizationView(WebTest):
     #     TimecardObject.objects.create(
     #         timecard=timecard_week_1,
     #         project=self.billable_project,
-    #         hours_spent=18,
+    #         hours_spent=18
     #     )
 
     #     TimecardObject.objects.create(
