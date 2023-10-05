@@ -28,7 +28,7 @@
     "jest": "^28.0.3",
     "jest-puppeteer": "^6.1.0",
     "node-notifier": "^10.0.0",
-    "postcss": "^8.4.5",
+    "postcss": "^8.4.31",
     "postcss-csso": "^5.0.1",
     "puppeteer": "^13.7.0",
     "sass": "^1.47.0",
