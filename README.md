@@ -6,7 +6,7 @@ We use Tock to track our time. You can read more about Tock in this [blog post](
 | ------ | ------------ |
 [![CircleCI](https://circleci.com/gh/18F/tock.svg?style=svg)](https://circleci.com/gh/18F/tock) | Continuous integration status provided by CirclCI.
 [![Known Vulnerabilities Node](https://snyk.io/test/github/18f/tock/badge.svg?targetFile=package.json)](https://snyk.io/test/github/18f/tock?targetFile=package.json) | Known `node.js` Vulnerabilities status provided by Snyk.
-[![Known Vulnerabilities Python](https://snyk.io/test/github/18f/tock?targetFile=requirements.txt)](https://snyk.io/test/github/18f/tock?targetFile=requirements.txt) | Known `python` Vulnerabilities status provided by Snyk.
+[![Known Vulnerabilities Python](https://snyk.io/test/github/18f/tock/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/18f/tock?targetFile=requirements.txt) | Known `python` Vulnerabilities status provided by Snyk.
 
 ![Screenshot of Tock](/docs/screenshots/tock-homepage-screenshot-2021-3-15.png)
 

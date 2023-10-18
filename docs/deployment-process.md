@@ -29,7 +29,7 @@ in the root directory of this project, prefixed with `manifest-` and ending in a
 
 During local development and continuous integration testing,
 `pipenv install --dev` is used. This installs both development
-and production dependencies. During deployments, the `requirements.txt` file is used to install dependencies.
+and production dependencies.
 
 ### Cloud Foundry structure
 
