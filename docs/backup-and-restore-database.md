@@ -13,13 +13,21 @@ a plugin, run this command:
 cf uninstall-plugin <plugin name>
 ```
 
-Then follow the installation instructions found in the plugin's documentation.
-
-## Step 1: Exporting data
+Then follow the installation instructions found in the plugin's documentation. Once installed, you may log in and select your org and space:
 
 ```bash
-# Target the environment you're exporting from
+cf login -a api.fr.cloud.gov --sso
+```
+
+## Exporting data from cloud.gov
+
+```bash
+# If you have not already targeted the environment for export or wish to change
 cf target [-o <org name>] -s <space name>
+
+# List the available apps services for this space. Make note of the tock app name and the database service name
+cf apps
+cf services
 
 # Check to see if a SERVICE_CONNECT service key already exists
 cf service-keys <service name>
@@ -31,7 +39,7 @@ cf delete-service-key <service name> SERVICE_CONNECT
 # note the credentials and connection info given in the output
 cf connect-to-service -no-client <app name> <service name>
 
-# Back in the original window, dump the database
+# Back in the original window, dump the database. This may take several minutes.
 pg_dump -F c --no-acl --no-owner -f <file name> postgres://<username>:<password>@<host>:<port>/<name>
 
 # In the window with the SSH Tunnel, close the SSH tunnel
@@ -43,7 +51,7 @@ cf delete-service-key <service name> SERVICE_CONNECT
 
 Tock retains daily backups for 14 days; for details, see the [cloud.gov backup documentation](https://cloud.gov/docs/services/relational-database/#backups). (Please note that if you are planning contingency tests, the cloud.gov support team prefers at least 48 hours of advance notice.)
 
-## Step 2: Importing data
+## Importing data into cloud.gov
 
 ```bash
 # Target the environment you're restoring into
@@ -88,3 +96,33 @@ cf delete-service-key <service name> SERVICE_CONNECT
 # Restage the app associated with the service
 cf restage <app name>
 ```
+
+## Importing data into docker locally
+
+These instructions assume that you already have Docker installed and are set up for [local development](local-development.md).
+
+```bash
+# Make sure the Tock app is running locally
+docker-compose up
+```
+
+From the Docker dashboard application, find the tock database container and open up the terminal.
+
+```bash
+# Connect to the database
+psql -U tock_user -d tock
+
+# from inside the psql terminal, drop the public schema to get rid of testing data
+DROP SCHEMA public CASCADE;
+
+# recreate the public schema
+CREATE SCHEMA public;
+```
+
+From a regular (non-Docker) terminal window, import the database. This may take several minutes.
+
+```bash
+docker exec -i tock-db-1 pg_restore -U tock_user -v -d tock < <file name>
+```
+
+Once the import is done, log in with admin.user@gsa.gov or any user's email which appears in the newly imported data.
