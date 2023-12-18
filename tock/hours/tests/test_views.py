@@ -107,7 +107,11 @@ class BulkTimecardsTests(TestCase):
             'employee',
             'start_date',
             'end_date',
+            'is_weekly_bill',
             'hours_spent',
+            'project_allocation',
+            'billable_expectation',
+            'target_hours',
             'agency',
             'flat_rate',
             'active',
@@ -118,6 +122,7 @@ class BulkTimecardsTests(TestCase):
             'expense_profit_loss_account',
             'expense_profit_loss_account_name',
             'employee_organization',
+            'employee_unit',
             'project_organization',
         ))
         rows_read = 0

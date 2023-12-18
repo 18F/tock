@@ -157,6 +157,16 @@ class UserData(models.Model):
         return ''
 
     @property
+    def unit_name(self):
+        """
+        Returns the unit name associated with the employee or an empty string
+        if no unit is set.
+        """
+        if self.unit is not None:
+            return self.unit.name
+        return ''
+
+    @property
     def is_late(self):
         """
         Checks if user has a timecard submitted for the
