@@ -10,6 +10,13 @@
     <div class="grid-row grid-gap">
       <div class="grid-col-6">
       <h2>Regular Reports</h2>
+      <div class="usa-alert usa-alert--info usa-alert--slim">
+        <div class="usa-alert__body">
+          <p class="usa-alert__text">
+            Large reports may fail to download. Change the date range in the report URL to work around this limitation.
+          </p>
+        </div>
+      </div>
       <ul>
         <li>Complete timecard data:
           <a href="{% url 'reports:BulkTimecardList' %}?after={{starting_report_date|date:'Y-m-d'}}">All</a>
