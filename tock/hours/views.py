@@ -44,10 +44,20 @@ class BulkTimecardSerializer(serializers.Serializer):
     end_date = serializers.DateField(
         source='timecard.reporting_period.end_date'
     )
-    hours_spent = serializers.DecimalField(max_digits=5, decimal_places=2)
+    is_weekly_bill = serializers.BooleanField(
+        source='project.is_weekly_bill'
+    )
+    hours_spent = serializers.DecimalField(decimal_places=2, max_digits=5)
+    project_allocation = serializers.DecimalField(decimal_places=3, max_digits=6)
     billable = serializers.BooleanField(
         source='project.accounting_code.billable'
     )
+    billable_expectation = serializers.DecimalField(decimal_places=2,
+        max_digits=3,
+        source='timecard.billable_expectation')
+    target_hours = serializers.DecimalField(decimal_places=2,
+        max_digits=5,
+        source='timecard.target_hours')
     agency = serializers.CharField(
         source='project.accounting_code.agency.name'
     )
@@ -75,6 +85,9 @@ class BulkTimecardSerializer(serializers.Serializer):
     )
     employee_organization = serializers.CharField(
         source='timecard.user.user_data.organization_name'
+    )
+    employee_unit = serializers.CharField(
+        source='timecard.user.user_data.unit_name'
     )
     project_organization = serializers.CharField(
         source='project.organization_name'
