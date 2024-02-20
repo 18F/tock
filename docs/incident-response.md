@@ -2,7 +2,7 @@
 
 1. [Start the report process as per the TTS Handbook.](https://handbook.tts.gsa.gov/security-incidents/) Note that all incidents must be reported within one hour of their discovery.
 
-1. Because Tock is hosted on cloud.gov, notify the cloud.gov team in #cloud-gov.
+1. Because Tock is hosted on cloud.gov, you also need to follow their [Security Incident Response Guide](https://cloud.gov/docs/ops/security-ir/).
 
 1. If the incident impacts the availability of the Tock app, notify the Tock team in #tock-dev. A member of the Tock team will then notify Tock users by posting in #tock.
 
