@@ -394,3 +394,10 @@ class TimecardInlineFormSetTests(TestCase):
         self.assertEqual(formset.errors[0]['project'][0],
                          'You cannot submit hourly billing for a '
                          'project under weekly billing')
+
+    def test_zero_project_allocation_to_hourly_project(self):
+        """Should be able to submit zero project allocation to an hourly billing project"""
+        form_data = self.form_data()
+        form_data["timecardobjects-0-project_allocation"] = "0"
+        formset = TimecardFormSet(form_data, instance=self.timecard)
+        self.assertTrue(formset.is_valid())

@@ -170,6 +170,17 @@ class TimecardObjectForm(forms.ModelForm):
     def clean_hours_spent(self):
         return self.cleaned_data.get('hours_spent') or 0
 
+    @staticmethod
+    def _is_empty_or_zero(field):
+        """Check that a field is either the empty string or the number 0."""
+        if field == "":
+            return True
+        else:
+            # not an empty string
+            if Decimal(field) == 0:
+                return True
+        return False
+
     def clean(self):
         if 'project' in self.cleaned_data:
             if self.cleaned_data['project'].is_weekly_bill:
@@ -183,8 +194,12 @@ class TimecardObjectForm(forms.ModelForm):
                         ),
                     )
             else:
-                if ('project_allocation' in self.cleaned_data and \
-                   self.cleaned_data['project_allocation'] != ''):
+                if (
+                    "project_allocation" in self.cleaned_data
+                    and not self._is_empty_or_zero(
+                        self.cleaned_data['project_allocation']
+                    )
+                ):
                     self.add_error(
                         'project',
                         forms.ValidationError(
@@ -263,7 +278,10 @@ class TimecardInlineFormSet(BaseInlineFormSet):
             if form.cleaned_data:
                 if form.cleaned_data.get('DELETE'):
                     continue
-                if (form.cleaned_data.get('hours_spent') == 0 or None) and (form.cleaned_data.get('project_allocation') == 0 or None):
+                if (
+                    form.cleaned_data.get("hours_spent") == 0
+                    and form.cleaned_data.get("project_allocation") == 0
+                ):
                     raise forms.ValidationError(
                         'If you have a project listed, the number of hours '
                         'cannot be blank.'
@@ -273,7 +291,10 @@ class TimecardInlineFormSet(BaseInlineFormSet):
         if not self.save_only:
             for form in self.forms:
                 try:
-                    if (form.cleaned_data['hours_spent'] == 0 or None) and (form.cleaned_data['project_allocation'] == 0):
+                    if (
+                        form.cleaned_data['hours_spent'] == 0
+                        and form.cleaned_data['project_allocation'] == 0
+                    ):
                         form.cleaned_data.update({'DELETE': True})
                 except KeyError:
                     pass
