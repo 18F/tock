@@ -238,5 +238,10 @@ def project_chart_and_table(timecardobject_queryset):
     # datatable
     datatable = data_frame.pivot(
                     index="start_date", values="hours_spent", columns="user"
-                ).applymap("{:.0f}".format).replace("nan", "")
+                )
+    # there can be some None in "hours_spent" rather than 0 which
+    # is more typical, so let's replace the NaNs with zeroes before we
+    # format the numbers
+    datatable = datatable.fillna(0)
+    datatable = datatable.map("{:.0f}".format)
     return plot_div, datatable
