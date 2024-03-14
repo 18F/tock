@@ -470,6 +470,26 @@ class ProjectViewTests(WebTest):
 
         self.assertEqual(float(response.html.select('#totalHoursAll')[0].string), 15)
 
+    def test_project_view_none_hours_spent(self):
+        """Ensure that the project view works with None hours_spent."""
+        TimecardObject.objects.filter().delete()
+        Timecard.objects.get(pk=1).submitted=True
+        TimecardObject.objects.create(
+            timecard = Timecard.objects.get(pk=1),
+            project=Project.objects.get(pk=1),
+            hours_spent= None
+        )
+        TimecardObject.objects.create(
+            timecard = Timecard.objects.get(pk=2),
+            project=Project.objects.get(pk=1),
+            hours_spent= 10
+        )
+        response = self.app.get(
+            reverse('projects:ProjectView', kwargs={'pk': '1'}),
+            user=User.objects.get(email='aaron.snow@gsa.gov')
+        )
+        self.assertContains(response, "Tock Projects" )
+
 
 class ProjectEngagementTests(WebTest):
 
