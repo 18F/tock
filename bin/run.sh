@@ -42,7 +42,8 @@ DEPLOYMENT_DESCRIPTION="Recording deployment of ${VERSION}."
 echo "${DEPLOYMENT_DESCRIPTION}"
 
 # Record deployment using the New Relic Python Admin CLI
-newrelic-admin record-deploy "${NEW_RELIC_CONFIG_FILE}" "${DEPLOYMENT_DESCRIPTION}"
+# NOTE: New relic wants its own proxy environment variable
+NEW_RELIC_PROXY_HOST=$https_proxy newrelic-admin record-deploy "${NEW_RELIC_CONFIG_FILE}" "${DEPLOYMENT_DESCRIPTION}"
 
 python manage.py collectstatic --settings=tock.settings.production --noinput
 gunicorn -t 120 -k gevent -w 2 tock.wsgi:application
