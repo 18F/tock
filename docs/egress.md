@@ -6,19 +6,11 @@ As part of Tock's compliance process, egress filtering is set up for cloud.gov d
 
 > Connect to external networks or systems only through managed interfaces consisting of boundary protection devices arranged in accordance with an organizational security and privacy architecture.
 
-Accordingly, we have configured [a Caddy proxy](https://github.com/GSA-TTS/cg-egress-proxy) with the following rules:
-
-```
-proxydeny:
-proxyallow: |
-  uaa.fr.cloud.gov
-  google-analytics.com
-```
-
-That is, this proxy rejects all external connections to all sites save for these two exceptions:
+Accordingly, we have configured [a Caddy proxy](https://github.com/GSA-TTS/cg-egress-proxy) with an [allow list and deny list](../egress_proxy/tock.vars.yml). This proxy configuration rejects all external connections to all sites save for these exceptions:
 
 - `uaa.fr.cloud.gov`: The [cloud.gov UAA server](https://cloud.gov/docs/management/leveraging-authentication/) which in turn uses GSA SecureAuth for authentication.
 - `google-analytics.com`: [DAP](https://digital.gov/guides/dap/), for web app analytics
+- `api.newrelic.com`: [New Relic endpoints](https://docs.newrelic.com/docs/apis/rest-api-v2/get-started/introduction-new-relic-rest-api-v2/) which is used for the `newrelic-admin` tool
 
 ## A note about cloud.gov egress and spaces
 
@@ -28,7 +20,7 @@ cloud.gov allows configuration of [egress traffic controls](https://cloud.gov/do
 
 ### Create the egress proxy
 
-To create a new proxy, follow the [cf-egress-proxy README](https://github.com/GSA-TTS/cg-egress-proxy).
+To create a new proxy, we largely follow the [cf-egress-proxy README](https://github.com/GSA-TTS/cg-egress-proxy).
 
 As an example, to set up egress for Tock staging:
 
@@ -43,31 +35,11 @@ Clone the egress proxy from [GSA-TTS/cf-egress-proxy](https://github.com/GSA-TTS
 git clone git@github.com:GSA-TTS/cg-egress-proxy.git
 ```
 
-Rename `vars.yml-example` to `vars.tock.yml` and configure it for your application. Use `uuidgen` for the username and password.
+Copy over [vars.tock.yml](../egress_proxy/tock.vars.yml) and configure it for your application. Use `uuidgen` for the username and password. Also copy over the [manifest.yml](../egress_proxy/manifest.yml). Finally, push the egress application to your space.
 
-```
-proxyname:  staging-egress
-hostname:   tock-staging-egress
-username:   (generated)
-password:   (generated)
-
-# See [the docs]() for more about what can appear below
-proxydeny:
-proxyallow: |
-  uaa.fr.cloud.gov
-  google-analytics.com
-```
-
-Open `manifest.yml` and change the instances to 1:
-
-```bash
-    instances: 1
-```
-
-Push the egress application to your space
 ```bash
 cf target -s staging-egress
-cf push --vars-file vars.tock.yml
+cf push --vars-file tock.vars.yml
 ```
 
 SSH into the proxy to make sure that it is running and restricting URLs as advertised.

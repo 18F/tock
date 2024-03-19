@@ -1,0 +1,20 @@
+---
+version: 1
+applications:
+  - name: ((proxyname))
+    path: proxy
+    stack: cflinuxfs4
+    buildpacks:
+      - binary_buildpack
+    routes:
+      - route: ((hostname)).apps.internal
+    health-check-type: process
+    instances: 1
+    memory: 64M
+    command: ./caddy run --config Caddyfile
+    env:
+      PROXY_USERNAME: ((username))
+      PROXY_PASSWORD: ((password))
+      PROXY_DENY: ((proxydeny))
+      PROXY_ALLOW: ((proxyallow))
+      PROXY_PORTS: "443 61443"
