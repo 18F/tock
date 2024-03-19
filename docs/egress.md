@@ -39,7 +39,7 @@ Copy over [vars.tock.yml](../egress_proxy/tock.vars.yml) and configure it for yo
 
 ```bash
 cf target -s staging-egress
-cf push --vars-file vars.tock.yml
+cf push --vars-file tock.vars.yml
 ```
 
 SSH into the proxy to make sure that it is running and restricting URLs as advertised.
