@@ -5,7 +5,7 @@ beforeAll(async () => {
   await page.type('input[name="email"]', "admin.user@gsa.gov");
   await page.keyboard.press("Enter");
   await page.waitForNavigation();
-  await expect(page).toMatch("Tock your time");
+  await expect(page).toMatchTextContent("Tock your time");
 }, 100000);
 
 beforeEach(async () => page.goto(baseUrl));
@@ -13,7 +13,7 @@ beforeEach(async () => page.goto(baseUrl));
 describe("Login", () => {
   test('should have path of "/" after login', async () => {
     await expect(page.url()).toEqual(baseUrl + "/");
-    await expect(page).toMatch("Tock your time");
+    await expect(page).toMatchTextContent("Tock your time");
   });
 });
 
