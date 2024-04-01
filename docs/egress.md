@@ -64,7 +64,7 @@ Once that looks good, you will need to set the proxy environment variable on Toc
 cf target -s tock-staging
 
 # enable tock staging to talk to the egress server
-cf add-network-policy tock-staging staging-egress -s staging-egress
+cf add-network-policy tock-staging staging-egress -s staging-egress --protocol tcp --port 61443
 
 # provide an environment variable with the egress_proxy path
 cf set-env tock-staging egress_proxy https://<username>:<password>@<egress-host>.apps.internal:61443
