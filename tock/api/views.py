@@ -138,6 +138,8 @@ class FullTimecardSerializer(serializers.ModelSerializer):
             'non_billable_hours',
             'excluded_hours',
             'utilization',
+            'total_weekly_allocation',
+            'total_allocation_hours',
             # fields from other models
             'user_name',
             'reporting_period_start_date',
