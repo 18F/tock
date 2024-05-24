@@ -10,7 +10,7 @@ LAYOUT_LEFT_RIGHT()
 title Tock typical network interactions
 
 note as EncryptionNote
-All connections depicted are encrypted with TLS 1.2 unless otherwise noted.
+All connections depicted are encrypted with TLS 1.2 or higher unless otherwise noted.
 end note
 
 Boundary(awsgov, "AWS GovCloud") {
