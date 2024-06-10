@@ -147,6 +147,7 @@ DEFAULT_EXPECTED_PROJECT_ALLOCATION = 1.00
 PROJECT_ALLOCATION_CHOICES = (
     (0, "---"),
     (1.0, "100%"),
+    (0.75, "75%"),
     (0.5, "50%"),
     (0.25, "25%"),
     (0.125, "12.5%")
