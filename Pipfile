@@ -22,7 +22,7 @@ plotly = "*"
 pandas = "*"
 pyjwt = "~=2.4"
 django-csp = "*"
-setuptools = "==68.1.0"
+setuptools = "==70.0.0"
 
 [dev-packages]
 bandit = "*"
