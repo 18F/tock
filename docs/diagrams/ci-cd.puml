@@ -1,5 +1,5 @@
 @startuml
-!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/puml/source/diagrams/ssp.puml
+!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/main/source/diagrams/ssp.puml
 !include ./styles.puml
 
 title Tock CI/CD Network Interactions
