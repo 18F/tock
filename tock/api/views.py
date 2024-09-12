@@ -4,7 +4,6 @@ import datetime
 from django.contrib.auth import get_user_model
 from django.db import connection
 from django.db.models import Count, F
-from django.utils.html import escape
 
 from rest_framework import serializers, generics
 from rest_framework.exceptions import ParseError
