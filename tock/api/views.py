@@ -257,9 +257,7 @@ def date_from_iso_format(date_str):
         return datetime.date.fromisoformat(date_str)
     except ValueError:
         raise ParseError(
-            detail='Invalid date format. Got {}, expected ISO format (YYYY-MM-DD)'.format(
-                escape(date_str)
-            )
+            detail='Invalid date format. Expected ISO format (YYYY-MM-DD)'
         )
 
 def filter_timecards(queryset, params={}):
