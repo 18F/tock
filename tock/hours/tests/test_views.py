@@ -919,7 +919,7 @@ class ReportTests(WebTest):
             expect_errors=True
         )
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json['detail'], 'Invalid date format. Got &quot;&gt;&lt;fish&gt;, expected ISO format (YYYY-MM-DD)')
+        self.assertEqual(response.json['detail'], 'Invalid date format. Expected ISO format (YYYY-MM-DD)')
 
     def test_ReportingPeriodDetailView_add_submitted_time(self):
         """
