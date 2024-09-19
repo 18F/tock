@@ -80,6 +80,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'tock.middleware.AutoLogout',
+    'tock.middleware.NoCacheMiddleware'
 ]
 
 AUTHENTICATION_BACKENDS = (
