@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib import auth
+from django.utils.cache import add_never_cache_headers
 
 
 class AutoLogout(object):
@@ -41,8 +42,5 @@ class NoCacheMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
-        response['Cache-Control'] = 'no-store'
-        response['Pragma'] = 'no-cache'
-        response['Expires'] = '0'
+        add_never_cache_headers(response)
         return response
