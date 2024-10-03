@@ -6,7 +6,7 @@
 
 Download the Cloud Foundry CLI according to the [cloud.gov instructions][].
 
-[cloud.gov instructions]: https://docs.cloud.gov/getting-started/setup/
+[cloud.gov instructions]: https://cloud.gov/docs/getting-started/setup/#set-up-the-command-line
 
 We use the V7 Cloud Foundry CLI. If you're upgrading from V6, checkout [the CLI docs for instructions](https://github.com/cloudfoundry/cli).
 
