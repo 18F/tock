@@ -9,6 +9,7 @@
 - [Deployment process](deployment-process.md)
 - [Developer onboarding](onboarding.md)
 - [Developer offboarding](offboarding.md)
+- [Egress filtering](egress.md)
 - [Google Script Integration](google-script-integration.md)
 - [Logging](logging.md)
 - [Backup and Restore Database](backup-and-restore-database.md)
