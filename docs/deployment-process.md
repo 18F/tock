@@ -17,10 +17,10 @@ Tock will be deployed to the GovCloud instance of cloud.gov:
 cf login -a api.fr.cloud.gov --sso
 ```
 
-After authenticating, you'll need to target the org and space you want to work with. For example, if you wanted to work with the dev space:
+After authenticating, you'll need to target the org and space you want to work with. For example, if you wanted to work with the staging space:
 
 ```
-cf target -o gsa-18f-tock -s dev
+cf target -o gsa-18f-tock -s staging
 ```
 
 Manifest files, which contain import deploy configuration settings, are located
