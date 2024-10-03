@@ -35,12 +35,16 @@ and production dependencies.
 
 - cloud.gov environment: `GovCloud`
 - Organization: `gsa-18f-tock`
-- Spaces: `staging`, `prod`
+- Spaces: `staging`, `staging-egress`, `prod`, `prod-egress`
 - Apps:
   - `staging` space:
     - `tock-staging`
+  - `staging-egress` space:
+    - `staging-egress`
   - `prod` space:
     - `tock`
+  - `prod-egress` space:
+    - `production-egress`
 - Routes:
   - tock.app.cloud.gov -> `staging` space, `tock-staging` app
   - tock.18f.gov -> `prod` space, `tock` app
