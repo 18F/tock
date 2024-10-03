@@ -52,7 +52,7 @@ and production dependencies.
 #### Cloud Foundry environment variables
 
 In production, Tock requires a few different environment variables. These are
-updated using the [User Provided Service](#user-provided-service) and
+updated using the [User Provided Service](#user-provided-service-ups) and
 configured in the `manifest-*.yaml`.
 
 | type | name | description |
