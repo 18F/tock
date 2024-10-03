@@ -67,16 +67,15 @@ configured in the `manifest-*.yaml`.
 | **public** | `NEW_RELIC_ENV` | The application environment that appears in the New Relic interface. |
 | **public** | `NEW_RELIC_LOG` | Logging that New Relic should listen to: e.g. `stdout`. |
 
-Variables with the designation **secret** are stored in the `tock-credentials`.
-User-Provided Service (UPS). **Public** variables are stored in the
-environment's `manifest-*.yml` file.
+Variables with the designation **secret** are stored in the `tock-credentials` User-Provided Service (UPS).
+**Public** variables are stored in the environment's `manifest-*.yml` file.
 
 ### Services
 
 #### User-provided service (UPS)
 
-For cloud.gov deployments, this project makes use of a [user-provided service (UPS)][UPS] to get its configuration
-variables, instead of using the local environment (except for [New Relic-related environment variables](#new-relic-environment-variables)).
+For cloud.gov deployments, this project makes use of a [user-provided service (UPS)][UPS] to get its sensitive configuration
+variables. It uses the local environment only for some [New Relic-related environment variables](#new-relic-environment-variables).
 
 You will need to create a UPS called `tock-credentials`, provide 'credentials' to it, and link it to the
 application instance. Please note that you'll need to do this for every Cloud Foundry `space`.
