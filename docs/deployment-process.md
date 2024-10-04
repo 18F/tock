@@ -65,6 +65,7 @@ configured in the `manifest-*.yaml`.
 | **public** | `NEW_RELIC_CONFIG_FILE` | The New Relic configuration file used by the `newrelic-admin` commands and New Relic libraries. |
 | **public** | `NEW_RELIC_APP_NAME` | The application name that appears in the New Relic interface. Changing this will change will cause New Relic data to be gathered under a different application name. |
 | **public** | `NEW_RELIC_ENV` | The application environment that appears in the New Relic interface. |
+| **public** | `NEW_RELIC_HOST` | The New Relic endpoint used to collect APM data from the Python agent. Per [New Relic documentation](https://docs.newrelic.com/docs/security/security-privacy/compliance/fedramp-compliant-endpoints/#apm-endpoints), the default endpoint will not ensure FedRAMP compliance. |
 | **public** | `NEW_RELIC_LOG` | Logging that New Relic should listen to: e.g. `stdout`. |
 
 Variables with the designation **secret** are stored in the `tock-credentials` User-Provided Service (UPS).

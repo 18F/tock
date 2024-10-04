@@ -13,6 +13,7 @@ applications:
     NEW_RELIC_APP_NAME: Tock (Production)
     NEW_RELIC_CONFIG_FILE: /home/vcap/app/newrelic.ini
     NEW_RELIC_ENV: production
+    NEW_RELIC_HOST: gov-collector.newrelic.com
     NEW_RELIC_LOG: stdout
     NEW_RELIC_CA_BUNDLE_PATH: /etc/ssl/certs
     REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
