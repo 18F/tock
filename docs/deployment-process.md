@@ -6,7 +6,7 @@
 
 Download the Cloud Foundry CLI according to the [cloud.gov instructions][].
 
-[cloud.gov instructions]: https://docs.cloud.gov/getting-started/setup/
+[cloud.gov instructions]: https://cloud.gov/docs/getting-started/setup/#set-up-the-command-line
 
 We use the V7 Cloud Foundry CLI. If you're upgrading from V6, checkout [the CLI docs for instructions](https://github.com/cloudfoundry/cli).
 
@@ -17,10 +17,10 @@ Tock will be deployed to the GovCloud instance of cloud.gov:
 cf login -a api.fr.cloud.gov --sso
 ```
 
-After authenticating, you'll need to target the org and space you want to work with. For example, if you wanted to work with the dev space:
+After authenticating, you'll need to target the org and space you want to work with. For example, if you wanted to work with the staging space:
 
 ```
-cf target -o gsa-18f-tock -s dev
+cf target -o gsa-18f-tock -s staging
 ```
 
 Manifest files, which contain import deploy configuration settings, are located
@@ -35,12 +35,16 @@ and production dependencies.
 
 - cloud.gov environment: `GovCloud`
 - Organization: `gsa-18f-tock`
-- Spaces: `staging`, `prod`
+- Spaces: `staging`, `staging-egress`, `prod`, `prod-egress`
 - Apps:
   - `staging` space:
     - `tock-staging`
+  - `staging-egress` space:
+    - `staging-egress`
   - `prod` space:
     - `tock`
+  - `prod-egress` space:
+    - `production-egress`
 - Routes:
   - tock.app.cloud.gov -> `staging` space, `tock-staging` app
   - tock.18f.gov -> `prod` space, `tock` app
@@ -48,7 +52,7 @@ and production dependencies.
 #### Cloud Foundry environment variables
 
 In production, Tock requires a few different environment variables. These are
-updated using the [User Provided Service](#user-provided-service) and
+updated using the [User Provided Service](#user-provided-service-ups) and
 configured in the `manifest-*.yaml`.
 
 | type | name | description |
@@ -63,16 +67,15 @@ configured in the `manifest-*.yaml`.
 | **public** | `NEW_RELIC_ENV` | The application environment that appears in the New Relic interface. |
 | **public** | `NEW_RELIC_LOG` | Logging that New Relic should listen to: e.g. `stdout`. |
 
-Variables with the designation **secret** are stored in the `tock-credentials`.
-User-Provided Service (UPS). **Public** variables are stored in the
-environment's `manifest-*.yml` file.
+Variables with the designation **secret** are stored in the `tock-credentials` User-Provided Service (UPS).
+**Public** variables are stored in the environment's `manifest-*.yml` file.
 
 ### Services
 
 #### User-provided service (UPS)
 
-For cloud.gov deployments, this project makes use of a [user-provided service (UPS)][UPS] to get its configuration
-variables, instead of using the local environment (except for [New Relic-related environment variables](#new-relic-environment-variables)).
+For cloud.gov deployments, this project makes use of a [user-provided service (UPS)][UPS] to get its sensitive configuration
+variables. It uses the local environment only for some [New Relic-related environment variables](#new-relic-environment-variables).
 
 You will need to create a UPS called `tock-credentials`, provide 'credentials' to it, and link it to the
 application instance. Please note that you'll need to do this for every Cloud Foundry `space`.
