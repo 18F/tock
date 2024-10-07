@@ -8,4 +8,5 @@ proxyallow: |
   uaa.fr.cloud.gov
   google-analytics.com
   api.newrelic.com
+  gov-collector.newrelic.com
   *.apps.internal
