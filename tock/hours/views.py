@@ -386,7 +386,7 @@ class ReportingPeriodListView(PermissionMixin, ListView):
 
         context['uncompleted_reporting_periods'] = sorted(list(chain(
             unstarted_reporting_periods, unfinished_reporting_periods)),
-            key=attrgetter('start_date'), reverse=True)
+            key=attrgetter('start_date'), reverse=False)
 
         context['today'] = dt.datetime.utcnow().date()
 
