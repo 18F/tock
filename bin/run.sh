@@ -42,10 +42,9 @@ DEPLOYMENT_DESCRIPTION="Recording deployment of ${VERSION}."
 echo "${DEPLOYMENT_DESCRIPTION}"
 
 # Record deployment using the New Relic Python Admin CLI.
-# NOTES:
-# 1. New Relic wants its own proxy environment variable
-# 2. Specify a host value specific to record-deploy execution, since that command is incompatible with the FedRAMP compliant collector host value
-if NEW_RELIC_PROXY_HOST=$https_proxy NEW_RELIC_HOST=$NEW_RELIC_ADMIN_HOST newrelic-admin record-deploy "${NEW_RELIC_CONFIG_FILE}" "${DEPLOYMENT_DESCRIPTION}"
+# Specify a NEW_RELIC_HOST value specific to record-deploy execution, since that command is incompatible
+# with the FedRAMP compliant NEW_RELIC_HOST value that we want to run the agent with.
+if NEW_RELIC_HOST=$NEW_RELIC_ADMIN_HOST newrelic-admin record-deploy "${NEW_RELIC_CONFIG_FILE}" "${DEPLOYMENT_DESCRIPTION}"
 then
   echo "New Relic deployment recorded successfully."
 else
