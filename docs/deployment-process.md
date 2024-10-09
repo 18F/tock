@@ -51,9 +51,9 @@ and production dependencies.
 
 #### Cloud Foundry environment variables
 
-In production, Tock requires a few different environment variables. These are
-updated using the [User Provided Service](#user-provided-service-ups) and
-configured in the `manifest-*.yaml`.
+In production, Tock requires a few different environment variables. These values are
+updated using the [User Provided Service](#user-provided-service-ups),
+configured in the `manifest-*.yaml`, or set manually during [egress proxy setup](egress.md).
 
 | type | name | description |
 | ---- | -----| ----------- |
@@ -67,9 +67,14 @@ configured in the `manifest-*.yaml`.
 | **public** | `NEW_RELIC_ENV` | The application environment that appears in the New Relic interface. |
 | **public** | `NEW_RELIC_HOST` | The New Relic endpoint used to collect APM data from the Python agent. Per [New Relic documentation](https://docs.newrelic.com/docs/security/security-privacy/compliance/fedramp-compliant-endpoints/#apm-endpoints), the default endpoint will not ensure FedRAMP compliance. |
 | **public** | `NEW_RELIC_LOG` | Logging that New Relic should listen to: e.g. `stdout`. |
+| **egress** | `egress_proxy` | The URL of the egress proxy used to filter external network traffic. Set manually during egress proxy setup. |
+| **egress** | `http_proxy` | Set to the value of `egress_proxy`. Used to filter HTTP traffic. |
+| **egress** | `https_proxy` | Set to the value of `egress_proxy`. Used to filter HTTPS traffic. |
+| **egress** | `NEW_RELIC_PROXY_HOST` | Set to the value of `egress_proxy`. Specifies the proxy URL for the New Relic Python agent and admin tool. |
 
 Variables with the designation **secret** are stored in the `tock-credentials` User-Provided Service (UPS).
 **Public** variables are stored in the environment's `manifest-*.yml` file.
+Variables marked **egress** are set based on manual configuration during [egress proxy setup](egress.md).
 
 ### Services
 
