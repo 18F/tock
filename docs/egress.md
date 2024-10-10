@@ -68,6 +68,8 @@ Copy these files from from your local `tock` repo into your `cf-egress-proxy` re
 1. [tock.vars.yml](../egress_proxy/tock.vars.yml)
 2. [manifest.yml](../egress_proxy/manifest.yml)
 
+Delete the code comments from `tock.vars.yml`.
+
 #### Set username and password
 
 In your `cf-egress-proxy` repo, manually set the `username` and `password` values in `tock.vars.yml`.
@@ -82,6 +84,7 @@ Retrieve the existing proxy username and password from the deployed egress proxy
 
 ```bash
 cf env staging-egress | grep PROXY_USERNAME
+cf env staging-egress | grep PROXY_PASSWORD
 ```
 
 Paste each value into the vars file for the appropriate key.
