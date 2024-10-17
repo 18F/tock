@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = ">=3.2.19"
+django = "~=4.2"
 dj-database-url = "*"
 gevent = "*"
 gunicorn = "*"
@@ -14,7 +14,7 @@ djangorestframework-csv = "*"
 bleach = "*"
 newrelic = "*"
 cfenv = "*"
-cg-django-uaa = "~=2.1.4"
+cg-django-uaa = "~=2.1.5"
 psycopg2-binary = ">=2.9.3"
 markdown = "*"
 django-webtest = "~=1.9"
