@@ -208,7 +208,7 @@ class TestAdmin(ProtectedViewTestCase, WebTest):
         weekly_billed_project = projects.models.Project.objects.get(name='Weekly Billing')
         url = reverse('admin:hours_timecard_add')
         res = self.app.get(url, user=self.user)
-        form = res.form
+        form = res.forms["timecard_form"]
         form["user"] = self.user.id
         form["reporting_period"] = self.reporting_period3.id
         form["timecardobjects-0-project"] = weekly_billed_project.id
@@ -227,7 +227,7 @@ class TestAdmin(ProtectedViewTestCase, WebTest):
         )
 
         # save a timecard with project allocation set.
-        form = self.app.get(change_url, user=self.user).form
+        form = self.app.get(change_url, user=self.user).forms["timecard_form"]
         form["timecardobjects-0-project"] = weekly_billed_project.id
         form["timecardobjects-0-hours_spent"] = ''
         form["timecardobjects-0-project_allocation"] = "1.0"
@@ -235,5 +235,5 @@ class TestAdmin(ProtectedViewTestCase, WebTest):
 
         # now visit the change page and make sure that 100% is selected
         change_page = self.app.get(change_url, user=self.user)
-        form = change_page.form
+        form = change_page.forms["timecard_form"]
         self.assertEqual(form["timecardobjects-0-project_allocation"].value, "1.0")
