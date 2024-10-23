@@ -16,7 +16,7 @@ module.exports = {
 
     // When running outside Docker, set `headless: false` to show the browser while tests run.
     devtools: false,
-    headless: true,
+    headless: 'shell', // see: https://github.com/puppeteer/puppeteer/issues/10091#issuecomment-2273275094
   },
   browserContext: "incognito",
 };
