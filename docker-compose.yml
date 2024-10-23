@@ -28,7 +28,7 @@ services:
       - POSTGRES_PASSWORD=tock_password
 
   gulp:
-    image: node:16.15.0
+    image: node:23.0.0
     volumes:
       - .:/tock
       - /tock/node_modules
