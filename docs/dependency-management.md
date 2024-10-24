@@ -14,10 +14,10 @@ With pipenv installed locally, you can update development and production depende
 pipenv update --dev
 ```
 
-Within the `app` docker container, the approach is slightly different due to the volumes and working_dir set in `docker-compose.yml`.
+Within the `application` docker container, the approach is slightly different due to the volumes and working_dir set in `docker-compose.yml`.
 
 ```sh
-docker-compose run app bash
+docker-compose run application bash
 $ pipenv update --dev
 $ cp ../Pipfile.lock ./Pipfile.lock
 # Exit docker container

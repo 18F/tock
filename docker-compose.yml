@@ -1,6 +1,6 @@
 version: "3.0"
 services:
-  app:
+  application:
     build: .
     volumes:
       - ./tock:/tock
@@ -40,11 +40,11 @@ services:
       context: .
       dockerfile: Dockerfile-tests
     links:
-      - app
+      - application
     volumes:
       - .:/home/circleci/project
       - /home/circleci/project/node_modules
     environment: 
       IS_DOCKER: "true"
-      TOCK_URL: "http://app:8000"
+      TOCK_URL: "http://application:8000"
     command: /bin/true
