@@ -26,6 +26,8 @@ services:
       - POSTGRES_DB=tock
       - POSTGRES_USER=tock_user
       - POSTGRES_PASSWORD=tock_password
+    ports:
+      - "5432:5432"
 
   gulp:
     image: node:23.0.0
