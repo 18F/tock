@@ -4,7 +4,7 @@
     "build-css": "sass --source-map --load-path ./node_modules/uswds/src/stylesheets tock/tock/static/sass:tock/tock/static/css/dist",
     "build-uswds-css": "npx gulp init-no-sass",
     "watch-css": "npm run build-css -- --watch",
-    "prestart": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1 npm install --quiet --no-save",
+    "prestart": "PUPPETEER_SKIP_DOWNLOAD=true npm install --quiet --no-save",
     "start-gulp": "npm run prestart && npx gulp init-no-sass && npx gulp watch",
     "start": "npm run build-css && npm run watch-css",
     "test": "JEST_PORT=8000 jest"
@@ -30,7 +30,7 @@
     "node-notifier": "^10.0.0",
     "postcss": "^8.4.31",
     "postcss-csso": "^5.0.1",
-    "puppeteer": "^19.0.0",
+    "puppeteer": "^23.6.0",
     "sass": "^1.47.0",
     "uswds": "^2.13.0"
   }

@@ -1,5 +1,5 @@
 // These arguments are what jest-puppeteer specifies when running in CI
-// (see https://github.com/smooth-code/jest-puppeteer/blob/master/packages/jest-environment-puppeteer/src/readConfig.js#L14-L24)
+// (see https://github.com/argos-ci/jest-puppeteer/blob/main/packages/jest-environment-puppeteer/src/config.ts#L55-L63)
 const DOCKER_LAUNCH_ARGS = [
   "--no-sandbox",
   "--disable-setuid-sandbox",
@@ -16,7 +16,7 @@ module.exports = {
 
     // When running outside Docker, set `headless: false` to show the browser while tests run.
     devtools: false,
-    headless: true,
+    headless: 'shell', // see: https://github.com/puppeteer/puppeteer/issues/10091#issuecomment-2273275094
   },
   browserContext: "incognito",
 };

@@ -14,9 +14,9 @@
 
   ```shell
   docker-compose build
-  docker-compose run app python manage.py migrate
-  docker-compose run app python manage.py loaddata test_data/data-update-deduped.json
-  docker-compose run app \
+  docker-compose run application python manage.py migrate
+  docker-compose run application python manage.py loaddata test_data/data-update-deduped.json
+  docker-compose run application \
     python manage.py \
         createsuperuser \
         --username admin.user \
@@ -48,20 +48,20 @@ security-focused linter.
 
 To run these tools locally, run:
 ```sh
-docker-compose run app bandit -r . -x manage.py,docker_entrypoint.py
-docker-compose run app flake8
+docker-compose run application bandit -r . -x manage.py,docker_entrypoint.py
+docker-compose run application flake8
 ```
 
-### Accessing the app container
+### Accessing the application container
 
 You'll likely want to run `manage.py` to do other things at some point.
 To do this, it's probably easiest to run:
 
 ```
-docker-compose run app bash
+docker-compose run application bash
 ```
 
-This will run an interactive bash session inside the main app container.
+This will run an interactive bash session inside the main application container.
 In this container, the `/tock` directory is mapped to the `tock`
 directory of the repository on your host; you can run `manage.py` from there.
 
@@ -92,7 +92,7 @@ The easiest, most reliable way to test locally is from within the docker contain
 which lets you access `manage.py`:
 
 ```
-docker-compose run app bash
+docker-compose run application bash
 python manage.py test
 ```
 
