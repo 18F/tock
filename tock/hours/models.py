@@ -551,6 +551,11 @@ class TimecardObject(models.Model):
     class Meta:
         unique_together = ('timecard', 'project')
 
+    def clean(self):
+        if not self.hours_spent:
+            if not self.project_allocation:
+                raise ValidationError('Hours spent or project allocation must be non-zero!')        
+
     def project_alerts(self):
         return self.project.alerts.all()
 
