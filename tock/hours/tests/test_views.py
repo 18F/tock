@@ -511,6 +511,9 @@ class ReportTests(WebTest):
         org_coe = Organization.objects.create(name='CoE')
         org_coe.save()
 
+        org_other = Organization.objects.create(name='Other')
+        org_other.save()
+
         accounting_code = AccountingCode.objects.get(pk=1)
 
         project_18f = Project.objects.create(
@@ -526,6 +529,13 @@ class ReportTests(WebTest):
             organization=org_coe
         )
         project_coe.save()
+
+        project_other = Project.objects.create(
+            name='a project with a non-18F/CoE org',
+            accounting_code=accounting_code,
+            organization=org_other
+        )
+        project_other.save()
 
         project_none = Project.objects.create(
             name='a project with no org assignment',
@@ -553,6 +563,7 @@ class ReportTests(WebTest):
 
         project_18f_found = False
         project_coe_found = False
+        project_other_found = False
         project_none_found = False
         str_formset = str(response.context['formset']).split('\n')
         for line in str_formset:
@@ -560,11 +571,15 @@ class ReportTests(WebTest):
                 project_18f_found = True
             if line.find(f'option value="{project_coe.id}"') > 0:
                 project_coe_found = True
+            if line.find(f'option value="{project_other.id}"') > 0:
+                project_other_found = True
             if line.find(f'option value="{project_none.id}"') > 0:
                 project_none_found = True
 
         self.assertTrue(project_18f_found)
-        self.assertFalse(project_coe_found)
+        # special cased to now show CoE projects too!!
+        self.assertTrue(project_coe_found)
+        self.assertFalse(project_other_found)
         self.assertTrue(project_none_found)
 
     def test_holiday_prefill(self):

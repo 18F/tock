@@ -31,7 +31,7 @@ from .forms import (ReportingPeriodForm, ReportingPeriodImportForm,
                     TimecardForm, TimecardFormSet, projects_as_choices,
                     timecard_formset_factory)
 from .models import (Project, ReportingPeriod, Timecard, TimecardNote,
-                     TimecardObject, TimecardPrefillData)
+                     TimecardObject, TimecardPrefillData, Organization)
 
 
 class BulkTimecardSerializer(serializers.Serializer):
@@ -496,6 +496,17 @@ class TimecardView(PermissionMixin, UpdateView):
         # already-generated choices. Ideally we should be passing these
         # into the formset constructor.
         projects = reporting_period.get_projects().filter(Q(organization=self.request.user.user_data.organization) | Q(organization=None))
+
+        # 18F and CoE need to see each others projects
+        special_orgs = Organization.objects.filter(Q(name="18F") | Q(name="CoE"))
+        if (self.request.user.user_data.organization in special_orgs):
+            # special case: for users in the 18F or CoE organizations, show
+            # projects for both organizations
+            projects = reporting_period.get_projects().filter(
+                Q(organization__in=special_orgs)
+                | Q(organization=None)
+            )
+
         choices = projects_as_choices(projects)
 
         for form in formset.forms:
