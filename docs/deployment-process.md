@@ -6,7 +6,7 @@
 
 Download the Cloud Foundry CLI according to the [cloud.gov instructions][].
 
-[cloud.gov instructions]: https://docs.cloud.gov/getting-started/setup/
+[cloud.gov instructions]: https://cloud.gov/docs/getting-started/setup/#set-up-the-command-line
 
 We use the V7 Cloud Foundry CLI. If you're upgrading from V6, checkout [the CLI docs for instructions](https://github.com/cloudfoundry/cli).
 
@@ -17,10 +17,10 @@ Tock will be deployed to the GovCloud instance of cloud.gov:
 cf login -a api.fr.cloud.gov --sso
 ```
 
-After authenticating, you'll need to target the org and space you want to work with. For example, if you wanted to work with the dev space:
+After authenticating, you'll need to target the org and space you want to work with. For example, if you wanted to work with the staging space:
 
 ```
-cf target -o gsa-18f-tock -s dev
+cf target -o gsa-18f-tock -s staging
 ```
 
 Manifest files, which contain import deploy configuration settings, are located
@@ -35,21 +35,25 @@ and production dependencies.
 
 - cloud.gov environment: `GovCloud`
 - Organization: `gsa-18f-tock`
-- Spaces: `staging`, `prod`
+- Spaces: `staging`, `staging-egress`, `prod`, `prod-egress`
 - Apps:
   - `staging` space:
     - `tock-staging`
+  - `staging-egress` space:
+    - `staging-egress`
   - `prod` space:
     - `tock`
+  - `prod-egress` space:
+    - `production-egress`
 - Routes:
   - tock.app.cloud.gov -> `staging` space, `tock-staging` app
   - tock.18f.gov -> `prod` space, `tock` app
 
 #### Cloud Foundry environment variables
 
-In production, Tock requires a few different environment variables. These are
-updated using the [User Provided Service](#user-provided-service) and
-configured in the `manifest-*.yaml`.
+In production, Tock requires a few different environment variables. These values are
+updated using the [User Provided Service](#user-provided-service-ups),
+configured in the `manifest-*.yaml`, or set manually during [egress proxy setup](egress.md).
 
 | type | name | description |
 | ---- | -----| ----------- |
@@ -61,18 +65,23 @@ configured in the `manifest-*.yaml`.
 | **public** | `NEW_RELIC_CONFIG_FILE` | The New Relic configuration file used by the `newrelic-admin` commands and New Relic libraries. |
 | **public** | `NEW_RELIC_APP_NAME` | The application name that appears in the New Relic interface. Changing this will change will cause New Relic data to be gathered under a different application name. |
 | **public** | `NEW_RELIC_ENV` | The application environment that appears in the New Relic interface. |
+| **public** | `NEW_RELIC_HOST` | The New Relic endpoint used to collect APM data from the Python agent. Per [New Relic documentation](https://docs.newrelic.com/docs/security/security-privacy/compliance/fedramp-compliant-endpoints/#apm-endpoints), the default endpoint will not ensure FedRAMP compliance. |
 | **public** | `NEW_RELIC_LOG` | Logging that New Relic should listen to: e.g. `stdout`. |
+| **egress** | `egress_proxy` | The URL of the egress proxy used to filter external network traffic. Set manually during egress proxy setup. |
+| **egress** | `http_proxy` | Set to the value of `egress_proxy`. Used to filter HTTP traffic. |
+| **egress** | `https_proxy` | Set to the value of `egress_proxy`. Used to filter HTTPS traffic. |
+| **egress** | `NEW_RELIC_PROXY_HOST` | Set to the value of `egress_proxy`. Specifies the proxy URL for the New Relic Python agent and admin tool. |
 
-Variables with the designation **secret** are stored in the `tock-credentials`.
-User-Provided Service (UPS). **Public** variables are stored in the
-environment's `manifest-*.yml` file.
+Variables with the designation **secret** are stored in the `tock-credentials` User-Provided Service (UPS).
+**Public** variables are stored in the environment's `manifest-*.yml` file.
+Variables marked **egress** are set based on manual configuration during [egress proxy setup](egress.md).
 
 ### Services
 
 #### User-provided service (UPS)
 
-For cloud.gov deployments, this project makes use of a [user-provided service (UPS)][UPS] to get its configuration
-variables, instead of using the local environment (except for [New Relic-related environment variables](#new-relic-environment-variables)).
+For cloud.gov deployments, this project makes use of a [user-provided service (UPS)][UPS] to get its sensitive configuration
+variables. It uses the local environment only for some [New Relic-related environment variables](#new-relic-environment-variables).
 
 You will need to create a UPS called `tock-credentials`, provide 'credentials' to it, and link it to the
 application instance. Please note that you'll need to do this for every Cloud Foundry `space`.
@@ -121,6 +130,15 @@ cloud.gov UAA application for its users.
 Tock uses the cloud.gov service account service to provide deployer accounts for
 staging and production environments.
 
+### New Relic configuration
+
+Basic New Relic configuration is done in [newrelic.ini](../newrelic.ini), with additional settings
+specified via environment variables in each deployment environment's manifest file.
+
+As described in [Environment variables](#cloud-foundry-environment-variables), you will need
+to supply the `NEW_RELIC_LICENSE_KEY` as part of each deployment's
+[user-provided service](#user-provided-service-ups).
+
 ### Code review
 
 Submissions to the Tock codebase are made via GitHub, and are only accepted into the main
@@ -145,16 +163,47 @@ and checks on security flaws of Tock's dependencies.
 Tock uses CircleCI to continuously integrate code, deliver the code to staging
 servers, and deploy the latest release to production servers.
 
+#### Job output
+
+For each job in a CircleCI workflow, you can view the output of each step in the CircleCI:
+
+- Navigate to the CircleCI project dashboard for this organization.
+- Click "Projects" in the left nav, then click "tock".
+- On the project page, click the "Workflow" link for the workflow run you're interested in. For a PR build, the workflow is named "build_pull_requests".
+- Click on the job (for example, "build") that you want to view.
+- On the job page, expand the accordion for each step to view its output.
+
+#### Enable verbose logging
+
+To troubleshoot issues within a CircleCI workflow, it may be helpful to configure the project to log more verbose output.
+
+##### Jest and Puppeteer test configuration
+
+In the [jest-puppeteer.config.js](../jest-puppeteer.config.js) file's `module.exports` -> `launch` section:
+
+- Add `'--enable-logging', '--v=1'` to the `args` array
+- To log Chrome driver messages to console, add `dumpio: true`
+
+Within `*.test.js` test files, use `console.log()` calls to output debugging information.
+
+##### CircleCI jobs
+
+In [`.circleci/config.yml`](../.circleci/config.yml), add additional steps to output information about the Docker container environment. For example:
+
+```yml
+# Add this to jobs -> <job name> -> steps
+- run:
+    name: Report Python, Node, and Chrome versions
+    command: |
+      python --version
+      node --version
+      google-chrome --version
+```
+
+#### Update the CircleCI project cache
+
 Occasionally CircleCI builds will fail with an error like: `FileNotFoundError: [Errno 2] No such file or directory: '/home/circleci/project/.venv/bin/python'.` In this case, it is necessary to modify the `CACHE_VERSION` in the Environment Variables section in the CircleCI Tock Project Settings. (The exact value does not matter, just that the value is changed: this will force new cache dependencies to be built.)
 
-### New Relic environment variables
-
-Basic New Relic configuration is done in [newrelic.ini](../newrelic.ini), with
-additional settings specified in each deployment environment's manifest file.
-
-As described in [Environment variables](#cloud-foundry-environment-variables), you will need
-to supply the `NEW_RELIC_LICENSE_KEY` as part of each deployment's
-[user-provided service](#user-provided-service-ups).
 
 ### Staging server
 

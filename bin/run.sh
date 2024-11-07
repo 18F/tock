@@ -41,9 +41,15 @@ DEPLOYMENT_DESCRIPTION="Recording deployment of ${VERSION}."
 
 echo "${DEPLOYMENT_DESCRIPTION}"
 
-# Record deployment using the New Relic Python Admin CLI
-# NOTE: New relic wants its own proxy environment variable
-NEW_RELIC_PROXY_HOST=$https_proxy newrelic-admin record-deploy "${NEW_RELIC_CONFIG_FILE}" "${DEPLOYMENT_DESCRIPTION}"
+# Record deployment using the New Relic Python Admin CLI.
+# Specify a NEW_RELIC_HOST value specific to record-deploy execution, since that command is incompatible
+# with the FedRAMP compliant NEW_RELIC_HOST value that we want to run the agent with.
+if NEW_RELIC_HOST=$NEW_RELIC_ADMIN_HOST newrelic-admin record-deploy "${NEW_RELIC_CONFIG_FILE}" "${DEPLOYMENT_DESCRIPTION}"
+then
+  echo "New Relic deployment recorded successfully."
+else
+  echo "Failed to record New Relic deployment."
+fi
 
 python manage.py collectstatic --settings=tock.settings.production --noinput
 gunicorn -t 120 -k gevent -w 2 tock.wsgi:application

@@ -1,0 +1,11 @@
+proxyname:  staging-egress       # (or production-egress) The name of the proxy
+hostname:   tock-staging-egress  # (or tock-production-egress) hostname for the internal route
+username:   (generated)          # eg output of uuidgen
+password:   (generated)          # eg output of uuidgen
+
+proxydeny:
+proxyallow: |
+  uaa.fr.cloud.gov
+  api.newrelic.com
+  gov-collector.newrelic.com
+  *.apps.internal

@@ -1,5 +1,5 @@
 @startuml
-!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/puml/source/diagrams/ssp.puml
+!include https://raw.githubusercontent.com/cloud-gov/cg-diagrams/main/source/diagrams/ssp.puml
 !include ./styles.puml
 
 hide stereotype
@@ -10,7 +10,7 @@ LAYOUT_LEFT_RIGHT()
 title Tock typical network interactions
 
 note as EncryptionNote
-All connections depicted are encrypted with TLS 1.2 unless otherwise noted.
+All connections depicted are encrypted with TLS 1.2 or higher unless otherwise noted.
 end note
 
 Boundary(awsgov, "AWS GovCloud") {
@@ -25,6 +25,8 @@ Boundary(awsgov, "AWS GovCloud") {
             Boundary(space, "Tock cloud.gov spaces") {
                 System(app, "Production", "tock.18f.gov")
                 System(app_staging, "Staging", "tock.app.cloud.gov", )
+                System(app_egress, "Production egress proxy", "tock-production-egress.internal")
+                System(app_staging_egress, "Staging egress proxy", "tock-staging-egress.internal", )
             }
         }
     }
@@ -33,19 +35,21 @@ Boundary(awsgov, "AWS GovCloud") {
 
 System_Ext(secureauth, "GSA SecureAuth", "proxied by cloud.gov UAA")
 
-Rel(app, cloudgov_services, "read/write (variable)")
+Rel(app_egress, cloudgov_services, "read/write (variable)")
 note on link
   Auth: Password
 end note
 
-Rel(app_staging, cloudgov_services, "read/write (variable)")
+Rel(app_staging_egress, cloudgov_services, "read/write (variable)")
 note on link
   Auth: Password
 end note
 
 ' Logs flow
-Rel(app, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
-Rel(app_staging, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+Rel_D(app, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+Rel_D(app_staging, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+Rel_D(app_egress, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
+Rel_D(app_staging_egress, cloudgov_logdrain, "logs to stdout/stderr", "https (443)")
 
 
 ' User access
@@ -62,8 +66,13 @@ Boundary(gsa_saas, "GSA-authorized SaaS") {
     System_Ext(newrelic, "New Relic", "Monitoring SaaS")
 }
 
-Rel(newrelic, cloudgov_elb, "monitors application", "https GET (443)")
-Rel(app, newrelic, "reports telemetry", "tcp (443)")
+Rel(app, app_egress, "proxy for http/s connections")
+Rel(app_staging, app_staging_egress, "proxy for http/s connections")
+
+Rel_L(newrelic, cloudgov_elb, "monitors application", "https GET (443)")
+Rel_L(app_egress, secureauth, "gets user information via secureauth token", "tcp (443)")
+Rel_L(app_egress, dap, "reports analytics", "tcp (443)")
+Rel_L(app_egress, newrelic, "reports telemetry", "tcp (443)")
 note on link
   Auth: Token
 end note

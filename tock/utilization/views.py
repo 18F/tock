@@ -184,7 +184,7 @@ class UtilizationAnalyticsView(FilteredAnalyticsView, TemplateView):
                 "headcount_data": headcount_data_frame.pivot(
                     index="start_date", values="headcount", columns="organization"
                 )
-                .applymap("{:.0f}".format)
+                .map("{:.0f}".format)
                 .replace("nan", ""),
 
                 # we use mark_safe intentionally here because we trust that
